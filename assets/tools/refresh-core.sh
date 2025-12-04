@@ -6,11 +6,11 @@
 
 mkdir -p dex
 
-directories=("definitions" "extensions")
+directories=("tbc/specs" "tbc/extensions")
 
 {
 echo "=== Root Record ==="
-cat root.md
+cat tbc/root.md
 echo ""
 
 echo "=== TBC System Definitions ==="

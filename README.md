@@ -44,12 +44,12 @@ To instantiate your own Third Brain Companion:
    git init
    ```
 
-2. Copy the definitions:
+2. Copy the assets:
    ```
-   cp -r /path/to/third-brain-companion/definitions ./definitions
+   cp -r /path/to/third-brain-companion/assets ./tbc
    ```
 
-3. Create your root.md file based on the specifications in definitions/20251130163650.md. Example:
+3. Create your tbc/root.md file based on the specifications in tbc/specs/20251130163650.md. Example:
    ```
    ---
    id: root
@@ -66,7 +66,7 @@ To instantiate your own Third Brain Companion:
    - Agent: Your Agent Name
    - Prime User: Your Name
    - Definitions: [core](/dex/core.md)
-     - use [`refresh-core`](/scripts/refresh-core.sh) if not present
+     - use [`refresh-core`](/tbc/tools/refresh-core.sh) if not present
 
    ## Agent Identity
 
@@ -81,19 +81,14 @@ To instantiate your own Third Brain Companion:
    [List of memory records]
    ```
 
-4. Copy the scripts:
+4. (Optional) Add extensions in the `tbc/extensions/` directory following the specifications.
+
+5. Run the refresh script to generate core.md:
    ```
-   cp -r /path/to/third-brain-companion/scripts ./scripts
+   ./tbc/tools/refresh-core.sh
    ```
 
-5. (Optional) Add extensions in the `extensions/` directory following the specifications.
-
-6. Run the refresh script to generate core.md:
-   ```
-   ./scripts/refresh-core.sh
-   ```
-
-7. Commit your initial setup:
+6. Commit your initial setup:
    ```
    git add .
    git commit -m "Initial companion setup"
@@ -103,20 +98,20 @@ To instantiate your own Third Brain Companion:
 
 ### For AI Assistants
 
-- At the start of each interaction, gather context by reading root.md and dex/core.md
-- Follow the agent identity and motivations defined in root.md
+- At the start of each interaction, gather context by reading tbc/root.md and dex/core.md
+- Follow the agent identity and motivations defined in tbc/root.md
 - Persist memories at the end of interactions using the vault system
 
 ### For Users
 
 - Use the scripts to refresh indexes:
-  - `./scripts/refresh-core.sh`: Updates core definitions and extensions
-  - `./scripts/refresh-party.sh`: Indexes party records
-  - `./scripts/refresh-goal.sh`: Indexes goal records
-  - `./scripts/refresh-all.sh`: Runs all refresh scripts
+  - `./tbc/tools/refresh-core.sh`: Updates core definitions and extensions
+  - `./tbc/tools/refresh-party.sh`: Indexes party records
+  - `./tbc/tools/refresh-goal.sh`: Indexes goal records
+  - `./tbc/tools/refresh-all.sh`: Runs all refresh scripts
 
-- Create records in the vault/ directory following the schema in definitions/
-- Extend the system by adding specifications in the `extensions/` directory
+- Create records in the vault/ directory following the schema in tbc/specs/
+- Extend the system by adding specifications in the `tbc/extensions/` directory
 
 ## Record Types
 
@@ -128,7 +123,7 @@ To instantiate your own Third Brain Companion:
 
 ## Extensions
 
-The TBC system is designed to be extensible. You can add custom record types, methods, and schemas by placing definition files in the `extensions/` directory. The refresh-core.sh script will include these in the core.md compilation.
+The TBC system is designed to be extensible. You can add custom record types, methods, and schemas by placing definition files in the `tbc/extensions/` directory. The refresh-core.sh script will include these in the core.md compilation.
 
 ## Contributing
 
