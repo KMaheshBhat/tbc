@@ -49,7 +49,12 @@ To instantiate your own Third Brain Companion:
    cp -r /path/to/third-brain-companion/assets ./tbc
    ```
 
-3. Create your tbc/root.md file based on the specifications in tbc/specs/20251130163650.md. Example:
+3. Create the vault directory:
+   ```
+   mkdir vault
+   ```
+
+4. Create your tbc/root.md file based on the specifications in tbc/specs/20251130163650.md. Example:
    ```
    ---
    id: root
@@ -81,14 +86,14 @@ To instantiate your own Third Brain Companion:
    [List of memory records]
    ```
 
-4. (Optional) Add extensions in the `tbc/extensions/` directory following the specifications.
+5. (Optional) Add extensions in the `tbc/extensions/` directory following the specifications.
 
-5. Run the refresh script to generate core.md:
+6. Run the refresh script to generate core.md:
    ```
    ./tbc/tools/refresh-core.sh
    ```
 
-6. Commit your initial setup:
+7. Commit your initial setup:
    ```
    git add .
    git commit -m "Initial companion setup"
