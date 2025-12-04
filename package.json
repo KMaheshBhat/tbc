@@ -1,0 +1,27 @@
+{
+  "name": "tbc-frameworx-monorepo",
+  "version": "0.1.0",
+  "description": "Monorepo for TBC FRAMEWORX",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "cli:dev": "bun run --cwd apps/tbc-cli dev",
+    "cli:install": "bun run --cwd apps/tbc-cli build && cd apps/tbc-cli && npm install -g .",
+    "all:build": "bun run --filter=\"@tbc-frameworx/*\" build",
+    "all:clean": "rm -rf apps/*/dist packages/*/dist",
+    "node_modules:clean": "rm -rf apps/*/node_modules packages/*/node_modules"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "module": "index.ts",
+  "type": "module"
+}
