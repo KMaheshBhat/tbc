@@ -15,8 +15,9 @@ The Third Brain Companion (TBC) system provides a structured way to create and m
 - Portable and technology-agnostic design
 - Git-based storage for versioning and collaboration
 - Extensible through definitions and extensions
-- Support for multiple record types
+- Support for multiple record types (notes, goals, parties, logs, etc.)
 - Automated context gathering and memory persistence
+- Reflection method for maintaining party and goal records
 
 ## Installation
 
@@ -110,9 +111,20 @@ To instantiate your own Third Brain Companion:
 
 - Use the scripts to refresh indexes:
   - `./scripts/refresh-core.sh`: Updates core definitions and extensions
+  - `./scripts/refresh-party.sh`: Indexes party records
+  - `./scripts/refresh-goal.sh`: Indexes goal records
+  - `./scripts/refresh-all.sh`: Runs all refresh scripts
 
 - Create records in the vault/ directory following the schema in definitions/
 - Extend the system by adding specifications in the `extensions/` directory
+
+## Record Types
+
+- **Root**: Main configuration record
+- **Note**: General records
+- **Goal**: Objectives and targets
+- **Party**: Entities involved in interactions
+- **Log**: Action and event logs
 
 ## Extensions
 
