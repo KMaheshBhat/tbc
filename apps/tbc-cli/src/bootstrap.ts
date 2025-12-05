@@ -1,8 +1,7 @@
-// TBC CLI Bootstrap
-// For now, this is a placeholder for future HAMI integration
-// When TBC packages are created, this will register TBC plugins
+import { CorePlugin, HAMIRegistrationManager } from '@hami-frameworx/core';
 
-export async function bootstrap(): Promise<{ /* future: registry */ }> {
-    // TODO: Initialize TBC registry and plugins
-    return {};
+export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }> {
+    const registry = new HAMIRegistrationManager();
+    await registry.registerPlugin(CorePlugin)
+    return { registry };
 }
