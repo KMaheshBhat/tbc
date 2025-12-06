@@ -27,11 +27,36 @@ The Third Brain Companion (TBC) system provides a structured way to create and m
    cd third-brain-companion
    ```
 
-2. Install UUID v7 tool for record creation:
+2. Install dependencies and build:
+   ```
+   bun install
+   bun run all:build
+   bun run cli:install
+   ```
+
+3. (Optional) Install UUID v7 tool for record creation:
    ```
    curl -sS https://webi.sh/uuidv7 | sh
    source ~/.config/envman/PATH.env
    ```
+
+## CLI Tool
+
+The TBC CLI provides commands to validate and manage your companion setup:
+
+```bash
+# Validate current directory is a valid TBC root
+tbc validate
+
+# Validate a specific directory
+tbc validate --root /path/to/companion
+
+# Enable verbose output
+tbc validate --verbose
+
+# Show help
+tbc --help
+```
 
 ## Setup Your Companion
 
@@ -93,7 +118,12 @@ To instantiate your own Third Brain Companion:
    ./tbc/tools/refresh-core.sh
    ```
 
-7. Commit your initial setup:
+7. Validate your setup:
+   ```
+   tbc validate
+   ```
+
+8. Commit your initial setup:
    ```
    git add .
    git commit -m "Initial companion setup"
@@ -109,7 +139,8 @@ To instantiate your own Third Brain Companion:
 
 ### For Users
 
-- Use the scripts to refresh indexes:
+- **Validate your setup**: Use `tbc validate` to ensure your companion directory structure is correct
+- **Use the scripts** to refresh indexes:
   - `./tbc/tools/refresh-core.sh`: Updates core definitions and extensions
   - `./tbc/tools/refresh-party.sh`: Indexes party records
   - `./tbc/tools/refresh-goal.sh`: Indexes goal records

@@ -13,13 +13,16 @@ program
   .name('tbc')
   .description('Third Brain Companion CLI')
   .option('--verbose', 'Enable verbose logging')
+  .option('--root <path>', 'Specify root directory for operations (defaults to current working directory)')
   .version(packageJson.version);
 
-let cmdInspect = new Command('inspect')
-  .description('Inspect current directory to check if it is a valid TBC root')
+let cmdValidate = new Command('validate')
+  .description('Validate current directory to check if it is a valid TBC root')
   .action(async () => {
     try {
-      const isVerbose = !!program.opts().verbose;
+      const cliOpts = program.opts();
+      const isVerbose = !!cliOpts.verbose;
+      const root = cliOpts.root;
       const opts = { verbose: isVerbose };
       const validateFlow = new ValidateFlow({
         verbose: opts.verbose,
@@ -27,14 +30,15 @@ let cmdInspect = new Command('inspect')
       await validateFlow.run({
         registry: registry,
         opts: opts,
+        root: root,
       });
     } catch (error) {
-      console.error('Error during inspection:', error);
+      console.error('Error during validation:', error);
       process.exit(1);
     }
     return;
   });
 
-program.addCommand(cmdInspect);
+program.addCommand(cmdValidate);
 
 program.parse();
