@@ -21,6 +21,8 @@ type TBCFSStorage = {
   rootDirectory?: string;
   /** Whether the directory is a valid TBC root. */
   isValidTBCRoot?: boolean;
+  /** Whether the directory is a git repository. */
+  isGitRepository?: boolean;
   /** Array of validation messages. */
   messages?: string[];
 }

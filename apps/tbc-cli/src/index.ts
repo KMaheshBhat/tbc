@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { ValidateFlow } from './ops/index.js';
+import { ValidateFlow, ProbeFlow } from './ops/index.js';
 
 const { registry } = await bootstrap();
 
@@ -40,5 +40,32 @@ let cmdValidate = new Command('validate')
   });
 
 program.addCommand(cmdValidate);
+
+let cmdProbe = new Command('probe')
+  .description('Probe the environment for TBC CLI and system information')
+  .action(async () => {
+    try {
+      const cliOpts = program.opts();
+      const isVerbose = !!cliOpts.verbose;
+      const root = cliOpts.root;
+      const opts = { verbose: isVerbose };
+      const probeFlow = new ProbeFlow({
+        verbose: opts.verbose,
+      });
+      await probeFlow.run({
+        registry: registry,
+        opts: opts,
+        root: root,
+        app: 'TBC CLI',
+        appVersion: packageJson.version,
+      });
+    } catch (error) {
+      console.error('Error during probe:', error);
+      process.exit(1);
+    }
+    return;
+  });
+
+program.addCommand(cmdProbe);
 
 program.parse();

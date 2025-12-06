@@ -28,6 +28,7 @@ type ValidateNodeInput = {
 
 type ValidateNodeOutput = {
     isValidTBCRoot: boolean;
+    isGitRepository: boolean;
     messages: string[];
 };
 
@@ -88,6 +89,12 @@ export class ValidateNode extends HAMINode<TBCFSStorage, ValidateNodeConfig> {
         messages.push(message);
         verbose && console.log(message);
 
+        const gitDir = join(workingDir, '.git');
+        const gitExists = existsSync(gitDir);
+        message = `.git/ directory: ${gitExists ? '✓ Found' : 'Not found'}`;
+        messages.push(message);
+        verbose && console.log(message);
+
         const isValidTBCRoot = tbcExists && vaultExists;
         if (isValidTBCRoot) {
             message = '✅ This appears to be a valid TBC root directory.';
@@ -102,6 +109,7 @@ export class ValidateNode extends HAMINode<TBCFSStorage, ValidateNodeConfig> {
         verbose && console.log('For more information, see: https://github.com/KMaheshBhat/tbc');
         return {
             isValidTBCRoot,
+            isGitRepository: gitExists,
             messages,
         };
     }
@@ -112,6 +120,7 @@ export class ValidateNode extends HAMINode<TBCFSStorage, ValidateNodeConfig> {
         execRes: ValidateNodeOutput,
     ): Promise<string | undefined> {
         shared.isValidTBCRoot = execRes.isValidTBCRoot;
+        shared.isGitRepository = execRes.isGitRepository;
         shared.messages = execRes.messages;
         return "default";
     }

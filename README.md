@@ -42,16 +42,23 @@ The Third Brain Companion (TBC) system provides a structured way to create and m
 
 ## CLI Tool
 
-The TBC CLI provides commands to validate and manage your companion setup:
+The TBC CLI provides commands to validate, probe, and manage your companion setup:
 
 ```bash
+# Probe environment for TBC CLI and system information
+tbc probe
+
+# Probe a specific directory
+tbc probe --root /path/to/companion
+
 # Validate current directory is a valid TBC root
 tbc validate
 
 # Validate a specific directory
 tbc validate --root /path/to/companion
 
-# Enable verbose output
+# Enable verbose output (works with all commands)
+tbc probe --verbose
 tbc validate --verbose
 
 # Show help
@@ -139,6 +146,7 @@ To instantiate your own Third Brain Companion:
 
 ### For Users
 
+- **Probe your environment**: Use `tbc probe` to see TBC CLI version, system information, and TBC root status
 - **Validate your setup**: Use `tbc validate` to ensure your companion directory structure is correct
 - **Use the scripts** to refresh indexes:
   - `./tbc/tools/refresh-core.sh`: Updates core definitions and extensions

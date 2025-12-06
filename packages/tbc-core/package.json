@@ -1,0 +1,20 @@
+{
+  "name": "@tbc-frameworx/tbc-core",
+  "version": "0.1.0",
+  "description": "TBC Core operations library",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "bunx tsc",
+    "dev": "bun run build"
+  },
+  "dependencies": {
+    "@hami-frameworx/core": "0.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
