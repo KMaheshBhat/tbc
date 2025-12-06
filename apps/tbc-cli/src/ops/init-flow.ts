@@ -45,10 +45,19 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         shared.rootDirectory = rootDir;
 
         // Determine assets path (relative to CLI package)
-        // In built CLI, assets are in the same directory as the executable
-        // In development, use relative path
+        // Works in both development (source) and production (installed) environments
         const currentFile = fileURLToPath(import.meta.url);
-        const cliDir = join(currentFile, '../../'); // from dist/ops/init-flow.js to cli root
+        let cliDir: string;
+
+        // Check if we're running from an installed package (has node_modules in path)
+        if (currentFile.includes('node_modules')) {
+            // Production: from lib/node_modules/.../dist/ops/init-flow.js to package root
+            cliDir = join(currentFile, '../../');
+        } else {
+            // Development: from apps/tbc-cli/dist/ops/init-flow.js to cli root
+            cliDir = join(currentFile, '../../../');
+        }
+
         shared.assetsPath = join(cliDir, 'assets');
 
         const init = shared['registry'].createNode('tbc-core:init');
