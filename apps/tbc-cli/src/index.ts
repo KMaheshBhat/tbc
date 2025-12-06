@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { ValidateFlow, ProbeFlow } from './ops/index.js';
+import { ValidateFlow, ProbeFlow, InitFlow } from './ops/index.js';
 
 const { registry } = await bootstrap();
 
@@ -67,5 +67,32 @@ let cmdProbe = new Command('probe')
   });
 
 program.addCommand(cmdProbe);
+
+let cmdInit = new Command('init')
+  .description('Initialize a new TBC companion directory')
+  .action(async () => {
+    try {
+      const cliOpts = program.opts();
+      const isVerbose = !!cliOpts.verbose;
+      const root = cliOpts.root;
+      const opts = { verbose: isVerbose };
+      const initFlow = new InitFlow({
+        root: root,
+        verbose: opts.verbose,
+      });
+      await initFlow.run({
+        registry: registry,
+        opts: opts,
+        app: 'TBC CLI',
+        appVersion: packageJson.version,
+      });
+    } catch (error) {
+      console.error('Error during initialization:', error);
+      process.exit(1);
+    }
+    return;
+  });
+
+program.addCommand(cmdInit);
 
 program.parse();

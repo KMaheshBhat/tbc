@@ -27,6 +27,14 @@ type TBCCoreStorage = {
   isGitRepository?: boolean;
   /** Probe results containing environment information. */
   probeResults?: string[];
+  /** Init results containing directory creation information. */
+  initResults?: string[];
+  /** Path to assets directory for copying operations. */
+  assetsPath?: string;
+  /** Copy assets results containing copy operation information. */
+  copyAssetsResults?: string[];
+  /** Generate root results containing root.md generation information. */
+  generateRootResults?: string[];
 }
 
 export {

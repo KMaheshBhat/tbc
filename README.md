@@ -42,9 +42,15 @@ The Third Brain Companion (TBC) system provides a structured way to create and m
 
 ## CLI Tool
 
-The TBC CLI provides commands to validate, probe, and manage your companion setup:
+The TBC CLI provides commands to initialize, validate, probe, and manage your companion setup:
 
 ```bash
+# Initialize a new TBC companion directory
+tbc init
+
+# Initialize in a specific directory
+tbc init --root /path/to/companion
+
 # Probe environment for TBC CLI and system information
 tbc probe
 
@@ -58,6 +64,7 @@ tbc validate
 tbc validate --root /path/to/companion
 
 # Enable verbose output (works with all commands)
+tbc init --verbose
 tbc probe --verbose
 tbc validate --verbose
 
@@ -70,71 +77,72 @@ tbc --help
 To instantiate your own Third Brain Companion:
 
 1. Start a new git repository for your companion:
-   ```
-   mkdir my-companion
-   cd my-companion
-   git init
-   ```
+    ```
+    mkdir my-companion
+    cd my-companion
+    git init
+    ```
 
-2. Copy the assets:
-   ```
-   cp -r /path/to/third-brain-companion/assets ./tbc
-   ```
+2. Initialize the TBC companion structure:
+    ```
+    tbc init
+    ```
 
-3. Create the vault directory:
-   ```
-   mkdir vault
-   ```
+    This command will:
+    - Create the directory structure (`tbc/`, `vault/`, `dex/`)
+    - Copy all specification files to `tbc/specs/`
+    - Copy tool scripts to `tbc/tools/`
+    - Generate an initial `tbc/root.md` template
 
-4. Create your tbc/root.md file based on the specifications in tbc/specs/20251130163650.md. Example:
-   ```
-   ---
-   id: root
-   record_type: root
-   record_tags:
-     - c/agent/your-agent-name
-     - c/personal/your-name
-   title: Your Agent Root
-   ---
-   # Your Agent Root
+3. Customize your companion by editing `tbc/root.md`:
+    ```
+    ---
+    id: root
+    record_type: note
+    record_tags:
+      - c/agent/your-agent-name
+      - c/personal/your-name
+    title: Your Agent Root
+    ---
+    # Your Agent Root
 
-   ## Definitions
+    ## Definitions
 
-   - Agent: Your Agent Name
-   - Prime User: Your Name
-   - Definitions: [core](/dex/core.md)
-     - use [`refresh-core`](/tbc/tools/refresh-core.sh) if not present
+    - Agent: Your Agent Name
+    - Prime User: Your Name
+    - Definitions: [core](/dex/core.md)
+      - use [`refresh-core`](/tbc/tools/refresh-core.sh) if not present
 
-   ## Agent Identity
+    ## Agent Identity
 
-   [Describe your agent's identity]
+    [Describe your agent's identity]
 
-   ## Motivation
+    ## Motivation
 
-   [Describe motivations]
+    [Describe motivations]
 
-   ## Memories
+    ## Memories
 
-   [List of memory records]
-   ```
+    [List of memory records]
+    ```
 
-5. (Optional) Add extensions in the `tbc/extensions/` directory following the specifications.
+4. (Optional) Add extensions in the `tbc/extensions/` directory following the specifications.
 
-6. Run the refresh script to generate core.md:
-   ```
-   ./tbc/tools/refresh-core.sh
-   ```
+5. Run the refresh script to generate core.md:
+    ```
+    ./tbc/tools/refresh-core.sh
+    ```
 
-7. Validate your setup:
-   ```
-   tbc validate
-   ```
+6. Validate your setup:
+    ```
+    tbc validate
+    ```
 
-8. Commit your initial setup:
-   ```
-   git add .
-   git commit -m "Initial companion setup"
-   ```
+7. Commit your initial setup:
+    ```
+    git add .
+    git commit -m "Initial companion setup"
+    ```
 
 ## Usage
 
@@ -146,6 +154,7 @@ To instantiate your own Third Brain Companion:
 
 ### For Users
 
+- **Initialize your companion**: Use `tbc init` to create a complete TBC companion structure with all specifications and tools
 - **Probe your environment**: Use `tbc probe` to see TBC CLI version, system information, and TBC root status
 - **Validate your setup**: Use `tbc validate` to ensure your companion directory structure is correct
 - **Use the scripts** to refresh indexes:

@@ -26,5 +26,6 @@
   },
   "keywords": [],
   "author": "",
-  "types": "./dist/index.d.ts"
+  "types": "./dist/index.d.ts",
+  "files": ["assets"]
 }
