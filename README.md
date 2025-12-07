@@ -63,6 +63,7 @@ The Third Brain Companion (TBC) system provides a structured way to create and m
 
 ```bash
 tbc init        # Initialize a new companion
+tbc init --upgrade  # Upgrade existing companion (with backup)
 tbc probe       # Check environment and system info
 tbc validate    # Validate companion structure
 tbc --help      # Show help

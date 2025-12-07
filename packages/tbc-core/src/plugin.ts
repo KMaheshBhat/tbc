@@ -4,6 +4,8 @@ import { ProbeNode } from "./ops/probe.js";
 import { InitNode } from "./ops/init.js";
 import { CopyAssetsNode } from "./ops/copy-assets.js";
 import { GenerateRootNode } from "./ops/generate-root.js";
+import { BackupTbcNode } from "./ops/backup-tbc.js";
+import { RestoreExtensionsNode } from "./ops/restore-extensions.js";
 
 /**
  * TBC Core Plugin for HAMI.
@@ -14,6 +16,8 @@ import { GenerateRootNode } from "./ops/generate-root.js";
  * - `tbc-core:init`: Creates TBC directory structure (tbc/, vault/, dex/)
  * - `tbc-core:copy-assets`: Copies specs and tools from assets to TBC structure
  * - `tbc-core:generate-root`: Generates initial tbc/root.md file
+ * - `tbc-core:backup-tbc`: Creates timestamped backup of tbc/ directory
+ * - `tbc-core:restore-extensions`: Restores extensions/ from backup and cleans up
  */
 const TBCCorePlugin = createPlugin(
     "@tbc-frameworx/tbc-core",
@@ -23,6 +27,8 @@ const TBCCorePlugin = createPlugin(
         InitNode as any,
         CopyAssetsNode as any,
         GenerateRootNode as any,
+        BackupTbcNode as any,
+        RestoreExtensionsNode as any,
     ],
     "TBC Core Plugin - Environment probing and initialization operations",
 );

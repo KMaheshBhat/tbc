@@ -83,6 +83,8 @@ Provides core operations:
 - `InitNode`: Directory structure creation
 - `CopyAssetsNode`: Specification and tool copying
 - `GenerateRootNode`: Initial root.md generation
+- `BackupTbcNode`: Creates timestamped backup of tbc/ directory
+- `RestoreExtensionsNode`: Restores extensions/ from backup during upgrades
 
 #### TBCFSPlugin
 File system operations:
@@ -95,7 +97,14 @@ File system operations:
 const TBCCorePlugin = createPlugin(
   "@tbc-frameworx/tbc-core",
   "0.1.0",
-  [ProbeNode, InitNode, CopyAssetsNode, GenerateRootNode]
+  [
+    ProbeNode,
+    InitNode,
+    CopyAssetsNode,
+    GenerateRootNode,
+    BackupTbcNode,
+    RestoreExtensionsNode
+  ]
 );
 ```
 
@@ -116,7 +125,7 @@ this.startNode
 
 ### Flow Types
 
-- **InitFlow**: `resolve → init → copyAssets → generateRoot → validate`
+- **InitFlow**: `validate → branchNode → { normal: init → copyAssets → generateRoot → validate, upgrade: backupTbc → init → copyAssets → generateRoot → restoreExtensions → validate, abort: exit(1) }`
 - **ProbeFlow**: `resolve → validate → probe`
 - **ValidateFlow**: `resolve → validate`
 

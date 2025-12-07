@@ -113,6 +113,9 @@ tbc init
 # Initialize in a specific directory
 tbc init --root /path/to/companion
 
+# Upgrade existing companion (backs up and refreshes assets)
+tbc init --upgrade
+
 # Probe environment and system information
 tbc probe
 

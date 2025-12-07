@@ -3,11 +3,12 @@ import { Node } from "pocketflow";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { HAMIFlow, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
 interface InitFlowConfig {
     root?: string;
     verbose: boolean;
+    upgrade?: boolean;
 }
 
 const InitFlowConfigSchema: ValidationSchema = {
@@ -15,6 +16,7 @@ const InitFlowConfigSchema: ValidationSchema = {
     properties: {
         root: { type: "string" },
         verbose: { type: "boolean" },
+        upgrade: { type: "boolean" },
     },
     required: ["verbose"],
 };
@@ -60,39 +62,93 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
 
         shared.assetsPath = join(cliDir, 'assets');
 
-        const init = shared['registry'].createNode('tbc-core:init');
-        const copyAssets = shared['registry'].createNode('tbc-core:copy-assets');
-        const generateRoot = shared['registry'].createNode('tbc-core:generate-root');
+        // Create nodes
         const validate = shared['registry'].createNode('tbc-fs:validate', {
             verbose: this.config.verbose,
         });
-        const logInitResults = shared['registry'].createNode('core:log-result', {
-            resultKey: 'initResults',
-            format: 'table',
-        });
-        const logCopyAssetsResults = shared['registry'].createNode('core:log-result', {
-            resultKey: 'copyAssetResults',
-            format: 'table',
-        });
-        const logGenerateRootResults = shared['registry'].createNode('core:log-result', {
-            resultKey: 'generateRootResults',
-            format: 'table',
-        });
-        const logValidationResults = shared['registry'].createNode('core:log-result', {
-            resultKey: 'messages',
-            format: 'table',
+
+        // Branching node to decide flow based on validation and upgrade flag
+        const branchNode = new Node();
+        branchNode.post = async (shared: Record<string, any>) => {
+            const isValidTBCRoot = shared.isValidTBCRoot;
+            const upgrade = this.config.upgrade || false;
+
+            if (isValidTBCRoot && !upgrade) {
+                return 'abort';
+            } else if (isValidTBCRoot && upgrade) {
+                return 'upgrade';
+            } else {
+                return 'normal';
+            }
+        };
+
+        // Normal init flow nodes
+        const init = shared['registry'].createNode('tbc-core:init');
+        const copyAssets = shared['registry'].createNode('tbc-core:copy-assets');
+        const generateRoot = shared['registry'].createNode('tbc-core:generate-root');
+        const validateFinal = shared['registry'].createNode('tbc-fs:validate', {
+            verbose: this.config.verbose,
         });
 
+
+        // Abort flow nodes
+        const abortNode = new Node();
+        abortNode.exec = async () => {
+            console.error('TBC companion already exists at this location. Use --upgrade to upgrade existing companion.');
+            process.exit(1);
+        };
+
+        // Upgrade flow nodes
+        const backupTbc = shared['registry'].createNode('tbc-core:backup-tbc');
+        const restoreExtensions = shared['registry'].createNode('tbc-core:restore-extensions');
+
+        // Separate nodes for upgrade flow to avoid conflicts
+        const initUpgrade = shared['registry'].createNode('tbc-core:init');
+        const copyAssetsUpgrade = shared['registry'].createNode('tbc-core:copy-assets');
+        const generateRootUpgrade = shared['registry'].createNode('tbc-core:generate-root');
+        const validateUpgrade = shared['registry'].createNode('tbc-fs:validate', {
+            verbose: this.config.verbose,
+        });
+
+        // Common logging nodes
+        const finalizeAndLogNode = new Node();
+        const logInitResults = logTableNode(shared['registry'], 'initResults');
+        const logCopyAssetsResults = logTableNode(shared['registry'], 'copyAssetResults');
+        const logGenerateRootResults = logTableNode(shared['registry'], 'generateRootResults');
+        const logValidationResults = logTableNode(shared['registry'], 'messages');
+
+        // Wire the flow
         this.startNode
-            .next(init)
+            .next(validate)
+            .next(branchNode);
+
+        branchNode
+            .on('normal', init)
+            .on('upgrade', backupTbc)
+            .on('abort', abortNode);
+
+        // Normal flow continuation
+        init
             .next(copyAssets)
             .next(generateRoot)
-            .next(validate)
+            .next(validateFinal)
+            .next(finalizeAndLogNode);
+
+        // Upgrade flow continuation
+        backupTbc
+            .next(initUpgrade)
+            .next(copyAssetsUpgrade)
+            .next(generateRootUpgrade)
+            .next(restoreExtensions)
+            .next(validateUpgrade)
+            .next(finalizeAndLogNode)
+
+        // common logging sequence
+        finalizeAndLogNode
             .next(logInitResults)
             .next(logCopyAssetsResults)
             .next(logGenerateRootResults)
-            .next(logValidationResults)
-            ;
+            .next(logValidationResults);
 
         return super.run(shared);
     }
@@ -104,4 +160,11 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             errors: result.errors || [],
         };
     }
+}
+
+const logTableNode = (registry: HAMIRegistrationManager, resultKey: string) => {
+    return registry.createNode('core:log-result', {
+        resultKey,
+        format: 'table' as const,
+    });
 }

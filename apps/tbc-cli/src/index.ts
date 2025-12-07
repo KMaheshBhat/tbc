@@ -70,19 +70,21 @@ program.addCommand(cmdProbe);
 
 let cmdInit = new Command('init')
   .description('Initialize a new TBC companion directory')
-  .action(async () => {
+  .option('--upgrade', 'Allow re-initialization of existing companion')
+  .action(async (opts) => {
     try {
       const cliOpts = program.opts();
       const isVerbose = !!cliOpts.verbose;
       const root = cliOpts.root;
-      const opts = { verbose: isVerbose };
+      const upgrade = !!opts.upgrade;
       const initFlow = new InitFlow({
         root: root,
-        verbose: opts.verbose,
+        verbose: isVerbose,
+        upgrade: upgrade,
       });
       await initFlow.run({
         registry: registry,
-        opts: opts,
+        opts: { verbose: isVerbose },
         app: 'TBC CLI',
         appVersion: packageJson.version,
       });

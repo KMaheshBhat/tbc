@@ -35,6 +35,10 @@ type TBCCoreStorage = {
   copyAssetsResults?: string[];
   /** Generate root results containing root.md generation information. */
   generateRootResults?: string[];
+  /** Backup TBC results containing backup operation information. */
+  backupTbcResults?: { backedUp: boolean; backupPath?: string };
+  /** Restore extensions results containing restore operation information. */
+  restoreExtensionsResults?: { restored: boolean; message?: string };
 }
 
 export {
