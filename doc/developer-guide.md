@@ -90,11 +90,11 @@ Provides core operations:
 Record file system operations:
 - `ResolveNode`: Working directory resolution
 - `ValidateNode`: Structure validation
-- `FetchRecordsByIdsNode`: Fetches records by IDs from collection directories
+- `FetchRecordsNode`: Fetches records by IDs from collection directories
 
-### FetchRecordsByIdsNode
+### FetchRecordsNode
 
-The `FetchRecordsByIdsNode` provides flexible record retrieval from TBC collection directories. It supports multiple file formats and implements a priority-based file lookup system.
+The `FetchRecordsNode` provides flexible record retrieval from TBC collection directories. It supports multiple file formats and implements a priority-based file lookup system.
 
 #### File Lookup Priority
 Files are searched in this order:
@@ -114,10 +114,10 @@ All records automatically receive an `id` field matching the requested ID.
 #### Usage Example
 
 ```typescript
-import { FetchRecordsByIdsNode } from '@tbc-frameworx/tbc-record-fs';
+import { FetchRecordsNode } from '@tbc-frameworx/tbc-record-fs';
 
 // In a flow or direct usage
-const fetchNode = new FetchRecordsByIdsNode();
+const fetchNode = new FetchRecordsNode();
 await fetchNode.run({
   rootDirectory: '/path/to/tbc',
   collection: 'vault',
@@ -165,7 +165,7 @@ const TBCRecordFSPlugin = createPlugin(
   [
     ResolveNode,
     ValidateNode,
-    FetchRecordsByIdsNode
+    FetchRecordsNode
   ]
 );
 ```

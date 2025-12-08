@@ -1,3 +1,5 @@
+import { HAMIRegistrationManager } from "@hami-frameworx/core";
+
 /**
  * Options for TBC record file system operations.
  * Defines configuration flags that can be used across TBC record file system operations.

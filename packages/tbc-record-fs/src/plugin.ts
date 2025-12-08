@@ -2,7 +2,7 @@ import { createPlugin } from "@hami-frameworx/core";
 
 import { ResolveNode } from "./ops/resolve.js";
 import { ValidateNode } from "./ops/validate.js";
-import { FetchRecordsByIdsNode } from "./ops/fetch-records-by-ids.js";
+import { FetchRecordsNode } from "./ops/fetch-records.js";
 
 /**
  * TBC Record File System Plugin for HAMI.
@@ -11,7 +11,7 @@ import { FetchRecordsByIdsNode } from "./ops/fetch-records-by-ids.js";
  * Included operations:
  * - `tbc-record-fs:resolve`: Resolves strategy to target working directory
  * - `tbc-record-fs:validate`: Validates TBC directory structure (tbc/, vault/, dex/)
- * - `tbc-record-fs:fetch-records-by-ids`: Fetches records by IDs from a collection directory
+ * - `tbc-record-fs:fetch-records`: Fetches records by IDs from a collection directory
  */
 const TBCRecordFSPlugin = createPlugin(
     "@tbc-frameworx/tbc-record-fs",
@@ -19,7 +19,7 @@ const TBCRecordFSPlugin = createPlugin(
     [
         ResolveNode as any,
         ValidateNode as any,
-        FetchRecordsByIdsNode as any,
+        FetchRecordsNode as any,
     ],
     "TBC Record File System Plugin - File system operations for TBC directories",
 );
