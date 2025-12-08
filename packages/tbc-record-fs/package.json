@@ -1,5 +1,5 @@
 {
-  "name": "@tbc-frameworx/tbc-fs",
+  "name": "@tbc-frameworx/tbc-record-fs",
   "version": "0.1.0",
   "description": "TBC File System operations library",
   "license": "MIT",

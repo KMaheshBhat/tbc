@@ -1,20 +1,20 @@
 /**
- * Options for TBC file system operations.
- * Defines configuration flags that can be used across TBC file system operations.
+ * Options for TBC record file system operations.
+ * Defines configuration flags that can be used across TBC record file system operations.
  */
-type TBCFSOpts = {
+type TBCRecordFSOpts = {
   /** Whether to enable verbose logging for operations. */
   verbose?: boolean;
 }
 
 /**
- * Shared storage interface for TBC file system operations.
- * Defines the structure of data that can be shared between TBC file system operation nodes.
- * Contains paths, configuration options, and results from various TBC file system operations.
+ * Shared storage interface for TBC record file system operations.
+ * Defines the structure of data that can be shared between TBC record file system operation nodes.
+ * Contains paths, configuration options, and results from various TBC record file system operations.
  */
-type TBCFSStorage = {
-  /** Optional configuration options for TBC file system operations. */
-  opts?: TBCFSOpts;
+type TBCRecordFSStorage = {
+  /** Optional configuration options for TBC record file system operations. */
+  opts?: TBCRecordFSOpts;
   /** Explicit root directory path (optional, defaults to CWD). */
   root?: string;
   /** Resolved root directory for TBC operations. */
@@ -34,6 +34,6 @@ type TBCFSStorage = {
 }
 
 export {
-  TBCFSOpts,
-  TBCFSStorage,
+  TBCRecordFSOpts,
+  TBCRecordFSStorage,
 };

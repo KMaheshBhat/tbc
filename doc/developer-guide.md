@@ -23,7 +23,7 @@ tbc/
 │   └── package.json
 ├── packages/
 │   ├── tbc-core/           # Core operations package
-│   └── tbc-fs/             # File system operations package
+│   └── tbc-record-fs/      # Record file system operations package
 ├── doc/                    # Documentation
 └── package.json            # Root workspace config
 ```
@@ -72,7 +72,7 @@ TBC uses the HAMI framework for plugin-based workflow orchestration:
 ```typescript
 // Plugin registration
 await registry.registerPlugin(TBCCorePlugin);
-await registry.registerPlugin(TBCFSPlugin);
+await registry.registerPlugin(TBCRecordFSPlugin);
 ```
 
 ### Core Plugins
@@ -86,8 +86,8 @@ Provides core operations:
 - `BackupTbcNode`: Creates timestamped backup of tbc/ directory
 - `RestoreExtensionsNode`: Restores extensions/ from backup during upgrades
 
-#### TBCFSPlugin
-File system operations:
+#### TBCRecordFSPlugin
+Record file system operations:
 - `ResolveNode`: Working directory resolution
 - `ValidateNode`: Structure validation
 - `FetchRecordsByIdsNode`: Fetches records by IDs from collection directories
@@ -114,7 +114,7 @@ All records automatically receive an `id` field matching the requested ID.
 #### Usage Example
 
 ```typescript
-import { FetchRecordsByIdsNode } from '@tbc-frameworx/tbc-fs';
+import { FetchRecordsByIdsNode } from '@tbc-frameworx/tbc-record-fs';
 
 // In a flow or direct usage
 const fetchNode = new FetchRecordsByIdsNode();
@@ -159,8 +159,8 @@ const TBCCorePlugin = createPlugin(
   ]
 );
 
-const TBCFSPlugin = createPlugin(
-  "@tbc-frameworx/tbc-fs",
+const TBCRecordFSPlugin = createPlugin(
+  "@tbc-frameworx/tbc-record-fs",
   "0.1.0",
   [
     ResolveNode,
@@ -283,7 +283,7 @@ program
 ```typescript
 // Register plugins
 await registry.registerPlugin(TBCCorePlugin);
-await registry.registerPlugin(TBCFSPlugin);
+await registry.registerPlugin(TBCRecordFSPlugin);
 
 // Execute flows
 const flow = new InitFlow();
@@ -327,7 +327,7 @@ const isValid = tbcExists && vaultExists && dexExists;
 - **PocketFlow**: Workflow orchestration
 - **HAMI**: Plugin framework
 - **UUID**: Unique identifier generation
-- **gray-matter**: Markdown frontmatter parsing (used by tbc-fs)
+- **gray-matter**: Markdown frontmatter parsing (used by tbc-record-fs)
 
 ### Development Dependencies
 
@@ -362,7 +362,7 @@ bun run cli:install
 ### Distribution
 
 - Single binary via Bun's compile feature
-- NPM package for `tbc-core` and `tbc-fs`
+- NPM package for `tbc-core` and `tbc-record-fs`
 - Embedded assets in CLI package
 
 ## Contributing

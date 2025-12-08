@@ -37,8 +37,8 @@ export class ValidateFlow extends HAMIFlow<Record<string, any>, ValidateFlowConf
         shared.opts = { verbose: this.config.verbose };
         // root is already set in shared state by CLI if --root flag was used
 
-        const resolve = shared['registry'].createNode('tbc-fs:resolve');
-        const validate = shared['registry'].createNode('tbc-fs:validate', {
+        const resolve = shared['registry'].createNode('tbc-record-fs:resolve');
+        const validate = shared['registry'].createNode('tbc-record-fs:validate', {
             verbose: this.config.verbose,
         });
         const logMessages = shared['registry'].createNode('core:log-result', {

@@ -5,7 +5,7 @@ import { Node } from "pocketflow";
 import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 import { join } from "path";
 
-import { TBCFSStorage } from "../types.js";
+import { TBCRecordFSStorage } from "../types.js";
 
 type ValidateNodeConfig = {
     verbose: boolean;
@@ -32,13 +32,13 @@ type ValidateNodeOutput = {
     messages: string[];
 };
 
-export class ValidateNode extends HAMINode<TBCFSStorage, ValidateNodeConfig> {
+export class ValidateNode extends HAMINode<TBCRecordFSStorage, ValidateNodeConfig> {
     constructor(config?: ValidateNodeConfig, maxRetries?: number, wait?: number) {
         super(config, maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-fs:validate";
+        return "tbc-record-fs:validate";
     }
 
     validateConfig(config: ValidateNodeConfig): HAMINodeConfigValidateResult {
@@ -50,7 +50,7 @@ export class ValidateNode extends HAMINode<TBCFSStorage, ValidateNodeConfig> {
     }
 
     async prep(
-        shared: TBCFSStorage,
+        shared: TBCRecordFSStorage,
     ): Promise<ValidateNodeInput> {
         assert(shared.rootDirectory, 'rootDirectory is required');
         return {
@@ -115,7 +115,7 @@ export class ValidateNode extends HAMINode<TBCFSStorage, ValidateNodeConfig> {
     }
 
     async post(
-        shared: TBCFSStorage,
+        shared: TBCRecordFSStorage,
         _prepRes: ValidateNodeInput,
         execRes: ValidateNodeOutput,
     ): Promise<string | undefined> {

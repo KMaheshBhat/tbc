@@ -63,7 +63,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         shared.assetsPath = join(cliDir, 'assets');
 
         // Create nodes
-        const validate = shared['registry'].createNode('tbc-fs:validate', {
+        const validate = shared['registry'].createNode('tbc-record-fs:validate', {
             verbose: this.config.verbose,
         });
 
@@ -86,7 +86,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         const init = shared['registry'].createNode('tbc-core:init');
         const copyAssets = shared['registry'].createNode('tbc-core:copy-assets');
         const generateRoot = shared['registry'].createNode('tbc-core:generate-root');
-        const validateFinal = shared['registry'].createNode('tbc-fs:validate', {
+        const validateFinal = shared['registry'].createNode('tbc-record-fs:validate', {
             verbose: this.config.verbose,
         });
 
@@ -106,7 +106,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         const initUpgrade = shared['registry'].createNode('tbc-core:init');
         const copyAssetsUpgrade = shared['registry'].createNode('tbc-core:copy-assets');
         const generateRootUpgrade = shared['registry'].createNode('tbc-core:generate-root');
-        const validateUpgrade = shared['registry'].createNode('tbc-fs:validate', {
+        const validateUpgrade = shared['registry'].createNode('tbc-record-fs:validate', {
             verbose: this.config.verbose,
         });
 

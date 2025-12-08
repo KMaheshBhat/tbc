@@ -11,7 +11,7 @@
   "scripts": {
     "cli:dev": "bun run --cwd apps/tbc-cli dev",
     "cli:install": "bun run --cwd apps/tbc-cli build && cd apps/tbc-cli && npm link",
-    "fs:build": "bun run --cwd packages/tbc-fs build",
+    "record-fs:build": "bun run --cwd packages/tbc-record-fs build",
     "all:build": "bun run --filter=\"@tbc-frameworx/*\" build",
     "all:clean": "rm -rf apps/*/dist packages/*/dist",
     "node_modules:clean": "rm -rf apps/*/node_modules packages/*/node_modules"

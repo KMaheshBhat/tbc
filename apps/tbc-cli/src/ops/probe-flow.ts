@@ -36,8 +36,8 @@ export class ProbeFlow extends HAMIFlow<Record<string, any>, ProbeFlowConfig> {
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
 
-        const resolve = shared['registry'].createNode('tbc-fs:resolve');
-        const validate = shared['registry'].createNode('tbc-fs:validate', {
+        const resolve = shared['registry'].createNode('tbc-record-fs:resolve');
+        const validate = shared['registry'].createNode('tbc-record-fs:validate', {
             verbose: this.config.verbose,
         });
         const probe = shared['registry'].createNode('tbc-core:probe');

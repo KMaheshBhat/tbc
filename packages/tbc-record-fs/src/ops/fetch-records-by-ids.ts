@@ -4,7 +4,7 @@ import { readFileSync, existsSync, readdirSync } from "fs";
 import { join, extname } from "path";
 import matter from "gray-matter";
 
-import { TBCFSStorage } from "../types.js";
+import { TBCRecordFSStorage } from "../types.js";
 
 type FetchRecordsByIdsInput = {
     rootDirectory: string;
@@ -14,16 +14,16 @@ type FetchRecordsByIdsInput = {
 
 type FetchRecordsByIdsOutput = Record<string, Record<string, any>>; // id -> record
 
-export class FetchRecordsByIdsNode extends HAMINode<TBCFSStorage> {
+export class FetchRecordsByIdsNode extends HAMINode<TBCRecordFSStorage> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-fs:fetch-records-by-ids";
+        return "tbc-record-fs:fetch-records-by-ids";
     }
 
-    async prep(shared: TBCFSStorage): Promise<FetchRecordsByIdsInput> {
+    async prep(shared: TBCRecordFSStorage): Promise<FetchRecordsByIdsInput> {
         if (!shared.rootDirectory || !shared.collection || !shared.IDs) {
             throw new Error("rootDirectory, collection, and IDs are required in shared state");
         }
@@ -93,7 +93,7 @@ export class FetchRecordsByIdsNode extends HAMINode<TBCFSStorage> {
         }
     }
 
-    async post(shared: TBCFSStorage, _prepRes: FetchRecordsByIdsInput, execRes: FetchRecordsByIdsOutput): Promise<string | undefined> {
+    async post(shared: TBCRecordFSStorage, _prepRes: FetchRecordsByIdsInput, execRes: FetchRecordsByIdsOutput): Promise<string | undefined> {
         shared.fetchResults = { [shared.collection!]: execRes };
         return "default";
     }
