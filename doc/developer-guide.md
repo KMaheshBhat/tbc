@@ -90,6 +90,58 @@ Provides core operations:
 File system operations:
 - `ResolveNode`: Working directory resolution
 - `ValidateNode`: Structure validation
+- `FetchRecordsByIdsNode`: Fetches records by IDs from collection directories
+
+### FetchRecordsByIdsNode
+
+The `FetchRecordsByIdsNode` provides flexible record retrieval from TBC collection directories. It supports multiple file formats and implements a priority-based file lookup system.
+
+#### File Lookup Priority
+Files are searched in this order:
+1. `{id}.json` - JSON files
+2. `{id}.md` - Markdown files with frontmatter
+3. `{id}` - Files with no extension
+4. First file matching `{id}.*` - Any extension
+
+#### Supported File Formats
+
+- **JSON files** (`.json`): Parsed as JSON objects
+- **Markdown files** (`.md`): Frontmatter extracted as object properties, content stored in `content` field
+- **Plain text files**: Content stored in `content` field
+
+All records automatically receive an `id` field matching the requested ID.
+
+#### Usage Example
+
+```typescript
+import { FetchRecordsByIdsNode } from '@tbc-frameworx/tbc-fs';
+
+// In a flow or direct usage
+const fetchNode = new FetchRecordsByIdsNode();
+await fetchNode.run({
+  rootDirectory: '/path/to/tbc',
+  collection: 'vault',
+  IDs: ['record-123', 'record-456']
+});
+
+// Results in shared.fetchResults:
+// {
+//   "vault": {
+//     "record-123": { id: "record-123", title: "My Note", content: "..." },
+//     "record-456": { id: "record-456", data: {...} }
+//   }
+// }
+```
+
+#### Shared State Requirements
+
+- `shared.rootDirectory`: TBC root directory path (required)
+- `shared.collection`: Collection subdirectory name (required)
+- `shared.IDs`: Array of record IDs to fetch (required)
+
+#### Output
+
+- `shared.fetchResults`: Object mapping collection names to record ID mappings
 
 ### Node Registration
 
@@ -104,6 +156,16 @@ const TBCCorePlugin = createPlugin(
     GenerateRootNode,
     BackupTbcNode,
     RestoreExtensionsNode
+  ]
+);
+
+const TBCFSPlugin = createPlugin(
+  "@tbc-frameworx/tbc-fs",
+  "0.1.0",
+  [
+    ResolveNode,
+    ValidateNode,
+    FetchRecordsByIdsNode
   ]
 );
 ```
@@ -265,6 +327,7 @@ const isValid = tbcExists && vaultExists && dexExists;
 - **PocketFlow**: Workflow orchestration
 - **HAMI**: Plugin framework
 - **UUID**: Unique identifier generation
+- **gray-matter**: Markdown frontmatter parsing (used by tbc-fs)
 
 ### Development Dependencies
 

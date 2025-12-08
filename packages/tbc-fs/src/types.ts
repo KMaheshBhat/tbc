@@ -25,6 +25,12 @@ type TBCFSStorage = {
   isGitRepository?: boolean;
   /** Array of validation messages. */
   messages?: string[];
+  /** Collection directory to read from. */
+  collection?: string;
+  /** Array of record IDs to fetch. */
+  IDs?: string[];
+  /** Fetched records by collection and ID. */
+  fetchResults?: Record<string, Record<string, Record<string, any>>>;
 }
 
 export {
