@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
 import { ValidateFlow, ProbeFlow, InitFlow } from './ops/index.js';
+import { RefreshCoreFlow } from '@tbc-frameworx/tbc-core';
 
 const { registry } = await bootstrap();
 
@@ -96,5 +97,34 @@ let cmdInit = new Command('init')
   });
 
 program.addCommand(cmdInit);
+
+let cmdRefresh = new Command('refresh')
+  .description('Refresh TBC system indexes');
+
+let cmdRefreshCore = new Command('core')
+  .description('Refresh the core system definitions index')
+  .option('--root <path>', 'Root directory')
+  .action(async (opts) => {
+    try {
+      const cliOpts = program.opts();
+      const isVerbose = !!cliOpts.verbose;
+      const root = opts.root || cliOpts.root;
+      const refreshCoreFlow = new RefreshCoreFlow({
+        verbose: isVerbose,
+      });
+      await refreshCoreFlow.run({
+        registry: registry,
+        opts: { verbose: isVerbose },
+        root: root,
+      });
+    } catch (error) {
+      console.error('Error during refresh core:', error);
+      process.exit(1);
+    }
+    return;
+  });
+
+cmdRefresh.addCommand(cmdRefreshCore);
+program.addCommand(cmdRefresh);
 
 program.parse();

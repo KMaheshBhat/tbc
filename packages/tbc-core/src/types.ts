@@ -43,6 +43,10 @@ type TBCCoreStorage = {
   backupTbcResults?: { backedUp: boolean; backupPath?: string };
   /** Restore extensions results containing restore operation information. */
   restoreExtensionsResults?: { restored: boolean; message?: string };
+  /** Refresh core results containing the path to the generated core.md file. */
+  refreshCoreResult?: string;
+  /** Fetched records by collection and ID (from record-fs operations). */
+  fetchResults?: Record<string, Record<string, Record<string, any>>>;
 }
 
 export {

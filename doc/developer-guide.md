@@ -182,12 +182,15 @@ Provides essential TBC core operations for environment management and initializa
 - `tbc-core:restore-extensions`: Restores extensions/ from backup during upgrades
 - `tbc-core:resolve`: Working directory resolution for TBC operations
 - `tbc-core:validate`: TBC directory structure validation
+- `tbc-core:write-core`: Writes collated system definitions to dex/core.md
+- `tbc-core:refresh-core`: Orchestrates fetching and writing of core system definitions
 
 #### TBCRecordFSPlugin (`@tbc-frameworx/tbc-record-fs`)
 Provides record file system operations for data retrieval and management:
 
 **Record Operations:**
 - `tbc-record-fs:fetch-records`: Fetches records by IDs from collection directories
+- `tbc-record-fs:fetch-all-ids`: Retrieves all record IDs from a collection directory
 
 ### FetchRecordsNode
 
@@ -240,6 +243,37 @@ await fetchNode.run({
 
 - `shared.fetchResults`: Object mapping collection names to record ID mappings
 
+### FetchAllIdsNode
+
+The `FetchAllIdsNode` retrieves all record IDs from a specified collection directory by scanning for `.md` files and extracting their base names.
+
+#### Usage Example
+
+```typescript
+import { FetchAllIdsNode } from '@tbc-frameworx/tbc-record-fs';
+
+// In a flow or direct usage
+const fetchAllIdsNode = new FetchAllIdsNode();
+await fetchAllIdsNode.run({
+  rootDirectory: '/path/to/tbc',
+  collection: 'tbc/specs'
+});
+
+// Results in shared.allIds:
+// {
+//   "tbc/specs": ["20250507140104", "20250507141631", ...]
+// }
+```
+
+#### Shared State Requirements
+
+- `shared.rootDirectory`: TBC root directory path (required)
+- `shared.collection`: Collection subdirectory name (required)
+
+#### Output
+
+- `shared.allIds`: Object mapping collection names to arrays of record IDs
+
 ### Node Registration
 
 ```typescript
@@ -254,7 +288,8 @@ const TBCCorePlugin = createPlugin(
     BackupTbcNode,
     RestoreExtensionsNode,
     ResolveNode,
-    ValidateNode
+    ValidateNode,
+    WriteCoreNode
   ]
 );
 
@@ -262,7 +297,8 @@ const TBCRecordFSPlugin = createPlugin(
   "@tbc-frameworx/tbc-record-fs",
   "0.1.0",
   [
-    FetchRecordsNode
+    FetchRecordsNode,
+    FetchAllIdsNode
   ]
 );
 ```
@@ -287,6 +323,7 @@ this.startNode
 - **InitFlow**: `tbc-core:validate → branchNode → { normal: tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:validate, upgrade: tbc-core:backup-tbc → tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:restore-extensions → tbc-core:validate, abort: exit(1) }`
 - **ProbeFlow**: `tbc-core:resolve → tbc-core:validate → tbc-core:probe`
 - **ValidateFlow**: `tbc-core:resolve → tbc-core:validate`
+- **RefreshCoreFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (specs) → tbc-record-fs:fetch-all-ids (extensions) → tbc-record-fs:fetch-records (root) → tbc-record-fs:fetch-records (specs) → tbc-record-fs:fetch-records (extensions) → tbc-core:write-core`
 
 ### Shared State Management
 
@@ -302,6 +339,8 @@ TBC operations use a shared state object for inter-node communication. Key share
 - `probeResults`: System probe information
 - `initResults`: Directory creation results
 - `backupTbcResults`: Backup operation results
+- `refreshCoreResult`: Path to generated core.md file
+- `fetchResults`: Fetched records by collection and ID
 
 ## Record System
 
@@ -382,6 +421,7 @@ tbc init [options]     # Initialize a new TBC companion
 tbc init --upgrade     # Upgrade existing companion (with backup)
 tbc probe [options]    # Check environment and system info
 tbc validate [options] # Validate companion structure
+tbc refresh core [options] # Refresh the core system definitions index
 tbc --help            # Show help information
 ```
 
@@ -659,7 +699,7 @@ Add export to `src/index.ts`
 
 ### Current State
 - **Core Framework**: Stable with HAMI-based plugin architecture
-- **CLI Operations**: `init`, `validate`, `probe` commands implemented
+- **CLI Operations**: `init`, `validate`, `probe`, `refresh core` commands implemented
 - **Record System**: Basic vault structure with Markdown + frontmatter
 - **Build System**: Monorepo with Bun workspaces and sequential builds
 - **Testing**: Manual testing framework, automated testing planned
@@ -669,6 +709,10 @@ Add export to `src/index.ts`
 - Implemented sequential build system for proper dependency management
 - Added comprehensive testing instructions and temporary directory testing
 - Updated documentation to reflect current architecture
+- Implemented `tbc refresh core` CLI command replacing `refresh-core.sh` shell script
+- Added `FetchAllIdsNode` and enhanced `FetchRecordsNode` for record file system operations
+- Added `WriteCoreNode` for core system definitions writing and `RefreshCoreFlow` for orchestration
+- Moved refresh-core orchestration logic to `tbc-core` package for reusability across interfaces
 
 ### Known Limitations
 - No formal test suite (manual testing only)

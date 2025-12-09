@@ -1,7 +1,7 @@
 import { HAMINode } from "@hami-frameworx/core";
 
 import { readFileSync, existsSync, readdirSync } from "fs";
-import { join, extname } from "path";
+import { join, extname, basename } from "path";
 import matter from "gray-matter";
 
 import { TBCRecordFSStorage } from "../types.js";
@@ -38,7 +38,7 @@ export class FetchRecordsNode extends HAMINode<TBCRecordFSStorage> {
         const results: FetchRecordsOutput = {};
         const collectionPath = join(params.rootDirectory, params.collection);
         for (const id of params.IDs) {
-            const record = this.findAndParseRecord(collectionPath, id);
+            const record = this.findAndParseRecord(collectionPath, params.collection, id);
             if (record) {
                 results[id] = record;
             }
@@ -46,7 +46,7 @@ export class FetchRecordsNode extends HAMINode<TBCRecordFSStorage> {
         return results;
     }
 
-    private findAndParseRecord(collectionPath: string, id: string): Record<string, any> | null {
+    private findAndParseRecord(collectionPath: string, collection: string, id: string): Record<string, any> | null {
         // Priority order: .json, .md, no ext, then any ext
         const candidates = [
             join(collectionPath, `${id}.json`),
@@ -67,11 +67,13 @@ export class FetchRecordsNode extends HAMINode<TBCRecordFSStorage> {
                         record = JSON.parse(content);
                     } else if (ext === '.md') {
                         const parsed = matter(content);
-                        record = { ...parsed.data, content: parsed.content };
+                        record = { ...parsed.data, content: parsed.content, fullContent: content };
                     } else {
-                        record = { content };
+                        record = { content, fullContent: content };
                     }
                     record.id = id;
+                    // Add filename relative to rootDirectory
+                    record.filename = join(collection, basename(filePath));
                     return record;
                 } catch (error) {
                     console.error(`Error parsing file ${filePath}:`, error);
@@ -94,7 +96,7 @@ export class FetchRecordsNode extends HAMINode<TBCRecordFSStorage> {
     }
 
     async post(shared: TBCRecordFSStorage, _prepRes: FetchRecordsInput, execRes: FetchRecordsOutput): Promise<string | undefined> {
-        shared.fetchResults = { [shared.collection!]: execRes };
+        shared.fetchResults = { ...shared.fetchResults, [shared.collection!]: execRes };
         return "default";
     }
 }
