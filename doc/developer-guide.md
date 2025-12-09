@@ -1,32 +1,81 @@
 # Third Brain Companion Developer Guide
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+- [Build System](#build-system)
+- [Architecture](#architecture)
+- [Plugin Architecture](#plugin-architecture)
+- [Operation Flows](#operation-flows)
+- [Record System](#record-system)
+- [Specifications](#specifications)
+- [CLI Implementation](#cli-implementation)
+- [File System Operations](#file-system-operations)
+- [Dependencies & Frameworks](#dependencies--frameworks)
+- [Testing Strategy](#testing-strategy)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [Future Enhancements](#future-enhancements)
+- [Troubleshooting](#troubleshooting)
+
 ## Overview
 
-Third Brain Companion (TBC) is a sophisticated framework for building AI companions using structured, git-based plain-text records. This guide provides technical details for developers, architects, and contributors.
+Third Brain Companion (TBC) is a sophisticated framework for building AI companions using structured, git-based plain-text records. This guide provides technical details for developers, architects, and contributors to the TBC ecosystem.
 
-## Architecture
+### What is TBC?
 
-### Core Components
+TBC provides a technology-agnostic, portable system for conceptualizing, operating, and using AI Agent companions. It uses a git-based vault of plain-text records to store interactions, definitions, and memories, enabling collaborative AI companion development.
 
-- **Vault System**: Git-based storage with Markdown + frontmatter records
-- **CLI Tool**: TypeScript/Node.js application using HAMI framework
-- **Specifications**: Markdown-based schema definitions
-- **Tools**: Shell scripts for index generation and automation
+### Key Features
 
-### Directory Structure
+- **Portable & Technology-Agnostic**: Works across platforms and environments
+- **Git-Based Storage**: Version control and collaboration for all companion data
+- **Extensible Architecture**: Plugin-based system for custom operations and record types
+- **Structured Records**: Markdown + YAML frontmatter for rich, parseable content
+- **Automated Indexing**: Shell scripts for efficient context gathering
 
-```
-tbc/
-├── apps/tbc-cli/           # Main CLI application
-│   ├── src/                # TypeScript source
-│   ├── assets/             # Embedded specs and tools
-│   └── package.json
-├── packages/
-│   ├── tbc-core/           # Core operations package
-│   └── tbc-record-fs/      # Record file system operations package
-├── doc/                    # Documentation
-└── package.json            # Root workspace config
-```
+## Getting Started
+
+### Prerequisites
+
+- **Node.js**: v18+ (v22+ recommended)
+- **Bun**: Latest version (for fast package management and runtime)
+- **Git**: For repository operations
+
+### Development Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd third-brain-companion
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   bun install
+   ```
+
+3. **Build all packages**:
+   ```bash
+   bun run all:build
+   ```
+
+4. **Install CLI globally for testing**:
+   ```bash
+   bun run cli:install
+   ```
+
+5. **Verify installation**:
+   ```bash
+   tbc --help
+   ```
+
+### Development Workflow
+
+- Use `bun run core:build` or `bun run record-fs:build` for individual package builds
+- Use `bun run cli:dev` for CLI development with hot reload
+- Run tests in `/tmp` directory to avoid affecting your development environment
 
 ## Build System
 
@@ -46,11 +95,13 @@ Uses Bun workspaces for package management:
 # Install dependencies
 bun install
 
-# Build all packages
+# Build all packages (in dependency order: record-fs → core → cli)
 bun run all:build
 
-# Install CLI globally
-bun run cli:install
+# Build individual packages
+bun run record-fs:build  # Build tbc-record-fs
+bun run core:build       # Build tbc-core
+bun run cli:install      # Build and install CLI globally
 
 # Clean build artifacts
 bun run all:clean
@@ -62,6 +113,48 @@ bun run all:clean
 - **Module**: Preserve (for bundler)
 - **Strict**: Enabled
 - **Declaration**: Generated
+
+## Architecture
+
+### Core Components
+
+- **Vault System**: Git-based storage with Markdown + frontmatter records
+- **CLI Tool**: TypeScript/Node.js application using HAMI framework
+- **Plugin System**: Extensible operations via HAMI framework plugins
+- **Specifications**: Markdown-based schema definitions and extension guidelines
+- **Tools**: Shell scripts for index generation and automation
+
+### Directory Structure
+
+```
+tbc/
+├── apps/tbc-cli/              # Main CLI application
+│   ├── src/                   # TypeScript source code
+│   │   ├── bootstrap.ts       # Plugin registration
+│   │   ├── index.ts           # CLI entry point
+│   │   └── ops/               # Operation flows
+│   ├── assets/                # Embedded specs and tools
+│   │   ├── specs/             # System specifications
+│   │   └── tools/             # Shell scripts
+│   └── package.json
+├── packages/
+│   ├── tbc-core/              # Core operations package
+│   │   ├── src/
+│   │   │   ├── index.ts       # Package exports
+│   │   │   ├── plugin.ts      # Plugin definition
+│   │   │   ├── types.ts       # Type definitions
+│   │   │   └── ops/           # Core operation nodes
+│   │   └── package.json
+│   └── tbc-record-fs/         # Record file system operations
+│       ├── src/
+│       │   ├── index.ts       # Package exports
+│       │   ├── plugin.ts      # Plugin definition
+│       │   ├── types.ts       # Type definitions
+│       │   └── ops/           # Record operation nodes
+│       └── package.json
+├── doc/                       # Documentation
+└── package.json               # Root workspace configuration
+```
 
 ## Plugin Architecture
 
@@ -77,20 +170,24 @@ await registry.registerPlugin(TBCRecordFSPlugin);
 
 ### Core Plugins
 
-#### TBCCorePlugin
-Provides core operations:
-- `ProbeNode`: System information gathering
-- `InitNode`: Directory structure creation
-- `CopyAssetsNode`: Specification and tool copying
-- `GenerateRootNode`: Initial root.md generation
-- `BackupTbcNode`: Creates timestamped backup of tbc/ directory
-- `RestoreExtensionsNode`: Restores extensions/ from backup during upgrades
+#### TBCCorePlugin (`@tbc-frameworx/tbc-core`)
+Provides essential TBC core operations for environment management and initialization:
 
-#### TBCRecordFSPlugin
-Record file system operations:
-- `ResolveNode`: Working directory resolution
-- `ValidateNode`: Structure validation
-- `FetchRecordsNode`: Fetches records by IDs from collection directories
+**Core Operations:**
+- `tbc-core:probe`: System information gathering (OS, Node.js version, etc.)
+- `tbc-core:init`: Directory structure creation (tbc/, vault/, dex/)
+- `tbc-core:copy-assets`: Specification and tool copying from assets
+- `tbc-core:generate-root`: Initial tbc/root.md generation
+- `tbc-core:backup-tbc`: Creates timestamped backup of tbc/ directory
+- `tbc-core:restore-extensions`: Restores extensions/ from backup during upgrades
+- `tbc-core:resolve`: Working directory resolution for TBC operations
+- `tbc-core:validate`: TBC directory structure validation
+
+#### TBCRecordFSPlugin (`@tbc-frameworx/tbc-record-fs`)
+Provides record file system operations for data retrieval and management:
+
+**Record Operations:**
+- `tbc-record-fs:fetch-records`: Fetches records by IDs from collection directories
 
 ### FetchRecordsNode
 
@@ -155,7 +252,9 @@ const TBCCorePlugin = createPlugin(
     CopyAssetsNode,
     GenerateRootNode,
     BackupTbcNode,
-    RestoreExtensionsNode
+    RestoreExtensionsNode,
+    ResolveNode,
+    ValidateNode
   ]
 );
 
@@ -163,8 +262,6 @@ const TBCRecordFSPlugin = createPlugin(
   "@tbc-frameworx/tbc-record-fs",
   "0.1.0",
   [
-    ResolveNode,
-    ValidateNode,
     FetchRecordsNode
   ]
 );
@@ -187,9 +284,24 @@ this.startNode
 
 ### Flow Types
 
-- **InitFlow**: `validate → branchNode → { normal: init → copyAssets → generateRoot → validate, upgrade: backupTbc → init → copyAssets → generateRoot → restoreExtensions → validate, abort: exit(1) }`
-- **ProbeFlow**: `resolve → validate → probe`
-- **ValidateFlow**: `resolve → validate`
+- **InitFlow**: `tbc-core:validate → branchNode → { normal: tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:validate, upgrade: tbc-core:backup-tbc → tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:restore-extensions → tbc-core:validate, abort: exit(1) }`
+- **ProbeFlow**: `tbc-core:resolve → tbc-core:validate → tbc-core:probe`
+- **ValidateFlow**: `tbc-core:resolve → tbc-core:validate`
+
+### Shared State Management
+
+TBC operations use a shared state object for inter-node communication. Key shared state properties:
+
+**TBCCoreStorage Interface:**
+- `opts`: Configuration options (verbose, etc.)
+- `root`: Explicit root directory path
+- `rootDirectory`: Resolved working directory
+- `isValidTBCRoot`: Whether directory has valid TBC structure
+- `isGitRepository`: Whether directory is a git repository
+- `messages`: Array of validation/status messages
+- `probeResults`: System probe information
+- `initResults`: Directory creation results
+- `backupTbcResults`: Backup operation results
 
 ## Record System
 
@@ -261,6 +373,22 @@ Custom extensions in `tbc/extensions/`:
 
 ## CLI Implementation
 
+### Available Commands
+
+The TBC CLI provides the following commands:
+
+```bash
+tbc init [options]     # Initialize a new TBC companion
+tbc init --upgrade     # Upgrade existing companion (with backup)
+tbc probe [options]    # Check environment and system info
+tbc validate [options] # Validate companion structure
+tbc --help            # Show help information
+```
+
+**Global Options:**
+- `--root <path>`: Specify companion root directory
+- `--verbose`: Enable verbose logging
+
 ### Commander.js Integration
 
 ```typescript
@@ -273,6 +401,7 @@ const program = new Command()
 program
   .command('init')
   .description('Initialize a new TBC companion')
+  .option('--upgrade', 'Upgrade existing companion with backup')
   .action(async (options) => {
     // Implementation
   });
@@ -319,20 +448,36 @@ const workingDir = params.root || process.cwd();
 const isValid = tbcExists && vaultExists && dexExists;
 ```
 
-## Dependencies
+## Dependencies & Frameworks
 
-### Core Dependencies
+### Core Frameworks
 
-- **Commander.js**: CLI command parsing
-- **PocketFlow**: Workflow orchestration
-- **HAMI**: Plugin framework
-- **UUID**: Unique identifier generation
-- **gray-matter**: Markdown frontmatter parsing (used by tbc-record-fs)
+#### HAMI Framework
+TBC is built on the HAMI (Human Agent Machine Interface) framework, which provides:
+- Plugin-based architecture for extensible operations
+- Node-based workflow orchestration
+- Type-safe operation definitions
+- Shared state management between operations
 
-### Development Dependencies
+#### PocketFlow
+Used for workflow execution with node-based processing:
+- Sequential and parallel flow execution
+- Error handling and retry logic
+- Flow composition and branching
 
-- **TypeScript**: Type checking and compilation
-- **Bun**: Fast JavaScript runtime and package manager
+### Package Dependencies
+
+#### Runtime Dependencies
+- **@hami-frameworx/core**: HAMI framework core
+- **commander**: CLI command parsing and help generation
+- **pocketflow**: Workflow orchestration engine
+- **uuidv7**: Unique identifier generation with temporal ordering
+
+#### Development Dependencies
+- **typescript**: Type checking and compilation
+- **bun**: Fast JavaScript runtime and package manager
+- **@types/node**: Node.js type definitions
+- **@types/bun**: Bun runtime type definitions
 
 ## Testing Strategy
 
@@ -346,6 +491,53 @@ const isValid = tbcExists && vaultExists && dexExists;
 - Integration tests for flows
 - CLI command testing
 - File system operation testing
+
+### Testing Instructions
+
+#### Manual Testing in /tmp Directory
+
+To test TBC functionality without affecting your development environment:
+
+1. **Build and Install CLI**:
+   ```bash
+   bun run all:build
+   bun run cli:install
+   ```
+
+2. **Test in Temporary Directory**:
+   ```bash
+   cd /tmp
+
+   # Test init command
+   tbc init --root /tmp/tbc-test1
+   cd /tmp/tbc-test1
+
+   # Test validate command
+   tbc validate
+
+   # Test probe command
+   tbc probe
+
+   # Test upgrade (if needed)
+   tbc init --upgrade --root /tmp/tbc-test1
+
+   # Clean up
+   rm -rf /tmp/tbc-test1
+   ```
+
+3. **Verify Operations**:
+   - Check that `tbc/`, `vault/`, and `dex/` directories are created
+   - Confirm `tbc/root.md` is generated
+   - Ensure validation passes for valid TBC structures
+   - Verify CLI commands work without errors
+
+#### Automated Testing (Future)
+
+When formal test suites are implemented:
+- Use Jest or Vitest for unit and integration tests
+- Mock file system operations for isolated testing
+- Test CLI commands via spawned processes
+- Validate plugin registration and node execution
 
 ## Deployment
 
@@ -367,27 +559,66 @@ bun run cli:install
 
 ## Contributing
 
-### Code Standards
-
-- TypeScript strict mode enabled
-- Consistent async/await patterns
-- Error handling with try/catch
-- JSDoc comments for public APIs
-
 ### Development Workflow
 
-1. Fork and clone repository
-2. Install dependencies: `bun install`
-3. Make changes in feature branch
-4. Build and test: `bun run all:build`
-5. Submit pull request
+1. **Fork and clone** the repository
+2. **Create a feature branch**: `git checkout -b feature/your-feature-name`
+3. **Install dependencies**: `bun install`
+4. **Make changes** following the code standards
+5. **Build and test**: `bun run all:build` then test in `/tmp`
+6. **Submit pull request** with clear description
+
+### Code Standards
+
+- **TypeScript**: Strict mode enabled, no `any` types without justification
+- **Async/Await**: Consistent async patterns, proper error handling
+- **Naming**: camelCase for variables/functions, PascalCase for classes/types
+- **Documentation**: JSDoc comments for public APIs and complex logic
+- **Imports**: Group by external packages, then internal modules
+- **Error Handling**: Use try/catch with meaningful error messages
+
+### Creating New Operations
+
+#### 1. Choose the Right Package
+- **tbc-core**: Core TBC functionality (environment, validation, initialization)
+- **tbc-record-fs**: Record-specific file operations
+
+#### 2. Implement the Node Class
+```typescript
+import { HAMINode } from "@hami-frameworx/core";
+import { TBCCoreStorage } from "../types.js";
+
+export class MyNewNode extends HAMINode<TBCCoreStorage> {
+  kind(): string {
+    return "tbc-core:my-operation"; // or "tbc-record-fs:my-operation"
+  }
+
+  async prep(shared: TBCCoreStorage): Promise<InputType> {
+    // Prepare input parameters
+  }
+
+  async exec(params: InputType): Promise<OutputType> {
+    // Execute the operation
+  }
+
+  async post(shared: TBCCoreStorage, prepRes: InputType, execRes: OutputType) {
+    // Store results in shared state
+  }
+}
+```
+
+#### 3. Register in Plugin
+Add to the appropriate plugin's node array in `plugin.ts`
+
+#### 4. Export in Package Index
+Add export to `src/index.ts`
 
 ### Extension Development
 
-1. Create specification in `tbc/extensions/`
-2. Implement corresponding functionality
-3. Update refresh scripts if needed
-4. Test with `tbc validate`
+1. **Create specification** in `tbc/extensions/` following the spec format
+2. **Implement functionality** as new operations or modify existing flows
+3. **Update refresh scripts** if needed for indexing
+4. **Test thoroughly** with `tbc validate` and manual testing
 
 ## Future Enhancements
 
@@ -423,5 +654,25 @@ bun run cli:install
 - Check generated files in `dex/` directory
 - Validate structure with `tbc validate`
 - Review error messages and stack traces
+
+## Project Status
+
+### Current State
+- **Core Framework**: Stable with HAMI-based plugin architecture
+- **CLI Operations**: `init`, `validate`, `probe` commands implemented
+- **Record System**: Basic vault structure with Markdown + frontmatter
+- **Build System**: Monorepo with Bun workspaces and sequential builds
+- **Testing**: Manual testing framework, automated testing planned
+
+### Recent Changes
+- Migrated `resolve` and `validate` operations to `tbc-core` package
+- Implemented sequential build system for proper dependency management
+- Added comprehensive testing instructions and temporary directory testing
+- Updated documentation to reflect current architecture
+
+### Known Limitations
+- No formal test suite (manual testing only)
+- Limited record types (basic notes, goals, parties, logs)
+- No web interface or advanced features yet
 
 This guide provides the technical foundation for understanding and contributing to the Third Brain Companion framework.

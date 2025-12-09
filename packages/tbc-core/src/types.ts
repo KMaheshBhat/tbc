@@ -19,12 +19,16 @@ type TBCCoreStorage = {
   app?: string;
   /** Application version (injected from CLI). */
   appVersion?: string;
+  /** Explicit root directory path (optional, defaults to CWD). */
+  root?: string;
   /** Resolved root directory for TBC operations. */
   rootDirectory?: string;
   /** Whether the directory is a valid TBC root. */
   isValidTBCRoot?: boolean;
   /** Whether the directory is a git repository. */
   isGitRepository?: boolean;
+  /** Array of validation messages. */
+  messages?: string[];
   /** Probe results containing environment information. */
   probeResults?: string[];
   /** Init results containing directory creation information. */

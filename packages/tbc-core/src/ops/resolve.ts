@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCRecordFSStorage } from "../types.js";
+import { TBCCoreStorage } from "../types.js";
 
 type ResolveNodeInput = {
     root?: string;
@@ -8,17 +8,17 @@ type ResolveNodeInput = {
 
 type ResolveNodeOutput = string; // rootDirectory
 
-export class ResolveNode extends HAMINode<TBCRecordFSStorage> {
+export class ResolveNode extends HAMINode<TBCCoreStorage> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-record-fs:resolve";
+        return "tbc-core:resolve";
     }
 
     async prep(
-        shared: TBCRecordFSStorage,
+        shared: TBCCoreStorage,
     ): Promise<ResolveNodeInput> {
         return {
             root: shared.root,
@@ -34,7 +34,7 @@ export class ResolveNode extends HAMINode<TBCRecordFSStorage> {
     }
 
     async post(
-        shared: TBCRecordFSStorage,
+        shared: TBCCoreStorage,
         _prepRes: ResolveNodeInput,
         execRes: ResolveNodeOutput,
     ): Promise<string | undefined> {

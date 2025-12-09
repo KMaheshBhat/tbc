@@ -6,10 +6,12 @@ import { CopyAssetsNode } from "./ops/copy-assets.js";
 import { GenerateRootNode } from "./ops/generate-root.js";
 import { BackupTbcNode } from "./ops/backup-tbc.js";
 import { RestoreExtensionsNode } from "./ops/restore-extensions.js";
+import { ResolveNode } from "./ops/resolve.js";
+import { ValidateNode } from "./ops/validate.js";
 
 /**
  * TBC Core Plugin for HAMI.
- * Provides essential TBC core operations for probing environment information and initialization.
+ * Provides essential TBC core operations for probing environment information, initialization, and validation.
  *
  * Included operations:
  * - `tbc-core:probe`: Probes the environment for TBC CLI version and OS/shell information
@@ -18,6 +20,8 @@ import { RestoreExtensionsNode } from "./ops/restore-extensions.js";
  * - `tbc-core:generate-root`: Generates initial tbc/root.md file
  * - `tbc-core:backup-tbc`: Creates timestamped backup of tbc/ directory
  * - `tbc-core:restore-extensions`: Restores extensions/ from backup and cleans up
+ * - `tbc-core:resolve`: Resolves working directory for TBC operations
+ * - `tbc-core:validate`: Validates TBC directory structure (tbc/, vault/, dex/)
  */
 const TBCCorePlugin = createPlugin(
     "@tbc-frameworx/tbc-core",
@@ -29,8 +33,10 @@ const TBCCorePlugin = createPlugin(
         GenerateRootNode as any,
         BackupTbcNode as any,
         RestoreExtensionsNode as any,
+        ResolveNode as any,
+        ValidateNode as any,
     ],
-    "TBC Core Plugin - Environment probing and initialization operations",
+    "TBC Core Plugin - Environment probing, initialization, and validation operations",
 );
 
 export { TBCCorePlugin };
