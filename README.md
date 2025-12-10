@@ -66,6 +66,7 @@ tbc init        # Initialize a new companion
 tbc init --upgrade  # Upgrade existing companion (with backup)
 tbc probe       # Check environment and system info
 tbc validate    # Validate companion structure
+tbc dex         # Refresh the core system definitions index
 tbc --help      # Show help
 ```
 

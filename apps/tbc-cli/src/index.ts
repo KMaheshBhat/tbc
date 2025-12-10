@@ -98,10 +98,7 @@ let cmdInit = new Command('init')
 
 program.addCommand(cmdInit);
 
-let cmdRefresh = new Command('refresh')
-  .description('Refresh TBC system indexes');
-
-let cmdRefreshCore = new Command('core')
+let cmdDex = new Command('dex')
   .description('Refresh the core system definitions index')
   .option('--root <path>', 'Root directory')
   .action(async (opts) => {
@@ -118,13 +115,12 @@ let cmdRefreshCore = new Command('core')
         root: root,
       });
     } catch (error) {
-      console.error('Error during refresh core:', error);
+      console.error('Error during dex:', error);
       process.exit(1);
     }
     return;
   });
 
-cmdRefresh.addCommand(cmdRefreshCore);
-program.addCommand(cmdRefresh);
+program.addCommand(cmdDex);
 
 program.parse();

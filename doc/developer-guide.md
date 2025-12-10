@@ -421,7 +421,7 @@ tbc init [options]     # Initialize a new TBC companion
 tbc init --upgrade     # Upgrade existing companion (with backup)
 tbc probe [options]    # Check environment and system info
 tbc validate [options] # Validate companion structure
-tbc refresh core [options] # Refresh the core system definitions index
+tbc dex [options]      # Refresh the core system definitions index
 tbc --help            # Show help information
 ```
 
@@ -699,7 +699,7 @@ Add export to `src/index.ts`
 
 ### Current State
 - **Core Framework**: Stable with HAMI-based plugin architecture
-- **CLI Operations**: `init`, `validate`, `probe`, `refresh core` commands implemented
+- **CLI Operations**: `init`, `validate`, `probe`, `dex` commands implemented
 - **Record System**: Basic vault structure with Markdown + frontmatter
 - **Build System**: Monorepo with Bun workspaces and sequential builds
 - **Testing**: Manual testing framework, automated testing planned
@@ -709,7 +709,7 @@ Add export to `src/index.ts`
 - Implemented sequential build system for proper dependency management
 - Added comprehensive testing instructions and temporary directory testing
 - Updated documentation to reflect current architecture
-- Implemented `tbc refresh core` CLI command replacing `refresh-core.sh` shell script
+- Implemented `tbc dex` CLI command replacing `refresh-core.sh` shell script
 - Added `FetchAllIdsNode` and enhanced `FetchRecordsNode` for record file system operations
 - Added `WriteCoreNode` for core system definitions writing and `RefreshCoreFlow` for orchestration
 - Moved refresh-core orchestration logic to `tbc-core` package for reusability across interfaces

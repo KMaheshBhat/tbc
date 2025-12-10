@@ -122,8 +122,8 @@ tbc probe
 # Validate companion structure
 tbc validate
 
-# Refresh core system definitions index
-tbc refresh core
+# Refresh the core system definitions index
+tbc dex
 
 # Enable verbose output (works with all commands)
 tbc init --verbose
@@ -188,7 +188,7 @@ Use the CLI commands to update indexes:
 
 ```bash
 # Update core definitions
-tbc refresh core
+tbc dex
 
 # Update party records index
 ./tbc/tools/refresh-party.sh
@@ -231,7 +231,7 @@ After interactions:
 
 1. Create specification files in `tbc/extensions/`
 2. Follow the existing specification format
-3. Run `tbc refresh core` to include in `dex/core.md`
+3. Run `tbc dex` to include in `dex/core.md`
 
 ### Custom Methods
 
@@ -246,7 +246,7 @@ Define new interaction methods by:
 
 **Command not found**: Ensure `tbc` is installed and in your PATH
 **Invalid structure**: Run `tbc validate` to check your setup
-**Missing indexes**: Run `tbc refresh core` and other refresh scripts to regenerate `dex/` files
+**Missing indexes**: Run `tbc dex` to regenerate core system definitions
 
 ### Validation
 
