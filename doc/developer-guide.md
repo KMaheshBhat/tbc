@@ -183,7 +183,9 @@ Provides essential TBC core operations for environment management and initializa
 - `tbc-core:resolve`: Working directory resolution for TBC operations
 - `tbc-core:validate`: TBC directory structure validation
 - `tbc-core:write-core`: Writes collated system definitions to dex/core.md
+- `tbc-core:write-records`: Writes records indexes to dex/{record_type}.md files
 - `tbc-core:refresh-core`: Orchestrates fetching and writing of core system definitions
+- `tbc-core:refresh-records`: Orchestrates fetching and writing of all records indexes
 
 #### TBCRecordFSPlugin (`@tbc-frameworx/tbc-record-fs`)
 Provides record file system operations for data retrieval and management:
@@ -324,6 +326,7 @@ this.startNode
 - **ProbeFlow**: `tbc-core:resolve → tbc-core:validate → tbc-core:probe`
 - **ValidateFlow**: `tbc-core:resolve → tbc-core:validate`
 - **RefreshCoreFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (specs) → tbc-record-fs:fetch-all-ids (extensions) → tbc-record-fs:fetch-records (root) → tbc-record-fs:fetch-records (specs) → tbc-record-fs:fetch-records (extensions) → tbc-core:write-core`
+- **RefreshRecordsFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (vault) → tbc-record-fs:fetch-records (vault) → GroupRecordsByTypeNode → tbc-core:write-records`
 
 ### Shared State Management
 
@@ -340,7 +343,9 @@ TBC operations use a shared state object for inter-node communication. Key share
 - `initResults`: Directory creation results
 - `backupTbcResults`: Backup operation results
 - `refreshCoreResult`: Path to generated core.md file
+- `refreshRecordsResult`: Result of records refresh operation
 - `fetchResults`: Fetched records by collection and ID
+- `recordsByType`: Records grouped by their record_type
 
 ## Record System
 
@@ -375,8 +380,14 @@ Stored in `vault/` directory:
 
 ### Index Generation
 
-#### Refresh Scripts
-Shell-based automation in `tbc/tools/`:
+#### CLI Commands
+TypeScript-based automation via CLI:
+
+- **tbc dex core**: Collates root.md + specs + extensions → `dex/core.md`
+- **tbc dex records**: Indexes all record types → `dex/{record_type}.md`
+
+#### Legacy Refresh Scripts
+Shell-based automation in `tbc/tools/` (deprecated):
 
 - **refresh-core.sh**: Collates root.md + specs + extensions → `dex/core.md`
 - **refresh-party.sh**: Indexes party records → `dex/parties.md`
@@ -417,12 +428,13 @@ Custom extensions in `tbc/extensions/`:
 The TBC CLI provides the following commands:
 
 ```bash
-tbc init [options]     # Initialize a new TBC companion
-tbc init --upgrade     # Upgrade existing companion (with backup)
-tbc probe [options]    # Check environment and system info
-tbc validate [options] # Validate companion structure
-tbc dex [options]      # Refresh the core system definitions index
-tbc --help            # Show help information
+tbc init [options]         # Initialize a new TBC companion
+tbc init --upgrade         # Upgrade existing companion (with backup)
+tbc probe [options]        # Check environment and system info
+tbc validate [options]     # Validate companion structure
+tbc dex core [options]     # Refresh the core system definitions index
+tbc dex records [options]  # Refresh all records indexes (party, goal, log, etc.)
+tbc --help                # Show help information
 ```
 
 **Global Options:**
@@ -709,10 +721,14 @@ Add export to `src/index.ts`
 - Implemented sequential build system for proper dependency management
 - Added comprehensive testing instructions and temporary directory testing
 - Updated documentation to reflect current architecture
-- Implemented `tbc dex` CLI command replacing `refresh-core.sh` shell script
+- Implemented `tbc dex core` CLI command replacing `refresh-core.sh` shell script
 - Added `FetchAllIdsNode` and enhanced `FetchRecordsNode` for record file system operations
 - Added `WriteCoreNode` for core system definitions writing and `RefreshCoreFlow` for orchestration
 - Moved refresh-core orchestration logic to `tbc-core` package for reusability across interfaces
+- Implemented `tbc dex records` CLI command replacing shell scripts (`refresh-party.sh`, `refresh-goal.sh`, `refresh-all.sh`)
+- Added `WriteRecordsNode` with generic field extraction and `RefreshRecordsFlow` for records index generation
+- Added `GroupRecordsByTypeNode` for dynamic record type grouping
+- Restructured CLI to have `dex` as main command with `core` and `records` subcommands
 
 ### Known Limitations
 - No formal test suite (manual testing only)

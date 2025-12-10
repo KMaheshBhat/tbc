@@ -123,7 +123,10 @@ tbc probe
 tbc validate
 
 # Refresh the core system definitions index
-tbc dex
+tbc dex core
+
+# Refresh all records indexes (party, goal, log, etc.)
+tbc dex records
 
 # Enable verbose output (works with all commands)
 tbc init --verbose
@@ -188,8 +191,12 @@ Use the CLI commands to update indexes:
 
 ```bash
 # Update core definitions
-tbc dex
+tbc dex core
 
+# Update all records indexes (recommended)
+tbc dex records
+
+# Legacy shell scripts (deprecated):
 # Update party records index
 ./tbc/tools/refresh-party.sh
 
@@ -214,7 +221,7 @@ At the start of each interaction:
 After interactions:
 1. Create new records in `vault/` for important information
 2. Update existing records with new insights
-3. Run refresh scripts to update indexes
+3. Run `tbc dex records` to update all indexes
 4. Reference new records in future interactions
 
 ### Best Practices

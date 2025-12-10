@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
 import { ValidateFlow, ProbeFlow, InitFlow } from './ops/index.js';
-import { RefreshCoreFlow } from '@tbc-frameworx/tbc-core';
+import { RefreshCoreFlow, RefreshRecordsFlow } from '@tbc-frameworx/tbc-core';
 
 const { registry } = await bootstrap();
 
@@ -99,27 +99,55 @@ let cmdInit = new Command('init')
 program.addCommand(cmdInit);
 
 let cmdDex = new Command('dex')
-  .description('Refresh the core system definitions index')
-  .option('--root <path>', 'Root directory')
-  .action(async (opts) => {
-    try {
-      const cliOpts = program.opts();
-      const isVerbose = !!cliOpts.verbose;
-      const root = opts.root || cliOpts.root;
-      const refreshCoreFlow = new RefreshCoreFlow({
-        verbose: isVerbose,
-      });
-      await refreshCoreFlow.run({
-        registry: registry,
-        opts: { verbose: isVerbose },
-        root: root,
-      });
-    } catch (error) {
-      console.error('Error during dex:', error);
-      process.exit(1);
-    }
-    return;
-  });
+    .description('Refresh indexes')
+    .option('--root <path>', 'Root directory');
+
+let cmdDexCore = new Command('core')
+    .description('Refresh the core system definitions index')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = opts.root || cliOpts.root;
+            const refreshCoreFlow = new RefreshCoreFlow({
+                verbose: isVerbose,
+            });
+            await refreshCoreFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during dex core:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+let cmdDexRecords = new Command('records')
+    .description('Refresh all records indexes')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = opts.root || cliOpts.root;
+            const refreshRecordsFlow = new RefreshRecordsFlow({
+                verbose: isVerbose,
+            });
+            await refreshRecordsFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during dex records:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdDex.addCommand(cmdDexCore);
+cmdDex.addCommand(cmdDexRecords);
 
 program.addCommand(cmdDex);
 
