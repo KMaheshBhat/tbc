@@ -46,8 +46,8 @@ title: Your Agent Root
 
 - Agent: Your Agent Name
 - Prime User: Your Name
-- Definitions: [core](/dex/core.md)
-  - use [\`refresh-core\`](/tbc/tools/refresh-core.sh) if not present
+- Specifications: [core](/dex/core.md)
+  - use 'Refresh Core Index' Method if not present
 
 ## Agent Identity
 
