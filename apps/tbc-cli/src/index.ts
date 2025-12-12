@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { ValidateFlow, ProbeFlow, InitFlow } from './ops/index.js';
+import { ValidateFlow, ProbeFlow, InitFlow, GenUuidFlow, GenTsidFlow } from './ops/index.js';
 import { RefreshCoreFlow, RefreshRecordsFlow } from '@tbc-frameworx/tbc-core';
 
 const { registry } = await bootstrap();
@@ -150,5 +150,64 @@ cmdDex.addCommand(cmdDexCore);
 cmdDex.addCommand(cmdDexRecords);
 
 program.addCommand(cmdDex);
+
+let cmdGen = new Command('gen')
+    .description('Generate IDs')
+    .option('--root <path>', 'Root directory');
+
+let cmdGenUuid = new Command('uuid')
+    .description('Generate a UUID v7')
+    .option('-c, --count <number>', 'Number of UUIDs to generate', '1')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = opts.root || cliOpts.root;
+            const count = parseInt(opts.count, 10);
+            const genUuidFlow = new GenUuidFlow({
+                verbose: isVerbose,
+            });
+            await genUuidFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+                count: count,
+            });
+        } catch (error) {
+            console.error('Error during gen uuid:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+let cmdGenTsid = new Command('tsid')
+    .description('Generate a timestamp ID')
+    .option('-c, --count <number>', 'Number of TSIDs to generate', '1')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = opts.root || cliOpts.root;
+            const count = parseInt(opts.count, 10);
+            const genTsidFlow = new GenTsidFlow({
+                verbose: isVerbose,
+            });
+            await genTsidFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+                count: count,
+            });
+        } catch (error) {
+            console.error('Error during gen tsid:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdGen.addCommand(cmdGenUuid);
+cmdGen.addCommand(cmdGenTsid);
+
+program.addCommand(cmdGen);
 
 program.parse();

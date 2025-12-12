@@ -128,6 +128,10 @@ tbc dex core
 # Refresh all records indexes (party, goal, log, etc.)
 tbc dex records
 
+# Generate IDs
+tbc gen uuid [--count <number>]    # Generate UUID v7 (default: 1)
+tbc gen tsid [--count <number>]    # Generate timestamp ID (default: 1)
+
 # Enable verbose output (works with all commands)
 tbc init --verbose
 ```

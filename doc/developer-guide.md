@@ -194,6 +194,13 @@ Provides record file system operations for data retrieval and management:
 - `tbc-record-fs:fetch-records`: Fetches records by IDs from collection directories
 - `tbc-record-fs:fetch-all-ids`: Retrieves all record IDs from a collection directory
 
+#### TBCGeneratorPlugin (`@tbc-frameworx/tbc-generator`)
+Provides ID generation operations for creating unique identifiers:
+
+**Generator Operations:**
+- `tbc-generator:uuid`: Generates UUID v7 identifiers (optionally multiple)
+- `tbc-generator:tsid`: Generates UTC timestamp IDs in YYYYMMDDHHmmSS format (optionally multiple with 1-second intervals)
+
 ### FetchRecordsNode
 
 The `FetchRecordsNode` provides flexible record retrieval from TBC collection directories. It supports multiple file formats and implements a priority-based file lookup system.
@@ -434,12 +441,17 @@ tbc probe [options]        # Check environment and system info
 tbc validate [options]     # Validate companion structure
 tbc dex core [options]     # Refresh the core system definitions index
 tbc dex records [options]  # Refresh all records indexes (party, goal, log, etc.)
+tbc gen uuid [options]     # Generate UUID v7 identifiers
+tbc gen tsid [options]     # Generate UTC timestamp IDs
 tbc --help                # Show help information
 ```
 
 **Global Options:**
 - `--root <path>`: Specify companion root directory
 - `--verbose`: Enable verbose logging
+
+**Generator Options:**
+- `--count <number>`: Number of IDs to generate (default: 1)
 
 ### Commander.js Integration
 

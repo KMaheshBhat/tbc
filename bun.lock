@@ -20,6 +20,7 @@
       "dependencies": {
         "@hami-frameworx/core": "0.1.1",
         "@tbc-frameworx/tbc-core": "workspace:*",
+        "@tbc-frameworx/tbc-generator": "workspace:*",
         "@tbc-frameworx/tbc-record-fs": "workspace:*",
         "commander": "^12.0.0",
         "pocketflow": "^1.0.4",
@@ -35,6 +36,18 @@
       "dependencies": {
         "@hami-frameworx/core": "0.1.1",
         "pocketflow": "^1.0.4",
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+      },
+    },
+    "packages/tbc-generator": {
+      "name": "@tbc-frameworx/tbc-generator",
+      "version": "0.1.0",
+      "dependencies": {
+        "@hami-frameworx/core": "0.1.1",
+        "uuidv7": "^1.0.2",
       },
       "devDependencies": {
         "@types/node": "^20.0.0",
@@ -61,6 +74,8 @@
     "@tbc-frameworx/tbc-cli": ["@tbc-frameworx/tbc-cli@workspace:apps/tbc-cli"],
 
     "@tbc-frameworx/tbc-core": ["@tbc-frameworx/tbc-core@workspace:packages/tbc-core"],
+
+    "@tbc-frameworx/tbc-generator": ["@tbc-frameworx/tbc-generator@workspace:packages/tbc-generator"],
 
     "@tbc-frameworx/tbc-record-fs": ["@tbc-frameworx/tbc-record-fs@workspace:packages/tbc-record-fs"],
 
@@ -97,6 +112,8 @@
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
+
+    "uuidv7": ["uuidv7@1.1.0", "", { "bin": { "uuidv7": "cli.js" } }, "sha512-2VNnOC0+XQlwogChUDzy6pe8GQEys9QFZBGOh54l6qVfwoCUwwRvk7rDTgaIsRgsF5GFa5oiNg8LqXE3jofBBg=="],
 
     "bun-types/@types/node": ["@types/node@24.10.1", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ=="],
 
