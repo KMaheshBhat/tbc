@@ -43,6 +43,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
         assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode.bind(shared.registry);
 
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
@@ -81,11 +82,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         shared.assetsPath = join(cliDir, 'assets');
         shared.count = 3; // For UUID generation
 
-        // Create nodes
-        const validate = shared['registry'].createNode('tbc-core:validate', {
-            verbose: this.config.verbose,
-        });
-
         // Branching node to decide flow based on validation, upgrade flag, and companion/prime flags
         const branchNode = new Node();
         branchNode.post = async (shared: Record<string, any>) => {
@@ -95,7 +91,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             const prime = this.config.prime;
 
             if (companion && prime && !upgrade && !isValidTBCRoot) {
-                return 'enhanced';
+                return 'init';
             } else if (isValidTBCRoot && upgrade) {
                 // Check for required id files during upgrade
                 const tbcDir = join(shared.rootDirectory, 'tbc');
@@ -116,36 +112,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             }
         };
 
-        // New companion init flow nodes
-        const generateUuids = shared['registry'].createNode('tbc-generator:uuid');
-        const generateInitRecords = shared['registry'].createNode('tbc-core:generate-init-records');
-        const storeVaultRecords = shared['registry'].createNode('tbc-record-fs:store-records');
-        const generateInitIds = shared['registry'].createNode('tbc-core:generate-init-ids');
-        const storeTbcRecords = shared['registry'].createNode('tbc-record-fs:store-records');
-
-        // Separate nodes for new companion flow to avoid conflicts
-        const initNew = shared['registry'].createNode('tbc-core:init');
-        const copyAssetsNew = shared['registry'].createNode('tbc-core:copy-assets');
-        const generateRootNew = shared['registry'].createNode('tbc-core:generate-root', {
-            companion: this.config.companion,
-            prime: this.config.prime,
-        });
-        const storeRootRecord = shared['registry'].createNode('tbc-record-fs:store-records');
-        const validateNew = shared['registry'].createNode('tbc-core:validate', {
-            verbose: this.config.verbose,
-        });
-
-        // New companion flow continuation
-
-        // Normal init flow nodes
-        const init = shared['registry'].createNode('tbc-core:init');
-        const copyAssets = shared['registry'].createNode('tbc-core:copy-assets');
-        const generateRoot = shared['registry'].createNode('tbc-core:generate-root');
-        const validateFinal = shared['registry'].createNode('tbc-core:validate', {
-            verbose: this.config.verbose,
-        });
-
-
         // Abort flow nodes
         const abortNode = new Node();
         abortNode.exec = async () => {
@@ -153,77 +119,60 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             process.exit(1);
         };
 
-        // Upgrade flow nodes
-        const backupTbc = shared['registry'].createNode('tbc-core:backup-tbc');
-        const restoreExtensions = shared['registry'].createNode('tbc-core:restore-extensions');
-        const restoreRoot = shared['registry'].createNode('tbc-core:restore-root');
-
-        // Separate nodes for upgrade flow to avoid conflicts
-        const initUpgrade = shared['registry'].createNode('tbc-core:init');
-        const copyAssetsUpgrade = shared['registry'].createNode('tbc-core:copy-assets');
-        const generateRootUpgrade = shared['registry'].createNode('tbc-core:generate-root');
-        const validateUpgrade = shared['registry'].createNode('tbc-core:validate', {
-            verbose: this.config.verbose,
-        });
-
-        // Common logging nodes
-        const finalizeAndLogNode = new Node();
-        const logUuidResults = logTableNode(shared['registry'], 'generatedIds');
-        const logGenerateInitRecordsResults = logTableNode(shared['registry'], 'generateInitRecordsResults');
-        const logGenerateInitIdsResults = logTableNode(shared['registry'], 'generateInitIdsResults');
-        const logInitResults = logTableNode(shared['registry'], 'initResults');
-        const logCopyAssetsResults = logTableNode(shared['registry'], 'copyAssetResults');
-        const logGenerateRootResults = logTableNode(shared['registry'], 'generateRootResults');
-        const logValidationResults = logTableNode(shared['registry'], 'messages');
+        const init = new Node();
+        const upgrade = new Node();
+        const resultLog = new Node();
 
         // Wire the flow
         this.startNode
-            .next(validate)
+            .next(n('tbc-core:validate', {
+                verbose: this.config.verbose,
+            }))
             .next(branchNode);
 
         branchNode
-            .on('enhanced', generateUuids)
-            .on('upgrade', backupTbc)
+            .on('init', init)
+            .on('upgrade', upgrade)
             .on('abort', abortNode);
 
-        // Normal flow continuation
         init
-            .next(copyAssets)
-            .next(generateRoot)
-            .next(validateFinal)
-            .next(finalizeAndLogNode);
+            .next(n('tbc-generator:uuid'))
+            .next(n('tbc-core:generate-init-records'))
+            .next(n('tbc-core:init'))
+            .next(n('tbc-record-fs:store-records'))
+            .next(n('tbc-core:generate-init-ids'))
+            .next(n('tbc-record-fs:store-records'))
+            .next(n('tbc-core:copy-assets'))
+            .next(n('tbc-core:generate-root', {
+                companion: this.config.companion,
+                prime: this.config.prime,
+            }))
+            .next(n('tbc-record-fs:store-records'))
+            .next(n('tbc-core:validate', {
+                verbose: this.config.verbose,
+            }))
+            .next(resultLog)
 
-        // Upgrade flow continuation
-        backupTbc
-            .next(initUpgrade)
-            .next(copyAssetsUpgrade)
-            .next(restoreRoot)
-            .next(generateRootUpgrade)
-            .next(restoreExtensions)
-            .next(validateUpgrade)
-            .next(finalizeAndLogNode)
+        upgrade
+            .next(n('tbc-core:backup-tbc'))
+            .next(n('tbc-core:init'))
+            .next(n('tbc-core:copy-assets'))
+            .next(n('tbc-core:restore-root'))
+            .next(n('tbc-core:generate-root'))
+            .next(n('tbc-core:restore-extensions'))
+            .next(n('tbc-core:validate', {
+                verbose: this.config.verbose,
+            }))
+            .next(resultLog)
 
-        generateUuids
-            .next(generateInitRecords)
-            .next(initNew)
-            .next(storeVaultRecords)
-            .next(generateInitIds)
-            .next(storeTbcRecords)
-            .next(copyAssetsNew)
-            .next(generateRootNew)
-            .next(storeRootRecord)
-            .next(validateNew)
-            .next(finalizeAndLogNode)
-
-        // common logging sequence
-        finalizeAndLogNode
-            .next(logUuidResults)
-            .next(logGenerateInitRecordsResults)
-            .next(logGenerateInitIdsResults)
-            .next(logInitResults)
-            .next(logCopyAssetsResults)
-            .next(logGenerateRootResults)
-            .next(logValidationResults);
+        resultLog
+            .next(logTableNode(shared['registry'], 'generatedIds'))
+            .next(logTableNode(shared['registry'], 'generateInitRecordsResults'))
+            .next(logTableNode(shared['registry'], 'generateInitIdsResults'))
+            .next(logTableNode(shared['registry'], 'initResults'))
+            .next(logTableNode(shared['registry'], 'copyAssetResults'))
+            .next(logTableNode(shared['registry'], 'generateRootResults'))
+            .next(logTableNode(shared['registry'], 'messages'));
 
         return super.run(shared);
     }
