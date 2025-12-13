@@ -145,6 +145,13 @@ tbc/
 │   │   │   ├── types.ts       # Type definitions
 │   │   │   └── ops/           # Core operation nodes
 │   │   └── package.json
+│   ├── tbc-generator/        # ID generation operations package
+│   │   ├── src/
+│   │   │   ├── index.ts       # Package exports
+│   │   │   ├── plugin.ts      # Plugin definition
+│   │   │   ├── types.ts       # Type definitions
+│   │   │   └── ops/           # Generator operation nodes
+│   │   └── package.json
 │   └── tbc-record-fs/         # Record file system operations
 │       ├── src/
 │       │   ├── index.ts       # Package exports
@@ -179,6 +186,7 @@ Provides essential TBC core operations for environment management and initializa
 - `tbc-core:copy-assets`: Specification and tool copying from assets
 - `tbc-core:generate-root`: Initial tbc/root.md generation
 - `tbc-core:generate-init-records`: Generates initial companion, prime user, and memory records for vault
+- `tbc-core:generate-init-ids`: Generates companion.id and prime.id records for tbc/ collection
 - `tbc-core:backup-tbc`: Creates timestamped backup of tbc/ directory
 - `tbc-core:restore-extensions`: Restores extensions/ from backup during upgrades
 - `tbc-core:resolve`: Working directory resolution for TBC operations
@@ -434,7 +442,7 @@ this.startNode
 
 ### Flow Types
 
-- **InitFlow**: `tbc-core:validate → branchNode → { enhanced: tbc-core:generate-uuids → tbc-core:generate-init-records → tbc-core:init → tbc-core:store-records (vault) → tbc-core:write-ids → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:store-records (tbc) → tbc-core:validate, upgrade: tbc-core:backup-tbc → tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:restore-extensions → tbc-core:validate, abort: exit(1) }`
+- **InitFlow**: `tbc-core:validate → branchNode → { enhanced: tbc-core:generate-uuids → tbc-core:generate-init-records → tbc-core:init → tbc-core:store-records (vault) → tbc-core:generate-init-ids → tbc-core:store-records (tbc) → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:store-records (tbc) → tbc-core:validate, upgrade: tbc-core:backup-tbc → tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:restore-extensions → tbc-core:validate, abort: exit(1) }`
 - **ProbeFlow**: `tbc-core:resolve → tbc-core:validate → tbc-core:probe`
 - **ValidateFlow**: `tbc-core:resolve → tbc-core:validate`
 - **RefreshCoreFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (specs) → tbc-record-fs:fetch-all-ids (extensions) → tbc-record-fs:fetch-records (root) → tbc-record-fs:fetch-records (specs) → tbc-record-fs:fetch-records (extensions) → tbc-core:write-dex-core`
@@ -911,6 +919,7 @@ Add export to `src/index.ts`
 - Added automatic generation of companion party, prime user party, and memory structure records
 - Implemented UUID generation integration for unique record identification
 - Renamed operations for clarity: `write-core` → `write-dex-core`, `write-records` → `write-dex-records`
+- Refactored ID file generation: Replaced `tbc-core:write-ids` with `tbc-core:generate-init-ids` + `tbc-record-fs:store-records` for consistent record handling
 
 ### Known Limitations
 - No formal test suite (manual testing only)

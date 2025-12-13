@@ -120,7 +120,8 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         const generateUuids = shared['registry'].createNode('tbc-generator:uuid');
         const generateInitRecords = shared['registry'].createNode('tbc-core:generate-init-records');
         const storeVaultRecords = shared['registry'].createNode('tbc-record-fs:store-records');
-        const writeIds = shared['registry'].createNode('tbc-core:write-ids');
+        const generateInitIds = shared['registry'].createNode('tbc-core:generate-init-ids');
+        const storeTbcRecords = shared['registry'].createNode('tbc-record-fs:store-records');
 
         // Separate nodes for new companion flow to avoid conflicts
         const initNew = shared['registry'].createNode('tbc-core:init');
@@ -169,7 +170,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         const finalizeAndLogNode = new Node();
         const logUuidResults = logTableNode(shared['registry'], 'generatedIds');
         const logGenerateInitRecordsResults = logTableNode(shared['registry'], 'generateInitRecordsResults');
-        const logWriteIdsResults = logTableNode(shared['registry'], 'writeIdsResults');
+        const logGenerateInitIdsResults = logTableNode(shared['registry'], 'generateInitIdsResults');
         const logInitResults = logTableNode(shared['registry'], 'initResults');
         const logCopyAssetsResults = logTableNode(shared['registry'], 'copyAssetResults');
         const logGenerateRootResults = logTableNode(shared['registry'], 'generateRootResults');
@@ -206,7 +207,8 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             .next(generateInitRecords)
             .next(initNew)
             .next(storeVaultRecords)
-            .next(writeIds)
+            .next(generateInitIds)
+            .next(storeTbcRecords)
             .next(copyAssetsNew)
             .next(generateRootNew)
             .next(storeRootRecord)
@@ -217,7 +219,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         finalizeAndLogNode
             .next(logUuidResults)
             .next(logGenerateInitRecordsResults)
-            .next(logWriteIdsResults)
+            .next(logGenerateInitIdsResults)
             .next(logInitResults)
             .next(logCopyAssetsResults)
             .next(logGenerateRootResults)

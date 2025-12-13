@@ -57,10 +57,10 @@ type TBCCoreStorage = {
   prime?: string;
   /** Generate init records results containing record generation information. */
   generateInitRecordsResults?: string[];
+  /** Generate init IDs results containing ID record generation information. */
+  generateInitIdsResults?: string[];
   /** Record IDs for generated records. */
   recordIds?: { companion: string; prime: string; memory: string };
-  /** Write IDs results containing ID file writing information. */
-  writeIdsResults?: string[];
   /** Array of records to store (for record-fs operations). */
   records?: Record<string, any>[];
   /** Collection directory to store records in (for record-fs operations). */
