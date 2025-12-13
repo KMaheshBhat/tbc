@@ -45,8 +45,6 @@ type TBCCoreStorage = {
   restoreExtensionsResults?: { restored: boolean; message?: string };
   /** Restore root results containing restore operation information. */
   restoreRootResults?: { restored: boolean; message?: string };
-  /** Refresh core results containing the path to the generated core.md file. */
-  refreshCoreResult?: string;
   /** Fetched records by collection and ID (from record-fs operations). */
   fetchResults?: Record<string, Record<string, Record<string, any>>>;
   /** Generated UUIDs from generator operations. */
@@ -61,6 +59,12 @@ type TBCCoreStorage = {
   generateInitIdsResults?: string[];
   /** Record IDs for generated records. */
   recordIds?: { companion: string; prime: string; memory: string };
+  /** Generated dex core record for storage operations. */
+  generatedDexCore?: Record<string, any>;
+  /** Generated dex records for storage operations. */
+  generatedDexRecords?: Record<string, any>[];
+  /** Records grouped by their record_type for dex generation. */
+  recordsByType?: Record<string, any[]>;
   /** Array of records to store (for record-fs operations). */
   records?: Record<string, any>[];
   /** Collection directory to store records in (for record-fs operations). */

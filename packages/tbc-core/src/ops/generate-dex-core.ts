@@ -1,27 +1,31 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { mkdir, writeFile } from "fs/promises";
-import { join } from "path";
-
 import { TBCCoreStorage } from "../types.js";
 
-type WriteDexCoreInput = {
+type GenerateDexCoreInput = {
     rootDirectory: string;
     fetchResults?: Record<string, Record<string, any>>;
 };
 
-type WriteDexCoreOutput = string; // path to written file
+type GenerateDexCoreOutput = {
+    id: string;
+    filename: string;
+    contentType: string;
+    title: string;
+    content: string;
+    record_type: string;
+};
 
-export class WriteDexCoreNode extends HAMINode<TBCCoreStorage> {
+export class GenerateDexCoreNode extends HAMINode<TBCCoreStorage> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-core:write-dex-core";
+        return "tbc-core:generate-dex-core";
     }
 
-    async prep(shared: TBCCoreStorage): Promise<WriteDexCoreInput> {
+    async prep(shared: TBCCoreStorage): Promise<GenerateDexCoreInput> {
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required in shared state");
         }
@@ -31,13 +35,16 @@ export class WriteDexCoreNode extends HAMINode<TBCCoreStorage> {
         };
     }
 
-    async exec(params: WriteDexCoreInput): Promise<WriteDexCoreOutput> {
+    async exec(params: GenerateDexCoreInput): Promise<GenerateDexCoreOutput> {
         const content = this.collateContent(params.fetchResults || {});
-        const dexDir = join(params.rootDirectory, 'dex');
-        await mkdir(dexDir, { recursive: true });
-        const corePath = join(dexDir, 'core.md');
-        await writeFile(corePath, content, 'utf-8');
-        return corePath;
+        return {
+            id: 'core',
+            filename: 'core.md',
+            contentType: 'markdown',
+            title: 'Core System Definitions',
+            content: content,
+            record_type: 'dex'
+        };
     }
 
     private collateContent(fetchResults: Record<string, Record<string, any>>): string {
@@ -83,9 +90,14 @@ export class WriteDexCoreNode extends HAMINode<TBCCoreStorage> {
         return lines.join("\n");
     }
 
-    async post(shared: TBCCoreStorage, _prepRes: WriteDexCoreInput, execRes: WriteDexCoreOutput): Promise<string | undefined> {
-        // Optionally store the result
-        shared.refreshCoreResult = execRes;
+    async post(shared: TBCCoreStorage, _prepRes: GenerateDexCoreInput, execRes: GenerateDexCoreOutput): Promise<string | undefined> {
+        // Store the generated record for use by store-records node
+        shared.generatedDexCore = execRes;
+        
+        // Set up records array for store operation
+        shared.records = [execRes];
+        shared.collection = 'dex';
+        
         return "default";
     }
 }

@@ -191,18 +191,31 @@ Provides essential TBC core operations for environment management and initializa
 - `tbc-core:restore-extensions`: Restores extensions/ from backup during upgrades
 - `tbc-core:resolve`: Working directory resolution for TBC operations
 - `tbc-core:validate`: TBC directory structure validation
-- `tbc-core:write-dex-core`: Writes collated system definitions to dex/core.md
-- `tbc-core:write-dex-records`: Writes records indexes to dex/{record_type}.md files
+- `tbc-core:generate-dex-core`: Generates collated system definitions record for dex/core.md
+- `tbc-core:generate-dex-records`: Generates records indexes records for dex/{record_type}.md files
 - `tbc-core:refresh-core`: Orchestrates fetching and writing of core system definitions
 - `tbc-core:refresh-records`: Orchestrates fetching and writing of all records indexes
 
 #### TBCRecordFSPlugin (`@tbc-frameworx/tbc-record-fs`)
+
 Provides record file system operations for data retrieval and management:
 
 **Record Operations:**
 - `tbc-record-fs:fetch-records`: Fetches records by IDs from collection directories
 - `tbc-record-fs:fetch-all-ids`: Retrieves all record IDs from a collection directory
 
+#### Dex Generation Pattern
+
+The dex generation system follows a consistent pattern of separation between content generation and storage:
+
+1. **Generation Phase**: `tbc-core:generate-dex-*` nodes prepare structured record objects
+2. **Storage Phase**: `tbc-record-fs:store-records` handles the actual file writing
+
+This pattern provides several benefits:
+- **Consistency**: Uses the same storage infrastructure as other parts of the system
+- **Maintainability**: Clear separation of concerns between content preparation and persistence
+- **Extensibility**: Easy to add new file formats or storage backends
+- **Testability**: Generation logic can be tested independently from file operations
 #### TBCGeneratorPlugin (`@tbc-frameworx/tbc-generator`)
 Provides ID generation operations for creating unique identifiers:
 
@@ -445,8 +458,8 @@ this.startNode
 - **InitFlow**: `tbc-core:validate → branchNode → { enhanced: tbc-core:generate-uuids → tbc-core:generate-init-records → tbc-core:init → tbc-core:store-records (vault) → tbc-core:generate-init-ids → tbc-core:store-records (tbc) → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:store-records (tbc) → tbc-core:validate, upgrade: tbc-core:backup-tbc → tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:restore-extensions → tbc-core:validate, abort: exit(1) }`
 - **ProbeFlow**: `tbc-core:resolve → tbc-core:validate → tbc-core:probe`
 - **ValidateFlow**: `tbc-core:resolve → tbc-core:validate`
-- **RefreshCoreFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (specs) → tbc-record-fs:fetch-all-ids (extensions) → tbc-record-fs:fetch-records (root) → tbc-record-fs:fetch-records (specs) → tbc-record-fs:fetch-records (extensions) → tbc-core:write-dex-core`
-- **RefreshRecordsFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (vault) → tbc-record-fs:fetch-records (vault) → GroupRecordsByTypeNode → tbc-core:write-dex-records`
+- **RefreshCoreFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (specs) → tbc-record-fs:fetch-all-ids (extensions) → tbc-record-fs:fetch-records (root) → tbc-record-fs:fetch-records (specs) → tbc-record-fs:fetch-records (extensions) → tbc-core:generate-dex-core → tbc-record-fs:store-records (dex)`
+- **RefreshRecordsFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (vault) → tbc-record-fs:fetch-records (vault) → GroupRecordsByTypeNode → tbc-core:generate-dex-records → tbc-record-fs:store-records (dex)`
 
 ### Shared State Management
 
@@ -909,11 +922,12 @@ Add export to `src/index.ts`
 - Implemented `tbc dex core` CLI command replacing `refresh-core.sh` shell script
 - Added `FetchAllIdsNode`, `StoreRecordsNode`, and enhanced `FetchRecordsNode` for record file system operations
 - Enhanced `StoreRecordsNode` to support multiple file formats (Markdown, JSON, raw) based on filename extension or contentType
-- Added `WriteDexCoreNode` for core system definitions writing and `RefreshCoreFlow` for orchestration
+- Added `GenerateDexCoreNode` for core system definitions record generation and `RefreshCoreFlow` for orchestration
 - Moved refresh-core orchestration logic to `tbc-core` package for reusability across interfaces
 - Implemented `tbc dex records` CLI command replacing shell scripts (`refresh-party.sh`, `refresh-goal.sh`, `refresh-all.sh`)
-- Added `WriteDexRecordsNode` with generic field extraction and `RefreshRecordsFlow` for records index generation
+- Added `GenerateDexRecordsNode` with generic field extraction and `RefreshRecordsFlow` for records index generation
 - Added `GroupRecordsByTypeNode` for dynamic record type grouping
+- Refactored dex generation to use `tbc-record-fs:store-records` for consistent record handling, replacing direct file operations
 - Restructured CLI to have `dex` as main command with `core` and `records` subcommands
 - Enhanced `tbc init` command with `--companion` and `--prime` flags for friction-free initialization
 - Added automatic generation of companion party, prime user party, and memory structure records

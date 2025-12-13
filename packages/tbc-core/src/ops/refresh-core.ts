@@ -2,7 +2,6 @@ import assert from "assert";
 import { Node } from "pocketflow";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { WriteDexCoreNode } from "./write-dex-core.js";
 
 interface RefreshCoreFlowConfig {
     verbose: boolean;
@@ -67,11 +66,14 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         const fetchAllIDsExtensions = shared['registry'].createNode('tbc-record-fs:fetch-all-ids');
         const fetchRecordsExtensions = shared['registry'].createNode('tbc-record-fs:fetch-records');
 
-        // Write core
-        const writeCore = shared['registry'].createNode('tbc-core:write-dex-core', {}, WriteDexCoreNode);
-
+        // Generate dex core record
+        const generateCore = shared['registry'].createNode('tbc-core:generate-dex-core');
+        
+        // Store dex core record
+        const storeCore = shared['registry'].createNode('tbc-record-fs:store-records');
+        
         // Log Results
-        const logResult = shared['registry'].createNode('core:log-result', { resultKey: 'refreshCoreResult' });
+        const logResult = shared['registry'].createNode('core:log-result', { resultKey: 'storeResults' });
 
         // Wire the flow
         this.startNode
@@ -84,7 +86,8 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
             .next(mapExtensions)
             .next(fetchAllIDsExtensions)
             .next(fetchRecordsExtensions)
-            .next(writeCore)
+            .next(generateCore)
+            .next(storeCore)
             .next(logResult)
             ;
 

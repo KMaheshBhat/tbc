@@ -1,5 +1,6 @@
 import { HAMIFlow } from "@hami-frameworx/core";
 import { Node } from "pocketflow";
+import { GenerateDexRecordsNode } from "./generate-dex-records.js";
 
 interface RefreshRecordsFlowConfig {
     verbose: boolean;
@@ -41,12 +42,15 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
         // Group records by type
         const groupRecords = new GroupRecordsByTypeNode();
 
-        // Write records indexes
-        const writeRecords = shared['registry'].createNode('tbc-core:write-dex-records', { verbose: this.config.verbose });
+        // Generate dex records
+        const generateRecords = shared['registry'].createNode('tbc-core:generate-dex-records', { verbose: this.config.verbose });
+
+        // Store dex records
+        const storeRecords = shared['registry'].createNode('tbc-record-fs:store-records');
 
         // Log Results
         const logResult = shared['registry'].createNode('core:log-result', {
-            resultKey: 'refreshRecordsResult',
+            resultKey: 'storeResults',
             prefix: 'Records refresh completed:'
         });
 
@@ -56,7 +60,8 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
             .next(fetchAllIDs)
             .next(fetchRecords)
             .next(groupRecords)
-            .next(writeRecords)
+            .next(generateRecords)
+            .next(storeRecords)
             .next(logResult);
 
         return super.run(shared);

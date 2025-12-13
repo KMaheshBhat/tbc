@@ -1,17 +1,17 @@
 import { HAMINode } from "@hami-frameworx/core";
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 
-interface WriteDexRecordsNodeConfig {
+import { TBCCoreStorage } from "../types.js";
+
+interface GenerateDexRecordsNodeConfig {
     verbose: boolean;
 }
 
-export class WriteDexRecordsNode extends HAMINode<Record<string, any>, WriteDexRecordsNodeConfig> {
+export class GenerateDexRecordsNode extends HAMINode<TBCCoreStorage, GenerateDexRecordsNodeConfig> {
     kind(): string {
-        return "tbc-core:write-dex-records";
+        return "tbc-core:generate-dex-records";
     }
 
-    async prep(shared: Record<string, any>): Promise<any> {
+    async prep(shared: TBCCoreStorage): Promise<any> {
         return {
             rootDirectory: shared.rootDirectory,
             recordsByType: shared.recordsByType,
@@ -19,23 +19,23 @@ export class WriteDexRecordsNode extends HAMINode<Record<string, any>, WriteDexR
         };
     }
 
-    async exec(params: any): Promise<string> {
-        const { rootDirectory, recordsByType, verbose } = params;
-        const dexDir = join(rootDirectory, 'dex');
-
-        // Create dex directory if it doesn't exist
-        await mkdir(dexDir, { recursive: true });
-
-        // Write index files for each record type
-        for (const [recordType, records] of Object.entries(recordsByType as Record<string, any[]>)) {
-            const indexContent = this.generateIndexContent(recordType, records as any[]);
-            const indexPath = join(dexDir, `${recordType}.md`);
-
-            await writeFile(indexPath, indexContent);
-            verbose && console.log(`Wrote ${(records as any[]).length} ${recordType} records to ${indexPath}`);
+    async exec(params: any): Promise<any[]> {
+        const { recordsByType } = params;
+        const records = [];
+        
+        for (const [recordType, typeRecords] of Object.entries(recordsByType as Record<string, any[]>)) {
+            const content = this.generateIndexContent(recordType, typeRecords as any[]);
+            records.push({
+                id: `${recordType}-index`,
+                filename: `${recordType}.md`,
+                contentType: 'markdown',
+                title: `${recordType.charAt(0).toUpperCase() + recordType.slice(1)} Records Index`,
+                content: content,
+                record_type: 'dex'
+            });
         }
-
-        return 'default'; // Follow HAMI pattern - return 'default' for linear flows
+        
+        return records;
     }
 
     private generateIndexContent(recordType: string, records: any[]): string {
@@ -89,8 +89,14 @@ export class WriteDexRecordsNode extends HAMINode<Record<string, any>, WriteDexR
         return true;
     }
 
-    async post(shared: Record<string, any>, prepRes: any, execRes: string): Promise<string | undefined> {
-        shared.refreshRecordsResult = execRes;
+    async post(shared: TBCCoreStorage, prepRes: any, execRes: any[]): Promise<string | undefined> {
+        // Store the generated records for use by store-records node
+        shared.generatedDexRecords = execRes;
+        
+        // Set up records array for store operation
+        shared.records = execRes;
+        shared.collection = 'dex';
+        
         return 'default'; // Follow HAMI pattern
     }
 }

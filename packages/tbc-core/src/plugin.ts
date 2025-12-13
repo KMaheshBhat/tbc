@@ -11,9 +11,10 @@ import { RestoreExtensionsNode } from "./ops/restore-extensions.js";
 import { RestoreRootNode } from "./ops/restore-root.js";
 import { ResolveNode } from "./ops/resolve.js";
 import { ValidateNode } from "./ops/validate.js";
-import { WriteDexCoreNode } from "./ops/write-dex-core.js";
-import { WriteDexRecordsNode } from "./ops/write-dex-records.js";
+import { GenerateDexCoreNode } from "./ops/generate-dex-core.js";
+import { GenerateDexRecordsNode } from "./ops/generate-dex-records.js";
 import { RefreshRecordsFlow } from "./ops/refresh-records.js";
+import { RefreshCoreFlow } from "./ops/refresh-core.js";
 
 /**
  * TBC Core Plugin for HAMI.
@@ -29,8 +30,9 @@ import { RefreshRecordsFlow } from "./ops/refresh-records.js";
  * - `tbc-core:restore-extensions`: Restores extensions/ from backup and cleans up
  * - `tbc-core:resolve`: Resolves working directory for TBC operations
  * - `tbc-core:validate`: Validates TBC directory structure (tbc/, vault/, dex/)
- * - `tbc-core:write-dex-core`: Writes collated system definitions to dex/core.md
- * - `tbc-core:write-dex-records`: Writes records indexes to dex/{record_type}.md files
+ * - `tbc-core:generate-dex-core`: Generates collated system definitions record for dex/core.md
+ * - `tbc-core:generate-dex-records`: Generates records indexes records for dex/{record_type}.md files
+ * - `tbc-core:refresh-core`: Refreshes core system definitions index from root, specs, and extensions
  * - `tbc-core:refresh-records`: Refreshes all records indexes from vault
  */
 const TBCCorePlugin = createPlugin(
@@ -48,8 +50,9 @@ const TBCCorePlugin = createPlugin(
         RestoreRootNode as any,
         ResolveNode as any,
         ValidateNode as any,
-        WriteDexCoreNode as any,
-        WriteDexRecordsNode as any,
+        GenerateDexCoreNode as any,
+        GenerateDexRecordsNode as any,
+        RefreshCoreFlow as any,
         RefreshRecordsFlow as any,
     ],
     "TBC Core Plugin - Environment probing, initialization, validation, and core management operations",
