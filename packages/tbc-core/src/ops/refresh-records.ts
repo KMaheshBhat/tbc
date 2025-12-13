@@ -42,7 +42,7 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
         const groupRecords = new GroupRecordsByTypeNode();
 
         // Write records indexes
-        const writeRecords = shared['registry'].createNode('tbc-core:write-records', { verbose: this.config.verbose });
+        const writeRecords = shared['registry'].createNode('tbc-core:write-dex-records', { verbose: this.config.verbose });
 
         // Log Results
         const logResult = shared['registry'].createNode('core:log-result', {

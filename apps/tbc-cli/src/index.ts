@@ -72,16 +72,41 @@ program.addCommand(cmdProbe);
 let cmdInit = new Command('init')
   .description('Initialize a new TBC companion directory')
   .option('--upgrade', 'Allow re-initialization of existing companion')
+  .option('--companion <name>', 'Name of the AI companion')
+  .option('--prime <name>', 'Name of the prime user (group)')
   .action(async (opts) => {
     try {
       const cliOpts = program.opts();
       const isVerbose = !!cliOpts.verbose;
       const root = cliOpts.root;
       const upgrade = !!opts.upgrade;
+      const companion = opts.companion;
+      const prime = opts.prime;
+
+      // Validation: both companion and prime must be provided together, mutually exclusive with upgrade
+      if ((companion || prime) && upgrade) {
+        console.error('Error: --companion and --prime flags are mutually exclusive with --upgrade');
+        process.exit(1);
+      }
+      if (companion && !prime) {
+        console.error('Error: --prime flag is required when --companion is provided');
+        process.exit(1);
+      }
+      if (!companion && prime) {
+        console.error('Error: --companion flag is required when --prime is provided');
+        process.exit(1);
+      }
+      if (!companion && !prime && !upgrade) {
+        console.error('Error: Either --companion and --prime flags must be provided together, or --upgrade flag must be provided');
+        process.exit(1);
+      }
+
       const initFlow = new InitFlow({
         root: root,
         verbose: isVerbose,
         upgrade: upgrade,
+        companion: companion,
+        prime: prime,
       });
       await initFlow.run({
         registry: registry,

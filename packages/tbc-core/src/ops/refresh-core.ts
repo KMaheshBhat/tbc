@@ -2,6 +2,7 @@ import assert from "assert";
 import { Node } from "pocketflow";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { WriteDexCoreNode } from "./write-dex-core.js";
 
 interface RefreshCoreFlowConfig {
     verbose: boolean;
@@ -67,7 +68,7 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         const fetchRecordsExtensions = shared['registry'].createNode('tbc-record-fs:fetch-records');
 
         // Write core
-        const writeCore = shared['registry'].createNode('tbc-core:write-core');
+        const writeCore = shared['registry'].createNode('tbc-core:write-dex-core', {}, WriteDexCoreNode);
 
         // Log Results
         const logResult = shared['registry'].createNode('core:log-result', { resultKey: 'refreshCoreResult' });

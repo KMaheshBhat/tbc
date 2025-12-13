@@ -43,10 +43,24 @@ type TBCCoreStorage = {
   backupTbcResults?: { backedUp: boolean; backupPath?: string };
   /** Restore extensions results containing restore operation information. */
   restoreExtensionsResults?: { restored: boolean; message?: string };
+  /** Restore root results containing restore operation information. */
+  restoreRootResults?: { restored: boolean; message?: string };
   /** Refresh core results containing the path to the generated core.md file. */
   refreshCoreResult?: string;
   /** Fetched records by collection and ID (from record-fs operations). */
   fetchResults?: Record<string, Record<string, Record<string, any>>>;
+  /** Generated UUIDs from generator operations. */
+  generatedIds?: string[];
+  /** Companion name for enhanced initialization. */
+  companion?: string;
+  /** Prime user name for enhanced initialization. */
+  prime?: string;
+  /** Create records results containing record creation information. */
+  createRecordsResults?: string[];
+  /** Record IDs for generated records. */
+  recordIds?: { companion: string; prime: string; memory: string };
+  /** Write IDs results containing ID file writing information. */
+  writeIdsResults?: string[];
 }
 
 export {

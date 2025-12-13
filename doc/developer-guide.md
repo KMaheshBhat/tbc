@@ -182,8 +182,8 @@ Provides essential TBC core operations for environment management and initializa
 - `tbc-core:restore-extensions`: Restores extensions/ from backup during upgrades
 - `tbc-core:resolve`: Working directory resolution for TBC operations
 - `tbc-core:validate`: TBC directory structure validation
-- `tbc-core:write-core`: Writes collated system definitions to dex/core.md
-- `tbc-core:write-records`: Writes records indexes to dex/{record_type}.md files
+- `tbc-core:write-dex-core`: Writes collated system definitions to dex/core.md
+- `tbc-core:write-dex-records`: Writes records indexes to dex/{record_type}.md files
 - `tbc-core:refresh-core`: Orchestrates fetching and writing of core system definitions
 - `tbc-core:refresh-records`: Orchestrates fetching and writing of all records indexes
 
@@ -332,8 +332,8 @@ this.startNode
 - **InitFlow**: `tbc-core:validate → branchNode → { normal: tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:validate, upgrade: tbc-core:backup-tbc → tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:restore-extensions → tbc-core:validate, abort: exit(1) }`
 - **ProbeFlow**: `tbc-core:resolve → tbc-core:validate → tbc-core:probe`
 - **ValidateFlow**: `tbc-core:resolve → tbc-core:validate`
-- **RefreshCoreFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (specs) → tbc-record-fs:fetch-all-ids (extensions) → tbc-record-fs:fetch-records (root) → tbc-record-fs:fetch-records (specs) → tbc-record-fs:fetch-records (extensions) → tbc-core:write-core`
-- **RefreshRecordsFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (vault) → tbc-record-fs:fetch-records (vault) → GroupRecordsByTypeNode → tbc-core:write-records`
+- **RefreshCoreFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (specs) → tbc-record-fs:fetch-all-ids (extensions) → tbc-record-fs:fetch-records (root) → tbc-record-fs:fetch-records (specs) → tbc-record-fs:fetch-records (extensions) → tbc-core:write-dex-core`
+- **RefreshRecordsFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (vault) → tbc-record-fs:fetch-records (vault) → GroupRecordsByTypeNode → tbc-core:write-dex-records`
 
 ### Shared State Management
 
@@ -436,6 +436,7 @@ The TBC CLI provides the following commands:
 
 ```bash
 tbc init [options]         # Initialize a new TBC companion
+tbc init --companion <name> --prime <name>  # Initialize with custom companion details
 tbc init --upgrade         # Upgrade existing companion (with backup)
 tbc probe [options]        # Check environment and system info
 tbc validate [options]     # Validate companion structure
@@ -465,6 +466,8 @@ const program = new Command()
 program
   .command('init')
   .description('Initialize a new TBC companion')
+  .option('--companion <name>', 'Name of the AI companion')
+  .option('--prime <name>', 'Name of the prime user')
   .option('--upgrade', 'Upgrade existing companion with backup')
   .action(async (options) => {
     // Implementation
@@ -735,12 +738,16 @@ Add export to `src/index.ts`
 - Updated documentation to reflect current architecture
 - Implemented `tbc dex core` CLI command replacing `refresh-core.sh` shell script
 - Added `FetchAllIdsNode` and enhanced `FetchRecordsNode` for record file system operations
-- Added `WriteCoreNode` for core system definitions writing and `RefreshCoreFlow` for orchestration
+- Added `WriteDexCoreNode` for core system definitions writing and `RefreshCoreFlow` for orchestration
 - Moved refresh-core orchestration logic to `tbc-core` package for reusability across interfaces
 - Implemented `tbc dex records` CLI command replacing shell scripts (`refresh-party.sh`, `refresh-goal.sh`, `refresh-all.sh`)
-- Added `WriteRecordsNode` with generic field extraction and `RefreshRecordsFlow` for records index generation
+- Added `WriteDexRecordsNode` with generic field extraction and `RefreshRecordsFlow` for records index generation
 - Added `GroupRecordsByTypeNode` for dynamic record type grouping
 - Restructured CLI to have `dex` as main command with `core` and `records` subcommands
+- Enhanced `tbc init` command with `--companion` and `--prime` flags for friction-free initialization
+- Added automatic generation of companion party, prime user party, and memory structure records
+- Implemented UUID generation integration for unique record identification
+- Renamed operations for clarity: `write-core` → `write-dex-core`, `write-records` → `write-dex-records`
 
 ### Known Limitations
 - No formal test suite (manual testing only)

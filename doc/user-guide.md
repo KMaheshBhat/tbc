@@ -55,15 +55,20 @@ The system provides a structured way to create and maintain AI companions that p
    git init
    ```
 
-2. Initialize the TBC structure:
+2. Initialize the TBC structure with your companion details:
    ```bash
-   tbc init
+   tbc init --companion "My Companion Name" --prime "Your Name"
    ```
 
    This creates:
    - `tbc/` - System specifications and tools
-   - `vault/` - Your records storage
+   - `vault/` - Your records storage with party and memory records
    - `dex/` - Generated indexes
+
+   **Options:**
+   - `--companion "<name>"`: Name of your AI companion (required)
+   - `--prime "<name>"`: Your name or the prime user's name (required)
+   - `--upgrade`: Upgrade existing companion with backup
 
 3. Customize your companion by editing `tbc/root.md`
 
@@ -107,11 +112,11 @@ title: Your Agent Root
 ### Core Commands
 
 ```bash
-# Initialize a new companion
-tbc init
+# Initialize a new companion with custom details
+tbc init --companion "My AI Assistant" --prime "John Doe"
 
 # Initialize in a specific directory
-tbc init --root /path/to/companion
+tbc init --companion "My AI Assistant" --prime "John Doe" --root /path/to/companion
 
 # Upgrade existing companion (backs up and refreshes assets)
 tbc init --upgrade

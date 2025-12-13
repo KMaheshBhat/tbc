@@ -2,13 +2,13 @@ import { HAMINode } from "@hami-frameworx/core";
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
-interface WriteRecordsNodeConfig {
+interface WriteDexRecordsNodeConfig {
     verbose: boolean;
 }
 
-export class WriteRecordsNode extends HAMINode<Record<string, any>, WriteRecordsNodeConfig> {
+export class WriteDexRecordsNode extends HAMINode<Record<string, any>, WriteDexRecordsNodeConfig> {
     kind(): string {
-        return "tbc-core:write-records";
+        return "tbc-core:write-dex-records";
     }
 
     async prep(shared: Record<string, any>): Promise<any> {

@@ -7,8 +7,13 @@ import { TBCCoreStorage } from "../types.js";
 type GenerateRootNodeOutput = string[];
 
 export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
-    constructor(maxRetries?: number, wait?: number) {
+    private companion?: string;
+    private prime?: string;
+
+    constructor(config?: { companion?: string; prime?: string }, maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
+        this.companion = config?.companion;
+        this.prime = config?.prime;
     }
 
     kind(): string {
@@ -17,21 +22,70 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
 
     async prep(
         shared: TBCCoreStorage,
-    ): Promise<TBCCoreStorage> {
+    ): Promise<{ rootDirectory: string; companion?: string; prime?: string; recordIds?: { companion: string; prime: string; memory: string } }> {
         // Ensure rootDirectory is set
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required for generate-root operation");
         }
-        return shared;
+
+        // Use config values or fall back to shared state
+        const companion = this.companion || shared.companion;
+        const prime = this.prime || shared.prime;
+
+        return {
+            rootDirectory: shared.rootDirectory,
+            companion,
+            prime,
+            recordIds: shared.recordIds,
+        };
     }
 
     async exec(
-        shared: TBCCoreStorage,
+        params: { rootDirectory: string; companion?: string; prime?: string; recordIds?: { companion: string; prime: string; memory: string } },
     ): Promise<GenerateRootNodeOutput> {
-        const rootDir = shared.rootDirectory!;
-        const rootFilePath = join(rootDir, "tbc", "root.md");
+        const { rootDirectory, companion, prime, recordIds } = params;
+        const rootFilePath = join(rootDirectory, "tbc", "root.md");
 
-        const rootContent = `---
+        // Helper function to convert to lower-snake-case
+        const toLowerSnakeCase = (str: string) => str.toLowerCase().replace(/\s+/g, '_');
+
+        let rootContent: string;
+
+        if (companion && prime && recordIds) {
+            // Enhanced root record with references to generated records
+            const companionTag = `c/agent/${toLowerSnakeCase(companion)}`;
+            rootContent = `---
+id: root
+record_type: root
+record_tags:
+  - ${companionTag}
+title: ${companion} Root
+---
+# ${companion} Root
+
+## Definitions
+
+- Agent: [${companion}](/vault/${recordIds.companion}.md)
+- Primer User: [${prime}](/vault/${recordIds.prime}.md)
+- Specifications: [core](/dex/core.md)
+  - use 'Refresh Core Index' method if not available
+
+## Agent Identity
+
+${companion} is the AI Assistant as per the Third Brain Companion System Definitions.
+
+## Motivation
+
+1. Assist the Prime User in their activities, engage in their interactions.
+2. Evolve motivations with clarity to align with motivations of the Prime User.
+
+## Memories
+
+- [root map of memories](/vault/${recordIds.memory}.md)
+`;
+        } else {
+            // Fallback to generic root record (for upgrade mode or old behavior)
+            rootContent = `---
 id: root
 record_type: note
 record_tags:
@@ -61,10 +115,11 @@ title: Your Agent Root
 
 [List of memory records]
 `;
+        }
 
         try {
             await writeFile(rootFilePath, rootContent, 'utf-8');
-            return [`Generated initial root.md at ${rootFilePath}`];
+            return [`Generated TBC-ROOT-RECORD at ${rootFilePath}`];
         } catch (error) {
             throw new Error(`Failed to generate root.md: ${(error as Error).message}`);
         }

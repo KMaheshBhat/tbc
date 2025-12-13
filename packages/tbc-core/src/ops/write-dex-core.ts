@@ -5,23 +5,23 @@ import { join } from "path";
 
 import { TBCCoreStorage } from "../types.js";
 
-type RefreshCoreInput = {
+type WriteDexCoreInput = {
     rootDirectory: string;
     fetchResults?: Record<string, Record<string, any>>;
 };
 
-type RefreshCoreOutput = string; // path to written file
+type WriteDexCoreOutput = string; // path to written file
 
-export class WriteCoreNode extends HAMINode<TBCCoreStorage> {
+export class WriteDexCoreNode extends HAMINode<TBCCoreStorage> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-core:write-core";
+        return "tbc-core:write-dex-core";
     }
 
-    async prep(shared: TBCCoreStorage): Promise<RefreshCoreInput> {
+    async prep(shared: TBCCoreStorage): Promise<WriteDexCoreInput> {
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required in shared state");
         }
@@ -31,7 +31,7 @@ export class WriteCoreNode extends HAMINode<TBCCoreStorage> {
         };
     }
 
-    async exec(params: RefreshCoreInput): Promise<RefreshCoreOutput> {
+    async exec(params: WriteDexCoreInput): Promise<WriteDexCoreOutput> {
         const content = this.collateContent(params.fetchResults || {});
         const dexDir = join(params.rootDirectory, 'dex');
         await mkdir(dexDir, { recursive: true });
@@ -83,7 +83,7 @@ export class WriteCoreNode extends HAMINode<TBCCoreStorage> {
         return lines.join("\n");
     }
 
-    async post(shared: TBCCoreStorage, _prepRes: RefreshCoreInput, execRes: RefreshCoreOutput): Promise<string | undefined> {
+    async post(shared: TBCCoreStorage, _prepRes: WriteDexCoreInput, execRes: WriteDexCoreOutput): Promise<string | undefined> {
         // Optionally store the result
         shared.refreshCoreResult = execRes;
         return "default";

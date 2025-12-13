@@ -2,6 +2,7 @@ import assert from "assert";
 import { Node } from "pocketflow";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { access } from "node:fs/promises";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
@@ -9,6 +10,8 @@ interface InitFlowConfig {
     root?: string;
     verbose: boolean;
     upgrade?: boolean;
+    companion?: string;
+    prime?: string;
 }
 
 const InitFlowConfigSchema: ValidationSchema = {
@@ -17,6 +20,8 @@ const InitFlowConfigSchema: ValidationSchema = {
         root: { type: "string" },
         verbose: { type: "boolean" },
         upgrade: { type: "boolean" },
+        companion: { type: "string" },
+        prime: { type: "string" },
     },
     required: ["verbose"],
 };
@@ -42,6 +47,19 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
 
+        // Set companion and prime names in shared state
+        if (this.config.companion) {
+            shared.companion = this.config.companion;
+        }
+        if (this.config.prime) {
+            shared.prime = this.config.prime;
+        }
+
+        // Set count for UUID generation if enhanced init
+        if (this.config.companion && this.config.prime) {
+            shared.count = 3;
+        }
+
         // Determine root directory
         const rootDir = this.config.root || process.cwd();
         shared.rootDirectory = rootDir;
@@ -61,26 +79,60 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         }
 
         shared.assetsPath = join(cliDir, 'assets');
+        shared.count = 3; // For UUID generation
 
         // Create nodes
         const validate = shared['registry'].createNode('tbc-core:validate', {
             verbose: this.config.verbose,
         });
 
-        // Branching node to decide flow based on validation and upgrade flag
+        // Branching node to decide flow based on validation, upgrade flag, and companion/prime flags
         const branchNode = new Node();
         branchNode.post = async (shared: Record<string, any>) => {
             const isValidTBCRoot = shared.isValidTBCRoot;
             const upgrade = this.config.upgrade || false;
+            const companion = this.config.companion;
+            const prime = this.config.prime;
 
-            if (isValidTBCRoot && !upgrade) {
-                return 'abort';
+            if (companion && prime && !upgrade && !isValidTBCRoot) {
+                return 'enhanced';
             } else if (isValidTBCRoot && upgrade) {
-                return 'upgrade';
+                // Check for required id files during upgrade
+                const tbcDir = join(shared.rootDirectory, 'tbc');
+                try {
+                    await access(join(tbcDir, 'companion.id'));
+                    await access(join(tbcDir, 'prime.id'));
+                    return 'upgrade';
+                } catch {
+                    console.error('Error: companion.id and prime.id files are required for upgrade. Please ensure they exist in the tbc/ directory.');
+                    process.exit(1);
+                }
+            } else if (isValidTBCRoot && !upgrade) {
+                return 'abort';
+            } else if (!companion && !prime && !upgrade) {
+                return 'abort'; // Require either enhanced init or upgrade
             } else {
-                return 'normal';
+                return 'normal'; // Fallback, though should not reach here
             }
         };
+
+        // Enhanced init flow nodes
+        const generateUuids = shared['registry'].createNode('tbc-generator:uuid');
+        const createRecords = shared['registry'].createNode('tbc-core:create-records');
+        const writeIds = shared['registry'].createNode('tbc-core:write-ids');
+
+        // Separate nodes for enhanced flow to avoid conflicts
+        const initEnhanced = shared['registry'].createNode('tbc-core:init');
+        const copyAssetsEnhanced = shared['registry'].createNode('tbc-core:copy-assets');
+        const generateRootEnhanced = shared['registry'].createNode('tbc-core:generate-root', {
+            companion: this.config.companion,
+            prime: this.config.prime,
+        });
+        const validateEnhanced = shared['registry'].createNode('tbc-core:validate', {
+            verbose: this.config.verbose,
+        });
+
+        // Enhanced flow continuation
 
         // Normal init flow nodes
         const init = shared['registry'].createNode('tbc-core:init');
@@ -101,6 +153,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         // Upgrade flow nodes
         const backupTbc = shared['registry'].createNode('tbc-core:backup-tbc');
         const restoreExtensions = shared['registry'].createNode('tbc-core:restore-extensions');
+        const restoreRoot = shared['registry'].createNode('tbc-core:restore-root');
 
         // Separate nodes for upgrade flow to avoid conflicts
         const initUpgrade = shared['registry'].createNode('tbc-core:init');
@@ -112,6 +165,9 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
 
         // Common logging nodes
         const finalizeAndLogNode = new Node();
+        const logUuidResults = logTableNode(shared['registry'], 'generatedIds');
+        const logCreateRecordsResults = logTableNode(shared['registry'], 'createRecordsResults');
+        const logWriteIdsResults = logTableNode(shared['registry'], 'writeIdsResults');
         const logInitResults = logTableNode(shared['registry'], 'initResults');
         const logCopyAssetsResults = logTableNode(shared['registry'], 'copyAssetResults');
         const logGenerateRootResults = logTableNode(shared['registry'], 'generateRootResults');
@@ -123,7 +179,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             .next(branchNode);
 
         branchNode
-            .on('normal', init)
+            .on('enhanced', generateUuids)
             .on('upgrade', backupTbc)
             .on('abort', abortNode);
 
@@ -138,13 +194,26 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         backupTbc
             .next(initUpgrade)
             .next(copyAssetsUpgrade)
+            .next(restoreRoot)
             .next(generateRootUpgrade)
             .next(restoreExtensions)
             .next(validateUpgrade)
             .next(finalizeAndLogNode)
 
+        generateUuids
+            .next(createRecords)
+            .next(initEnhanced)
+            .next(writeIds)
+            .next(copyAssetsEnhanced)
+            .next(generateRootEnhanced)
+            .next(validateEnhanced)
+            .next(finalizeAndLogNode)
+
         // common logging sequence
         finalizeAndLogNode
+            .next(logUuidResults)
+            .next(logCreateRecordsResults)
+            .next(logWriteIdsResults)
             .next(logInitResults)
             .next(logCopyAssetsResults)
             .next(logGenerateRootResults)
