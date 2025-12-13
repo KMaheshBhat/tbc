@@ -33,6 +33,10 @@ type TBCRecordFSStorage = {
   IDs?: string[];
   /** Fetched records by collection and ID. */
   fetchResults?: Record<string, Record<string, Record<string, any>>>;
+  /** Array of records to store. */
+  records?: Record<string, any>[];
+  /** Stored record IDs by collection. */
+  storeResults?: Record<string, string[]>;
 }
 
 export {
