@@ -55,12 +55,16 @@ type TBCCoreStorage = {
   companion?: string;
   /** Prime user name for enhanced initialization. */
   prime?: string;
-  /** Create records results containing record creation information. */
-  createRecordsResults?: string[];
+  /** Generate init records results containing record generation information. */
+  generateInitRecordsResults?: string[];
   /** Record IDs for generated records. */
   recordIds?: { companion: string; prime: string; memory: string };
   /** Write IDs results containing ID file writing information. */
   writeIdsResults?: string[];
+  /** Array of records to store (for record-fs operations). */
+  records?: Record<string, any>[];
+  /** Collection directory to store records in (for record-fs operations). */
+  collection?: string;
 }
 
 export {

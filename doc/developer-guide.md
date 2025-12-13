@@ -178,6 +178,7 @@ Provides essential TBC core operations for environment management and initializa
 - `tbc-core:init`: Directory structure creation (tbc/, vault/, dex/)
 - `tbc-core:copy-assets`: Specification and tool copying from assets
 - `tbc-core:generate-root`: Initial tbc/root.md generation
+- `tbc-core:generate-init-records`: Generates initial companion, prime user, and memory records for vault
 - `tbc-core:backup-tbc`: Creates timestamped backup of tbc/ directory
 - `tbc-core:restore-extensions`: Restores extensions/ from backup during upgrades
 - `tbc-core:resolve`: Working directory resolution for TBC operations
@@ -294,11 +295,14 @@ const TBCCorePlugin = createPlugin(
     InitNode,
     CopyAssetsNode,
     GenerateRootNode,
+    GenerateInitRecordsNode,
     BackupTbcNode,
     RestoreExtensionsNode,
     ResolveNode,
     ValidateNode,
-    WriteCoreNode
+    WriteDexCoreNode,
+    WriteDexRecordsNode,
+    RefreshRecordsFlow
   ]
 );
 
@@ -329,7 +333,7 @@ this.startNode
 
 ### Flow Types
 
-- **InitFlow**: `tbc-core:validate → branchNode → { normal: tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:validate, upgrade: tbc-core:backup-tbc → tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:restore-extensions → tbc-core:validate, abort: exit(1) }`
+- **InitFlow**: `tbc-core:validate → branchNode → { enhanced: tbc-core:generate-uuids → tbc-core:generate-init-records → tbc-core:init → tbc-core:store-records (vault) → tbc-core:write-ids → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:store-records (tbc) → tbc-core:validate, upgrade: tbc-core:backup-tbc → tbc-core:init → tbc-core:copy-assets → tbc-core:generate-root → tbc-core:restore-extensions → tbc-core:validate, abort: exit(1) }`
 - **ProbeFlow**: `tbc-core:resolve → tbc-core:validate → tbc-core:probe`
 - **ValidateFlow**: `tbc-core:resolve → tbc-core:validate`
 - **RefreshCoreFlow**: `tbc-core:resolve → tbc-record-fs:fetch-all-ids (specs) → tbc-record-fs:fetch-all-ids (extensions) → tbc-record-fs:fetch-records (root) → tbc-record-fs:fetch-records (specs) → tbc-record-fs:fetch-records (extensions) → tbc-core:write-dex-core`
@@ -561,9 +565,9 @@ Used for workflow execution with node-based processing:
 
 ### Testing Instructions
 
-#### Manual Testing in /tmp Directory
+#### Comprehensive Testing Pattern
 
-To test TBC functionality without affecting your development environment:
+TBC uses a systematic testing approach with temporary directories to ensure functionality without affecting development environments. The established testing pattern covers all major operations and edge cases:
 
 1. **Build and Install CLI**:
    ```bash
@@ -571,32 +575,87 @@ To test TBC functionality without affecting your development environment:
    bun run cli:install
    ```
 
-2. **Test in Temporary Directory**:
+2. **Complete Test Execution Sequence**:
    ```bash
-   cd /tmp
+   # 1. Build the project
+   bun run all:build
 
-   # Test init command
-   tbc init --root /tmp/tbc-test1
-   cd /tmp/tbc-test1
+   # 2. Install CLI globally
+   bun run cli:install
 
-   # Test validate command
+   # 3. Create test directory
+   mkdir -p /tmp/tbc-test-refactor
+   cd /tmp/tbc-test-refactor
+
+   # 4. Test basic init with custom companion and prime
+   tbc init --companion "TestAgent" --prime "TestUser"
+
+   # 5. Validate structure
    tbc validate
 
-   # Test probe command
+   # 6. Check generated files exist and have correct content
+   ls -la tbc/
+   ls -la vault/
+   cat tbc/root.md
+   cat vault/*.md
+
+   # 7. Test probe command
    tbc probe
 
-   # Test upgrade (if needed)
-   tbc init --upgrade --root /tmp/tbc-test1
+   # 8. Test dex commands
+   tbc dex core
+   tbc dex records
 
-   # Clean up
-   rm -rf /tmp/tbc-test1
+   # 9. Verify index files were created
+   ls -la dex/
+   cat dex/core.md
+   cat dex/*.md
+
+   # 10. Test upgrade scenario
+   cd /tmp
+   mkdir -p tbc-test-upgrade
+   cd tbc-test-upgrade
+   tbc init --companion "UpgradeAgent" --prime "UpgradeUser"
+
+   # Create a dummy extension to test upgrade preservation
+   mkdir -p tbc/extensions
+   echo '---
+id: dummy-ext-spec
+record_type: specification
+record_tags:
+  - c/test/dummy
+title: Dummy Extension Spec
+---
+# Dummy Extension Specification
+
+This is a test extension for upgrade scenarios.
+' > tbc/extensions/dummy-ext-spec.md
+
+   # Verify dummy extension exists before upgrade
+   ls -la tbc/extensions/
+   cat tbc/extensions/dummy-ext-spec.md
+
+   # Run upgrade
+   tbc init --upgrade
+
+   # Verify dummy extension still exists after upgrade
+   ls -la tbc/extensions/
+   cat tbc/extensions/dummy-ext-spec.md
+
+   # 11. Clean up
+   rm -rf /tmp/tbc-test-refactor /tmp/tbc-test-upgrade
    ```
 
-3. **Verify Operations**:
-   - Check that `tbc/`, `vault/`, and `dex/` directories are created
-   - Confirm `tbc/root.md` is generated
-   - Ensure validation passes for valid TBC structures
-   - Verify CLI commands work without errors
+3. **Verification Checklist**:
+   - ✅ `tbc/`, `vault/`, and `dex/` directories are created
+   - ✅ `tbc/root.md` is generated with proper frontmatter and references
+   - ✅ Vault records (companion, prime, memory) are created with correct structure
+   - ✅ All records use consistent frontmatter format via `gray-matter`
+   - ✅ Validation passes for valid TBC structures
+   - ✅ CLI commands work without errors
+   - ✅ Dex commands generate proper index files
+   - ✅ Upgrade preserves existing extensions
+   - ✅ File permissions and ownership are correct
 
 #### Automated Testing (Future)
 
@@ -732,6 +791,8 @@ Add export to `src/index.ts`
 - **Testing**: Manual testing framework, automated testing planned
 
 ### Recent Changes
+- **Refactored Record Storage**: Replaced direct file operations in `create-records` and `generate-root` with `tbc-record-fs:store-records` for consistent frontmatter handling and abstraction
+- **Renamed Operation**: `create-records` → `generate-init-records` for improved semantic clarity
 - Migrated `resolve` and `validate` operations to `tbc-core` package
 - Implemented sequential build system for proper dependency management
 - Added comprehensive testing instructions and temporary directory testing

@@ -55,7 +55,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             shared.prime = this.config.prime;
         }
 
-        // Set count for UUID generation if enhanced init
+        // Set count for UUID generation if creating new companion
         if (this.config.companion && this.config.prime) {
             shared.count = 3;
         }
@@ -116,23 +116,25 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             }
         };
 
-        // Enhanced init flow nodes
+        // New companion init flow nodes
         const generateUuids = shared['registry'].createNode('tbc-generator:uuid');
-        const createRecords = shared['registry'].createNode('tbc-core:create-records');
+        const generateInitRecords = shared['registry'].createNode('tbc-core:generate-init-records');
+        const storeVaultRecords = shared['registry'].createNode('tbc-record-fs:store-records');
         const writeIds = shared['registry'].createNode('tbc-core:write-ids');
 
-        // Separate nodes for enhanced flow to avoid conflicts
-        const initEnhanced = shared['registry'].createNode('tbc-core:init');
-        const copyAssetsEnhanced = shared['registry'].createNode('tbc-core:copy-assets');
-        const generateRootEnhanced = shared['registry'].createNode('tbc-core:generate-root', {
+        // Separate nodes for new companion flow to avoid conflicts
+        const initNew = shared['registry'].createNode('tbc-core:init');
+        const copyAssetsNew = shared['registry'].createNode('tbc-core:copy-assets');
+        const generateRootNew = shared['registry'].createNode('tbc-core:generate-root', {
             companion: this.config.companion,
             prime: this.config.prime,
         });
-        const validateEnhanced = shared['registry'].createNode('tbc-core:validate', {
+        const storeRootRecord = shared['registry'].createNode('tbc-record-fs:store-records');
+        const validateNew = shared['registry'].createNode('tbc-core:validate', {
             verbose: this.config.verbose,
         });
 
-        // Enhanced flow continuation
+        // New companion flow continuation
 
         // Normal init flow nodes
         const init = shared['registry'].createNode('tbc-core:init');
@@ -166,7 +168,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         // Common logging nodes
         const finalizeAndLogNode = new Node();
         const logUuidResults = logTableNode(shared['registry'], 'generatedIds');
-        const logCreateRecordsResults = logTableNode(shared['registry'], 'createRecordsResults');
+        const logGenerateInitRecordsResults = logTableNode(shared['registry'], 'generateInitRecordsResults');
         const logWriteIdsResults = logTableNode(shared['registry'], 'writeIdsResults');
         const logInitResults = logTableNode(shared['registry'], 'initResults');
         const logCopyAssetsResults = logTableNode(shared['registry'], 'copyAssetResults');
@@ -201,18 +203,20 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             .next(finalizeAndLogNode)
 
         generateUuids
-            .next(createRecords)
-            .next(initEnhanced)
+            .next(generateInitRecords)
+            .next(initNew)
+            .next(storeVaultRecords)
             .next(writeIds)
-            .next(copyAssetsEnhanced)
-            .next(generateRootEnhanced)
-            .next(validateEnhanced)
+            .next(copyAssetsNew)
+            .next(generateRootNew)
+            .next(storeRootRecord)
+            .next(validateNew)
             .next(finalizeAndLogNode)
 
         // common logging sequence
         finalizeAndLogNode
             .next(logUuidResults)
-            .next(logCreateRecordsResults)
+            .next(logGenerateInitRecordsResults)
             .next(logWriteIdsResults)
             .next(logInitResults)
             .next(logCopyAssetsResults)

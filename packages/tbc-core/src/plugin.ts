@@ -4,7 +4,7 @@ import { ProbeNode } from "./ops/probe.js";
 import { InitNode } from "./ops/init.js";
 import { CopyAssetsNode } from "./ops/copy-assets.js";
 import { GenerateRootNode } from "./ops/generate-root.js";
-import { CreateRecordsNode } from "./ops/create-records.js";
+import { GenerateInitRecordsNode } from "./ops/generate-init-records.js";
 import { WriteIdsNode } from "./ops/write-ids.js";
 import { BackupTbcNode } from "./ops/backup-tbc.js";
 import { RestoreExtensionsNode } from "./ops/restore-extensions.js";
@@ -40,7 +40,7 @@ const TBCCorePlugin = createPlugin(
         InitNode as any,
         CopyAssetsNode as any,
         GenerateRootNode as any,
-        CreateRecordsNode as any,
+        GenerateInitRecordsNode as any,
         WriteIdsNode as any,
         BackupTbcNode as any,
         RestoreExtensionsNode as any,

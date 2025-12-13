@@ -1,10 +1,8 @@
-import { writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import { HAMINode } from "@hami-frameworx/core";
 
 import { TBCCoreStorage } from "../types.js";
 
-type GenerateRootNodeOutput = string[];
+type GenerateRootNodeOutput = any[];
 
 export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
     private companion?: string;
@@ -43,25 +41,22 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
     async exec(
         params: { rootDirectory: string; companion?: string; prime?: string; recordIds?: { companion: string; prime: string; memory: string } },
     ): Promise<GenerateRootNodeOutput> {
-        const { rootDirectory, companion, prime, recordIds } = params;
-        const rootFilePath = join(rootDirectory, "tbc", "root.md");
+        const { companion, prime, recordIds } = params;
 
         // Helper function to convert to lower-snake-case
         const toLowerSnakeCase = (str: string) => str.toLowerCase().replace(/\s+/g, '_');
 
-        let rootContent: string;
+        let rootRecord: any;
 
         if (companion && prime && recordIds) {
             // Enhanced root record with references to generated records
             const companionTag = `c/agent/${toLowerSnakeCase(companion)}`;
-            rootContent = `---
-id: root
-record_type: root
-record_tags:
-  - ${companionTag}
-title: ${companion} Root
----
-# ${companion} Root
+            rootRecord = {
+                id: "root",
+                record_type: "root",
+                record_tags: [companionTag],
+                title: `${companion} Root`,
+                content: `# ${companion} Root
 
 ## Definitions
 
@@ -82,19 +77,17 @@ ${companion} is the AI Assistant as per the Third Brain Companion System Definit
 ## Memories
 
 - [root map of memories](/vault/${recordIds.memory}.md)
-`;
+`
+            };
         } else {
             // Fallback to generic root record (for upgrade mode or old behavior)
-            rootContent = `---
-id: root
-record_type: note
-record_tags:
-  - c/agent/your-agent-name
-  - c/personal/your-name
-record_create_date: ${new Date().toISOString()}
-title: Your Agent Root
----
-# Your Agent Root
+            rootRecord = {
+                id: "root",
+                record_type: "note",
+                record_tags: ["c/agent/your-agent-name", "c/personal/your-name"],
+                record_create_date: new Date().toISOString(),
+                title: "Your Agent Root",
+                content: `# Your Agent Root
 
 ## Definitions
 
@@ -114,15 +107,11 @@ title: Your Agent Root
 ## Memories
 
 [List of memory records]
-`;
+`
+            };
         }
 
-        try {
-            await writeFile(rootFilePath, rootContent, 'utf-8');
-            return [`Generated TBC-ROOT-RECORD at ${rootFilePath}`];
-        } catch (error) {
-            throw new Error(`Failed to generate root.md: ${(error as Error).message}`);
-        }
+        return [rootRecord];
     }
 
     async post(
@@ -130,7 +119,9 @@ title: Your Agent Root
         _prepRes: void,
         execRes: GenerateRootNodeOutput,
     ): Promise<string | undefined> {
-        shared.generateRootResults = execRes;
+        // Set records and collection for store-records operation
+        shared.records = execRes;
+        shared.collection = "tbc";
         return "default";
     }
 }

@@ -88,6 +88,19 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
         messages.push(message);
         verbose && console.log(message);
 
+        // Check for ID files (created during enhanced init)
+        const companionIdFile = join(tbcDir, 'companion.id');
+        const companionIdExists = existsSync(companionIdFile);
+        message = `tbc/companion.id: ${companionIdExists ? '✓ Found' : 'Not found (basic init used)'}`;
+        messages.push(message);
+        verbose && console.log(message);
+
+        const primeIdFile = join(tbcDir, 'prime.id');
+        const primeIdExists = existsSync(primeIdFile);
+        message = `tbc/prime.id: ${primeIdExists ? '✓ Found' : 'Not found (basic init used)'}`;
+        messages.push(message);
+        verbose && console.log(message);
+
         const gitDir = join(workingDir, '.git');
         const gitExists = existsSync(gitDir);
         message = `.git/ directory: ${gitExists ? '✓ Found' : 'Not found'}`;
