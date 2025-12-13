@@ -56,6 +56,7 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
                 record_type: "root",
                 record_tags: [companionTag],
                 title: `${companion} Root`,
+                contentType: "markdown",
                 content: `# ${companion} Root
 
 ## Definitions
@@ -87,6 +88,7 @@ ${companion} is the AI Assistant as per the Third Brain Companion System Definit
                 record_tags: ["c/agent/your-agent-name", "c/personal/your-name"],
                 record_create_date: new Date().toISOString(),
                 title: "Your Agent Root",
+                contentType: "markdown",
                 content: `# Your Agent Root
 
 ## Definitions

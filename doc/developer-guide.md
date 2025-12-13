@@ -253,6 +253,106 @@ await fetchNode.run({
 
 - `shared.fetchResults`: Object mapping collection names to record ID mappings
 
+### StoreRecordsNode
+
+The `StoreRecordsNode` provides enhanced record storage functionality for TBC collection directories, supporting multiple file formats (Markdown, JSON, and raw text).
+
+#### File Format Determination
+
+The node determines the file format based on the following priority:
+
+1. **Filename extension**: If `record.filename` is provided and ends with `.md` or `.json`
+2. **Content type**: If `record.contentType` is set to `'markdown'`, `'json'`, or `'raw'`
+3. **Default**: Markdown format (`.md` extension) for backward compatibility
+
+#### Record Format Examples
+
+**Markdown Record (default):**
+```typescript
+{
+  id: 'note-123',
+  title: 'My Note',
+  content: 'This is markdown content',
+  record_type: 'note'
+}
+// Stores as: note-123.md with frontmatter
+```
+
+**Markdown Record (explicit):**
+```typescript
+{
+  id: 'note-123',
+  filename: 'custom-name.md',  // or contentType: 'markdown'
+  title: 'My Note',
+  content: 'This is markdown content',
+  record_type: 'note'
+}
+// Stores as: custom-name.md with frontmatter
+```
+
+**JSON Record:**
+```typescript
+{
+  id: 'data-456',
+  filename: 'data-456.json',  // or contentType: 'json'
+  title: 'Data Record',
+  data: { key: 'value' },
+  metadata: { source: 'api' }
+}
+// Stores as: data-456.json with full JSON content
+```
+
+**Raw Text Record:**
+```typescript
+{
+  id: 'text-789',
+  contentType: 'raw',
+  content: 'Plain text content without processing'
+}
+// Stores as: text-789 (no extension) with raw content
+```
+
+#### Usage Example
+
+```typescript
+import { StoreRecordsNode } from '@tbc-frameworx/tbc-record-fs';
+
+// In a flow or direct usage
+const storeNode = new StoreRecordsNode();
+await storeNode.run({
+  rootDirectory: '/path/to/tbc',
+  collection: 'vault',
+  records: [
+    {
+      id: 'record-123',
+      title: 'My Note',
+      content: 'This is my note content',
+      record_type: 'note'
+    },
+    {
+      id: 'data-456',
+      filename: 'data.json',
+      data: { key: 'value' }
+    }
+  ]
+});
+
+// Results in shared.storeResults:
+// {
+//   "vault": ["record-123", "data-456"]
+// }
+```
+
+#### Shared State Requirements
+
+- `shared.rootDirectory`: TBC root directory path (required)
+- `shared.collection`: Collection subdirectory name (required)
+- `shared.records`: Array of records to store (required)
+
+#### Output
+
+- `shared.storeResults`: Object mapping collection names to arrays of stored record IDs
+
 ### FetchAllIdsNode
 
 The `FetchAllIdsNode` retrieves all record IDs from a specified collection directory by scanning for `.md` files and extracting their base names.
@@ -311,7 +411,8 @@ const TBCRecordFSPlugin = createPlugin(
   "0.1.0",
   [
     FetchRecordsNode,
-    FetchAllIdsNode
+    FetchAllIdsNode,
+    StoreRecordsNode
   ]
 );
 ```
@@ -798,7 +899,8 @@ Add export to `src/index.ts`
 - Added comprehensive testing instructions and temporary directory testing
 - Updated documentation to reflect current architecture
 - Implemented `tbc dex core` CLI command replacing `refresh-core.sh` shell script
-- Added `FetchAllIdsNode` and enhanced `FetchRecordsNode` for record file system operations
+- Added `FetchAllIdsNode`, `StoreRecordsNode`, and enhanced `FetchRecordsNode` for record file system operations
+- Enhanced `StoreRecordsNode` to support multiple file formats (Markdown, JSON, raw) based on filename extension or contentType
 - Added `WriteDexCoreNode` for core system definitions writing and `RefreshCoreFlow` for orchestration
 - Moved refresh-core orchestration logic to `tbc-core` package for reusability across interfaces
 - Implemented `tbc dex records` CLI command replacing shell scripts (`refresh-party.sh`, `refresh-goal.sh`, `refresh-all.sh`)

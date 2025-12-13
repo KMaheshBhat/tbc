@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import { join, dirname } from "path";
 import matter from "gray-matter";
 
@@ -38,20 +38,22 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
         const storedIds: string[] = [];
         const collectionPath = join(params.rootDirectory, params.collection);
 
+        // Ensure collection directory exists
+        await mkdir(collectionPath, { recursive: true });
+
         for (const record of params.records) {
             if (!record.id) {
-                console.error(`Record missing id:`, record);
+                console.error(`Record missing id:` , record);
                 continue;
             }
 
             try {
-                const filePath = join(collectionPath, `${record.id}.md`);
-                const { content, ...frontmatterData } = record;
+                // Determine file format based on record.filename or record.contentType
+                const fileFormat = this.determineFileFormat(record);
+                const filePath = this.constructFilePath(collectionPath, record, fileFormat);
+                const fileContent = this.generateFileContent(record, fileFormat);
 
-                // Use gray-matter to stringify with frontmatter
-                const fileContent = matter.stringify(content || '', frontmatterData);
-
-                // Ensure directory exists
+                // Write file
                 await writeFile(filePath, fileContent, 'utf-8');
                 storedIds.push(record.id);
             } catch (error) {
@@ -61,6 +63,58 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
         }
 
         return storedIds;
+    }
+
+    private determineFileFormat(record: Record<string, any>): 'markdown' | 'json' | 'raw' {
+        // Check filename extension first
+        if (record.filename) {
+            if (record.filename.endsWith('.md')) {
+                return 'markdown';
+            }
+            if (record.filename.endsWith('.json')) {
+                return 'json';
+            }
+        }
+
+        // Check contentType
+        if (record.contentType === 'markdown') {
+            return 'markdown';
+        }
+        if (record.contentType === 'json') {
+            return 'json';
+        }
+
+        // Default to raw format
+        return 'raw';
+    }
+
+    private constructFilePath(collectionPath: string, record: Record<string, any>, format: 'markdown' | 'json' | 'raw'): string {
+        // Use record.filename if provided
+        if (record.filename) {
+            return join(collectionPath, record.filename);
+        }
+
+        // Default filename based on format
+        switch (format) {
+            case 'markdown':
+                return join(collectionPath, `${record.id}.md`);
+            case 'json':
+                return join(collectionPath, `${record.id}.json`);
+            case 'raw':
+                return join(collectionPath, record.id);
+        }
+    }
+
+    private generateFileContent(record: Record<string, any>, format: 'markdown' | 'json' | 'raw'): string {
+        switch (format) {
+            case 'markdown':
+                const { content, ...frontmatterData } = record;
+                return matter.stringify(content || '', frontmatterData);
+            case 'json':
+                return JSON.stringify(record, null, 2);
+            case 'raw':
+                return record.content || '';
+        }
     }
 
     async post(shared: TBCRecordFSStorage, _prepRes: StoreRecordsInput, execRes: StoreRecordsOutput): Promise<string | undefined> {

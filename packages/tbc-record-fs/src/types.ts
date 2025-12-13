@@ -10,6 +10,23 @@ type TBCRecordFSOpts = {
 }
 
 /**
+ * Record structure for TBC record file system operations.
+ * Defines the structure of a record with support for multiple file formats.
+ */
+type TBCRecord = {
+  /** Unique identifier for the record. */
+  id: string;
+  /** Optional filename for the record (including extension). */
+  filename?: string;
+  /** Optional content type for the record. */
+  contentType?: 'markdown' | 'json' | 'raw';
+  /** Record content. */
+  content?: string;
+  /** Additional record data (used as frontmatter for markdown). */
+  [key: string]: any;
+}
+
+/**
  * Shared storage interface for TBC record file system operations.
  * Defines the structure of data that can be shared between TBC record file system operation nodes.
  * Contains paths, configuration options, and results from various TBC record file system operations.
@@ -34,7 +51,7 @@ type TBCRecordFSStorage = {
   /** Fetched records by collection and ID. */
   fetchResults?: Record<string, Record<string, Record<string, any>>>;
   /** Array of records to store. */
-  records?: Record<string, any>[];
+  records?: TBCRecord[];
   /** Stored record IDs by collection. */
   storeResults?: Record<string, string[]>;
 }
@@ -42,4 +59,5 @@ type TBCRecordFSStorage = {
 export {
   TBCRecordFSOpts,
   TBCRecordFSStorage,
+  TBCRecord,
 };

@@ -53,6 +53,7 @@ export class GenerateInitRecordsNode extends HAMINode<TBCCoreStorage> {
             record_tags: [companionTag],
             party_type: "agent",
             title: companion,
+            contentType: "markdown",
             content: `${companion} is the AI Assistant in the Third Brain Companion System, instantiated to assist Prime User ${prime}. As an agent, ${companion} engages in interactions, evolves motivations to align with the Prime User's, and operates within the vault system for memory persistence.`
         };
         records.push(companionRecord);
@@ -65,6 +66,7 @@ export class GenerateInitRecordsNode extends HAMINode<TBCCoreStorage> {
             record_tags: [companionTag],
             party_type: "person",
             title: prime,
+            contentType: "markdown",
             content: `${prime} is the Prime User of the Third Brain Companion System, the primary human actor initiating and guiding ${companion}. As the owner of the system, they directs motivations, confirms identities, and delegates memory persistence when needed.`
         };
         records.push(primeRecord);
@@ -76,6 +78,7 @@ export class GenerateInitRecordsNode extends HAMINode<TBCCoreStorage> {
             record_type: "structure",
             record_tags: [companionTag],
             title: "Map of Memories",
+            contentType: "markdown",
             content: "The Companion Agent to list the other records here - any type, with any number of sections."
         };
         records.push(memoryRecord);
