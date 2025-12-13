@@ -32,23 +32,21 @@ export class ValidateFlow extends HAMIFlow<Record<string, any>, ValidateFlowConf
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
         assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode;
 
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
         // root is already set in shared state by CLI if --root flag was used
 
-        const resolve = shared['registry'].createNode('tbc-core:resolve');
-        const validate = shared['registry'].createNode('tbc-core:validate', {
-            verbose: this.config.verbose,
-        });
-        const logMessages = shared['registry'].createNode('core:log-result', {
-            resultKey: 'messages',
-            format: 'table',
-        });
         this.startNode
-            .next(resolve)
-            .next(validate)
-            .next(logMessages)
+            .next(n('tbc-core:resolve'))
+            .next(n('tbc-core:validate', {
+                verbose: this.config.verbose,
+            }))
+            .next(n('core:log-result', {
+                resultKey: 'messages',
+                format: 'table',
+            }))
             ;
 
         return super.run(shared);

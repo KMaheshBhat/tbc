@@ -32,26 +32,23 @@ export class ProbeFlow extends HAMIFlow<Record<string, any>, ProbeFlowConfig> {
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
         assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode;
 
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
 
-        const resolve = shared['registry'].createNode('tbc-core:resolve');
-        const validate = shared['registry'].createNode('tbc-core:validate', {
-            verbose: this.config.verbose,
-        });
-        const probe = shared['registry'].createNode('tbc-core:probe');
-        const logResults = shared['registry'].createNode('core:log-result', {
-            resultKey: 'probeResults',
-            format: 'table',
-            prefix: 'Environment Probe Results:',
-            verbose: this.config.verbose
-        });
         this.startNode
-            .next(resolve)
-            .next(validate)
-            .next(probe)
-            .next(logResults)
+            .next(n('tbc-core:resolve'))
+            .next(n('tbc-core:validate', {
+                verbose: this.config.verbose,
+            }))
+            .next(n('tbc-core:probe'))
+            .next(n('core:log-result', {
+                resultKey: 'probeResults',
+                format: 'table',
+                prefix: 'Environment Probe Results:',
+                verbose: this.config.verbose
+            }))
             ;
 
         return super.run(shared);

@@ -1,3 +1,5 @@
+import assert from "assert";
+
 import { Node } from "pocketflow";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
@@ -30,25 +32,23 @@ export class GenUuidFlow extends HAMIFlow<Record<string, any>, GenUuidFlowConfig
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
+        assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode;
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
 
         // Set count in shared state
         shared.count = shared.count || 1;
 
-        // Create nodes
-        const uuidNode = shared['registry'].createNode('tbc-generator:uuid');
-        const logResult = shared['registry'].createNode('core:log-result', {
-            resultKey: 'generatedIds',
-            format: 'list',
-            prefix: 'Generated UUIDs:',
-            verbose: this.config.verbose
-        });
-
         // Wire the flow
         this.startNode
-            .next(uuidNode)
-            .next(logResult);
+            .next(n('tbc-generator:uuid'))
+            .next(n('core:log-result', {
+                resultKey: 'generatedIds',
+                format: 'list',
+                prefix: 'Generated UUIDs:',
+                verbose: this.config.verbose
+            }));
 
         return super.run(shared);
     }

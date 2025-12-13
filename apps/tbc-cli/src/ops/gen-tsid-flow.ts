@@ -1,3 +1,5 @@
+import assert from "assert";
+
 import { Node } from "pocketflow";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
@@ -30,23 +32,21 @@ export class GenTsidFlow extends HAMIFlow<Record<string, any>, GenTsidFlowConfig
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
+        assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode;
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
         shared.count = shared.count || 1;
 
-        // Create nodes
-        const tsidNode = shared['registry'].createNode('tbc-generator:tsid');
-        const logResult = shared['registry'].createNode('core:log-result', {
-            resultKey: 'generatedIds',
-            format: 'list',
-            prefix: 'Generated TSIDs:',
-            verbose: this.config.verbose
-        });
-
         // Wire the flow
         this.startNode
-            .next(tsidNode)
-            .next(logResult);
+            .next(n('tbc-generator:tsid'))
+            .next(n('core:log-result', {
+                resultKey: 'generatedIds',
+                format: 'list',
+                prefix: 'Generated TSIDs:',
+                verbose: this.config.verbose
+            }));
 
         return super.run(shared);
     }
