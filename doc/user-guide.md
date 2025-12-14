@@ -1,306 +1,305 @@
-# Third Brain Companion User Guide
+# Third Brain Companion (TBC) — User Guide
 
-## What is Third Brain Companion?
+> **Audience**: Prime users, power users, and AI assistants operating a TBC instance
+>
+> **Goal**: Explain how to *use* a Third Brain Companion safely, effectively, and intentionally.
 
-Third Brain Companion (TBC) is a technology-agnostic, portable system for conceptualizing, operating, and using an AI Agent companion for individuals or groups. It uses a git-based vault of plain-text records to store interactions, definitions, and memories.
+## 1. What Is a Third Brain Companion?
 
-The system provides a structured way to create and maintain AI companions that persist across conversations and platforms.
+A **Third Brain Companion (TBC)** is a durable, portable memory and reasoning system for an AI agent (or group of agents) working with a human or group of humans.
 
-## Key Features
+Unlike chat history or proprietary memory systems, TBC:
 
-- **Portable and Technology-Agnostic**: Works across different AI platforms and tools
-- **Git-Based Storage**: Version control for all companion data
-- **Plain-Text Records**: Markdown files with structured frontmatter
-- **Extensible Design**: Add custom record types and methods
-- **Automated Context Gathering**: Efficient memory and context retrieval
-- **Reflection Methods**: Maintain party and goal records over time
+- Stores everything as **plain‑text records**
+- Uses **git** as the source of truth
+- Separates **memory**, **identity**, and **behavior**
+- Can be inspected, edited, forked, or archived at any time
 
-## Quick Start
+You do not *talk to* TBC.
 
-### Prerequisites
+You **operate** it.
 
-- Node.js (for building the CLI)
-- Git
-- Bun (recommended for development)
+## 2. Core Concepts (Mental Model)
 
-### Installation
+Understanding these concepts makes everything else obvious.
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd third-brain-companion
-   ```
+### 2.1 Vault
 
-2. Install dependencies and build:
-   ```bash
-   bun install
-   bun run all:build
-   bun run cli:install
-   ```
+The **Vault** is the system of record.
 
-3. (Optional) Install UUID v7 tool:
-   ```bash
-   curl -sS https://webi.sh/uuidv7 | sh
-   source ~/.config/envman/PATH.env
-   ```
+- A directory of plain‑text files
+- Versioned with git
+- Contains all memories, definitions, and logs
 
-## Setting Up Your Companion
+If it is not in the vault, it does not exist.
 
-### Initialize a New Companion
+### 2.2 Records
 
-1. Create a new directory for your companion:
-   ```bash
-   mkdir my-companion
-   cd my-companion
-   git init
-   ```
+A **record** is a single unit of knowledge or memory.
 
-2. Initialize the TBC structure with your companion details:
-   ```bash
-   tbc init --companion "My Companion Name" --prime "Your Name"
-   ```
+Typically:
 
-   This creates:
-   - `tbc/` - System specifications and tools
-   - `vault/` - Your records storage with party and memory records
-   - `dex/` - Generated indexes
+- Markdown file (`.md`)
+- YAML frontmatter (metadata)
+- Free‑form body (content)
 
-   **Options:**
-   - `--companion "<name>"`: Name of your AI companion (required)
-   - `--prime "<name>"`: Your name or the prime user's name (required)
-   - `--upgrade`: Upgrade existing companion with backup
+Every record has an **ID** and a **type**.
 
-3. Customize your companion by editing `tbc/root.md`
+### 2.3 Agent & Prime User
 
-### Root Record Configuration
+- **Agent**: The AI persona using the vault
+- **Prime User**: The human (or group) the agent serves
 
-The `tbc/root.md` file defines your agent's identity and configuration:
+The relationship between them is defined explicitly in records — not assumed.
 
-```yaml
----
-id: root
-record_type: note
-record_tags:
-  - c/agent/your-agent-name
-  - c/personal/your-name
-title: Your Agent Root
----
+## 3. Installation
 
-# Your Agent Root
+### 3.1 Prerequisites
 
-## Definitions
+- **Git**
+- **Bun** (recommended)
+- **Node.js** (v18+)
 
-- Agent: Your Agent Name
-- Prime User: Your Name
-- Definitions: [core](/dex/core.md)
-
-## Agent Identity
-
-[Describe your agent's personality, role, and characteristics]
-
-## Motivation
-
-[Describe what drives your agent and its goals]
-
-## Memories
-
-[List important memory records or reference them]
-```
-
-## CLI Commands
-
-### Core Commands
+### 3.2 Install the CLI
 
 ```bash
-# Initialize a new companion with custom details
-tbc init --companion "My AI Assistant" --prime "John Doe"
+bun install
+bun run all:build
+bun run cli:install
+```
 
-# Initialize in a specific directory
-tbc init --companion "My AI Assistant" --prime "John Doe" --root /path/to/companion
+Verify:
 
-# Upgrade existing companion (backs up and refreshes assets)
+```bash
+tbc --help
+```
+
+## 4. Creating Your First Companion
+
+### 4.1 Choose a Directory
+
+Create an **empty directory** for your companion:
+
+```bash
+mkdir my-companion
+cd my-companion
+git init
+```
+
+### 4.2 Initialize the Companion
+
+```bash
+tbc init --companion Tessera --prime "Mahesh"
+```
+
+This will:
+
+- Create the `tbc/` system directory
+- Create the `vault/`
+- Generate the root record
+- Copy system specifications
+
+### 4.3 Validate
+
+```bash
+tbc validate
+```
+
+If validation passes, your companion is ready.
+
+## 5. Directory Layout (After Init)
+
+```
+my-companion/
+├── tbc/
+│   ├── specs/            # System specifications (copied at init)
+│   ├── root.md           # Core definition & identity
+│   ├── companion.id
+│   ├── prime.id
+│   └── extensions/
+├── vault/                # All records live here
+├── dex/                  # Generated indexes
+└── .git/
+```
+
+## 6. The Root Record (`tbc/root.md`)
+
+The **root record** is the heart of your companion.
+
+It defines:
+
+- Agent identity
+- Motivation
+- Canonical definitions
+- Entry points to memory
+
+You should treat this file as *constitution‑level*.
+
+### Recommended Practice
+
+- Edit it deliberately
+- Commit changes with meaningful messages
+- Keep it readable by humans *and* agents
+
+## 7. Working With Records
+
+### 7.1 Record Types (Core)
+
+Common record types include:
+
+- `structure` — navigation / maps
+- `party` — people, agents, teams
+- `goal` — objectives and intentions
+- `log` — interactions and reflections
+
+All live under `vault/`.
+
+### 7.2 Creating Records
+
+Records can be created by:
+
+- The Agent (preferred)
+- The Prime User (manual editing)
+
+When creating manually:
+
+- Use a **UUID v7** for IDs
+- Follow the relevant specification
+
+Helper:
+
+```bash
+tbc gen uuid
+```
+
+## 8. Daily Usage Pattern
+
+A typical interaction cycle looks like this:
+
+1. **Gather Context**
+   - Agent reads root + relevant records
+2. **Interaction**
+   - Conversation / reasoning occurs
+3. **Persist Memories**
+   - Logs, goals, parties updated
+4. **Reflection (optional)**
+   - Agent reconciles knowledge
+
+The CLI supports steps 1, 3, and 4 indirectly.
+
+## 9. Indexes (Dex)
+
+Indexes are **read‑optimized summaries**.
+
+### Refresh Core Definitions
+
+```bash
+tbc dex core
+```
+
+### Refresh Record Indexes
+
+```bash
+tbc dex records
+```
+
+Indexes are safe to regenerate at any time.
+
+## 10. Upgrading a Companion
+
+To upgrade an existing companion:
+
+```bash
 tbc init --upgrade
-
-# Probe environment and system information
-tbc probe
-
-# Validate companion structure
-tbc validate
-
-# Refresh the core system definitions index
-tbc dex core
-
-# Refresh all records indexes (party, goal, log, etc.)
-tbc dex records
-
-# Generate IDs
-tbc gen uuid [--count <number>]    # Generate UUID v7 (default: 1)
-tbc gen tsid [--count <number>]    # Generate timestamp ID (default: 1)
-
-# Enable verbose output (works with all commands)
-tbc init --verbose
 ```
 
-### Directory Options
+This will:
 
-All commands support `--root` to specify the companion directory:
-```bash
-tbc validate --root /path/to/companion
-```
+- Backup the existing `tbc/` directory
+- Refresh system files
+- Preserve your vault and extensions
 
-## Record Types
+Always commit before upgrading.
 
-### Root Record
-The main configuration record (`tbc/root.md`) that defines your agent's identity and core settings.
+## 11. Using Git Effectively
 
-### Note Records
-General-purpose records for storing information, thoughts, or any content in the `vault/` directory.
+Git is not optional — it *is* the memory layer.
 
-### Goal Records
-Track objectives and targets with structured metadata:
-- Owner, type, status (open/achieved/abandoned)
-- Progress tracking and reflection
-
-### Party Records
-Define entities involved in interactions:
-- People, organizations, or AI agents
-- Relationship context and history
-
-### Log Records
-Record actions, events, and interaction history for audit and memory purposes.
-
-## Working with Records
-
-### Creating Records
-
-All records follow the same Markdown + frontmatter format:
-
-```yaml
----
-id: unique-id-here
-record_type: note
-record_tags: [tag1, tag2]
-title: Human Readable Title
----
-
-# Content Here
-
-Your markdown content goes here...
-```
-
-### Record Storage
-
-- Place records in the `vault/` directory
-- Use descriptive filenames (e.g., `20231201-agent-reflection.md`)
-- Follow consistent naming conventions
-
-### Index Generation
-
-Use the CLI commands to update indexes:
+Recommended workflow:
 
 ```bash
-# Update core definitions
-tbc dex core
-
-# Update all records indexes (recommended)
-tbc dex records
-
-# Legacy shell scripts (deprecated):
-# Update party records index
-./tbc/tools/refresh-party.sh
-
-# Update goal records index
-./tbc/tools/refresh-goal.sh
-
-# Update all indexes
-./tbc/tools/refresh-all.sh
+git status
+git add .
+git commit -m "Update goals after reflection"
 ```
 
-## For AI Assistants
+You may:
 
-### Context Gathering
+- Branch for experiments
+- Revert unwanted memories
+- Audit agent behavior
 
-At the start of each interaction:
-1. Read `tbc/root.md` for agent identity and motivations
-2. Read `dex/core.md` for system definitions and specifications
-3. Reference relevant records from `vault/` as needed
+## 12. Safety & Best Practices
 
-### Memory Persistence
+### Do
 
-After interactions:
-1. Create new records in `vault/` for important information
-2. Update existing records with new insights
-3. Run `tbc dex records` to update all indexes
-4. Reference new records in future interactions
+- Commit often
+- Review logs periodically
+- Let the agent write first
 
-### Best Practices
+### Avoid
 
-- Always maintain the agent's defined identity and motivations
-- Use structured records for important information
-- Keep the vault organized and searchable
-- Regularly review and update goal/party records
-- Use tags consistently for categorization
+- Editing indexes manually
+- Deleting records without git
+- Running CLI commands blindly
 
-## Extensions
+## 13. Working With AI Assistants
 
-### Adding Custom Record Types
+When using an AI agent with TBC:
 
-1. Create specification files in `tbc/extensions/`
-2. Follow the existing specification format
-3. Run `tbc dex` to include in `dex/core.md`
+- Always provide:
+  - Root record
+  - Relevant dex files
+- Ask it to:
+  - Justify record changes
+  - Respect specifications
 
-### Custom Methods
+Treat the agent as a **junior archivist**, not an oracle.
 
-Define new interaction methods by:
-1. Creating method specifications
-2. Placing them in `tbc/extensions/`
-3. Updating the root record to reference new methods
+## 14. Troubleshooting
 
-## Troubleshooting
+### Validation Fails
 
-### Common Issues
+- Run `tbc validate --verbose`
+- Check directory structure
 
-**Command not found**: Ensure `tbc` is installed and in your PATH
-**Invalid structure**: Run `tbc validate` to check your setup
-**Missing indexes**: Run `tbc dex` to regenerate core system definitions
+### Missing Records
 
-### Validation
+- Regenerate dex files
+- Check git history
 
-Always validate your setup after changes:
-```bash
-tbc validate
-```
+### Confusing Behavior
 
-### Getting Help
+- Review root record identity & motivation
 
-- Check the CLI help: `tbc --help`
-- Validate your structure: `tbc validate`
-- Probe your environment: `tbc probe`
+## 15. Philosophy (Why This Works)
 
-## Advanced Usage
+TBC works because:
 
-### Multiple Companions
+- Memory is explicit
+- State is inspectable
+- History is preserved
 
-Create separate directories for different companions:
-```bash
-mkdir work-companion personal-companion
-cd work-companion && tbc init
-cd ../personal-companion && tbc init
-```
+You are not outsourcing thinking.
 
-### Version Control
+You are **externalizing it — safely**.
 
-Since TBC uses git:
-- Commit regularly to track changes
-- Use branches for experimental configurations
-- Tag important versions of your companion
+## 16. TL;DR
 
-### Backup and Sync
+- TBC is a git‑based memory system
+- Records are truth
+- Root record is law
+- CLI is a tool, not magic
+- Git is your safety net
 
-- Push to remote repositories for backup
-- Pull changes across devices
-- Use git features for collaboration
 
-## Contributing
-
-See the developer guide for technical contribution guidelines.

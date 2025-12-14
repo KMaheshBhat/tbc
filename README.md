@@ -1,81 +1,146 @@
-# Third Brain Companion
+# Third Brain Companion (TBC)
 
-A technology-agnostic, portable system for conceptualizing, operating, and using an AI Agent companion for individuals or groups. The system uses a git-based vault of plain-text records to store interactions, definitions, and memories.
+Third Brain Companion (TBC) is a framework for building durable AI companions whose memory, identity, and behavior are explicit, inspectable, and version-controlled.
 
-## Overview
+TBC is not a chatbot and not a prompt library. It is a system of record for thinking.
 
-The Third Brain Companion (TBC) system provides a structured way to create and maintain AI companions. It consists of:
+## What This Repository Is (and Is Not)
 
-- **Vault System**: A record storage system using git for version control and plain-text Markdown files.
-- **Definitions**: Specifications for the system schema, methods, and extensions.
-- **Scripts**: Tools to refresh indexes and collate information for efficient interactions.
+This repository is the **TBC project repository**.
 
-## Features
+It contains:
 
-- Portable and technology-agnostic design
-- Git-based storage for versioning and collaboration
-- Extensible through definitions and extensions
-- Support for multiple record types (notes, goals, parties, logs, etc.)
-- Automated context gathering and memory persistence
-- Reflection method for maintaining party and goal records
+- The CLI and core framework code
+- System specifications
+- Documentation for users, testers, and developers
 
-## Quick Start
+It is **not** a TBC instance.
 
-### Installation
+A **TBC instance** (one or more companions, with their memory and history) must live in a **separate repository**.
 
-1. Clone this repository:
-   ```
-   git clone <repository-url>
-   cd third-brain-companion
-   ```
+This separation is intentional and mandatory.
 
-2. Install dependencies and build:
-   ```
-   bun install
-   bun run all:build
-   bun run cli:install
-   ```
+## Why TBC Exists
 
-3. (Optional) Install UUID v7 tool for record creation:
-   ```
-   curl -sS https://webi.sh/uuidv7 | sh
-   source ~/.config/envman/PATH.env
-   ```
+Most AI systems suffer from three structural limitations:
 
-### Setup Your Companion
+1. Memory is implicit (chat logs, embeddings, opaque stores)
+2. Behavior is unverifiable (hidden prompts, mutable internal state)
+3. History is disposable (no durable audit trail)
 
-1. Create and initialize a new companion:
-   ```bash
-   mkdir my-companion
-   cd my-companion
-   git init
-   tbc init
-   ```
+TBC addresses these problems by treating:
 
-2. Customize your companion by editing `tbc/root.md`
+- Records as memory
+- Specifications as law
+- Flows as behavior
+- Git as truth
 
-## Documentation
+The result is an AI companion whose cognition can be audited, evolved, reverted, and safely operated over long periods of time.
 
-- **[User Guide](doc/user-guide.md)**: Complete guide for users including setup, CLI commands, record types, and usage patterns
-- **[Developer Guide](doc/developer-guide.md)**: Technical documentation for developers, architects, and contributors
+## Core Mental Model
 
-## CLI Commands
+If you understand the following concepts, you understand TBC:
 
-```bash
-tbc init        # Initialize a new companion
-tbc init --upgrade  # Upgrade existing companion (with backup)
-tbc probe       # Check environment and system info
-tbc validate    # Validate companion structure
-tbc dex         # Refresh the core system definitions index
-tbc --help      # Show help
+- **Vault**: Plain-text, git-versioned memory (lives in a TBC instance repo)
+- **Record**: An atomic unit of knowledge or state
+- **Root Record**: The constitution of a companion
+- **Specs**: Canonical system definitions (provided by this project)
+- **Flows**: Deterministic operations over records
+- **CLI**: An orchestrator, not magic
+
+All meaningful cognitive state lives in the **instance repository**, not here.
+
+## Repository Structure
+
+```
+.
+├── apps/
+│   └── tbc-cli/          # CLI application
+│       └── assets/       # Embedded system specs
+├── packages/             # Core framework packages
+├── doc/                  # Documentation
+│   ├── user-guide.md
+│   ├── developer-guide.md
+│   └── tester-guide.md
+└── README.md
 ```
 
-Use `--root <path>` with any command to specify a companion directory.
+## Who This Is For
 
-## Contributing
+TBC is intended for:
 
-See the [Developer Guide](doc/developer-guide.md) for technical contribution guidelines.
+- Developers building long-lived AI agents
+- Researchers who need auditable reasoning
+- Power users who want ownership of AI memory
+- AI assistants that must operate safely and deterministically
+
+If you want quick answers with no history or accountability, this project is not a good fit.
+
+## Getting Started
+
+Choose the guide that matches your role.
+
+### Users
+
+If you want to operate a companion, start with:
+
+- [User Guide](/doc/user-guide.md)
+
+This guide explains how to create and operate a TBC instance in its own repository.
+
+### Testers (Human or AI)
+
+If you run CLI commands, automated tests, or autonomous agents, read:
+
+- [Tester Guide](/doc/tester-guide.md)
+
+This guide is mandatory for safe, non-destructive testing and explicitly addresses AI assistant limitations.
+
+### Developers
+
+If you want to extend or modify TBC itself, read:
+
+- [Developer Guide](/doc/developer-guide.md)
+
+This guide covers architecture, flows, plugins, and extension patterns.
+
+## Safety Notice
+
+Do not run `tbc init`, `tbc dex`, or other destructive commands in this repository.
+
+This repository must never be treated as a TBC root.
+
+Always create or use a **separate repository** for each TBC instance and pass its path explicitly when required.
+
+The Tester Guide documents safe execution patterns in detail.
+
+## Design Guarantees
+
+TBC is built to provide the following guarantees at the **instance level**:
+
+- Deterministic behavior
+- Plain-text persistence
+- Auditable history
+- Toolchain independence
+
+When a guarantee cannot be enforced mechanically, it is made explicit in documentation and specifications.
+
+## Philosophy
+
+You are not outsourcing thinking.
+
+You are externalizing it in a form that can be inspected, versioned, and corrected.
+
+TBC treats cognition as something that should be owned, reviewed, and reversible for both humans and machines.
+
+## Status
+
+- Core CLI and flows are stable
+- Plugin system is extensible
+- Filesystem storage is the current backend
+- Agent-driven operation continues to evolve
 
 ## License
 
-See LICENSE file.
+See `LICENSE` for details.
+
