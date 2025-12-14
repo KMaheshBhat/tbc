@@ -33,7 +33,7 @@ export class GenTsidFlow extends HAMIFlow<Record<string, any>, GenTsidFlowConfig
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
         assert(shared.registry, 'registry is required');
-        const n = shared.registry.createNode;
+        const n = shared.registry.createNode.bind(shared.registry);
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
         shared.count = shared.count || 1;
