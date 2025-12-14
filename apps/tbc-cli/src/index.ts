@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
 import { ValidateFlow, ProbeFlow, InitFlow, GenUuidFlow, GenTsidFlow, GenerateKilocodeCoreInterfaceFlow } from './ops/index.js';
-import { RefreshCoreFlow, RefreshRecordsFlow } from '@tbc-frameworx/tbc-core';
+import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-core';
 
 const { registry } = await bootstrap();
 
@@ -171,8 +171,31 @@ let cmdDexRecords = new Command('records')
         return;
     });
 
+let cmdDexExtensions = new Command('extensions')
+    .description('Refresh extensions index')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = opts.root || cliOpts.root;
+            const refreshExtensionsFlow = new RefreshExtensionsFlow({
+                verbose: isVerbose,
+            });
+            await refreshExtensionsFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during dex extensions:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
 cmdDex.addCommand(cmdDexCore);
 cmdDex.addCommand(cmdDexRecords);
+cmdDex.addCommand(cmdDexExtensions);
 
 program.addCommand(cmdDex);
 

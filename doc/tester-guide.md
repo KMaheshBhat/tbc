@@ -168,12 +168,14 @@ No filesystem mutation should occur.
 ```bash
 tbc dex core --root ./_test/fresh-init
 tbc dex records --root ./_test/fresh-init
+tbc dex extensions --root ./_test/fresh-init
 ```
 
 Validate:
 
-- `dex/core.md` created
+- `dex/core.md` created (contains root and specs, no extensions)
 - `dex/*.md` files generated per record type
+- `dex/extensions.md` created with extension summaries
 - Files are deterministic across runs
 
 ### 5.5 `tbc gen`

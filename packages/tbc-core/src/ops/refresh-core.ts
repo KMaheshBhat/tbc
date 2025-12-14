@@ -48,7 +48,6 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         shared.rootCollection = 'tbc';
         shared.rootIDs = ['root'];
         shared.specsCollection = 'tbc/specs';
-        shared.extensionsCollection = 'tbc/extensions';
 
         // Wire the flow
         this.startNode
@@ -56,9 +55,6 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
             .next(n('core:map', { 'collection': 'rootCollection', 'IDs': 'rootIDs' }))
             .next(n('tbc-record-fs:fetch-records'))
             .next(n('core:map', { 'collection': 'specsCollection' }))
-            .next(n('tbc-record-fs:fetch-all-ids'))
-            .next(n('tbc-record-fs:fetch-records'))
-            .next(n('core:map', { 'collection': 'extensionsCollection' }))
             .next(n('tbc-record-fs:fetch-all-ids'))
             .next(n('tbc-record-fs:fetch-records'))
             .next(n('tbc-core:generate-dex-core'))

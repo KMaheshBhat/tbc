@@ -121,7 +121,7 @@ Key node categories:
 
 - **Lifecycle**: `init`, `validate`, `probe`, `resolve`
 - **Bootstrap**: `generate-root`, `copy-assets`
-- **Indexing**: `generate-dex-core`, `generate-dex-records`
+- **Indexing**: `generate-dex-core`, `generate-dex-records`, `generate-dex-extensions`
 - **Upgrade**: `backup-tbc`, `restore-root`, `restore-extensions`
 
 This package *does not write files directly* — it generates record objects.
@@ -182,7 +182,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc init` | `InitFlow` |
 | `tbc validate` | `ValidateFlow` |
 | `tbc probe` | `ProbeFlow` |
-| `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow` |
+| `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` |
 | `tbc int kilocode core` | `GenerateKilocodeCoreInterfaceFlow` |
 
@@ -239,7 +239,8 @@ Dex files are **collated, read‑optimized views** of the vault.
 
 Examples:
 
-- `dex/core.md` — all system definitions
+- `dex/core.md` — core system definitions (root, specs)
+- `dex/extensions.md` — index of extension specifications
 - `dex/party.md` — index of party records
 - `dex/goal.md` — index of goal records
 

@@ -6,4 +6,6 @@ export * from './ops/generate-dex-core.js';
 export * from './ops/refresh-core.js';
 export * from './ops/generate-dex-records.js';
 export * from './ops/refresh-records.js';
+export * from './ops/generate-dex-extensions.js';
+export * from './ops/refresh-extensions.js';
 export * from './plugin.js';

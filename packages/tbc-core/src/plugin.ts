@@ -13,7 +13,9 @@ import { ResolveNode } from "./ops/resolve.js";
 import { ValidateNode } from "./ops/validate.js";
 import { GenerateDexCoreNode } from "./ops/generate-dex-core.js";
 import { GenerateDexRecordsNode } from "./ops/generate-dex-records.js";
+import { GenerateDexExtensionsNode } from "./ops/generate-dex-extensions.js";
 import { RefreshRecordsFlow } from "./ops/refresh-records.js";
+import { RefreshExtensionsFlow } from "./ops/refresh-extensions.js";
 import { RefreshCoreFlow } from "./ops/refresh-core.js";
 
 /**
@@ -32,8 +34,10 @@ import { RefreshCoreFlow } from "./ops/refresh-core.js";
  * - `tbc-core:validate`: Validates TBC directory structure (tbc/, vault/, dex/)
  * - `tbc-core:generate-dex-core`: Generates collated system definitions record for dex/core.md
  * - `tbc-core:generate-dex-records`: Generates records indexes records for dex/{record_type}.md files
- * - `tbc-core:refresh-core`: Refreshes core system definitions index from root, specs, and extensions
+ * - `tbc-core:generate-dex-extensions`: Generates extensions index record for dex/extensions.md
+ * - `tbc-core:refresh-core`: Refreshes core system definitions index from root and specs
  * - `tbc-core:refresh-records`: Refreshes all records indexes from vault
+ * - `tbc-core:refresh-extensions`: Refreshes extensions index from tbc/extensions
  */
 const TBCCorePlugin = createPlugin(
     "@tbc-frameworx/tbc-core",
@@ -52,8 +56,10 @@ const TBCCorePlugin = createPlugin(
         ValidateNode as any,
         GenerateDexCoreNode as any,
         GenerateDexRecordsNode as any,
+        GenerateDexExtensionsNode as any,
         RefreshCoreFlow as any,
         RefreshRecordsFlow as any,
+        RefreshExtensionsFlow as any,
     ],
     "TBC Core Plugin - Environment probing, initialization, validation, and core management operations",
 );

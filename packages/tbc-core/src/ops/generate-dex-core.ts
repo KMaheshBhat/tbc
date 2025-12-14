@@ -74,18 +74,6 @@ export class GenerateDexCoreNode extends HAMINode<TBCCoreStorage> {
             }
         }
 
-        // Extensions
-        const extensionsRecords = fetchResults?.["tbc/extensions"];
-        if (extensionsRecords) {
-            for (const id in extensionsRecords) {
-                const record = extensionsRecords[id];
-                if (record.filename && record.fullContent) {
-                    lines.push(`=== ${record.filename} ===`);
-                    lines.push(record.fullContent);
-                    lines.push("");
-                }
-            }
-        }
 
         return lines.join("\n");
     }

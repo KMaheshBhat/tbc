@@ -63,6 +63,8 @@ type TBCCoreStorage = {
   generatedDexCore?: Record<string, any>;
   /** Generated dex records for storage operations. */
   generatedDexRecords?: Record<string, any>[];
+  /** Generated dex extensions for storage operations. */
+  generatedDexExtensions?: Record<string, any>[];
   /** Records grouped by their record_type for dex generation. */
   recordsByType?: Record<string, any[]>;
   /** Array of records to store (for record-fs operations). */
