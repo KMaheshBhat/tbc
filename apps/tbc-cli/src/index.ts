@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { ValidateFlow, ProbeFlow, InitFlow, GenUuidFlow, GenTsidFlow } from './ops/index.js';
+import { ValidateFlow, ProbeFlow, InitFlow, GenUuidFlow, GenTsidFlow, GenerateKilocodeCoreInterfaceFlow } from './ops/index.js';
 import { RefreshCoreFlow, RefreshRecordsFlow } from '@tbc-frameworx/tbc-core';
 
 const { registry } = await bootstrap();
@@ -234,5 +234,38 @@ cmdGen.addCommand(cmdGenUuid);
 cmdGen.addCommand(cmdGenTsid);
 
 program.addCommand(cmdGen);
+
+let cmdInt = new Command('int')
+    .description('Integration commands');
+
+let cmdIntKilocode = new Command('kilocode')
+    .description('Kilo Code integration');
+
+let cmdIntKilocodeCore = new Command('core')
+    .description('Generate Kilo Code core configuration')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const generateKilocodeCoreInterfaceFlow = new GenerateKilocodeCoreInterfaceFlow({
+                root: root,
+                verbose: isVerbose,
+            });
+            await generateKilocodeCoreInterfaceFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+            });
+        } catch (error) {
+            console.error('Error during int kilocode core:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdIntKilocode.addCommand(cmdIntKilocodeCore);
+cmdInt.addCommand(cmdIntKilocode);
+
+program.addCommand(cmdInt);
 
 program.parse();

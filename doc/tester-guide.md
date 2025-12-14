@@ -72,9 +72,9 @@ Each subdirectory represents **one test scenario**.
 Correct:
 
 ```bash
-tbc init --root ./_test/fresh-init --companion Tessera --prime Mahesh
-tbc validate --root ./_test/fresh-init
-tbc dex core --root ./_test/fresh-init
+tbc init --root "${PWD}/_test/fresh-init" --companion Tessera --prime Mahesh
+tbc validate --root "${PWD}/_test/fresh-init"
+tbc dex core --root "${PWD}/_test/fresh-init"
 ```
 
 Incorrect (dangerous):

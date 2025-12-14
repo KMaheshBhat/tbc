@@ -1,7 +1,7 @@
 {
-  "name": "@tbc-frameworx/tbc-record-fs",
+  "name": "@tbc-frameworx/tbc-kilocode",
   "version": "0.1.0",
-  "description": "TBC File System operations library",
+  "description": "TBC Kilo Code integration plugin",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -11,14 +11,11 @@
     "dev": "bun run build"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.5",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "@hami-frameworx/core": "0.1.1",
-    "gray-matter": "^4.0.3",
-    "js-yaml": "^4.1.0",
     "pocketflow": "^1.0.4"
   }
 }

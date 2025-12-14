@@ -19,7 +19,8 @@
     "@hami-frameworx/core": "0.1.1",
     "@tbc-frameworx/tbc-record-fs": "workspace:*",
     "@tbc-frameworx/tbc-core": "workspace:*",
-    "@tbc-frameworx/tbc-generator": "workspace:*"
+    "@tbc-frameworx/tbc-generator": "workspace:*",
+    "@tbc-frameworx/tbc-kilocode": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

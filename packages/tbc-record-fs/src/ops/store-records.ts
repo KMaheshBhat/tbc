@@ -3,6 +3,7 @@ import { HAMINode } from "@hami-frameworx/core";
 import { writeFile, mkdir } from "fs/promises";
 import { join, dirname } from "path";
 import matter from "gray-matter";
+import yaml from "js-yaml";
 
 import { TBCRecordFSStorage } from "../types.js";
 
@@ -65,7 +66,7 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
         return storedIds;
     }
 
-    private determineFileFormat(record: Record<string, any>): 'markdown' | 'json' | 'raw' {
+    private determineFileFormat(record: Record<string, any>): 'markdown' | 'json' | 'yaml' | 'raw' {
         // Check filename extension first
         if (record.filename) {
             if (record.filename.endsWith('.md')) {
@@ -73,6 +74,9 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
             }
             if (record.filename.endsWith('.json')) {
                 return 'json';
+            }
+            if (record.filename.endsWith('.yaml') || record.filename.endsWith('.yml')) {
+                return 'yaml';
             }
         }
 
@@ -83,12 +87,20 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
         if (record.contentType === 'json') {
             return 'json';
         }
+        if (record.contentType === 'yaml') {
+            return 'yaml';
+        }
+
+        // For filenames like .kilocodemodes (dotfiles without extension), default to yaml if contentType indicates
+        if (record.filename && record.filename.startsWith('.') && !record.filename.includes('.') && record.contentType === 'yaml') {
+            return 'yaml';
+        }
 
         // Default to raw format
         return 'raw';
     }
 
-    private constructFilePath(collectionPath: string, record: Record<string, any>, format: 'markdown' | 'json' | 'raw'): string {
+    private constructFilePath(collectionPath: string, record: Record<string, any>, format: 'markdown' | 'json' | 'yaml' | 'raw'): string {
         // Use record.filename if provided
         if (record.filename) {
             return join(collectionPath, record.filename);
@@ -100,18 +112,22 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
                 return join(collectionPath, `${record.id}.md`);
             case 'json':
                 return join(collectionPath, `${record.id}.json`);
+            case 'yaml':
+                return join(collectionPath, `${record.id}.yaml`);
             case 'raw':
                 return join(collectionPath, record.id);
         }
     }
 
-    private generateFileContent(record: Record<string, any>, format: 'markdown' | 'json' | 'raw'): string {
+    private generateFileContent(record: Record<string, any>, format: 'markdown' | 'json' | 'yaml' | 'raw'): string {
         switch (format) {
             case 'markdown':
                 const { content, ...frontmatterData } = record;
                 return matter.stringify(content || '', frontmatterData);
             case 'json':
                 return JSON.stringify(record, null, 2);
+            case 'yaml':
+                return yaml.dump(record.content || record);
             case 'raw':
                 return record.content || '';
         }

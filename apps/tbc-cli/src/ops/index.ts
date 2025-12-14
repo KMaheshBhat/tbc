@@ -3,3 +3,4 @@ export * from "./probe-flow.js";
 export * from "./init-flow.js";
 export * from "./gen-uuid-flow.js";
 export * from "./gen-tsid-flow.js";
+export * from "./generate-kilocode-core-interface-flow.js";

@@ -28,11 +28,11 @@ TBC is implemented as a **monorepo** with three primary layers:
 
 ```
 ┌────────────────────────────┐
-│        CLI (apps/)          │  ← User / Agent entry point
+│        CLI (apps/)         │  ← User / Agent entry point
 ├────────────────────────────┤
-│     Core Plugins (packages) │  ← Domain logic & orchestration
+│     Core Plugins (packages)│  ← Domain logic & orchestration
 ├────────────────────────────┤
-│     Record Storage (FS)     │  ← Plain‑text persistence
+│     Record Storage (FS)    │  ← Plain‑text persistence
 └────────────────────────────┘
 ```
 
@@ -55,6 +55,7 @@ packages/
   tbc-core/             # Core system operations
   tbc-record-fs/        # File‑system based vault implementation
   tbc-generator/        # ID generation utilities
+  tbc-kilocode/         # Kilo Code integration operations
 assets/
   specs/                # Embedded system specifications
   tools/                # Reserved for future tooling
@@ -133,6 +134,7 @@ Supported formats:
 
 - `.md` with YAML frontmatter
 - `.json`
+- `.yaml` / `.yml`
 - Plain text
 
 #### Fetch Strategy
@@ -157,6 +159,14 @@ Supported generators:
 
 These are used both by the CLI and by agents.
 
+### 6.4 `@tbc-frameworx/tbc-kilocode`
+
+**Responsibility**: Kilo Code integration operations.
+
+Key operations:
+
+- **generate-core**: Generates Kilo Code modes configuration for the companion
+
 ## 7. CLI Application (`apps/tbc-cli`)
 
 The CLI is a **thin orchestration layer** that:
@@ -174,6 +184,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc probe` | `ProbeFlow` |
 | `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` |
+| `tbc int kilocode core` | `GenerateKilocodeCoreInterfaceFlow` |
 
 Each flow wires together nodes dynamically.
 
