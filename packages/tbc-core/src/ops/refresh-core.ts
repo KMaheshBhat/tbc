@@ -32,6 +32,7 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
         assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode.bind(shared.registry);
 
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
@@ -49,46 +50,20 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         shared.specsCollection = 'tbc/specs';
         shared.extensionsCollection = 'tbc/extensions';
 
-        // Create nodes
-        const resolve = shared['registry'].createNode('tbc-core:resolve');
-
-        // Fetch records for root
-        const mapRoot = shared['registry'].createNode('core:map', { 'collection': 'rootCollection', 'IDs': 'rootIDs' });
-        const fetchRecordsRoot = shared['registry'].createNode('tbc-record-fs:fetch-records');
-
-        // Fetch records for specs
-        const mapSpecs = shared['registry'].createNode('core:map', { 'collection': 'specsCollection' });
-        const fetchAllIDsSpecs = shared['registry'].createNode('tbc-record-fs:fetch-all-ids');
-        const fetchRecordsSpecs = shared['registry'].createNode('tbc-record-fs:fetch-records');
-
-        // Fetch records for extensions
-        const mapExtensions = shared['registry'].createNode('core:map', { 'collection': 'extensionsCollection' });
-        const fetchAllIDsExtensions = shared['registry'].createNode('tbc-record-fs:fetch-all-ids');
-        const fetchRecordsExtensions = shared['registry'].createNode('tbc-record-fs:fetch-records');
-
-        // Generate dex core record
-        const generateCore = shared['registry'].createNode('tbc-core:generate-dex-core');
-        
-        // Store dex core record
-        const storeCore = shared['registry'].createNode('tbc-record-fs:store-records');
-        
-        // Log Results
-        const logResult = shared['registry'].createNode('core:log-result', { resultKey: 'storeResults' });
-
         // Wire the flow
         this.startNode
-            .next(resolve)
-            .next(mapRoot)
-            .next(fetchRecordsRoot)
-            .next(mapSpecs)
-            .next(fetchAllIDsSpecs)
-            .next(fetchRecordsSpecs)
-            .next(mapExtensions)
-            .next(fetchAllIDsExtensions)
-            .next(fetchRecordsExtensions)
-            .next(generateCore)
-            .next(storeCore)
-            .next(logResult)
+            .next(n('tbc-core:resolve'))
+            .next(n('core:map', { 'collection': 'rootCollection', 'IDs': 'rootIDs' }))
+            .next(n('tbc-record-fs:fetch-records'))
+            .next(n('core:map', { 'collection': 'specsCollection' }))
+            .next(n('tbc-record-fs:fetch-all-ids'))
+            .next(n('tbc-record-fs:fetch-records'))
+            .next(n('core:map', { 'collection': 'extensionsCollection' }))
+            .next(n('tbc-record-fs:fetch-all-ids'))
+            .next(n('tbc-record-fs:fetch-records'))
+            .next(n('tbc-core:generate-dex-core'))
+            .next(n('tbc-record-fs:store-records'))
+            .next(n('core:log-result', { resultKey: 'storeResults' }))
             ;
 
         return super.run(shared);

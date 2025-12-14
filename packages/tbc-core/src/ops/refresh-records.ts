@@ -1,6 +1,5 @@
 import { HAMIFlow } from "@hami-frameworx/core";
 import { Node } from "pocketflow";
-import { GenerateDexRecordsNode } from "./generate-dex-records.js";
 
 interface RefreshRecordsFlowConfig {
     verbose: boolean;
@@ -22,6 +21,8 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
+        const n = shared.registry.createNode.bind(shared.registry);
+
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
 
@@ -29,40 +30,24 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
         const rootDir = shared.root || process.cwd();
         shared.rootDirectory = rootDir;
 
-        // Create nodes
-        const resolve = shared['registry'].createNode('tbc-core:resolve');
-
-        // Fetch all record IDs from vault
-        const fetchAllIDs = shared['registry'].createNode('tbc-record-fs:fetch-all-ids');
+        // Set collection for fetch operations
         shared.collection = 'vault';
-
-        // Fetch all records
-        const fetchRecords = shared['registry'].createNode('tbc-record-fs:fetch-records');
 
         // Group records by type
         const groupRecords = new GroupRecordsByTypeNode();
 
-        // Generate dex records
-        const generateRecords = shared['registry'].createNode('tbc-core:generate-dex-records', { verbose: this.config.verbose });
-
-        // Store dex records
-        const storeRecords = shared['registry'].createNode('tbc-record-fs:store-records');
-
-        // Log Results
-        const logResult = shared['registry'].createNode('core:log-result', {
-            resultKey: 'storeResults',
-            prefix: 'Records refresh completed:'
-        });
-
         // Wire the flow
         this.startNode
-            .next(resolve)
-            .next(fetchAllIDs)
-            .next(fetchRecords)
+            .next(n('tbc-core:resolve'))
+            .next(n('tbc-record-fs:fetch-all-ids'))
+            .next(n('tbc-record-fs:fetch-records'))
             .next(groupRecords)
-            .next(generateRecords)
-            .next(storeRecords)
-            .next(logResult);
+            .next(n('tbc-core:generate-dex-records', { verbose: this.config.verbose }))
+            .next(n('tbc-record-fs:store-records'))
+            .next(n('core:log-result', {
+                resultKey: 'storeResults',
+                prefix: 'Records refresh completed:'
+            }));
 
         return super.run(shared);
     }
