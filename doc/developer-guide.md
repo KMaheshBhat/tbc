@@ -56,6 +56,7 @@ packages/
   tbc-record-fs/        # File‑system based vault implementation
   tbc-generator/        # ID generation utilities
   tbc-kilocode/         # Kilo Code integration operations
+  tbc-goose/            # Goose integration operations
 assets/
   specs/                # Embedded system specifications
   tools/                # Reserved for future tooling
@@ -167,6 +168,14 @@ Key operations:
 
 - **generate-core**: Generates Kilo Code modes configuration for the companion
 
+### 6.5 `@tbc-frameworx/tbc-goose`
+
+**Responsibility**: Goose integration operations.
+
+Key operations:
+
+- **generate-core**: Generates Goose hints configuration for the companion
+
 ## 7. CLI Application (`apps/tbc-cli`)
 
 The CLI is a **thin orchestration layer** that:
@@ -185,6 +194,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` |
 | `tbc int kilocode core` | `GenerateKilocodeCoreInterfaceFlow` |
+| `tbc int goose core` | `GenerateGooseCoreInterfaceFlow` |
 
 Each flow wires together nodes dynamically.
 

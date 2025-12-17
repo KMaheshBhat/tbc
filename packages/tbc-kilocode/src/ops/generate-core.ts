@@ -35,7 +35,7 @@ export class GenerateCoreNode extends HAMINode<TBCKilocodeStorage> {
                 {
                     slug: companionName.toLowerCase(),
                     name: companionName,
-                    roleDefinition: `At the start of an iteration, ALWAYS read @tbc/root.md file at the root of the repository, and follow all specifications from it recursively until you have read and understood. Use @dex/core.md when available or execute the script to generate it. For the interaction, you will act as ${companionName}`,
+                    roleDefinition: `At the start of an iteration, ALWAYS read @tbc/root.md file at the root of the repository, and follow all specifications from it recursively until you have read and understood. ALWAYS read top level @dex/core.md and @dex/extensions.md when available or execute the script to generate it. For the interaction, you will act as ${companionName}`,
                     groups: ['read', 'edit', 'browser', 'command', 'mcp'],
                     source: 'project',
                 },

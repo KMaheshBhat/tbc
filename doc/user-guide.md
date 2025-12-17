@@ -266,6 +266,16 @@ When using an AI agent with TBC:
 
 Treat the agent as a **junior archivist**, not an oracle.
 
+### 13.1 Goose Integration
+
+To enable Goose AI assistant integration:
+
+```bash
+tbc int goose core
+```
+
+This generates a `.goosehints` file in the repository root with system instructions for Goose, allowing it to act as the TBC companion.
+
 ## 14. Troubleshooting
 
 ### Validation Fails

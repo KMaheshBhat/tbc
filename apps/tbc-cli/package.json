@@ -20,7 +20,8 @@
     "@tbc-frameworx/tbc-record-fs": "workspace:*",
     "@tbc-frameworx/tbc-core": "workspace:*",
     "@tbc-frameworx/tbc-generator": "workspace:*",
-    "@tbc-frameworx/tbc-kilocode": "workspace:*"
+    "@tbc-frameworx/tbc-kilocode": "workspace:*",
+    "@tbc-frameworx/tbc-goose": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

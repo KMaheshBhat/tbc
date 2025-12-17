@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { ValidateFlow, ProbeFlow, InitFlow, GenUuidFlow, GenTsidFlow, GenerateKilocodeCoreInterfaceFlow } from './ops/index.js';
+import { ValidateFlow, ProbeFlow, InitFlow, GenUuidFlow, GenTsidFlow, GenerateKilocodeCoreInterfaceFlow, GenerateGooseCoreInterfaceFlow } from './ops/index.js';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-core';
 
 const { registry } = await bootstrap();
@@ -288,6 +288,34 @@ let cmdIntKilocodeCore = new Command('core')
 
 cmdIntKilocode.addCommand(cmdIntKilocodeCore);
 cmdInt.addCommand(cmdIntKilocode);
+
+let cmdIntGoose = new Command('goose')
+    .description('Goose integration');
+
+let cmdIntGooseCore = new Command('core')
+    .description('Generate Goose core configuration')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const generateGooseCoreInterfaceFlow = new GenerateGooseCoreInterfaceFlow({
+                root: root,
+                verbose: isVerbose,
+            });
+            await generateGooseCoreInterfaceFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+            });
+        } catch (error) {
+            console.error('Error during int goose core:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdIntGoose.addCommand(cmdIntGooseCore);
+cmdInt.addCommand(cmdIntGoose);
 
 program.addCommand(cmdInt);
 

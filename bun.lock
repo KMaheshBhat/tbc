@@ -21,6 +21,7 @@
         "@hami-frameworx/core": "0.1.1",
         "@tbc-frameworx/tbc-core": "workspace:*",
         "@tbc-frameworx/tbc-generator": "workspace:*",
+        "@tbc-frameworx/tbc-goose": "workspace:*",
         "@tbc-frameworx/tbc-kilocode": "workspace:*",
         "@tbc-frameworx/tbc-record-fs": "workspace:*",
         "commander": "^12.0.0",
@@ -49,6 +50,18 @@
       "dependencies": {
         "@hami-frameworx/core": "0.1.1",
         "uuidv7": "^1.0.2",
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+      },
+    },
+    "packages/tbc-goose": {
+      "name": "@tbc-frameworx/tbc-goose",
+      "version": "0.1.0",
+      "dependencies": {
+        "@hami-frameworx/core": "0.1.1",
+        "pocketflow": "^1.0.4",
       },
       "devDependencies": {
         "@types/node": "^20.0.0",
@@ -91,6 +104,8 @@
     "@tbc-frameworx/tbc-core": ["@tbc-frameworx/tbc-core@workspace:packages/tbc-core"],
 
     "@tbc-frameworx/tbc-generator": ["@tbc-frameworx/tbc-generator@workspace:packages/tbc-generator"],
+
+    "@tbc-frameworx/tbc-goose": ["@tbc-frameworx/tbc-goose@workspace:packages/tbc-goose"],
 
     "@tbc-frameworx/tbc-kilocode": ["@tbc-frameworx/tbc-kilocode@workspace:packages/tbc-kilocode"],
 
