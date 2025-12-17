@@ -63,8 +63,9 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
 
 - Agent: [${companion}](/vault/${recordIds.companion}.md)
 - Primer User: [${prime}](/vault/${recordIds.prime}.md)
-- Specifications: [core](/dex/core.md)
-  - use 'Refresh Core Index' method if not available
+- Specifications:
+  - [core](/dex/core.md) - use 'Refresh Core Index' Method if not present; provides full definitions.
+  - [extensions](/dex/extensions.md) - use 'Refresh Extensions Index' Method if not present; only provides summary; read specific extensions from /tbc/extensions/ as needed.
 
 ## Agent Identity
 
