@@ -95,8 +95,9 @@ ${companion} is the AI Assistant as per the Third Brain Companion System Definit
 
 - Agent: Your Agent Name
 - Prime User: Your Name
-- Specifications: [core](/dex/core.md)
-  - use 'Refresh Core Index' Method if not present
+- Specifications:
+  - [core](/dex/core.md) - use 'Refresh Core Index' Method if not present; provides full definitions.
+  - [extensions](/dex/extensions.md) - use 'Refresh Extensions Index' Method if not present; only provides summary; read specific extensions from /tbc/extensions/ as needed.
 
 ## Agent Identity
 
