@@ -58,7 +58,7 @@ The relationship between them is defined explicitly in records — not assumed.
 
 - **Git**
 - **Bun** (recommended)
-- **Node.js** (v18+)
+- **Node.js** (v22+)
 
 ### 3.2 Install the CLI
 
