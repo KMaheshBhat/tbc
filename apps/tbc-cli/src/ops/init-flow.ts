@@ -1,6 +1,6 @@
 import assert from "assert";
 import { Node } from "pocketflow";
-import { join } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { access } from "node:fs/promises";
 
@@ -68,15 +68,16 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
         // Determine assets path (relative to CLI package)
         // Works in both development (source) and production (installed) environments
         const currentFile = fileURLToPath(import.meta.url);
+        const currentDir = dirname(currentFile);
         let cliDir: string;
 
         // Check if we're running from an installed package (has node_modules in path)
         if (currentFile.includes('node_modules')) {
-            // Production: from lib/node_modules/.../dist/ops/init-flow.js to package root
-            cliDir = join(currentFile, '../../');
+            // Production: from node_modules/.../dist/ops/ to package root
+            cliDir = resolve(currentDir, '../..');
         } else {
-            // Development: from apps/tbc-cli/dist/ops/init-flow.js to cli root
-            cliDir = join(currentFile, '../../../');
+            // Development: from apps/tbc-cli/dist/ops/ to cli root
+            cliDir = resolve(currentDir, '../..');
         }
 
         shared.assetsPath = join(cliDir, 'assets');
