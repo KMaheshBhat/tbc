@@ -266,7 +266,17 @@ When using an AI agent with TBC:
 
 Treat the agent as a **junior archivist**, not an oracle.
 
-### 13.1 Goose Integration
+### 13.1 Kilo Code Integration
+
+To enable Kilo Code AI assistant integration:
+
+```bash
+tbc int kilocode core
+```
+
+This generates a `.kilocodemodes` file in the repository root with system instructions for Kilo Code, allowing it to act as the TBC companion.
+
+### 13.2 Goose Integration
 
 To enable Goose AI assistant integration:
 
@@ -275,6 +285,16 @@ tbc int goose core
 ```
 
 This generates a `.goosehints` file in the repository root with system instructions for Goose, allowing it to act as the TBC companion.
+
+### 13.3 GitHub Copilot Integration
+
+To enable GitHub Copilot AI assistant integration:
+
+```bash
+tbc int github-copilot core
+```
+
+This generates a `.github/agents/{companion-slug}.agent.md` file in the repository root with system instructions for GitHub Copilot, allowing it to act as the TBC companion.
 
 ## 14. Troubleshooting
 

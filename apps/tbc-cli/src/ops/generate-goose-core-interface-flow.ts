@@ -76,6 +76,7 @@ export class GenerateGooseCoreInterfaceFlow extends HAMIFlow<Record<string, any>
             .next(extractCompanionIdNode)
             .next(n('tbc-record-fs:fetch-records'))
             .next(extractCompanionNameNode)
+            .next(n('tbc-core:generate-role-definition'))
             .next(n('tbc-goose:generate-core'))
             .next(setStoreCollectionNode)
             .next(n('tbc-record-fs:store-records'))

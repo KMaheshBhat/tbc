@@ -69,10 +69,10 @@ export class FetchRecordsNode extends HAMINode<TBCRecordFSStorage> {
                         const parsed = matter(content);
                         record = { ...parsed.data, content: parsed.content, fullContent: content };
                         // Extract title from markdown content (first H1 heading) if not present in frontmatter
-                        if (!record.title && parsed.content) {
+                        if (!record.record_title && parsed.content) {
                             const titleMatch = parsed.content.match(/^#\s+(.+)/m);
                             if (titleMatch) {
-                                record.title = titleMatch[1].trim();
+                                record.record_title = titleMatch[1].trim();
                             }
                         }
                     } else {

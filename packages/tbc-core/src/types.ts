@@ -71,6 +71,10 @@ type TBCCoreStorage = {
   records?: Record<string, any>[];
   /** Collection directory to store records in (for record-fs operations). */
   collection?: string;
+  /** Companion name extracted from vault records. */
+  companionName?: string;
+  /** Generated role definition for AI integrations. */
+  roleDefinition?: string;
 }
 
 export {

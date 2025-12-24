@@ -21,7 +21,8 @@
     "@tbc-frameworx/tbc-core": "^0.1.0",
     "@tbc-frameworx/tbc-generator": "^0.1.0",
     "@tbc-frameworx/tbc-kilocode": "^0.1.0",
-    "@tbc-frameworx/tbc-goose": "^0.1.0"
+    "@tbc-frameworx/tbc-goose": "^0.1.0",
+    "@tbc-frameworx/tbc-github-copilot": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

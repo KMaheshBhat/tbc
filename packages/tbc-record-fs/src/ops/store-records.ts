@@ -54,6 +54,9 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
                 const filePath = this.constructFilePath(collectionPath, record, fileFormat);
                 const fileContent = this.generateFileContent(record, fileFormat);
 
+                // Ensure directory exists
+                await mkdir(dirname(filePath), { recursive: true });
+
                 // Write file
                 await writeFile(filePath, fileContent, 'utf-8');
                 storedIds.push(record.id);
@@ -122,8 +125,11 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
     private generateFileContent(record: Record<string, any>, format: 'markdown' | 'json' | 'yaml' | 'raw'): string {
         switch (format) {
             case 'markdown':
-                const { content, ...frontmatterData } = record;
-                return matter.stringify(content || '', frontmatterData);
+                const { content, frontmatter, ...frontmatterData } = record;
+                const finalFrontmatter = frontmatter || frontmatterData;
+                // Use yaml.dump with no line wrapping to keep description on single line
+                const frontmatterStr = yaml.dump(finalFrontmatter, { lineWidth: -1 });
+                return `---\n${frontmatterStr}---\n\n${content || ''}`;
             case 'json':
                 return JSON.stringify(record, null, 2);
             case 'yaml':

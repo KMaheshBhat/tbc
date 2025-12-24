@@ -4,12 +4,12 @@ import { join } from "node:path";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
-interface GenerateKilocodeCoreInterfaceFlowConfig {
+interface GenerateGitHubCopilotCoreInterfaceFlowConfig {
     root?: string;
     verbose: boolean;
 }
 
-const GenerateKilocodeCoreInterfaceFlowConfigSchema: ValidationSchema = {
+const GenerateGitHubCopilotCoreInterfaceFlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         root: { type: "string" },
@@ -18,11 +18,11 @@ const GenerateKilocodeCoreInterfaceFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class GenerateKilocodeCoreInterfaceFlow extends HAMIFlow<Record<string, any>, GenerateKilocodeCoreInterfaceFlowConfig> {
+export class GenerateGitHubCopilotCoreInterfaceFlow extends HAMIFlow<Record<string, any>, GenerateGitHubCopilotCoreInterfaceFlowConfig> {
     startNode: Node;
-    config: GenerateKilocodeCoreInterfaceFlowConfig;
+    config: GenerateGitHubCopilotCoreInterfaceFlowConfig;
 
-    constructor(config: GenerateKilocodeCoreInterfaceFlowConfig) {
+    constructor(config: GenerateGitHubCopilotCoreInterfaceFlowConfig) {
         const startNode = new Node();
         super(startNode, config);
         this.startNode = startNode;
@@ -30,7 +30,7 @@ export class GenerateKilocodeCoreInterfaceFlow extends HAMIFlow<Record<string, a
     }
 
     kind(): string {
-        return "tbc-cli:generate-kilocode-core-interface-flow";
+        return "tbc-cli:generate-github-copilot-core-interface-flow";
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -77,7 +77,7 @@ export class GenerateKilocodeCoreInterfaceFlow extends HAMIFlow<Record<string, a
             .next(n('tbc-record-fs:fetch-records'))
             .next(extractCompanionNameNode)
             .next(n('tbc-core:generate-role-definition'))
-            .next(n('tbc-kilocode:generate-core'))
+            .next(n('tbc-github-copilot:generate-core'))
             .next(setStoreCollectionNode)
             .next(n('tbc-record-fs:store-records'))
             .next(logTableNode(shared['registry'], 'storeResults'));
@@ -85,8 +85,8 @@ export class GenerateKilocodeCoreInterfaceFlow extends HAMIFlow<Record<string, a
         return super.run(shared);
     }
 
-    validateConfig(config: GenerateKilocodeCoreInterfaceFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, GenerateKilocodeCoreInterfaceFlowConfigSchema)
+    validateConfig(config: GenerateGitHubCopilotCoreInterfaceFlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, GenerateGitHubCopilotCoreInterfaceFlowConfigSchema)
         return {
             valid: result.isValid,
             errors: result.errors || [],

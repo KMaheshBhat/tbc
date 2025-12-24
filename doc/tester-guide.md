@@ -192,6 +192,39 @@ Validate:
 
 These commands **must be safe anywhere**.
 
+### 5.6 `tbc int`
+
+#### Kilo Code Integration
+
+```bash
+tbc int kilocode core --root ./_test/fresh-init
+```
+
+Validate:
+
+- `.kilocodemodes` created with correct content
+
+#### Goose Integration
+
+```bash
+tbc int goose core --root ./_test/fresh-init
+```
+
+Validate:
+
+- `.goosehints` created with correct content
+
+#### GitHub Copilot Integration
+
+```bash
+tbc int github-copilot core --root ./_test/fresh-init
+```
+
+Validate:
+
+- `.github/agents/{companion-slug}.agent.md` created with correct YAML frontmatter (description, tools) and role definition content
+- File follows GitHub Copilot agent file format
+
 ## 6. Upgrade Testing
 
 ### 6.1 Setup

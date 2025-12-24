@@ -13,17 +13,18 @@
     },
     "apps/tbc-cli": {
       "name": "@tbc-frameworx/tbc-cli",
-      "version": "0.1.0",
+      "version": "0.1.4",
       "bin": {
         "tbc": "dist/index.js",
       },
       "dependencies": {
         "@hami-frameworx/core": "0.1.1",
-        "@tbc-frameworx/tbc-core": "workspace:*",
-        "@tbc-frameworx/tbc-generator": "workspace:*",
-        "@tbc-frameworx/tbc-goose": "workspace:*",
-        "@tbc-frameworx/tbc-kilocode": "workspace:*",
-        "@tbc-frameworx/tbc-record-fs": "workspace:*",
+        "@tbc-frameworx/tbc-core": "^0.1.0",
+        "@tbc-frameworx/tbc-generator": "^0.1.0",
+        "@tbc-frameworx/tbc-github-copilot": "^0.1.0",
+        "@tbc-frameworx/tbc-goose": "^0.1.0",
+        "@tbc-frameworx/tbc-kilocode": "^0.1.0",
+        "@tbc-frameworx/tbc-record-fs": "^0.1.0",
         "commander": "^12.0.0",
         "pocketflow": "^1.0.4",
       },
@@ -50,6 +51,18 @@
       "dependencies": {
         "@hami-frameworx/core": "0.1.1",
         "uuidv7": "^1.0.2",
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+      },
+    },
+    "packages/tbc-github-copilot": {
+      "name": "@tbc-frameworx/tbc-github-copilot",
+      "version": "0.1.0",
+      "dependencies": {
+        "@hami-frameworx/core": "0.1.1",
+        "pocketflow": "^1.0.4",
       },
       "devDependencies": {
         "@types/node": "^20.0.0",
@@ -104,6 +117,8 @@
     "@tbc-frameworx/tbc-core": ["@tbc-frameworx/tbc-core@workspace:packages/tbc-core"],
 
     "@tbc-frameworx/tbc-generator": ["@tbc-frameworx/tbc-generator@workspace:packages/tbc-generator"],
+
+    "@tbc-frameworx/tbc-github-copilot": ["@tbc-frameworx/tbc-github-copilot@workspace:packages/tbc-github-copilot"],
 
     "@tbc-frameworx/tbc-goose": ["@tbc-frameworx/tbc-goose@workspace:packages/tbc-goose"],
 

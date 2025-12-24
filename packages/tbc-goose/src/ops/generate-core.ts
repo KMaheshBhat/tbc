@@ -4,6 +4,7 @@ import { TBCGooseStorage } from "../types.js";
 
 type GenerateCoreInput = {
     companionName: string;
+    roleDefinition: string;
 };
 
 type GenerateCoreOutput = Record<string, any>[];
@@ -21,16 +22,18 @@ export class GenerateCoreNode extends HAMINode<TBCGooseStorage> {
         if (!shared.companionName) {
             throw new Error("companionName is required in shared state");
         }
+        if (!shared.roleDefinition) {
+            throw new Error("roleDefinition is required in shared state");
+        }
         return {
             companionName: shared.companionName,
+            roleDefinition: shared.roleDefinition,
         };
     }
 
     async exec(params: GenerateCoreInput): Promise<GenerateCoreOutput> {
         const companionName = params.companionName;
-
-        // Generate the Goose hints configuration
-        const roleDefinition = `At the start of an iteration, ALWAYS read @tbc/root.md file at the root of the repository, and follow all specifications from it recursively until you have read and understood. ALWAYS read top level @dex/core.md and @dex/extensions.md when available or execute the script to generate it. For the interaction, you will act as ${companionName}`;
+        const roleDefinition = params.roleDefinition;
 
         // Return as records array for store-records
         const records = [

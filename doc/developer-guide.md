@@ -57,6 +57,7 @@ packages/
   tbc-generator/        # ID generation utilities
   tbc-kilocode/         # Kilo Code integration operations
   tbc-goose/            # Goose integration operations
+  tbc-github-copilot/   # GitHub Copilot integration operations
 assets/
   specs/                # Embedded system specifications
   tools/                # Reserved for future tooling
@@ -176,6 +177,14 @@ Key operations:
 
 - **generate-core**: Generates Goose hints configuration for the companion
 
+### 6.6 `@tbc-frameworx/tbc-github-copilot`
+
+**Responsibility**: GitHub Copilot integration operations.
+
+Key operations:
+
+- **generate-core**: Generates GitHub Copilot instructions configuration for the companion
+
 ## 7. CLI Application (`apps/tbc-cli`)
 
 The CLI is a **thin orchestration layer** that:
@@ -195,6 +204,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` |
 | `tbc int kilocode core` | `GenerateKilocodeCoreInterfaceFlow` |
 | `tbc int goose core` | `GenerateGooseCoreInterfaceFlow` |
+| `tbc int github-copilot core` | `GenerateGitHubCopilotCoreInterfaceFlow` |
 
 Each flow wires together nodes dynamically.
 

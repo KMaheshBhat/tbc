@@ -17,6 +17,7 @@ import { GenerateDexExtensionsNode } from "./ops/generate-dex-extensions.js";
 import { RefreshRecordsFlow } from "./ops/refresh-records.js";
 import { RefreshExtensionsFlow } from "./ops/refresh-extensions.js";
 import { RefreshCoreFlow } from "./ops/refresh-core.js";
+import { GenerateRoleDefinitionNode } from "./ops/generate-role-definition.js";
 
 /**
  * TBC Core Plugin for HAMI.
@@ -38,6 +39,7 @@ import { RefreshCoreFlow } from "./ops/refresh-core.js";
  * - `tbc-core:refresh-core`: Refreshes core system definitions index from root and specs
  * - `tbc-core:refresh-records`: Refreshes all records indexes from vault
  * - `tbc-core:refresh-extensions`: Refreshes extensions index from tbc/extensions
+ * - `tbc-core:generate-role-definition`: Generates standard TBC role definition for AI integrations
  */
 const TBCCorePlugin = createPlugin(
     "@tbc-frameworx/tbc-core",
@@ -60,6 +62,7 @@ const TBCCorePlugin = createPlugin(
         RefreshCoreFlow as any,
         RefreshRecordsFlow as any,
         RefreshExtensionsFlow as any,
+        GenerateRoleDefinitionNode as any,
     ],
     "TBC Core Plugin - Environment probing, initialization, validation, and core management operations",
 );
