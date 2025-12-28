@@ -5,18 +5,18 @@ import { HAMINode } from "@hami-frameworx/core";
 
 import { TBCCoreStorage } from "../types.js";
 
-type BackupTbcNodeOutput = {
+type BackupSysNodeOutput = {
     backedUp: boolean;
     backupPath?: string;
 };
 
-export class BackupTbcNode extends HAMINode<TBCCoreStorage> {
+export class BackupSysNode extends HAMINode<TBCCoreStorage> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-core:backup-tbc";
+        return "tbc-core:backup-sys";
     }
 
     async prep(
@@ -31,16 +31,16 @@ export class BackupTbcNode extends HAMINode<TBCCoreStorage> {
 
     async exec(
         shared: TBCCoreStorage,
-    ): Promise<BackupTbcNodeOutput> {
+    ): Promise<BackupSysNodeOutput> {
         const rootDir = shared.rootDirectory!;
-        const tbcPath = join(rootDir, 'tbc');
+        const sysPath = join(rootDir, 'sys');
 
         // Create timestamped backup directory
         const timestamp = getStableTimestamp();
-        const backupPath = join(rootDir, `${timestamp}-tbc`);
+        const backupPath = join(rootDir, `${timestamp}-sys`);
 
-        if (existsSync(tbcPath)) {
-            await cp(tbcPath, backupPath, { recursive: true });
+        if (existsSync(sysPath)) {
+            await cp(sysPath, backupPath, { recursive: true });
             return { backedUp: true, backupPath };
         }
         return { backedUp: false };
@@ -49,7 +49,7 @@ export class BackupTbcNode extends HAMINode<TBCCoreStorage> {
     async post(
         shared: TBCCoreStorage,
         _prepRes: void,
-        execRes: BackupTbcNodeOutput,
+        execRes: BackupSysNodeOutput,
     ): Promise<string | undefined> {
         shared.backupTbcResults = execRes;
         return "default";

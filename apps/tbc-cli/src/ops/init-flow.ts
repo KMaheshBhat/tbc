@@ -155,7 +155,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
             .next(resultLog)
 
         upgrade
-            .next(n('tbc-core:backup-tbc'))
+            .next(n('tbc-core:backup-sys'))
             .next(n('tbc-core:init'))
             .next(n('tbc-core:copy-assets'))
             .next(n('tbc-core:restore-root'))
