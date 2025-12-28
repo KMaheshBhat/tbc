@@ -29,7 +29,7 @@ export class RestoreRootNode extends HAMINode<TBCCoreStorage> {
 
         const rootDirectory = shared.rootDirectory;
         // Find the most recent tbc backup directory
-        const backupPattern = /^tbc-\d{14}$/;
+        const backupPattern = /^sys-\d{14}$/;
         const items = await readdir(rootDirectory);
         const backupDirs = items
             .filter(item => backupPattern.test(item))
@@ -51,7 +51,7 @@ export class RestoreRootNode extends HAMINode<TBCCoreStorage> {
         const backupDir = backupDirs[0];
         const backupPath = join(rootDirectory, backupDir);
         const rootBackupPath = join(backupPath, 'root.md');
-        const rootTargetPath = join(rootDirectory, 'tbc', 'root.md');
+        const rootTargetPath = join(rootDirectory, 'sys', 'root.md');
 
         if (existsSync(rootBackupPath)) {
             await cp(rootBackupPath, rootTargetPath);

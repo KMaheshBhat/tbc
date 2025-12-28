@@ -31,7 +31,7 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
         shared.rootDirectory = rootDir;
 
         // Set collection for fetch operations
-        shared.collection = 'vault';
+        shared.collection = 'mem';
 
         // Group records by type
         const groupRecords = new GroupRecordsByTypeNode();
@@ -55,7 +55,7 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
 
 class GroupRecordsByTypeNode extends Node {
     async prep(shared: Record<string, any>): Promise<any> {
-        return shared.fetchResults?.vault || {};
+        return shared.fetchResults?.mem || {};
     }
 
     async exec(prepRes: any): Promise<Record<string, any[]>> {

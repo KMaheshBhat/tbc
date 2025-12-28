@@ -70,15 +70,15 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
 
         verbose && console.log(`Inspecting directory: ${workingDir}`);
 
-        const tbcDir = join(workingDir, 'tbc');
-        const tbcExists = existsSync(tbcDir);
-        message = `tbc/ directory: ${tbcExists ? '✓ Found' : '✗ Missing'}`;
+        const sysDir = join(workingDir, 'sys');
+        const sysExists = existsSync(sysDir);
+        message = `sys/ directory: ${sysExists ? '✓ Found' : '✗ Missing'}`;
         messages.push(message);
         verbose && console.log(message);
 
-        const vaultDir = join(workingDir, 'vault');
-        const vaultExists = existsSync(vaultDir);
-        message = `vault/ directory: ${vaultExists ? '✓ Found' : '✗ Missing'}`;
+        const memDir = join(workingDir, 'mem');
+        const memExists = existsSync(memDir);
+        message = `mem/ directory: ${memExists ? '✓ Found' : '✗ Missing'}`;
         messages.push(message);
         verbose && console.log(message);
 
@@ -89,15 +89,15 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
         verbose && console.log(message);
 
         // Check for ID files (created during enhanced init)
-        const companionIdFile = join(tbcDir, 'companion.id');
+        const companionIdFile = join(sysDir, 'companion.id');
         const companionIdExists = existsSync(companionIdFile);
-        message = `tbc/companion.id: ${companionIdExists ? '✓ Found' : 'Not found (basic init used)'}`;
+        message = `sys/companion.id: ${companionIdExists ? '✓ Found' : 'Not found (basic init used)'}`;
         messages.push(message);
         verbose && console.log(message);
 
-        const primeIdFile = join(tbcDir, 'prime.id');
+        const primeIdFile = join(sysDir, 'prime.id');
         const primeIdExists = existsSync(primeIdFile);
-        message = `tbc/prime.id: ${primeIdExists ? '✓ Found' : 'Not found (basic init used)'}`;
+        message = `sys/prime.id: ${primeIdExists ? '✓ Found' : 'Not found (basic init used)'}`;
         messages.push(message);
         verbose && console.log(message);
 
@@ -107,13 +107,13 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
         messages.push(message);
         verbose && console.log(message);
 
-        const isValidTBCRoot = tbcExists && vaultExists;
+        const isValidTBCRoot = sysExists && memExists;
         if (isValidTBCRoot) {
-            message = '✅ This appears to be a valid TBC root directory.';
+            message = '✓ This appears to be a valid TBC root directory.';
             messages.push(message);
             verbose && console.log(message);
         } else {
-            message = '❌ This does not appear to be a valid TBC root directory.';
+            message = '✕ This does not appear to be a valid TBC root directory.';
             messages.push(message);
             verbose && console.log(message);
         }

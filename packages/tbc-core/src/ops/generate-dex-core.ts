@@ -52,7 +52,7 @@ export class GenerateDexCoreNode extends HAMINode<TBCCoreStorage> {
 
         // Root Record
         lines.push("=== Root Record ===");
-        const rootRecord = fetchResults?.["tbc"]?.["root"];
+        const rootRecord = fetchResults?.["sys"]?.["root"];
         if (rootRecord?.fullContent) {
             lines.push(rootRecord.fullContent);
         }
@@ -62,7 +62,7 @@ export class GenerateDexCoreNode extends HAMINode<TBCCoreStorage> {
         lines.push("=== TBC System Definitions ===");
 
         // Specs
-        const specsRecords = fetchResults?.["tbc/specs"];
+        const specsRecords = fetchResults?.["sys/core"];
         if (specsRecords) {
             for (const id in specsRecords) {
                 const record = specsRecords[id];

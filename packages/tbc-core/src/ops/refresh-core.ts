@@ -45,9 +45,9 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         shared.fetchResults = {};
 
         // Set collection names
-        shared.rootCollection = 'tbc';
+        shared.rootCollection = 'sys';
         shared.rootIDs = ['root'];
-        shared.specsCollection = 'tbc/specs';
+        shared.specsCollection = 'sys/core';
 
         // Wire the flow
         this.startNode

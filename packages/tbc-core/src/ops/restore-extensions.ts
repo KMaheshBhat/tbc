@@ -29,7 +29,7 @@ export class RestoreExtensionsNode extends HAMINode<TBCCoreStorage> {
 
         const rootDirectory = shared.rootDirectory;
         // Find the most recent tbc backup directory
-        const backupPattern = /^tbc-\d{14}$/;
+        const backupPattern = /^sys-\d{14}$/;
         const items = await readdir(rootDirectory);
         const backupDirs = items
             .filter(item => backupPattern.test(item))
@@ -50,8 +50,8 @@ export class RestoreExtensionsNode extends HAMINode<TBCCoreStorage> {
 
         const backupDir = backupDirs[0];
         const backupPath = join(rootDirectory, backupDir);
-        const extensionsBackupPath = join(backupPath, 'extensions');
-        const extensionsTargetPath = join(rootDirectory, 'tbc', 'extensions');
+        const extensionsBackupPath = join(backupPath, 'ext');
+        const extensionsTargetPath = join(rootDirectory, 'sys', 'ext');
 
         if (existsSync(extensionsBackupPath)) {
             await cp(extensionsBackupPath, extensionsTargetPath, { recursive: true });

@@ -56,7 +56,7 @@ export class GenerateInitIdsNode extends HAMINode<TBCCoreStorage> {
         execRes: GenerateInitIdsNodeOutput,
     ): Promise<string | undefined> {
         shared.records = execRes;
-        shared.collection = "tbc";
+        shared.collection = "sys";
         shared.generateInitIdsResults = [
             `Generated companion.id record with UUID: ${execRes[0].content}`,
             `Generated prime.id record with UUID: ${execRes[1].content}`

@@ -95,10 +95,10 @@ export class InitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
                 return 'init';
             } else if (isValidTBCRoot && upgrade) {
                 // Check for required id files during upgrade
-                const tbcDir = join(shared.rootDirectory, 'tbc');
+                const sysDir = join(shared.rootDirectory, 'sys');
                 try {
-                    await access(join(tbcDir, 'companion.id'));
-                    await access(join(tbcDir, 'prime.id'));
+                    await access(join(sysDir, 'companion.id'));
+                    await access(join(sysDir, 'prime.id'));
                     return 'upgrade';
                 } catch {
                     console.error('Error: companion.id and prime.id files are required for upgrade. Please ensure they exist in the tbc/ directory.');

@@ -35,9 +35,9 @@ export class CopyAssetsNode extends HAMINode<TBCCoreStorage> {
         const assetsPath = shared.assetsPath!;
         const results: string[] = [];
 
-        // Copy specs from assets/specs/ to tbc/specs/
-        const specsSource = join(assetsPath, "specs");
-        const specsTarget = join(rootDir, "tbc", "specs");
+        // Copy specs from assets/core/ to sys/core/
+        const specsSource = join(assetsPath, "core");
+        const specsTarget = join(rootDir, "sys", "core");
         try {
             await cp(specsSource, specsTarget, { recursive: true });
             results.push(`Copied specs from ${specsSource} to ${specsTarget}`);
@@ -45,9 +45,9 @@ export class CopyAssetsNode extends HAMINode<TBCCoreStorage> {
             throw new Error(`Failed to copy specs: ${(error as Error).message}`);
         }
 
-        // Copy tools from assets/tools/ to tbc/tools/
-        const toolsSource = join(assetsPath, "tools");
-        const toolsTarget = join(rootDir, "tbc", "tools");
+        // Copy tools from assets/ext/ to sys/ext/
+        const toolsSource = join(assetsPath, "ext");
+        const toolsTarget = join(rootDir, "sys", "ext");
         try {
             await cp(toolsSource, toolsTarget, { recursive: true });
             results.push(`Copied tools from ${toolsSource} to ${toolsTarget}`);

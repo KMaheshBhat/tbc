@@ -57,7 +57,7 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
         shared.rootDirectory = rootDir;
 
         // Set collection for fetch operations
-        shared.collection = 'tbc/extensions';
+        shared.collection = 'sys/ext';
 
         // Group extensions by type
         const groupExtensions = new GroupExtensionsByTypeNode();

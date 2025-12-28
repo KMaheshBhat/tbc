@@ -57,12 +57,20 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
                 record_tags: [companionTag],
                 title: `${companion} Root`,
                 contentType: "markdown",
+                companion: `/mem/${recordIds.companion}.md`,
+                prime: `/mem/${recordIds.prime}.md`,
+                system_path: "/sys/core/",
+                extension_path: "/sys/ext/",
+                memory_path: "/mem/",
+                view_path: "/dex/",
+                activity_path: "/act",
+                memory_map: `/mem/${recordIds.memory}.md`,
                 content: `# ${companion} Root
 
 ## Definitions
 
-- Agent: [${companion}](/vault/${recordIds.companion}.md)
-- Primer User: [${prime}](/vault/${recordIds.prime}.md)
+- Agent: [${companion}](/mem/${recordIds.companion}.md)
+- Primer User: [${prime}](/mem/${recordIds.prime}.md)
 - Specifications:
   - [core](/dex/core.md) - use 'Refresh Core Index' Method if not present; provides full definitions.
   - [extensions](/dex/extensions.md) - use 'Refresh Extensions Index' Method if not present; only provides summary; read specific extensions from /tbc/extensions/ as needed.
@@ -78,7 +86,7 @@ ${companion} is the AI Assistant as per the Third Brain Companion System Definit
 
 ## Memories
 
-- [root map of memories](/vault/${recordIds.memory}.md)
+- [root map of memories](/mem/${recordIds.memory}.md)
 `
             };
         } else {
@@ -125,7 +133,7 @@ ${companion} is the AI Assistant as per the Third Brain Companion System Definit
     ): Promise<string | undefined> {
         // Set records and collection for store-records operation
         shared.records = execRes;
-        shared.collection = "tbc";
+        shared.collection = "sys";
         return "default";
     }
 }

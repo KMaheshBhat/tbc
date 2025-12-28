@@ -32,7 +32,7 @@ export class InitNode extends HAMINode<TBCCoreStorage> {
         const results: string[] = [];
 
         // Create TBC directory structure
-        const dirs = ["tbc", "vault", "dex"];
+        const dirs = ["sys", "mem", "dex"];
 
         for (const dir of dirs) {
             const dirPath = join(rootDir, dir);

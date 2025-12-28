@@ -1,4 +1,4 @@
-import { platform, release, type, arch, uptime } from "os";
+import { platform, release, type, arch, uptime, hostname } from "os";
 import { HAMINode } from "@hami-frameworx/core";
 
 import { TBCCoreStorage } from "../types.js";
@@ -45,6 +45,7 @@ export class ProbeNode extends HAMINode<TBCCoreStorage> {
         // System information
         results.push(`Node.js: ${process.version}`);
         results.push(`User: ${process.env.USER || process.env.USERNAME || 'unknown'}`);
+        results.push(`Host: ${hostname()}`);
         results.push(`Uptime: ${Math.floor(uptime() / 3600)}h ${Math.floor((uptime() % 3600) / 60)}m`);
         results.push(`Local Time: ${new Date().toLocaleString()}`);
         results.push(`UTC Time: ${new Date().toISOString()}`);

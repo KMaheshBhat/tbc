@@ -54,7 +54,7 @@ export class GenerateInitRecordsNode extends HAMINode<TBCCoreStorage> {
             party_type: "agent",
             title: companion,
             contentType: "markdown",
-            content: `${companion} is the AI Assistant in the Third Brain Companion System, instantiated to assist Prime User ${prime}. As an agent, ${companion} engages in interactions, evolves motivations to align with the Prime User's, and operates within the vault system for memory persistence.`
+            content: `${companion} is the AI Assistant in the Third Brain Companion System, instantiated to assist Prime User ${prime}. As an agent, ${companion} engages in interactions, evolves motivations to align with the Prime User's, and operates within the Record System for memory persistence.`
         };
         records.push(companionRecord);
 
@@ -93,7 +93,7 @@ export class GenerateInitRecordsNode extends HAMINode<TBCCoreStorage> {
     ): Promise<string | undefined> {
         // Set records and collection for store-records operation
         shared.records = execRes;
-        shared.collection = "vault";
+        shared.collection = "mem";
 
         // Store the UUIDs for later use in root generation
         shared.recordIds = {
