@@ -1,7 +1,8 @@
 import assert from "assert";
 import { Node } from "pocketflow";
 
-import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
+import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
 
 interface RefreshCoreFlowConfig {
     verbose: boolean;
@@ -17,7 +18,7 @@ const RefreshCoreFlowConfigSchema: ValidationSchema = {
 
 export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFlowConfig> {
     startNode: Node;
-    config: RefreshCoreFlowConfig;
+    override config: RefreshCoreFlowConfig;
 
     constructor(config: RefreshCoreFlowConfig) {
         const startNode = new Node();
@@ -27,10 +28,10 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
     }
 
     kind(): string {
-        return "tbc-core:refresh-core";
+        return "tbc-view:refresh-core";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    override async run(shared: Record<string, any>): Promise<string | undefined> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
 
@@ -51,21 +52,21 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
 
         // Wire the flow
         this.startNode
-            .next(n('tbc-core:resolve'))
+            .next(n('tbc-system:resolve'))
             .next(n('core:map', { 'collection': 'rootCollection', 'IDs': 'rootIDs' }))
             .next(n('tbc-record-fs:fetch-records'))
             .next(n('core:map', { 'collection': 'specsCollection' }))
             .next(n('tbc-record-fs:fetch-all-ids'))
             .next(n('tbc-record-fs:fetch-records'))
-            .next(n('tbc-core:generate-dex-core'))
+            .next(n('tbc-view:generate-dex-core'))
             .next(n('tbc-record-fs:store-records'))
-            .next(n('core:log-result', { resultKey: 'storeResults' }))
+            .next(n('core:log-result', { resultKey: 'storeResults', format: 'table'}))
             ;
 
         return super.run(shared);
     }
 
-    validateConfig(config: RefreshCoreFlowConfig): HAMINodeConfigValidateResult {
+    override validateConfig(config: RefreshCoreFlowConfig): HAMINodeConfigValidateResult {
         const result = validateAgainstSchema(config, RefreshCoreFlowConfigSchema)
         return {
             valid: result.isValid,

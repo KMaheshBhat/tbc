@@ -7,7 +7,7 @@ interface RefreshRecordsFlowConfig {
 
 export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRecordsFlowConfig> {
     startNode: Node;
-    config: RefreshRecordsFlowConfig;
+    override config: RefreshRecordsFlowConfig;
 
     constructor(config: RefreshRecordsFlowConfig) {
         const startNode = new Node();
@@ -17,10 +17,10 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
     }
 
     kind(): string {
-        return "tbc-core:refresh-records";
+        return "tbc-view:refresh-records";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    override async run(shared: Record<string, any>): Promise<string | undefined> {
         const n = shared.registry.createNode.bind(shared.registry);
 
         // Set options in shared state
@@ -38,27 +38,24 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
 
         // Wire the flow
         this.startNode
-            .next(n('tbc-core:resolve'))
+            .next(n('tbc-system:resolve'))
             .next(n('tbc-record-fs:fetch-all-ids'))
             .next(n('tbc-record-fs:fetch-records'))
             .next(groupRecords)
-            .next(n('tbc-core:generate-dex-records', { verbose: this.config.verbose }))
+            .next(n('tbc-view:generate-dex-records', { verbose: this.config.verbose }))
             .next(n('tbc-record-fs:store-records'))
-            .next(n('core:log-result', {
-                resultKey: 'storeResults',
-                prefix: 'Records refresh completed:'
-            }));
+            .next(n('core:log-result', { resultKey: 'storeResults', format: 'table'}))
 
         return super.run(shared);
     }
 }
 
 class GroupRecordsByTypeNode extends Node {
-    async prep(shared: Record<string, any>): Promise<any> {
+    override async prep(shared: Record<string, any>): Promise<any> {
         return shared.fetchResults?.mem || {};
     }
 
-    async exec(prepRes: any): Promise<Record<string, any[]>> {
+    override async exec(prepRes: any): Promise<Record<string, any[]>> {
         const recordsByType: Record<string, any[]> = {};
 
         // Group records by record_type
@@ -73,7 +70,7 @@ class GroupRecordsByTypeNode extends Node {
         return recordsByType;
     }
 
-    async post(shared: Record<string, any>, prepRes: any, execRes: Record<string, any[]>): Promise<string | undefined> {
+    override async post(shared: Record<string, any>, prepRes: any, execRes: Record<string, any[]>): Promise<string | undefined> {
         shared.recordsByType = execRes;
         return 'default'; // Follow HAMI pattern
     }

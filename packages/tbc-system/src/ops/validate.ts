@@ -37,7 +37,7 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
     }
 
     kind(): string {
-        return "tbc-core:validate";
+        return "tbc-system:validate";
     }
 
     validateConfig(config: ValidateNodeConfig): HAMINodeConfigValidateResult {

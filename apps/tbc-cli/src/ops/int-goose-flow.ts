@@ -69,14 +69,14 @@ export class IntGooseFlow extends HAMIFlow<Record<string, any>, IntGooseFlowConf
 
         // Wire the flow
         this.startNode
-            .next(n('tbc-core:validate', {
+            .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-record-fs:fetch-records'))
             .next(extractCompanionIdNode)
             .next(n('tbc-record-fs:fetch-records'))
             .next(extractCompanionNameNode)
-            .next(n('tbc-core:generate-role-definition'))
+            .next(n('tbc-system:generate-role-definition'))
             .next(n('tbc-goose:generate-core'))
             .next(setStoreCollectionNode)
             .next(n('tbc-record-fs:store-records'))

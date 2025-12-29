@@ -69,14 +69,14 @@ export class IntKilocodeFlow extends HAMIFlow<Record<string, any>, IntKilocodeFl
 
         // Wire the flow
         this.startNode
-            .next(n('tbc-core:validate', {
+            .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-record-fs:fetch-records'))
             .next(extractCompanionIdNode)
             .next(n('tbc-record-fs:fetch-records'))
             .next(extractCompanionNameNode)
-            .next(n('tbc-core:generate-role-definition'))
+            .next(n('tbc-system:generate-role-definition'))
             .next(n('tbc-kilocode:generate-core'))
             .next(setStoreCollectionNode)
             .next(n('tbc-record-fs:store-records'))

@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
 import { SysValidateFlow, IntProbeFlow, SysInitFlow, SysUpgradeFlow, GenUuidFlow, GenTsidFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from './ops/index.js';
-import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-core';
+import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();
 

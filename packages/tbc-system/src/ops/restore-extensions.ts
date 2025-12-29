@@ -16,7 +16,7 @@ export class RestoreExtensionsNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:restore-extensions";
+        return "tbc-system:restore-extensions";
     }
 
     async prep(

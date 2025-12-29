@@ -10,7 +10,7 @@ export class GenerateInitRecordsNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:generate-init-records";
+        return "tbc-system:generate-init-records";
     }
 
     async prep(

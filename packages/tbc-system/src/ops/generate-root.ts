@@ -15,7 +15,7 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:generate-root";
+        return "tbc-system:generate-root";
     }
 
     async prep(

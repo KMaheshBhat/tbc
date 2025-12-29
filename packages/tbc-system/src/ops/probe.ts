@@ -11,7 +11,7 @@ export class ProbeNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:probe";
+        return "tbc-system:probe";
     }
 
     async prep(

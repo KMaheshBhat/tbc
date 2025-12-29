@@ -16,7 +16,7 @@ export class RestoreRootNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:restore-root";
+        return "tbc-system:restore-root";
     }
 
     async prep(

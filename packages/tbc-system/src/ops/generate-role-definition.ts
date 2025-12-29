@@ -14,7 +14,7 @@ export class GenerateRoleDefinitionNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:generate-role-definition";
+        return "tbc-system:generate-role-definition";
     }
 
     async prep(shared: TBCCoreStorage): Promise<GenerateRoleDefinitionInput> {

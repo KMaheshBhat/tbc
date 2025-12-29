@@ -39,8 +39,8 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, ValidateFlowC
         // root is already set in shared state by CLI if --root flag was used
 
         this.startNode
-            .next(n('tbc-core:resolve'))
-            .next(n('tbc-core:validate', {
+            .next(n('tbc-system:resolve'))
+            .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
             .next(n('core:log-result', {

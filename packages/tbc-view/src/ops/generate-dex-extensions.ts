@@ -1,17 +1,17 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import type { TBCViewStorage } from "../types.js";
 
-interface GenerateDexRecordsNodeConfig {
+interface GenerateDexExtensionsNodeConfig {
     verbose: boolean;
 }
 
-export class GenerateDexRecordsNode extends HAMINode<TBCCoreStorage, GenerateDexRecordsNodeConfig> {
+export class GenerateDexExtensionsNode extends HAMINode<TBCViewStorage, GenerateDexExtensionsNodeConfig> {
     kind(): string {
-        return "tbc-core:generate-dex-records";
+        return "tbc-view:generate-dex-extensions";
     }
 
-    async prep(shared: TBCCoreStorage): Promise<any> {
+    override async prep(shared: TBCViewStorage): Promise<any> {
         return {
             rootDirectory: shared.rootDirectory,
             recordsByType: shared.recordsByType,
@@ -19,29 +19,32 @@ export class GenerateDexRecordsNode extends HAMINode<TBCCoreStorage, GenerateDex
         };
     }
 
-    async exec(params: any): Promise<any[]> {
+    override async exec(params: any): Promise<any[]> {
         const { recordsByType } = params;
-        const records = [];
-        
-        for (const [recordType, typeRecords] of Object.entries(recordsByType as Record<string, any[]>)) {
-            const content = this.generateIndexContent(recordType, typeRecords as any[]);
-            records.push({
-                id: `${recordType}-index`,
-                filename: `${recordType}.md`,
-                contentType: 'markdown',
-                title: `${recordType.charAt(0).toUpperCase() + recordType.slice(1)} Records Index`,
-                content: content,
-                record_type: 'dex'
-            });
+        // Collect all extension records regardless of type (typically 'specification')
+        const extensionsRecords: any[] = [];
+        for (const typeRecords of Object.values(recordsByType as Record<string, any[]>)) {
+            extensionsRecords.push(...typeRecords);
         }
-        
-        return records;
+
+        const content = this.generateIndexContent(extensionsRecords);
+        const record = {
+            id: 'extensions',
+            filename: 'extensions.md',
+            contentType: 'markdown',
+            title: 'Extensions Index',
+            content: content,
+            record_type: 'dex'
+        };
+
+        return [record];
     }
 
-    private generateIndexContent(recordType: string, records: any[]): string {
-        let content = `=== ${recordType.charAt(0).toUpperCase() + recordType.slice(1)} Records Index ===\n`;
+    private generateIndexContent(records: Record<string, any>): string {
+        let content = "=== Extensions Index ===\n";
 
-        for (const record of records) {
+        for (const id in records) {
+            const record = records[id];
             // Generic field extraction - include all fields except record_type
             const fields = this.extractSerializableFields(record);
             const fieldString = fields.map(([key, value]) => `${key}: ${value}`).join(', ');
@@ -55,7 +58,7 @@ export class GenerateDexRecordsNode extends HAMINode<TBCCoreStorage, GenerateDex
         const fields: [string, string][] = [];
 
         for (const [key, value] of Object.entries(record)) {
-            // Skip record_type as it's redundant in per-type index files
+            // Skip record_type as it's redundant in index files
             if (key === 'record_type') continue;
 
             // Include only simple serializable values
@@ -89,14 +92,14 @@ export class GenerateDexRecordsNode extends HAMINode<TBCCoreStorage, GenerateDex
         return true;
     }
 
-    async post(shared: TBCCoreStorage, prepRes: any, execRes: any[]): Promise<string | undefined> {
+    override async post(shared: TBCViewStorage, prepRes: any, execRes: any[]): Promise<string | undefined> {
         // Store the generated records for use by store-records node
-        shared.generatedDexRecords = execRes;
-        
+        shared.generatedDexExtensions = execRes;
+
         // Set up records array for store operation
         shared.records = execRes;
         shared.collection = 'dex';
-        
+
         return 'default'; // Follow HAMI pattern
     }
 }

@@ -12,7 +12,7 @@ export class InitNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:init";
+        return "tbc-system:init";
     }
 
     async prep(

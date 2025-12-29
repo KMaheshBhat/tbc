@@ -14,7 +14,7 @@ export class ResolveNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:resolve";
+        return "tbc-system:resolve";
     }
 
     async prep(

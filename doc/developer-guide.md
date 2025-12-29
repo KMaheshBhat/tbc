@@ -52,7 +52,8 @@ TBC is implemented as a **monorepo** with three primary layers:
 apps/
   tbc-cli/              # CLI entry point and user flows
 packages/
-  tbc-core/             # Core system operations
+  tbc-system/           # System operations (initialization, validation, etc.)
+  tbc-view/             # View operations (indexing and dex generation)
   tbc-record-fs/        # File‑system based vault implementation
   tbc-generator/        # ID generation utilities
   tbc-kilocode/         # Kilo Code integration operations
@@ -107,7 +108,8 @@ TBC is built on the **HAMI framework**, which provides:
 
 ```ts
 const registry = new HAMIRegistrationManager();
-await registry.registerPlugin(TBCCorePlugin);
+await registry.registerPlugin(TBCSystemPlugin);
+await registry.registerPlugin(TBCViewPlugin);
 await registry.registerPlugin(TBCRecordFSPlugin);
 ```
 
@@ -115,20 +117,30 @@ Each plugin contributes **named nodes** that can be composed into flows.
 
 ## 6. Core Packages
 
-### 6.1 `@tbc-frameworx/tbc-core`
+### 6.1 `@tbc-frameworx/tbc-system`
 
-**Responsibility**: System logic, validation, initialization, and indexing.
+**Responsibility**: System operations including initialization, validation, and lifecycle management.
 
 Key node categories:
 
 - **Lifecycle**: `init`, `validate`, `probe`, `resolve`
-- **Bootstrap**: `generate-root`, `copy-assets`
-- **Indexing**: `generate-dex-core`, `generate-dex-records`, `generate-dex-extensions`
+- **Bootstrap**: `generate-root`, `copy-assets`, `generate-role-definition`
 - **Upgrade**: `backup-tbc`, `restore-root`, `restore-extensions`
 
 This package *does not write files directly* — it generates record objects.
 
-### 6.2 `@tbc-frameworx/tbc-record-fs`
+### 6.2 `@tbc-frameworx/tbc-view`
+
+**Responsibility**: View operations including indexing and dex generation.
+
+Key node categories:
+
+- **Indexing**: `generate-dex-core`, `generate-dex-records`, `generate-dex-extensions`
+- **Refresh**: `refresh-core`, `refresh-records`, `refresh-extensions`
+
+This package generates and refreshes read-optimized index files.
+
+### 6.3 `@tbc-frameworx/tbc-record-fs`
 
 **Responsibility**: Reading and writing records on disk.
 
@@ -150,7 +162,7 @@ When fetching a record by ID, files are searched in this order:
 
 This allows flexibility while preserving determinism.
 
-### 6.3 `@tbc-frameworx/tbc-generator`
+### 6.4 `@tbc-frameworx/tbc-generator`
 
 **Responsibility**: ID generation utilities.
 
@@ -161,7 +173,7 @@ Supported generators:
 
 These are used both by the CLI and by agents.
 
-### 6.4 `@tbc-frameworx/tbc-kilocode`
+### 6.5 `@tbc-frameworx/tbc-kilocode`
 
 **Responsibility**: Kilo Code interface operations.
 
@@ -169,7 +181,7 @@ Key operations:
 
 - **generate-core**: Generates Kilo Code modes configuration for the companion
 
-### 6.5 `@tbc-frameworx/tbc-goose`
+### 6.6 `@tbc-frameworx/tbc-goose`
 
 **Responsibility**: Goose interface operations.
 
@@ -177,7 +189,7 @@ Key operations:
 
 - **generate-core**: Generates Goose hints configuration for the companion
 
-### 6.6 `@tbc-frameworx/tbc-github-copilot`
+### 6.7 `@tbc-frameworx/tbc-github-copilot`
 
 **Responsibility**: GitHub Copilot interface operations.
 

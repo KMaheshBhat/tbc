@@ -12,7 +12,7 @@ export class CopyAssetsNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:copy-assets";
+        return "tbc-system:copy-assets";
     }
 
     async prep(

@@ -38,11 +38,11 @@ export class IntProbeFlow extends HAMIFlow<Record<string, any>, IntProbeFlowConf
         shared.opts = { verbose: this.config.verbose };
 
         this.startNode
-            .next(n('tbc-core:resolve'))
-            .next(n('tbc-core:validate', {
+            .next(n('tbc-system:resolve'))
+            .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
-            .next(n('tbc-core:probe'))
+            .next(n('tbc-system:probe'))
             .next(n('core:log-result', {
                 resultKey: 'probeResults',
                 format: 'table',

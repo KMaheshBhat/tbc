@@ -79,22 +79,22 @@ export class SysInitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
 
         // Wire the flow
         this.startNode
-            .next(n('tbc-core:validate', {
+            .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-generator:uuid'))
-            .next(n('tbc-core:generate-init-records'))
-            .next(n('tbc-core:init'))
+            .next(n('tbc-system:generate-init-records'))
+            .next(n('tbc-system:init'))
             .next(n('tbc-record-fs:store-records'))
-            .next(n('tbc-core:generate-init-ids'))
+            .next(n('tbc-system:generate-init-ids'))
             .next(n('tbc-record-fs:store-records'))
-            .next(n('tbc-core:copy-assets'))
-            .next(n('tbc-core:generate-root', {
+            .next(n('tbc-system:copy-assets'))
+            .next(n('tbc-system:generate-root', {
                 companion: this.config.companion,
                 prime: this.config.prime,
             }))
             .next(n('tbc-record-fs:store-records'))
-            .next(n('tbc-core:validate', {
+            .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
             .next(resultLog);

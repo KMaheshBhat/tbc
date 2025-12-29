@@ -67,18 +67,18 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
 
         // Wire the flow
         this.startNode
-            .next(n('tbc-core:validate', {
+            .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
             .next(upgrade);
 
         upgrade
-            .next(n('tbc-core:backup-sys'))
-            .next(n('tbc-core:init'))
-            .next(n('tbc-core:copy-assets'))
-            .next(n('tbc-core:restore-root'))
-            .next(n('tbc-core:restore-extensions'))
-            .next(n('tbc-core:validate', {
+            .next(n('tbc-system:backup-sys'))
+            .next(n('tbc-system:init'))
+            .next(n('tbc-system:copy-assets'))
+            .next(n('tbc-system:restore-root'))
+            .next(n('tbc-system:restore-extensions'))
+            .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
             .next(resultLog);

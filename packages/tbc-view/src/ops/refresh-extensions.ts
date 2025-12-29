@@ -2,11 +2,11 @@ import { HAMIFlow } from "@hami-frameworx/core";
 import { Node } from "pocketflow";
 
 class GroupExtensionsByTypeNode extends Node {
-    async prep(shared: Record<string, any>): Promise<any> {
-        return shared.fetchResults?.["tbc/extensions"] || {};
+    override async prep(shared: Record<string, any>): Promise<any> {
+        return shared.fetchResults?.["sys/ext"] || {};
     }
 
-    async exec(prepRes: any): Promise<Record<string, any[]>> {
+    override async exec(prepRes: any): Promise<Record<string, any[]>> {
         const recordsByType: Record<string, any[]> = {};
 
         // Group records by record_type
@@ -21,7 +21,7 @@ class GroupExtensionsByTypeNode extends Node {
         return recordsByType;
     }
 
-    async post(shared: Record<string, any>, prepRes: any, execRes: Record<string, any[]>): Promise<string | undefined> {
+    override async post(shared: Record<string, any>, prepRes: any, execRes: Record<string, any[]>): Promise<string | undefined> {
         shared.recordsByType = execRes;
         return 'default'; // Follow HAMI pattern
     }
@@ -33,7 +33,7 @@ interface RefreshExtensionsFlowConfig {
 
 export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, RefreshExtensionsFlowConfig> {
     startNode: Node;
-    config: RefreshExtensionsFlowConfig;
+    override config: RefreshExtensionsFlowConfig;
 
     constructor(config: RefreshExtensionsFlowConfig) {
         const startNode = new Node();
@@ -43,10 +43,10 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
     }
 
     kind(): string {
-        return "tbc-core:refresh-extensions";
+        return "tbc-view:refresh-extensions";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    override async run(shared: Record<string, any>): Promise<string | undefined> {
         const n = shared.registry.createNode.bind(shared.registry);
 
         // Set options in shared state
@@ -64,16 +64,13 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
 
         // Wire the flow
         this.startNode
-            .next(n('tbc-core:resolve'))
+            .next(n('tbc-system:resolve'))
             .next(n('tbc-record-fs:fetch-all-ids'))
             .next(n('tbc-record-fs:fetch-records'))
             .next(groupExtensions)
-            .next(n('tbc-core:generate-dex-extensions', { verbose: this.config.verbose }))
+            .next(n('tbc-view:generate-dex-extensions', { verbose: this.config.verbose }))
             .next(n('tbc-record-fs:store-records'))
-            .next(n('core:log-result', {
-                resultKey: 'storeResults',
-                prefix: 'Extensions refresh completed:'
-            }));
+            .next(n('core:log-result', { resultKey: 'storeResults', format: 'table'}))
 
         return super.run(shared);
     }

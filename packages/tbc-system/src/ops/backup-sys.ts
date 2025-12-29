@@ -16,7 +16,7 @@ export class BackupSysNode extends HAMINode<TBCCoreStorage> {
     }
 
     kind(): string {
-        return "tbc-core:backup-sys";
+        return "tbc-system:backup-sys";
     }
 
     async prep(
