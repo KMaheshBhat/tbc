@@ -89,7 +89,7 @@ git init
 ### 4.2 Initialize the Companion
 
 ```bash
-tbc init --companion Tessera --prime "Mahesh"
+tbc sys init --companion Tessera --prime "Mahesh"
 ```
 
 This will:
@@ -102,7 +102,7 @@ This will:
 ### 4.3 Validate
 
 ```bash
-tbc validate
+tbc sys validate
 ```
 
 If validation passes, your companion is ready.
@@ -210,7 +210,7 @@ Indexes are safe to regenerate at any time.
 To upgrade an existing companion:
 
 ```bash
-tbc init --upgrade
+tbc sys upgrade
 ```
 
 This will:
@@ -300,7 +300,7 @@ This generates a `.github/agents/{companion-slug}.agent.md` file in the reposito
 
 ### Validation Fails
 
-- Run `tbc validate --verbose`
+- Run `tbc sys validate --verbose`
 - Check directory structure
 
 ### Missing Records

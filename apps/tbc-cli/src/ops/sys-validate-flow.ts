@@ -15,7 +15,7 @@ const ValidateFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class ValidateFlow extends HAMIFlow<Record<string, any>, ValidateFlowConfig> {
+export class SysValidateFlow extends HAMIFlow<Record<string, any>, ValidateFlowConfig> {
     startNode: Node;
     config: ValidateFlowConfig;
 
@@ -27,7 +27,7 @@ export class ValidateFlow extends HAMIFlow<Record<string, any>, ValidateFlowConf
     }
 
     kind(): string {
-        return "tbc-cli:validate-flow";
+        return "tbc-cli:sys-validate-flow";
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {

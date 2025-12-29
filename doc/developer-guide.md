@@ -197,8 +197,9 @@ The CLI is a **thin orchestration layer** that:
 
 | Command | Flow |
 |------|-----|
-| `tbc init` | `InitFlow` |
-| `tbc validate` | `ValidateFlow` |
+| `tbc sys init` | `SysInitFlow` |
+| `tbc sys upgrade` | `SysUpgradeFlow` |
+| `tbc sys validate` | `SysValidateFlow` |
 | `tbc probe` | `ProbeFlow` |
 | `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` |

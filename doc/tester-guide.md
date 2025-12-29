@@ -23,7 +23,7 @@ This guide exists to **prevent self‑corruption** of the repository while still
 
 ### 2.1 Non‑Destructive by Default
 
-**Rule #1**: *Never run `tbc init` or `tbc dex` in the repository root.*
+**Rule #1**: *Never run `tbc sys init`, `tbc sys upgrade`, or `tbc dex` in the repository root.*
 
 The repo contains:
 
@@ -72,15 +72,15 @@ Each subdirectory represents **one test scenario**.
 Correct:
 
 ```bash
-tbc init --root "${PWD}/_test/fresh-init" --companion Tessera --prime Mahesh
-tbc validate --root "${PWD}/_test/fresh-init"
+tbc sys init --root "${PWD}/_test/fresh-init" --companion Tessera --prime Mahesh
+tbc sys validate --root "${PWD}/_test/fresh-init"
 tbc dex core --root "${PWD}/_test/fresh-init"
 ```
 
 Incorrect (dangerous):
 
 ```bash
-tbc init
+tbc sys init
 tbc dex
 ```
 
@@ -107,12 +107,12 @@ This ensures **idempotent, reproducible runs**.
 
 ## 5. CLI Test Matrix
 
-### 5.1 `tbc init`
+### 5.1 `tbc sys init`
 
 #### Happy Path
 
 ```bash
-tbc init \
+tbc sys init \
   --root ./_test/fresh-init \
   --companion Tessera \
   --prime "Prime User"
@@ -120,10 +120,10 @@ tbc init \
 
 Validate:
 
-- `tbc/` directory exists
-- `vault/` directory exists
-- `tbc/root.md` exists
-- `tbc/companion.id` and `tbc/prime.id` exist
+- `sys/` directory exists
+- `mem/` directory exists
+- `sys/root.md` exists
+- `sys/companion.id` and `sys/prime.id` exist
 
 #### Failure Modes to Test
 
@@ -131,12 +131,12 @@ Validate:
 |-------|----------------|
 | Missing `--prime` | CLI error |
 | Missing `--companion` | CLI error |
-| Re‑run without `--upgrade` | Abort |
+| Re‑run in same directory | Abort |
 
-### 5.2 `tbc validate`
+### 5.2 `tbc sys validate`
 
 ```bash
-tbc validate --root ./_test/fresh-init
+tbc sys validate --root ./_test/fresh-init
 ```
 
 Expected:
@@ -236,7 +236,7 @@ cp -r _test/fresh-init _test/upgrade
 ### 6.2 Run Upgrade
 
 ```bash
-tbc init --upgrade --root ./_test/upgrade
+tbc sys upgrade --root ./_test/upgrade
 ```
 
 Validate:
@@ -269,7 +269,7 @@ When instructing an AI assistant:
 
 > ❗ **Always specify `--root ./_test/...`**
 >
-> ❗ **Never run `tbc init` without explicit flags**
+> ❗ **Never run `tbc sys init` or `tbc sys upgrade` without explicit flags**
 >
 > ❗ **Assume the repo root is read‑only**
 

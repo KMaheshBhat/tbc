@@ -76,6 +76,18 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
         messages.push(message);
         verbose && console.log(message);
 
+        const sysCoreDir = join(sysDir, 'core');
+        const sysCoreExists = existsSync(sysCoreDir);
+        message = `sys/core/ directory: ${sysCoreExists ? '✓ Found' : '✗ Missing'}`;
+        messages.push(message);
+        verbose && console.log(message);
+
+        const sysExtDir = join(sysDir, 'ext');
+        const sysExtExists = existsSync(sysExtDir);
+        message = `sys/ext/ directory: ${sysExtExists ? 'Found (optional)' : 'Optional (will be created if missing)'}`;
+        messages.push(message);
+        verbose && console.log(message);
+
         const memDir = join(workingDir, 'mem');
         const memExists = existsSync(memDir);
         message = `mem/ directory: ${memExists ? '✓ Found' : '✗ Missing'}`;
@@ -85,6 +97,13 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
         const dexDir = join(workingDir, 'dex');
         const dexExists = existsSync(dexDir);
         message = `dex/ directory: ${dexExists ? 'Found (optional)' : 'Optional (will be created if missing)'}`;
+        messages.push(message);
+        verbose && console.log(message);
+
+        // Check for root record
+        const rootFile = join(sysDir, 'root.md');
+        const rootExists = existsSync(rootFile);
+        message = `sys/root.md: ${rootExists ? '✓ Found' : '✗ Missing'}`;
         messages.push(message);
         verbose && console.log(message);
 
@@ -107,7 +126,7 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
         messages.push(message);
         verbose && console.log(message);
 
-        const isValidTBCRoot = sysExists && memExists;
+        const isValidTBCRoot = sysExists && sysCoreExists && memExists && rootExists;
         if (isValidTBCRoot) {
             message = '✓ This appears to be a valid TBC root directory.';
             messages.push(message);
