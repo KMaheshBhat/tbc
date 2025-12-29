@@ -30,7 +30,7 @@ export class IntGitHubCopilotFlow extends HAMIFlow<Record<string, any>, IntGitHu
     }
 
     kind(): string {
-        return "tbc-cli:int-github-copilot-flow";
+        return "tbc-interface:int-github-copilot-flow";
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {

@@ -31,7 +31,7 @@ export class IntGooseFlow extends HAMIFlow<Record<string, any>, IntGooseFlowConf
     }
 
     kind(): string {
-        return "tbc-cli:int-goose-flow";
+        return "tbc-interface:int-goose-flow";
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {

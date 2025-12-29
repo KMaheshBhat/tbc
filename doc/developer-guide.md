@@ -24,17 +24,53 @@ At its core, TBC treats **knowledge, memory, and behavior as records**, and **op
 
 ## 2. High‑Level Architecture
 
-TBC is implemented as a **monorepo** with three primary layers:
+TBC is implemented as a **monorepo** with modular packages that can be composed for different application types:
 
 ```
-┌────────────────────────────┐
-│        CLI (apps/)         │  ← User / Agent entry point
-├────────────────────────────┤
-│     Core Plugins (packages)│  ← Domain logic & orchestration
-├────────────────────────────┤
-│     Record Storage (FS)    │  ← Plain‑text persistence
-└────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                    Applications (apps/)                          │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐   │
+│  │   tbc-cli       │  │   tbc-gui       │  │   tbc-server    │   │
+│  │  (Command Line) │  │   (GUI App)     │  │   (REST API)    │   │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌───────────────────────────────────────────────────────────────────┐
+│                   Core Packages (packages/)                       │
+├───────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌───────────┐ │
+│  │ tbc-system  │  │  tbc-view   │  │ tbc-record- │  │ tbc-gener │ │
+│  │             │  │             │  │     fs      │  │ ator      │ │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └───────────┘ │
+│                                                                   │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌──────────┐  │
+│  │tbc-interface│  │ tbc-kilocode│  │  tbc-goose  │  │tbc-github│  │
+│  │             │  │             │  │             │  │ -copilot │  │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └──────────┘  │
+└───────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                 Record Storage (File System)                    │
+├─────────────────────────────────────────────────────────────────┤
+│  Plain-text files (.md, .json, .yaml) in git-versioned vault    │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+### Package Responsibilities
+
+| Package | Responsibility | Key Components |
+|---------|---------------|----------------|
+| **tbc-system** | System lifecycle, validation, initialization | SysInitFlow, SysValidateFlow, probe operations |
+| **tbc-view** | Index generation and dex management | RefreshCoreFlow, RefreshRecordsFlow, dex files |
+| **tbc-record-fs** | File system operations for records | fetch-records, store-records, file format handling |
+| **tbc-generator** | ID generation utilities | UUID v7, TSID generation flows |
+| **tbc-interface** | Cross-application interface flows | IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow |
+| **tbc-kilocode** | Kilo Code specific operations | generate-core for Kilo Code modes |
+| **tbc-goose** | Goose specific operations | generate-core for Goose hints |
+| **tbc-github-copilot** | GitHub Copilot specific operations | generate-core for Copilot instructions |
 
 ### Key Runtime Concepts
 
@@ -56,6 +92,7 @@ packages/
    tbc-view/             # View operations (indexing and dex generation, flows)
    tbc-record-fs/        # File‑system based vault implementation
    tbc-generator/        # ID generation utilities and flows
+   tbc-interface/        # Interface operations (flows for various tools like Kilo Code, Goose, GitHub Copilot)
    tbc-kilocode/         # Kilo Code integration operations
    tbc-goose/            # Goose integration operations
    tbc-github-copilot/   # GitHub Copilot integration operations
@@ -108,6 +145,7 @@ const registry = new HAMIRegistrationManager();
 await registry.registerPlugin(TBCSystemPlugin);
 await registry.registerPlugin(TBCViewPlugin);
 await registry.registerPlugin(TBCRecordFSPlugin);
+await registry.registerPlugin(TBCInterfacePlugin);
 ```
 
 Each plugin contributes **named nodes** that can be composed into flows.
@@ -170,7 +208,20 @@ Supported generators:
 
 These are used both by the CLI and by agents.
 
-### 6.5 `@tbc-frameworx/tbc-kilocode`
+### 6.5 `@tbc-frameworx/tbc-interface`
+
+**Responsibility**: Interface operations for generating configurations for various AI tools.
+
+Key flows:
+
+- **IntProbeFlow**: Probes the environment for TBC CLI and system information
+- **IntKilocodeFlow**: Generates Kilo Code interface configuration
+- **IntGooseFlow**: Generates Goose interface configuration
+- **IntGitHubCopilotFlow**: Generates GitHub Copilot interface configuration
+
+This package provides reusable flows that can be used by different application types (CLI, GUI, server) to expose TBC functionality to various AI tools.
+
+### 6.6 `@tbc-frameworx/tbc-kilocode`
 
 **Responsibility**: Kilo Code interface operations.
 
@@ -178,7 +229,7 @@ Key operations:
 
 - **generate-core**: Generates Kilo Code modes configuration for the companion
 
-### 6.6 `@tbc-frameworx/tbc-goose`
+### 6.7 `@tbc-frameworx/tbc-goose`
 
 **Responsibility**: Goose interface operations.
 
@@ -186,7 +237,7 @@ Key operations:
 
 - **generate-core**: Generates Goose hints configuration for the companion
 
-### 6.7 `@tbc-frameworx/tbc-github-copilot`
+### 6.8 `@tbc-frameworx/tbc-github-copilot`
 
 **Responsibility**: GitHub Copilot interface operations.
 
@@ -209,12 +260,12 @@ The CLI is a **thin orchestration layer** that:
 | `tbc sys init` | `SysInitFlow` | `@tbc-frameworx/tbc-system` |
 | `tbc sys upgrade` | `SysUpgradeFlow` | `@tbc-frameworx/tbc-system` |
 | `tbc sys validate` | `SysValidateFlow` | `@tbc-frameworx/tbc-system` |
-| `tbc int probe` | `IntProbeFlow` | CLI ops |
+| `tbc int probe` | `IntProbeFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` | `@tbc-frameworx/tbc-view` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` | `@tbc-frameworx/tbc-generator` |
-| `tbc int kilocode` | `IntKilocodeFlow` | CLI ops |
-| `tbc int goose` | `IntGooseFlow` | CLI ops |
-| `tbc int github-copilot` | `IntGitHubCopilotFlow` | CLI ops |
+| `tbc int kilocode` | `IntKilocodeFlow` | `@tbc-frameworx/tbc-interface` |
+| `tbc int goose` | `IntGooseFlow` | `@tbc-frameworx/tbc-interface` |
+| `tbc int github-copilot` | `IntGitHubCopilotFlow` | `@tbc-frameworx/tbc-interface` |
 
 Each flow wires together nodes dynamically.
 
@@ -248,9 +299,9 @@ This separation improves testability and extensibility.
 
 Flows are organized by domain:
 
-- **Package flows**: Located in the package that owns the primary logic (e.g., system flows in `@tbc-frameworx/tbc-system`, generator flows in `@tbc-frameworx/tbc-generator`)
+- **Package flows**: Located in the package that owns the primary logic (e.g., system flows in `@tbc-frameworx/tbc-system`, generator flows in `@tbc-frameworx/tbc-generator`, interface flows in `@tbc-frameworx/tbc-interface`)
 - **CLI flows**: Orchestration flows specific to CLI commands, located in `apps/tbc-cli/src/ops/`
-- **Common utilities**: Shared nodes and utilities in `apps/tbc-cli/src/ops/common-nodes.ts`
+- **Common utilities**: Shared nodes and utilities in package-specific locations (e.g., interface utilities in `@tbc-frameworx/tbc-interface`)
 
 ## 9. Record & Specification System
 

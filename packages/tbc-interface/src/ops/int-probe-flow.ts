@@ -27,7 +27,7 @@ export class IntProbeFlow extends HAMIFlow<Record<string, any>, IntProbeFlowConf
     }
 
     kind(): string {
-        return "tbc-cli:int-probe-flow";
+        return "tbc-interface:int-probe-flow";
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {

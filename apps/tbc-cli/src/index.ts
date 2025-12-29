@@ -5,7 +5,7 @@ import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
 import { SysValidateFlow, SysInitFlow, SysUpgradeFlow } from '@tbc-frameworx/tbc-system';
 import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
-import { IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from './ops/index.js';
+import { IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();

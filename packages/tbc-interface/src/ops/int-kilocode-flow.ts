@@ -31,7 +31,7 @@ export class IntKilocodeFlow extends HAMIFlow<Record<string, any>, IntKilocodeFl
     }
 
     kind(): string {
-        return "tbc-cli:int-kilocode-flow";
+        return "tbc-interface:int-kilocode-flow";
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
