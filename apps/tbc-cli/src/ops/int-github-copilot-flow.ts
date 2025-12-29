@@ -1,8 +1,8 @@
 import assert from "assert";
 import { Node } from "pocketflow";
-import { join } from "node:path";
 
-import { HAMIFlow, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { ExtractCompanionId, createExtractCompanionNameNode, createSetStoreCollectionNode, logTableNode } from "./common-nodes.js";
 
 interface IntGitHubCopilotFlowConfig {
     root?: string;
@@ -41,30 +41,15 @@ export class IntGitHubCopilotFlow extends HAMIFlow<Record<string, any>, IntGitHu
         shared.opts = { verbose: this.config.verbose };
 
         // Determine root directory
-        const rootDir = this.config.root || process.cwd();
-        shared.rootDirectory = rootDir;
+        shared.rootDirectory = shared.root || process.cwd();
 
-        shared.collection = 'tbc';
+        shared.collection = 'sys';
         shared.IDs = ['companion.id'];
 
         // Custom nodes
         const extractCompanionIdNode = new ExtractCompanionId();
-        const extractCompanionNameNode = new Node();
-        extractCompanionNameNode.post = async (shared: Record<string, any>, _prepRes: unknown, _execRes: unknown): Promise<string | undefined> => {
-            const companionRecord = shared.fetchResults?.['vault']?.[shared.companionId];
-            if (!companionRecord || (!companionRecord.name && !companionRecord.title)) {
-                throw new Error('Companion record not found or missing name/title');
-            }
-            shared.companionName = companionRecord.name || companionRecord.title;
-            return 'default';
-        };
-
-        const setStoreCollectionNode = new Node();
-        setStoreCollectionNode.post = async (shared: Record<string, any>, _prepRes: unknown, _execRes: unknown): Promise<string | undefined> => {
-            // Set for store-records
-            shared.collection = '.';
-            return 'default';
-        };
+        const extractCompanionNameNode = createExtractCompanionNameNode();
+        const setStoreCollectionNode = createSetStoreCollectionNode();
 
 
         // Wire the flow
@@ -91,27 +76,5 @@ export class IntGitHubCopilotFlow extends HAMIFlow<Record<string, any>, IntGitHu
             valid: result.isValid,
             errors: result.errors || [],
         };
-    }
-}
-
-const logTableNode = (registry: HAMIRegistrationManager, resultKey: string) => {
-    return registry.createNode('core:log-result', {
-        resultKey,
-        format: 'table' as const,
-    });
-};
-
-class ExtractCompanionId extends Node {
-    async post(shared: Record<string, any>, _prepRes: unknown, _execRes: unknown): Promise<string | undefined> {
-            const companionIdFile = shared.fetchResults?.['tbc']?.['companion.id'];
-            if (!companionIdFile || !companionIdFile.content) {
-                throw new Error('companion.id file not found or empty');
-            }
-            const companionId = companionIdFile.content.trim();
-            shared.companionId = companionId;
-            // Set for next fetch
-            shared.collection = 'vault';
-            shared.IDs = [companionId];
-       return 'default';
     }
 }

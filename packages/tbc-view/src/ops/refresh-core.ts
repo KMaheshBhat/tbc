@@ -18,7 +18,7 @@ const RefreshCoreFlowConfigSchema: ValidationSchema = {
 
 export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFlowConfig> {
     startNode: Node;
-    override config: RefreshCoreFlowConfig;
+    config: RefreshCoreFlowConfig;
 
     constructor(config: RefreshCoreFlowConfig) {
         const startNode = new Node();
@@ -31,7 +31,7 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         return "tbc-view:refresh-core";
     }
 
-    override async run(shared: Record<string, any>): Promise<string | undefined> {
+    async run(shared: Record<string, any>): Promise<string | undefined> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
 
@@ -66,7 +66,7 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         return super.run(shared);
     }
 
-    override validateConfig(config: RefreshCoreFlowConfig): HAMINodeConfigValidateResult {
+    validateConfig(config: RefreshCoreFlowConfig): HAMINodeConfigValidateResult {
         const result = validateAgainstSchema(config, RefreshCoreFlowConfigSchema)
         return {
             valid: result.isValid,

@@ -3,7 +3,9 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { SysValidateFlow, IntProbeFlow, SysInitFlow, SysUpgradeFlow, GenUuidFlow, GenTsidFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from './ops/index.js';
+import { SysValidateFlow, SysInitFlow, SysUpgradeFlow } from '@tbc-frameworx/tbc-system';
+import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
+import { IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from './ops/index.js';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();
@@ -289,6 +291,7 @@ let cmdIntKilocode = new Command('kilocode')
         await generateKilocodeCoreInterfaceFlow.run({
           registry: registry,
           opts: { verbose: isVerbose },
+          root: root,
         });
       } catch (error) {
         console.error('Error during int kilocode:', error);
@@ -313,6 +316,7 @@ let cmdIntGoose = new Command('goose')
         await generateGooseCoreInterfaceFlow.run({
           registry: registry,
           opts: { verbose: isVerbose },
+          root: root,
         });
       } catch (error) {
         console.error('Error during int goose:', error);
@@ -337,6 +341,7 @@ let cmdIntGitHubCopilot = new Command('github-copilot')
         await generateGitHubCopilotCoreInterfaceFlow.run({
           registry: registry,
           opts: { verbose: isVerbose },
+          root: root,
         });
       } catch (error) {
         console.error('Error during int github-copilot:', error);

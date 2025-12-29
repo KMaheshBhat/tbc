@@ -7,7 +7,7 @@ interface RefreshRecordsFlowConfig {
 
 export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRecordsFlowConfig> {
     startNode: Node;
-    override config: RefreshRecordsFlowConfig;
+    config: RefreshRecordsFlowConfig;
 
     constructor(config: RefreshRecordsFlowConfig) {
         const startNode = new Node();
@@ -20,7 +20,7 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
         return "tbc-view:refresh-records";
     }
 
-    override async run(shared: Record<string, any>): Promise<string | undefined> {
+    async run(shared: Record<string, any>): Promise<string | undefined> {
         const n = shared.registry.createNode.bind(shared.registry);
 
         // Set options in shared state
@@ -51,11 +51,11 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
 }
 
 class GroupRecordsByTypeNode extends Node {
-    override async prep(shared: Record<string, any>): Promise<any> {
+    async prep(shared: Record<string, any>): Promise<any> {
         return shared.fetchResults?.mem || {};
     }
 
-    override async exec(prepRes: any): Promise<Record<string, any[]>> {
+    async exec(prepRes: any): Promise<Record<string, any[]>> {
         const recordsByType: Record<string, any[]> = {};
 
         // Group records by record_type
@@ -70,7 +70,7 @@ class GroupRecordsByTypeNode extends Node {
         return recordsByType;
     }
 
-    override async post(shared: Record<string, any>, prepRes: any, execRes: Record<string, any[]>): Promise<string | undefined> {
+    async post(shared: Record<string, any>, prepRes: any, execRes: Record<string, any[]>): Promise<string | undefined> {
         shared.recordsByType = execRes;
         return 'default'; // Follow HAMI pattern
     }

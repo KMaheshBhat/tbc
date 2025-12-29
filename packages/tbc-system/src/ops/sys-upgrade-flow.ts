@@ -45,22 +45,13 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
         const rootDir = this.config.root || process.cwd();
         shared.rootDirectory = rootDir;
 
-        // Determine assets path (relative to CLI package)
+        // Determine assets path (relative to tbc-system package)
         // Works in both development (source) and production (installed) environments
         const currentFile = fileURLToPath(import.meta.url);
         const currentDir = dirname(currentFile);
-        let cliDir: string;
+        const packageDir = resolve(currentDir, '../..'); // Always package root
 
-        // Check if we're running from an installed package (has node_modules in path)
-        if (currentFile.includes('node_modules')) {
-            // Production: from node_modules/.../dist/ops/ to package root
-            cliDir = resolve(currentDir, '../..');
-        } else {
-            // Development: from apps/tbc-cli/dist/ops/ to cli root
-            cliDir = resolve(currentDir, '../..');
-        }
-
-        shared.assetsPath = join(cliDir, 'assets');
+        shared.assetsPath = join(packageDir, 'assets');
 
         const upgrade = new Node();
         const resultLog = new Node();

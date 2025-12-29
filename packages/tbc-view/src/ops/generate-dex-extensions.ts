@@ -11,7 +11,7 @@ export class GenerateDexExtensionsNode extends HAMINode<TBCViewStorage, Generate
         return "tbc-view:generate-dex-extensions";
     }
 
-    override async prep(shared: TBCViewStorage): Promise<any> {
+    async prep(shared: TBCViewStorage): Promise<any> {
         return {
             rootDirectory: shared.rootDirectory,
             recordsByType: shared.recordsByType,
@@ -19,7 +19,7 @@ export class GenerateDexExtensionsNode extends HAMINode<TBCViewStorage, Generate
         };
     }
 
-    override async exec(params: any): Promise<any[]> {
+    async exec(params: any): Promise<any[]> {
         const { recordsByType } = params;
         // Collect all extension records regardless of type (typically 'specification')
         const extensionsRecords: any[] = [];
@@ -92,7 +92,7 @@ export class GenerateDexExtensionsNode extends HAMINode<TBCViewStorage, Generate
         return true;
     }
 
-    override async post(shared: TBCViewStorage, prepRes: any, execRes: any[]): Promise<string | undefined> {
+    async post(shared: TBCViewStorage, prepRes: any, execRes: any[]): Promise<string | undefined> {
         // Store the generated records for use by store-records node
         shared.generatedDexExtensions = execRes;
 

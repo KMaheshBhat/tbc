@@ -2,11 +2,11 @@ import { HAMIFlow } from "@hami-frameworx/core";
 import { Node } from "pocketflow";
 
 class GroupExtensionsByTypeNode extends Node {
-    override async prep(shared: Record<string, any>): Promise<any> {
+    async prep(shared: Record<string, any>): Promise<any> {
         return shared.fetchResults?.["sys/ext"] || {};
     }
 
-    override async exec(prepRes: any): Promise<Record<string, any[]>> {
+    async exec(prepRes: any): Promise<Record<string, any[]>> {
         const recordsByType: Record<string, any[]> = {};
 
         // Group records by record_type
@@ -21,7 +21,7 @@ class GroupExtensionsByTypeNode extends Node {
         return recordsByType;
     }
 
-    override async post(shared: Record<string, any>, prepRes: any, execRes: Record<string, any[]>): Promise<string | undefined> {
+    async post(shared: Record<string, any>, prepRes: any, execRes: Record<string, any[]>): Promise<string | undefined> {
         shared.recordsByType = execRes;
         return 'default'; // Follow HAMI pattern
     }
@@ -33,7 +33,7 @@ interface RefreshExtensionsFlowConfig {
 
 export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, RefreshExtensionsFlowConfig> {
     startNode: Node;
-    override config: RefreshExtensionsFlowConfig;
+    config: RefreshExtensionsFlowConfig;
 
     constructor(config: RefreshExtensionsFlowConfig) {
         const startNode = new Node();
@@ -46,7 +46,7 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
         return "tbc-view:refresh-extensions";
     }
 
-    override async run(shared: Record<string, any>): Promise<string | undefined> {
+    async run(shared: Record<string, any>): Promise<string | undefined> {
         const n = shared.registry.createNode.bind(shared.registry);
 
         // Set options in shared state

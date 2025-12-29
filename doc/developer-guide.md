@@ -52,16 +52,13 @@ TBC is implemented as a **monorepo** with three primary layers:
 apps/
   tbc-cli/              # CLI entry point and user flows
 packages/
-  tbc-system/           # System operations (initialization, validation, etc.)
-  tbc-view/             # View operations (indexing and dex generation)
-  tbc-record-fs/        # File‑system based vault implementation
-  tbc-generator/        # ID generation utilities
-  tbc-kilocode/         # Kilo Code integration operations
-  tbc-goose/            # Goose integration operations
-  tbc-github-copilot/   # GitHub Copilot integration operations
-assets/
-  specs/                # Embedded system specifications
-  tools/                # Reserved for future tooling
+   tbc-system/           # System operations (initialization, validation, flows, assets)
+   tbc-view/             # View operations (indexing and dex generation, flows)
+   tbc-record-fs/        # File‑system based vault implementation
+   tbc-generator/        # ID generation utilities and flows
+   tbc-kilocode/         # Kilo Code integration operations
+   tbc-goose/            # Goose integration operations
+   tbc-github-copilot/   # GitHub Copilot integration operations
 
 doc/
   developer-guide.md
@@ -207,17 +204,17 @@ The CLI is a **thin orchestration layer** that:
 
 ### Commands → Flows
 
-| Command | Flow |
-|------|-----|
-| `tbc sys init` | `SysInitFlow` |
-| `tbc sys upgrade` | `SysUpgradeFlow` |
-| `tbc sys validate` | `SysValidateFlow` |
-| `tbc int probe` | `IntProbeFlow` |
-| `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` |
-| `tbc gen` | `GenUuidFlow`, `GenTsidFlow` |
-| `tbc int kilocode` | `IntKilocodeFlow` |
-| `tbc int goose` | `IntGooseFlow` |
-| `tbc int github-copilot` | `IntGitHubCopilotFlow` |
+| Command | Flow | Location |
+|------|-----|----------|
+| `tbc sys init` | `SysInitFlow` | `@tbc-frameworx/tbc-system` |
+| `tbc sys upgrade` | `SysUpgradeFlow` | `@tbc-frameworx/tbc-system` |
+| `tbc sys validate` | `SysValidateFlow` | `@tbc-frameworx/tbc-system` |
+| `tbc int probe` | `IntProbeFlow` | CLI ops |
+| `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` | `@tbc-frameworx/tbc-view` |
+| `tbc gen` | `GenUuidFlow`, `GenTsidFlow` | `@tbc-frameworx/tbc-generator` |
+| `tbc int kilocode` | `IntKilocodeFlow` | CLI ops |
+| `tbc int goose` | `IntGooseFlow` | CLI ops |
+| `tbc int github-copilot` | `IntGitHubCopilotFlow` | CLI ops |
 
 Each flow wires together nodes dynamically.
 
@@ -246,6 +243,14 @@ Typical pattern:
 - Generation ≠ Persistence
 
 This separation improves testability and extensibility.
+
+### Flow Organization
+
+Flows are organized by domain:
+
+- **Package flows**: Located in the package that owns the primary logic (e.g., system flows in `@tbc-frameworx/tbc-system`, generator flows in `@tbc-frameworx/tbc-generator`)
+- **CLI flows**: Orchestration flows specific to CLI commands, located in `apps/tbc-cli/src/ops/`
+- **Common utilities**: Shared nodes and utilities in `apps/tbc-cli/src/ops/common-nodes.ts`
 
 ## 9. Record & Specification System
 

@@ -25,7 +25,7 @@ export class GenerateDexCoreNode extends HAMINode<TBCViewStorage> {
         return "tbc-view:generate-dex-core";
     }
 
-    override async prep(shared: TBCViewStorage): Promise<GenerateDexCoreInput> {
+    async prep(shared: TBCViewStorage): Promise<GenerateDexCoreInput> {
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required in shared state");
         }
@@ -35,7 +35,7 @@ export class GenerateDexCoreNode extends HAMINode<TBCViewStorage> {
         };
     }
 
-    override async exec(params: GenerateDexCoreInput): Promise<GenerateDexCoreOutput> {
+    async exec(params: GenerateDexCoreInput): Promise<GenerateDexCoreOutput> {
         const content = this.collateContent(params.fetchResults || {});
         return {
             id: 'core',
@@ -78,7 +78,7 @@ export class GenerateDexCoreNode extends HAMINode<TBCViewStorage> {
         return lines.join("\n");
     }
 
-    override async post(shared: TBCViewStorage, _prepRes: GenerateDexCoreInput, execRes: GenerateDexCoreOutput): Promise<string | undefined> {
+    async post(shared: TBCViewStorage, _prepRes: GenerateDexCoreInput, execRes: GenerateDexCoreOutput): Promise<string | undefined> {
         // Store the generated record for use by store-records node
         shared.generatedDexCore = execRes;
         
