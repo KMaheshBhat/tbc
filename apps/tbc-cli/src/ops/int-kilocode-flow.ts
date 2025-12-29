@@ -4,12 +4,12 @@ import { join } from "node:path";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
-interface GenerateKilocodeCoreInterfaceFlowConfig {
+interface IntKilocodeFlowConfig {
     root?: string;
     verbose: boolean;
 }
 
-const GenerateKilocodeCoreInterfaceFlowConfigSchema: ValidationSchema = {
+const IntKilocodeFlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         root: { type: "string" },
@@ -18,11 +18,11 @@ const GenerateKilocodeCoreInterfaceFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class GenerateKilocodeCoreInterfaceFlow extends HAMIFlow<Record<string, any>, GenerateKilocodeCoreInterfaceFlowConfig> {
+export class IntKilocodeFlow extends HAMIFlow<Record<string, any>, IntKilocodeFlowConfig> {
     startNode: Node;
-    config: GenerateKilocodeCoreInterfaceFlowConfig;
+    config: IntKilocodeFlowConfig;
 
-    constructor(config: GenerateKilocodeCoreInterfaceFlowConfig) {
+    constructor(config: IntKilocodeFlowConfig) {
         const startNode = new Node();
         super(startNode, config);
         this.startNode = startNode;
@@ -30,7 +30,7 @@ export class GenerateKilocodeCoreInterfaceFlow extends HAMIFlow<Record<string, a
     }
 
     kind(): string {
-        return "tbc-cli:generate-kilocode-core-interface-flow";
+        return "tbc-cli:int-kilocode-flow";
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -85,8 +85,8 @@ export class GenerateKilocodeCoreInterfaceFlow extends HAMIFlow<Record<string, a
         return super.run(shared);
     }
 
-    validateConfig(config: GenerateKilocodeCoreInterfaceFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, GenerateKilocodeCoreInterfaceFlowConfigSchema)
+    validateConfig(config: IntKilocodeFlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, IntKilocodeFlowConfigSchema)
         return {
             valid: result.isValid,
             errors: result.errors || [],

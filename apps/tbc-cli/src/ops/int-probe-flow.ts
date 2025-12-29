@@ -3,11 +3,11 @@ import { Node } from "pocketflow";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
-interface ProbeFlowConfig {
+interface IntProbeFlowConfig {
     verbose: boolean;
 }
 
-const ProbeFlowConfigSchema: ValidationSchema = {
+const IntProbeFlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         verbose: { type: "boolean" },
@@ -15,11 +15,11 @@ const ProbeFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class ProbeFlow extends HAMIFlow<Record<string, any>, ProbeFlowConfig> {
+export class IntProbeFlow extends HAMIFlow<Record<string, any>, IntProbeFlowConfig> {
     startNode: Node;
-    config: ProbeFlowConfig;
+    config: IntProbeFlowConfig;
 
-    constructor(config: ProbeFlowConfig) {
+    constructor(config: IntProbeFlowConfig) {
         const startNode = new Node();
         super(startNode, config);
         this.startNode = startNode;
@@ -27,7 +27,7 @@ export class ProbeFlow extends HAMIFlow<Record<string, any>, ProbeFlowConfig> {
     }
 
     kind(): string {
-        return "tbc-cli:probe-flow";
+        return "tbc-cli:int-probe-flow";
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -54,8 +54,8 @@ export class ProbeFlow extends HAMIFlow<Record<string, any>, ProbeFlowConfig> {
         return super.run(shared);
     }
 
-    validateConfig(config: ProbeFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, ProbeFlowConfigSchema)
+    validateConfig(config: IntProbeFlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, IntProbeFlowConfigSchema)
         return {
             valid: result.isValid,
             errors: result.errors || [],

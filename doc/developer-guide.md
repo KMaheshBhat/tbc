@@ -163,7 +163,7 @@ These are used both by the CLI and by agents.
 
 ### 6.4 `@tbc-frameworx/tbc-kilocode`
 
-**Responsibility**: Kilo Code integration operations.
+**Responsibility**: Kilo Code interface operations.
 
 Key operations:
 
@@ -171,7 +171,7 @@ Key operations:
 
 ### 6.5 `@tbc-frameworx/tbc-goose`
 
-**Responsibility**: Goose integration operations.
+**Responsibility**: Goose interface operations.
 
 Key operations:
 
@@ -179,7 +179,7 @@ Key operations:
 
 ### 6.6 `@tbc-frameworx/tbc-github-copilot`
 
-**Responsibility**: GitHub Copilot integration operations.
+**Responsibility**: GitHub Copilot interface operations.
 
 Key operations:
 
@@ -200,12 +200,12 @@ The CLI is a **thin orchestration layer** that:
 | `tbc sys init` | `SysInitFlow` |
 | `tbc sys upgrade` | `SysUpgradeFlow` |
 | `tbc sys validate` | `SysValidateFlow` |
-| `tbc probe` | `ProbeFlow` |
+| `tbc int probe` | `IntProbeFlow` |
 | `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` |
-| `tbc int kilocode core` | `GenerateKilocodeCoreInterfaceFlow` |
-| `tbc int goose core` | `GenerateGooseCoreInterfaceFlow` |
-| `tbc int github-copilot core` | `GenerateGitHubCopilotCoreInterfaceFlow` |
+| `tbc int kilocode` | `IntKilocodeFlow` |
+| `tbc int goose` | `IntGooseFlow` |
+| `tbc int github-copilot` | `IntGitHubCopilotFlow` |
 
 Each flow wires together nodes dynamically.
 

@@ -4,12 +4,12 @@ import { join } from "node:path";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
-interface GenerateGooseCoreInterfaceFlowConfig {
+interface IntGitHubCopilotFlowConfig {
     root?: string;
     verbose: boolean;
 }
 
-const GenerateGooseCoreInterfaceFlowConfigSchema: ValidationSchema = {
+const IntGitHubCopilotFlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         root: { type: "string" },
@@ -18,11 +18,11 @@ const GenerateGooseCoreInterfaceFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class GenerateGooseCoreInterfaceFlow extends HAMIFlow<Record<string, any>, GenerateGooseCoreInterfaceFlowConfig> {
+export class IntGitHubCopilotFlow extends HAMIFlow<Record<string, any>, IntGitHubCopilotFlowConfig> {
     startNode: Node;
-    config: GenerateGooseCoreInterfaceFlowConfig;
+    config: IntGitHubCopilotFlowConfig;
 
-    constructor(config: GenerateGooseCoreInterfaceFlowConfig) {
+    constructor(config: IntGitHubCopilotFlowConfig) {
         const startNode = new Node();
         super(startNode, config);
         this.startNode = startNode;
@@ -30,7 +30,7 @@ export class GenerateGooseCoreInterfaceFlow extends HAMIFlow<Record<string, any>
     }
 
     kind(): string {
-        return "tbc-cli:generate-goose-core-interface-flow";
+        return "tbc-cli:int-github-copilot-flow";
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -77,7 +77,7 @@ export class GenerateGooseCoreInterfaceFlow extends HAMIFlow<Record<string, any>
             .next(n('tbc-record-fs:fetch-records'))
             .next(extractCompanionNameNode)
             .next(n('tbc-core:generate-role-definition'))
-            .next(n('tbc-goose:generate-core'))
+            .next(n('tbc-github-copilot:generate-core'))
             .next(setStoreCollectionNode)
             .next(n('tbc-record-fs:store-records'))
             .next(logTableNode(shared['registry'], 'storeResults'));
@@ -85,8 +85,8 @@ export class GenerateGooseCoreInterfaceFlow extends HAMIFlow<Record<string, any>
         return super.run(shared);
     }
 
-    validateConfig(config: GenerateGooseCoreInterfaceFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, GenerateGooseCoreInterfaceFlowConfigSchema)
+    validateConfig(config: IntGitHubCopilotFlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, IntGitHubCopilotFlowConfigSchema)
         return {
             valid: result.isValid,
             errors: result.errors || [],

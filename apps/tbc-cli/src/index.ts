@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { SysValidateFlow, ProbeFlow, SysInitFlow, SysUpgradeFlow, GenUuidFlow, GenTsidFlow, GenerateKilocodeCoreInterfaceFlow, GenerateGooseCoreInterfaceFlow, GenerateGitHubCopilotCoreInterfaceFlow } from './ops/index.js';
+import { SysValidateFlow, IntProbeFlow, SysInitFlow, SysUpgradeFlow, GenUuidFlow, GenTsidFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from './ops/index.js';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-core';
 
 const { registry } = await bootstrap();
@@ -16,33 +16,6 @@ program
   .option('--verbose', 'Enable verbose logging')
   .option('--root <path>', 'Specify root directory for operations (defaults to current working directory)')
   .version(packageJson.version);
-
-let cmdProbe = new Command('probe')
-  .description('Probe the environment for TBC CLI and system information')
-  .action(async () => {
-    try {
-      const cliOpts = program.opts();
-      const isVerbose = !!cliOpts.verbose;
-      const root = cliOpts.root;
-      const opts = { verbose: isVerbose };
-      const probeFlow = new ProbeFlow({
-        verbose: opts.verbose,
-      });
-      await probeFlow.run({
-        registry: registry,
-        opts: opts,
-        root: root,
-        app: 'TBC CLI',
-        appVersion: packageJson.version,
-      });
-    } catch (error) {
-      console.error('Error during probe:', error);
-      process.exit(1);
-    }
-    return;
-  });
-
-program.addCommand(cmdProbe);
 
 let cmdSys = new Command('sys')
     .description('System management commands');
@@ -273,90 +246,105 @@ cmdGen.addCommand(cmdGenTsid);
 program.addCommand(cmdGen);
 
 let cmdInt = new Command('int')
-    .description('Integration commands');
+    .description('Interface commands');
 
-let cmdIntKilocode = new Command('kilocode')
-    .description('Kilo Code integration');
-
-let cmdIntKilocodeCore = new Command('core')
-    .description('Generate Kilo Code core configuration')
-    .action(async (opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const generateKilocodeCoreInterfaceFlow = new GenerateKilocodeCoreInterfaceFlow({
-                root: root,
-                verbose: isVerbose,
-            });
-            await generateKilocodeCoreInterfaceFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-            });
-        } catch (error) {
-            console.error('Error during int kilocode core:', error);
-            process.exit(1);
-        }
-        return;
+let cmdIntProbe = new Command('probe')
+    .description('Probe the environment for TBC CLI and system information')
+    .action(async () => {
+      try {
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const opts = { verbose: isVerbose };
+        const probeFlow = new IntProbeFlow({
+          verbose: opts.verbose,
+        });
+        await probeFlow.run({
+          registry: registry,
+          opts: opts,
+          root: root,
+          app: 'TBC CLI',
+          appVersion: packageJson.version,
+        });
+      } catch (error) {
+        console.error('Error during probe:', error);
+        process.exit(1);
+      }
+      return;
     });
 
-cmdIntKilocode.addCommand(cmdIntKilocodeCore);
+cmdInt.addCommand(cmdIntProbe);
+
+let cmdIntKilocode = new Command('kilocode')
+    .description('Generate Kilo Code interface configuration')
+    .action(async (opts) => {
+      try {
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const generateKilocodeCoreInterfaceFlow = new IntKilocodeFlow({
+          root: root,
+          verbose: isVerbose,
+        });
+        await generateKilocodeCoreInterfaceFlow.run({
+          registry: registry,
+          opts: { verbose: isVerbose },
+        });
+      } catch (error) {
+        console.error('Error during int kilocode:', error);
+        process.exit(1);
+      }
+      return;
+    });
+
 cmdInt.addCommand(cmdIntKilocode);
 
 let cmdIntGoose = new Command('goose')
-    .description('Goose integration');
-
-let cmdIntGooseCore = new Command('core')
-    .description('Generate Goose core configuration')
+    .description('Generate Goose interface configuration')
     .action(async (opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const generateGooseCoreInterfaceFlow = new GenerateGooseCoreInterfaceFlow({
-                root: root,
-                verbose: isVerbose,
-            });
-            await generateGooseCoreInterfaceFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-            });
-        } catch (error) {
-            console.error('Error during int goose core:', error);
-            process.exit(1);
-        }
-        return;
+      try {
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const generateGooseCoreInterfaceFlow = new IntGooseFlow({
+          root: root,
+          verbose: isVerbose,
+        });
+        await generateGooseCoreInterfaceFlow.run({
+          registry: registry,
+          opts: { verbose: isVerbose },
+        });
+      } catch (error) {
+        console.error('Error during int goose:', error);
+        process.exit(1);
+      }
+      return;
     });
 
-cmdIntGoose.addCommand(cmdIntGooseCore);
 cmdInt.addCommand(cmdIntGoose);
 
 let cmdIntGitHubCopilot = new Command('github-copilot')
-    .description('GitHub Copilot integration');
-
-let cmdIntGitHubCopilotCore = new Command('core')
-    .description('Generate GitHub Copilot core configuration')
+    .description('Generate GitHub Copilot interface configuration')
     .action(async (opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const generateGitHubCopilotCoreInterfaceFlow = new GenerateGitHubCopilotCoreInterfaceFlow({
-                root: root,
-                verbose: isVerbose,
-            });
-            await generateGitHubCopilotCoreInterfaceFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-            });
-        } catch (error) {
-            console.error('Error during int github-copilot core:', error);
-            process.exit(1);
-        }
-        return;
+      try {
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const generateGitHubCopilotCoreInterfaceFlow = new IntGitHubCopilotFlow({
+          root: root,
+          verbose: isVerbose,
+        });
+        await generateGitHubCopilotCoreInterfaceFlow.run({
+          registry: registry,
+          opts: { verbose: isVerbose },
+        });
+      } catch (error) {
+        console.error('Error during int github-copilot:', error);
+        process.exit(1);
+      }
+      return;
     });
 
-cmdIntGitHubCopilot.addCommand(cmdIntGitHubCopilotCore);
 cmdInt.addCommand(cmdIntGitHubCopilot);
 
 program.addCommand(cmdInt);

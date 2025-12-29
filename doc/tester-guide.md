@@ -149,17 +149,22 @@ Test invalid cases by:
 - Deleting `tbc/root.md`
 - Renaming `vault/`
 
-### 5.3 `tbc probe`
+### 5.3 `tbc int probe`
 
 ```bash
-tbc probe --root ./_test/fresh-init
+tbc int probe --root ./_test/fresh-init
 ```
 
 Validate:
 
-- OS information
-- Node / Bun versions
-- CLI version
+- TBC CLI version
+- TBC root directory and validation status
+- Git repository status
+- Node.js version
+- User and host information
+- System uptime and timestamps
+- OS and platform details
+- Shell information
 
 No filesystem mutation should occur.
 
@@ -194,30 +199,30 @@ These commands **must be safe anywhere**.
 
 ### 5.6 `tbc int`
 
-#### Kilo Code Integration
+#### Kilo Code Interface
 
 ```bash
-tbc int kilocode core --root ./_test/fresh-init
+tbc int kilocode --root ./_test/fresh-init
 ```
 
 Validate:
 
 - `.kilocodemodes` created with correct content
 
-#### Goose Integration
+#### Goose Interface
 
 ```bash
-tbc int goose core --root ./_test/fresh-init
+tbc int goose --root ./_test/fresh-init
 ```
 
 Validate:
 
 - `.goosehints` created with correct content
 
-#### GitHub Copilot Integration
+#### GitHub Copilot Interface
 
 ```bash
-tbc int github-copilot core --root ./_test/fresh-init
+tbc int github-copilot --root ./_test/fresh-init
 ```
 
 Validate:
