@@ -47,6 +47,10 @@ type TBCActivityStorage = {
   collection?: string;
   /** IDs for record operations */
   IDs?: string[];
+  /** Current activity directory names */
+  currentActivities?: string[];
+  /** Backlog activity directory names */
+  backlogActivities?: string[];
 }
 
 export {

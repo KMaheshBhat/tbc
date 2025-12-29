@@ -14,6 +14,8 @@ import { ValidateCloseStateNode } from "./ops/validate-close-state.js";
 import { PrepareMemStoreNode } from "./ops/prepare-mem-store.js";
 import { PrepareCloseRecordsNode } from "./ops/prepare-close-records.js";
 import { RemoveActivityRecordsNode } from "./ops/remove-activity-records.js";
+import { ListActivityDirectoriesNode } from "./ops/list-activity-directories.js";
+import { ActShowFlow } from "./ops/act-show-flow.js";
 
 /**
  * TBC Activity Plugin for HAMI.
@@ -30,7 +32,8 @@ import { RemoveActivityRecordsNode } from "./ops/remove-activity-records.js";
  * - `tbc-activity:validate-close-state`: Validates state for close operation
  * - `tbc-activity:prepare-mem-store`: Prepares for storing to memory
  * - `tbc-activity:remove-activity-records`: Removes record files from current activity directory
- * - Activity flows for start, backlog, close operations
+ * - `tbc-activity:list-activity-directories`: Lists activity directories in current and backlog
+ * - Activity flows for start, backlog, close, and show operations
  */
 const TBCActivityPlugin = createPlugin(
     "@tbc-frameworx/tbc-activity",
@@ -50,6 +53,8 @@ const TBCActivityPlugin = createPlugin(
         PrepareMemStoreNode as any,
         PrepareCloseRecordsNode as any,
         RemoveActivityRecordsNode as any,
+        ListActivityDirectoriesNode as any,
+        ActShowFlow as any,
     ],
     "TBC Activity Plugin - Activity operations for TBC",
 );

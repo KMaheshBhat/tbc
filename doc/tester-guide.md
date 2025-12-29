@@ -348,6 +348,18 @@ Validate:
 - All `.md` files from `act/current/{uuid}/` moved to `mem/`
 - `act/current/{uuid}/` moved to `act/archive/{uuid}/`
 
+#### Show Activities
+
+```bash
+tbc act show --root ./_test/fresh-init
+```
+
+Validate:
+
+- Prints "Current activities:" followed by list of directory names under `act/current/`
+- Prints "Backlog activities:" followed by list of directory names under `act/backlog/`
+- Empty lists shown as empty (no errors if directories don't exist)
+
 #### Failure Modes to Test
 
 | Scenario | Expected Result |

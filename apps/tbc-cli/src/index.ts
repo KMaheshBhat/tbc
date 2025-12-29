@@ -7,7 +7,7 @@ import { SysValidateFlow, SysInitFlow, SysUpgradeFlow } from '@tbc-frameworx/tbc
 import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
 import { IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
-import { ActStartFlow, ActBacklogFlow, ActCloseFlow } from '@tbc-frameworx/tbc-activity';
+import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();
@@ -427,6 +427,30 @@ let cmdActClose = new Command('close')
     });
 
 cmdAct.addCommand(cmdActClose);
+
+let cmdActShow = new Command('show')
+    .description('Show current and backlog activities')
+    .action(async () => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const actShowFlow = new ActShowFlow({
+                verbose: isVerbose,
+            });
+            await actShowFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during act show:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdAct.addCommand(cmdActShow);
 
 program.addCommand(cmdAct);
 

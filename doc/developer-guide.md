@@ -292,6 +292,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc act start` | `ActStartFlow` | `@tbc-frameworx/tbc-activity` |
 | `tbc act backlog` | `ActBacklogFlow` | `@tbc-frameworx/tbc-activity` |
 | `tbc act close` | `ActCloseFlow` | `@tbc-frameworx/tbc-activity` |
+| `tbc act show` | `ActShowFlow` | `@tbc-frameworx/tbc-activity` |
 
 Each flow wires together nodes dynamically.
 

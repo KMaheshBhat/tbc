@@ -326,6 +326,7 @@ To manage activities in TBC:
 tbc act start [uuid]               # Start a new activity or resume from backlog
 tbc act backlog <uuid>             # Move activity from current to backlog
 tbc act close <uuid>               # Close activity and assimilate logs to memory
+tbc act show                       # Show current and backlog activities
 ```
 
 Activities are stored in `act/` subdirectories (`backlog/`, `current/`, `archive/`), with logs initially created in `current/{uuid}/`.
