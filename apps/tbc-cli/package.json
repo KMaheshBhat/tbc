@@ -22,6 +22,8 @@
     "@tbc-frameworx/tbc-view": "^0.1.0",
     "@tbc-frameworx/tbc-generator": "^0.1.0",
     "@tbc-frameworx/tbc-interface": "^0.1.0",
+    "@tbc-frameworx/tbc-memory": "^0.1.0",
+    "@tbc-frameworx/tbc-activity": "^0.1.0",
     "@tbc-frameworx/tbc-kilocode": "^0.1.0",
     "@tbc-frameworx/tbc-goose": "^0.1.0",
     "@tbc-frameworx/tbc-github-copilot": "^0.1.0"

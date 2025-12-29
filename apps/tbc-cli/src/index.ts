@@ -7,6 +7,7 @@ import { SysValidateFlow, SysInitFlow, SysUpgradeFlow } from '@tbc-frameworx/tbc
 import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
 import { IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
+import { ActStartFlow, ActBacklogFlow, ActCloseFlow } from '@tbc-frameworx/tbc-activity';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();
@@ -345,6 +346,89 @@ let cmdMemStub = new Command('stub')
 cmdMem.addCommand(cmdMemStub);
 
 program.addCommand(cmdMem);
+
+let cmdAct = new Command('act')
+    .description('Activity operations');
+
+let cmdActStart = new Command('start')
+    .description('Start a new activity or resume from backlog')
+    .argument('[uuid]', 'Activity UUID (optional, generates new if not provided)')
+    .action(async (uuid) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const actStartFlow = new ActStartFlow({
+                verbose: isVerbose,
+                activityId: uuid,
+            });
+            await actStartFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during act start:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdAct.addCommand(cmdActStart);
+
+let cmdActBacklog = new Command('backlog')
+    .description('Move activity from current to backlog')
+    .argument('<uuid>', 'Activity UUID')
+    .action(async (uuid) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const actBacklogFlow = new ActBacklogFlow({
+                verbose: isVerbose,
+                activityId: uuid,
+            });
+            await actBacklogFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during act backlog:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdAct.addCommand(cmdActBacklog);
+
+let cmdActClose = new Command('close')
+    .description('Close activity and assimilate logs to memory')
+    .argument('<uuid>', 'Activity UUID')
+    .action(async (uuid) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const actCloseFlow = new ActCloseFlow({
+                verbose: isVerbose,
+                activityId: uuid,
+            });
+            await actCloseFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during act close:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdAct.addCommand(cmdActClose);
+
+program.addCommand(cmdAct);
 
 let cmdInt = new Command('int')
     .description('Interface commands');

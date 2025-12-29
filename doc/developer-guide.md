@@ -49,6 +49,11 @@ TBC is implemented as a **monorepo** with modular packages that can be composed 
 │  │tbc-interface│  │ tbc-kilocode│  │  tbc-goose  │  │tbc-github│  │
 │  │             │  │             │  │             │  │ -copilot │  │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └──────────┘  │
+│                                                                   │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │
+│  │ tbc-memory  │  │tbc-activity │  │             │                 │
+│  │             │  │             │  │             │                 │
+│  └─────────────┘  └─────────────┘  └─────────────┘                 │
 └───────────────────────────────────────────────────────────────────┘
                                    │
                                    ▼
@@ -72,6 +77,7 @@ TBC is implemented as a **monorepo** with modular packages that can be composed 
 | **tbc-goose** | Goose specific operations | generate-core for Goose hints |
 | **tbc-github-copilot** | GitHub Copilot specific operations | generate-core for Copilot instructions |
 | **tbc-memory** | Memory operations | extract-companion-id, extract-companion-record, companion flows, generate-stub-records, mem-stub-flow |
+| **tbc-activity** | Activity operations | generate-activity-id, check-activity-state, move-activity-directory, create-activity-log-stub, act-start-flow, act-backlog-flow, act-close-flow |
 
 ### Key Runtime Concepts
 
@@ -97,6 +103,8 @@ packages/
    tbc-kilocode/         # Kilo Code integration operations
    tbc-goose/            # Goose integration operations
    tbc-github-copilot/   # GitHub Copilot integration operations
+   tbc-memory/           # Memory operations
+   tbc-activity/         # Activity operations
 
 doc/
   developer-guide.md
@@ -281,6 +289,9 @@ The CLI is a **thin orchestration layer** that:
 | `tbc int github-copilot` | `IntGitHubCopilotFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc mem companion` | `MemCompanionFlow` | `@tbc-frameworx/tbc-memory` |
 | `tbc mem stub` | `MemStubFlow` | `@tbc-frameworx/tbc-memory` |
+| `tbc act start` | `ActStartFlow` | `@tbc-frameworx/tbc-activity` |
+| `tbc act backlog` | `ActBacklogFlow` | `@tbc-frameworx/tbc-activity` |
+| `tbc act close` | `ActCloseFlow` | `@tbc-frameworx/tbc-activity` |
 
 Each flow wires together nodes dynamically.
 

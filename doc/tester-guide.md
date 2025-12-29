@@ -311,6 +311,52 @@ Validate:
 | Invalid record type | CLI error with list of valid types |
 | Missing record type argument | CLI help displayed |
 
+### 5.8 `tbc act`
+
+#### Start Activity
+
+```bash
+tbc act start --root ./_test/fresh-init
+tbc act start <uuid> --root ./_test/fresh-init
+```
+
+Validate:
+
+- `act/current/{uuid}/` directory created
+- `{uuid}.md` log file created in the directory with activity log structure
+- UUID is valid v7 format
+
+#### Backlog Activity
+
+```bash
+tbc act backlog <uuid> --root ./_test/fresh-init
+```
+
+Validate:
+
+- `act/current/{uuid}/` moved to `act/backlog/{uuid}/`
+- Directory structure preserved
+
+#### Close Activity
+
+```bash
+tbc act close <uuid> --root ./_test/fresh-init
+```
+
+Validate:
+
+- All `.md` files from `act/current/{uuid}/` moved to `mem/`
+- `act/current/{uuid}/` moved to `act/archive/{uuid}/`
+
+#### Failure Modes to Test
+
+| Scenario | Expected Result |
+|-------|----------------|
+| Start activity already in current | CLI error |
+| Start activity in archive | CLI error |
+| Backlog activity not in current | CLI error |
+| Close activity not in current | CLI error |
+
 ## 6. Upgrade Testing
 
 ### 6.1 Setup

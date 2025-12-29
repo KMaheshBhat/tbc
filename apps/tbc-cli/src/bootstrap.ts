@@ -5,6 +5,7 @@ import { TBCViewPlugin } from '@tbc-frameworx/tbc-view';
 import { TBCGeneratorPlugin } from '@tbc-frameworx/tbc-generator';
 import { TBCInterfacePlugin } from '@tbc-frameworx/tbc-interface';
 import { TBCMemoryPlugin } from '@tbc-frameworx/tbc-memory';
+import { TBCActivityPlugin } from '@tbc-frameworx/tbc-activity';
 import { TBCKilocodePlugin } from '@tbc-frameworx/tbc-kilocode';
 import { TBCGoosePlugin } from '@tbc-frameworx/tbc-goose';
 import { TBCGitHubCopilotPlugin } from '@tbc-frameworx/tbc-github-copilot';
@@ -18,6 +19,7 @@ export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }
     await registry.registerPlugin(TBCGeneratorPlugin);
     await registry.registerPlugin(TBCInterfacePlugin);
     await registry.registerPlugin(TBCMemoryPlugin);
+    await registry.registerPlugin(TBCActivityPlugin);
     await registry.registerPlugin(TBCKilocodePlugin);
     await registry.registerPlugin(TBCGoosePlugin);
     await registry.registerPlugin(TBCGitHubCopilotPlugin);

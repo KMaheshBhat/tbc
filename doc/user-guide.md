@@ -318,6 +318,18 @@ tbc mem stub structure            # Create a stub structure record in memory
 
 The `--show` option accepts: `id` (default), `name`, or `full`.
 
+### 13.5 Activity Operations
+
+To manage activities in TBC:
+
+```bash
+tbc act start [uuid]               # Start a new activity or resume from backlog
+tbc act backlog <uuid>             # Move activity from current to backlog
+tbc act close <uuid>               # Close activity and assimilate logs to memory
+```
+
+Activities are stored in `act/` subdirectories (`backlog/`, `current/`, `archive/`), with logs initially created in `current/{uuid}/`.
+
 ## 14. Troubleshooting
 
 ### Validation Fails
