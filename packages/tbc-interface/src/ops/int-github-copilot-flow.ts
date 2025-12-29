@@ -2,7 +2,7 @@ import assert from "assert";
 import { Node } from "pocketflow";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { ExtractCompanionId, createExtractCompanionNameNode, createSetStoreCollectionNode, logTableNode } from "./common-nodes.js";
+import { createSetStoreCollectionNode, logTableNode } from "./common-nodes.js";
 
 interface IntGitHubCopilotFlowConfig {
     root?: string;
@@ -47,8 +47,6 @@ export class IntGitHubCopilotFlow extends HAMIFlow<Record<string, any>, IntGitHu
         shared.IDs = ['companion.id'];
 
         // Custom nodes
-        const extractCompanionIdNode = new ExtractCompanionId();
-        const extractCompanionNameNode = createExtractCompanionNameNode();
         const setStoreCollectionNode = createSetStoreCollectionNode();
 
 
@@ -58,9 +56,9 @@ export class IntGitHubCopilotFlow extends HAMIFlow<Record<string, any>, IntGitHu
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-record-fs:fetch-records'))
-            .next(extractCompanionIdNode)
+            .next(n('tbc-memory:extract-companion-id'))
             .next(n('tbc-record-fs:fetch-records'))
-            .next(extractCompanionNameNode)
+            .next(n('tbc-memory:extract-companion-name'))
             .next(n('tbc-system:generate-role-definition'))
             .next(n('tbc-github-copilot:generate-core'))
             .next(setStoreCollectionNode)

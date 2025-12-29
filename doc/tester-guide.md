@@ -230,6 +230,62 @@ Validate:
 - `.github/agents/{companion-slug}.agent.md` created with correct YAML frontmatter (description, tools) and role definition content
 - File follows GitHub Copilot agent file format
 
+### 5.7 `tbc mem`
+
+#### Companion Information
+
+```bash
+tbc mem companion --root ./_test/fresh-init
+```
+
+Validate:
+
+- Prints the companion ID (default behavior)
+
+```bash
+tbc mem companion --show name --root ./_test/fresh-init
+```
+
+Validate:
+
+- Prints the companion name
+
+```bash
+tbc mem companion --show full --root ./_test/fresh-init
+```
+
+Validate:
+
+- Prints the full companion party record in table format
+- Contains all record fields (id, record_type, record_tags, party_type, title, content, etc.)
+
+#### Prime User Information
+
+```bash
+tbc mem prime --root ./_test/fresh-init
+```
+
+Validate:
+
+- Prints the prime user ID (default behavior)
+
+```bash
+tbc mem prime --show name --root ./_test/fresh-init
+```
+
+Validate:
+
+- Prints the prime user name
+
+```bash
+tbc mem prime --show full --root ./_test/fresh-init
+```
+
+Validate:
+
+- Prints the full prime user party record in table format
+- Contains all record fields (id, record_type, record_tags, party_type, title, content, etc.)
+
 ## 6. Upgrade Testing
 
 ### 6.1 Setup

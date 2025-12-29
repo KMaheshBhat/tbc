@@ -96,6 +96,18 @@
         "typescript": "^5.0.0",
       },
     },
+    "packages/tbc-memory": {
+      "name": "@tbc-frameworx/tbc-memory",
+      "version": "0.1.0",
+      "dependencies": {
+        "@hami-frameworx/core": "0.1.1",
+        "pocketflow": "^1.0.4",
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+      },
+    },
     "packages/tbc-record-fs": {
       "name": "@tbc-frameworx/tbc-record-fs",
       "version": "0.1.0",
@@ -150,6 +162,8 @@
     "@tbc-frameworx/tbc-interface": ["@tbc-frameworx/tbc-interface@workspace:packages/tbc-interface"],
 
     "@tbc-frameworx/tbc-kilocode": ["@tbc-frameworx/tbc-kilocode@workspace:packages/tbc-kilocode"],
+
+    "@tbc-frameworx/tbc-memory": ["@tbc-frameworx/tbc-memory@workspace:packages/tbc-memory"],
 
     "@tbc-frameworx/tbc-record-fs": ["@tbc-frameworx/tbc-record-fs@workspace:packages/tbc-record-fs"],
 

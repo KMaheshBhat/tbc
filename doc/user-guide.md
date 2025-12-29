@@ -296,6 +296,22 @@ tbc int github-copilot
 
 This generates a `.github/agents/{companion-slug}.agent.md` file in the repository root with system instructions for GitHub Copilot, allowing it to act as the TBC companion.
 
+### 13.4 Memory Operations
+
+To display companion or prime user information:
+
+```bash
+tbc mem companion                 # Display companion ID (default)
+tbc mem companion --show name     # Display companion name
+tbc mem companion --show full     # Display complete companion record
+
+tbc mem prime                     # Display prime user ID (default)
+tbc mem prime --show name         # Display prime user name
+tbc mem prime --show full         # Display complete prime user record
+```
+
+The `--show` option accepts: `id` (default), `name`, or `full`.
+
 ## 14. Troubleshooting
 
 ### Validation Fails

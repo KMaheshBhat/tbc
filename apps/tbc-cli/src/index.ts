@@ -6,6 +6,7 @@ import { bootstrap } from './bootstrap.js';
 import { SysValidateFlow, SysInitFlow, SysUpgradeFlow } from '@tbc-frameworx/tbc-system';
 import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
 import { IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
+import { MemCompanionFlow, MemPrimeFlow } from '@tbc-frameworx/tbc-memory';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();
@@ -246,6 +247,73 @@ cmdGen.addCommand(cmdGenUuid);
 cmdGen.addCommand(cmdGenTsid);
 
 program.addCommand(cmdGen);
+
+let cmdMem = new Command('mem')
+    .description('Memory operations');
+
+let cmdMemCompanion = new Command('companion')
+    .description('Display companion information')
+    .option('--show <type>', 'What to show: id (default), name, or full', 'id')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const show = opts.show as 'id' | 'name' | 'full';
+            if (!['id', 'name', 'full'].includes(show)) {
+                console.error('Error: --show must be one of: id, name, full');
+                process.exit(1);
+            }
+            const memCompanionFlow = new MemCompanionFlow({
+                verbose: isVerbose,
+                show: show,
+            });
+            await memCompanionFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during mem companion:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdMem.addCommand(cmdMemCompanion);
+
+let cmdMemPrime = new Command('prime')
+    .description('Display prime user information')
+    .option('--show <type>', 'What to show: id (default), name, or full', 'id')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const show = opts.show as 'id' | 'name' | 'full';
+            if (!['id', 'name', 'full'].includes(show)) {
+                console.error('Error: --show must be one of: id, name, full');
+                process.exit(1);
+            }
+            const memPrimeFlow = new MemPrimeFlow({
+                verbose: isVerbose,
+                show: show,
+            });
+            await memPrimeFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during mem prime:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdMem.addCommand(cmdMemPrime);
+
+program.addCommand(cmdMem);
 
 let cmdInt = new Command('int')
     .description('Interface commands');
