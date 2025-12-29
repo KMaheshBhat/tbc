@@ -6,7 +6,7 @@ import { bootstrap } from './bootstrap.js';
 import { SysValidateFlow, SysInitFlow, SysUpgradeFlow } from '@tbc-frameworx/tbc-system';
 import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
 import { IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
-import { MemCompanionFlow, MemPrimeFlow } from '@tbc-frameworx/tbc-memory';
+import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();
@@ -312,6 +312,37 @@ let cmdMemPrime = new Command('prime')
     });
 
 cmdMem.addCommand(cmdMemPrime);
+
+let cmdMemStub = new Command('stub')
+    .description('Create a stub record for a specific record type in memory')
+    .argument('<recordType>', 'Record type to create stub for (party|goal|log|note|structure)')
+    .action(async (recordType) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const validTypes = ['party', 'goal', 'log', 'note', 'structure'];
+            if (!validTypes.includes(recordType)) {
+                console.error(`Error: Invalid record type '${recordType}'. Must be one of: ${validTypes.join(', ')}`);
+                process.exit(1);
+            }
+            const memStubFlow = new MemStubFlow({
+                verbose: isVerbose,
+                recordType: recordType,
+            });
+            await memStubFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during mem stub:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdMem.addCommand(cmdMemStub);
 
 program.addCommand(cmdMem);
 

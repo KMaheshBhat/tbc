@@ -41,12 +41,12 @@ export class GenerateInitRecordsNode extends HAMINode<TBCCoreStorage> {
         const { companion, prime, uuids } = params;
         const records: any[] = [];
 
-        // Helper function to convert to lower-snake-case
-        const toLowerSnakeCase = (str: string) => str.toLowerCase().replace(/\s+/g, '_');
+        // Helper function to convert to lower-kebab-case
+        const toLowerKebabCase = (str: string) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
         // 1. Create Companion Party record
         const companionId = uuids[0];
-        const companionTag = `c/agent/${toLowerSnakeCase(companion)}`;
+        const companionTag = `c/agent/${toLowerKebabCase(companion)}`;
         const companionRecord = {
             id: companionId,
             record_type: "party",

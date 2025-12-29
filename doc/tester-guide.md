@@ -286,6 +286,31 @@ Validate:
 - Prints the full prime user party record in table format
 - Contains all record fields (id, record_type, record_tags, party_type, title, content, etc.)
 
+#### Stub Record Creation
+
+```bash
+tbc mem stub party --root ./_test/fresh-init
+tbc mem stub goal --root ./_test/fresh-init
+tbc mem stub log --root ./_test/fresh-init
+tbc mem stub note --root ./_test/fresh-init
+tbc mem stub structure --root ./_test/fresh-init
+```
+
+Validate:
+
+- Prints "Created stub record: {uuid}" where {uuid} is the generated UUID v7
+- New `.md` file created in `mem/` directory with correct record structure
+- Record has proper YAML frontmatter with `record_type`, `record_tags` containing `c/agent/{companion-slug}`
+- Record content follows TBC specification format for the record type
+- For `log` records: follows H2 structure with Context/Background, Process/Dialogue Log, and Deliverables/Outcomes sections
+
+#### Failure Modes to Test
+
+| Scenario | Expected Result |
+|-------|----------------|
+| Invalid record type | CLI error with list of valid types |
+| Missing record type argument | CLI help displayed |
+
 ## 6. Upgrade Testing
 
 ### 6.1 Setup

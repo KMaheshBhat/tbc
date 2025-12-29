@@ -308,6 +308,12 @@ tbc mem companion --show full     # Display complete companion record
 tbc mem prime                     # Display prime user ID (default)
 tbc mem prime --show name         # Display prime user name
 tbc mem prime --show full         # Display complete prime user record
+
+tbc mem stub party                # Create a stub party record in memory
+tbc mem stub goal                 # Create a stub goal record in memory
+tbc mem stub log                  # Create a stub log record in memory
+tbc mem stub note                 # Create a stub note record in memory
+tbc mem stub structure            # Create a stub structure record in memory
 ```
 
 The `--show` option accepts: `id` (default), `name`, or `full`.

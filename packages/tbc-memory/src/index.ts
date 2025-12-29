@@ -5,6 +5,8 @@ export * from './ops/extract-companion-name.js';
 export * from './ops/extract-prime-id.js';
 export * from './ops/extract-prime-name.js';
 export * from './ops/extract-prime-record.js';
+export * from './ops/generate-stub-records.js';
 export * from './ops/mem-companion-flow.js';
 export * from './ops/mem-prime-flow.js';
+export * from './ops/mem-stub-flow.js';
 export * from './plugin.js';

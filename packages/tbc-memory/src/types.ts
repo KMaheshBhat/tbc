@@ -7,6 +7,8 @@ type TBCMemoryOpts = {
   verbose?: boolean;
   /** Whether to print full record instead of just ID. */
   full?: boolean;
+  /** Record type for stub generation */
+  recordType?: 'party' | 'goal' | 'log' | 'note' | 'structure';
 }
 
 /**
@@ -37,6 +39,16 @@ type TBCMemoryStorage = {
   collection?: string;
   /** IDs for record operations */
   IDs?: string[];
+  /** Generated UUIDs */
+  generatedIds?: string[];
+  /** Records to store */
+  records?: any[];
+  /** Count for generation */
+  count?: number;
+  /** Root for operations */
+  root?: string;
+  /** ID of the created record */
+  createdRecordId?: string;
 }
 
 export {

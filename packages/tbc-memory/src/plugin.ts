@@ -6,8 +6,10 @@ import { ExtractCompanionNameNode } from "./ops/extract-companion-name.js";
 import { ExtractPrimeIdNode } from "./ops/extract-prime-id.js";
 import { ExtractPrimeNameNode } from "./ops/extract-prime-name.js";
 import { ExtractPrimeRecordNode } from "./ops/extract-prime-record.js";
+import { GenerateStubRecordsNode } from "./ops/generate-stub-records.js";
 import { MemCompanionFlow } from "./ops/mem-companion-flow.js";
 import { MemPrimeFlow } from "./ops/mem-prime-flow.js";
+import { MemStubFlow } from "./ops/mem-stub-flow.js";
 
 /**
  * TBC Memory Plugin for HAMI.
@@ -28,8 +30,10 @@ const TBCMemoryPlugin = createPlugin(
         ExtractPrimeIdNode as any,
         ExtractPrimeNameNode as any,
         ExtractPrimeRecordNode as any,
+        GenerateStubRecordsNode as any,
         MemCompanionFlow as any,
         MemPrimeFlow as any,
+        MemStubFlow as any,
     ],
     "TBC Memory Plugin - Memory operations for TBC",
 );

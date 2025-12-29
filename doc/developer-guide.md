@@ -71,7 +71,7 @@ TBC is implemented as a **monorepo** with modular packages that can be composed 
 | **tbc-kilocode** | Kilo Code specific operations | generate-core for Kilo Code modes |
 | **tbc-goose** | Goose specific operations | generate-core for Goose hints |
 | **tbc-github-copilot** | GitHub Copilot specific operations | generate-core for Copilot instructions |
-| **tbc-memory** | Memory operations | extract-companion-id, extract-companion-record, companion flows |
+| **tbc-memory** | Memory operations | extract-companion-id, extract-companion-record, companion flows, generate-stub-records, mem-stub-flow |
 
 ### Key Runtime Concepts
 
@@ -253,7 +253,8 @@ Key operations:
 Key node categories:
 
 - **Extraction**: `extract-companion-id`, `extract-companion-name`, `extract-companion-record`
-- **Flows**: `mem-companion` flow for displaying companion information
+- **Generation**: `generate-stub-records` for creating example records
+- **Flows**: `mem-companion` flow for displaying companion information, `mem-stub` flow for creating stub records
 
 This package provides reusable HAMINodes for memory operations that can be used across different TBC packages and applications. The nodes follow proper HAMI patterns with prep/exec/post methods for better testability and reusability.
 
@@ -279,6 +280,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc int goose` | `IntGooseFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int github-copilot` | `IntGitHubCopilotFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc mem companion` | `MemCompanionFlow` | `@tbc-frameworx/tbc-memory` |
+| `tbc mem stub` | `MemStubFlow` | `@tbc-frameworx/tbc-memory` |
 
 Each flow wires together nodes dynamically.
 
