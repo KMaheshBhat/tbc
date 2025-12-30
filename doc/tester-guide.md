@@ -134,6 +134,7 @@ Validate:
 
 - `sys/` directory exists
 - `mem/` directory exists
+- `skills/` directory exists
 - `sys/root.md` exists
 - `sys/companion.id` and `sys/prime.id` exist
 
@@ -158,8 +159,8 @@ Expected:
 
 Test invalid cases by:
 
-- Deleting `tbc/root.md`
-- Renaming `vault/`
+- Deleting `sys/root.md`
+- Renaming `mem/`
 
 ### 5.3 `tbc int probe`
 
@@ -186,6 +187,7 @@ No filesystem mutation should occur.
 tbc dex core --root ./_test/fresh-init
 tbc dex records --root ./_test/fresh-init
 tbc dex extensions --root ./_test/fresh-init
+tbc dex skills --root ./_test/fresh-init
 ```
 
 Validate:
@@ -193,6 +195,7 @@ Validate:
 - `dex/core.md` created (contains root and specs, no extensions)
 - `dex/*.md` files generated per record type
 - `dex/extensions.md` created with extension summaries
+- `dex/skills.md` created with skill summaries
 - Files are deterministic across runs
 
 ### 5.5 `tbc gen`
@@ -419,9 +422,11 @@ tbc sys upgrade --root ./_test/upgrade
 
 Validate:
 
-- `tbc/.backup-*` directory exists
-- `tbc/root.md` preserved
-- `extensions/` restored
+- `sys-*` backup directory exists
+- `skills-*` backup directory exists
+- `sys/root.md` preserved
+- `sys/ext/` restored
+- `skills/ext/` restored
 - Validation passes
 
 ## 7. Filesystem Safety Checklist

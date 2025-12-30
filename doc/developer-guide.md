@@ -79,6 +79,8 @@ TBC is implemented as a **monorepo** with modular packages that can be composed 
 | **tbc-github-copilot** | GitHub Copilot specific operations | generate-core for Copilot instructions |
 | **tbc-memory** | Memory operations | extract-companion-id, extract-companion-record, companion flows, generate-stub-records, mem-stub-flow |
 | **tbc-activity** | Activity operations | generate-activity-id, check-activity-state, move-activity-directory, create-activity-log-stub, act-start-flow, act-backlog-flow, act-close-flow |
+| **tbc-view** | View operations (extended) | generate-dex-skills, refresh-skills-flow (in addition to existing dex operations) |
+| **tbc-system** | System operations (extended) | backup-skills, restore-skill-extensions (in addition to existing operations) |
 
 ### Key Runtime Concepts
 
@@ -94,23 +96,24 @@ TBC is implemented as a **monorepo** with modular packages that can be composed 
 
 ```
 apps/
-  tbc-cli/              # CLI entry point and user flows
+   tbc-cli/              # CLI entry point and user flows
 packages/
-   tbc-system/           # System operations (initialization, validation, flows, assets)
-   tbc-view/             # View operations (indexing and dex generation, flows)
-   tbc-record-fs/        # File‑system based vault implementation
-   tbc-generator/        # ID generation utilities and flows
-   tbc-interface/        # Interface operations (flows for various tools like Kilo Code, Goose, GitHub Copilot)
-   tbc-gemini/           # Gemini CLI integration operations
-   tbc-kilocode/         # Kilo Code integration operations
-   tbc-goose/            # Goose integration operations
-   tbc-github-copilot/   # GitHub Copilot integration operations
-   tbc-memory/           # Memory operations
-   tbc-activity/         # Activity operations
+    tbc-system/           # System operations (initialization, validation, flows, assets)
+    tbc-view/             # View operations (indexing and dex generation, flows)
+    tbc-record-fs/        # File‑system based vault implementation
+    tbc-generator/        # ID generation utilities and flows
+    tbc-interface/        # Interface operations (flows for various tools like Kilo Code, Goose, GitHub Copilot)
+    tbc-gemini/           # Gemini CLI integration operations
+    tbc-kilocode/         # Kilo Code integration operations
+    tbc-goose/            # Goose integration operations
+    tbc-github-copilot/   # GitHub Copilot integration operations
+    tbc-memory/           # Memory operations
+    tbc-activity/         # Activity operations
 
 doc/
-  developer-guide.md
-  user-guide.md
+   developer-guide.md
+   user-guide.md
+   tester-guide.md
 ```
 
 Each package is **independently buildable** but composed at runtime.
@@ -270,6 +273,17 @@ Key node categories:
 
 This package provides reusable HAMINodes for memory operations that can be used across different TBC packages and applications. The nodes follow proper HAMI patterns with prep/exec/post methods for better testability and reusability.
 
+### 6.10 `@tbc-frameworx/tbc-view` (Extended)
+
+**Responsibility**: View operations including indexing and dex generation (extended with skills support).
+
+Key node categories (extended):
+
+- **Indexing**: `generate-dex-core`, `generate-dex-records`, `generate-dex-extensions`, `generate-dex-skills`
+- **Refresh**: `refresh-core`, `refresh-records`, `refresh-extensions`, `refresh-skills`
+
+This package generates and refreshes read-optimized index files, now including skills indexes.
+
 ## 7. CLI Application (`apps/tbc-cli`)
 
 The CLI is a **thin orchestration layer** that:
@@ -288,7 +302,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc int probe` | `IntProbeFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int generic` | `IntGenericFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int gemini-cli` | `IntGeminiCliFlow` | `@tbc-frameworx/tbc-interface` |
-| `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` | `@tbc-frameworx/tbc-view` |
+| `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow`, `RefreshSkillsFlow` | `@tbc-frameworx/tbc-view` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` | `@tbc-frameworx/tbc-generator` |
 | `tbc int kilocode` | `IntKilocodeFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int goose` | `IntGooseFlow` | `@tbc-frameworx/tbc-interface` |
@@ -363,6 +377,7 @@ Examples:
 
 - `dex/core.md` — core system definitions (root, specs)
 - `dex/extensions.md` — index of extension specifications
+- `dex/skills.md` — index of skill guides
 - `dex/party.md` — index of party records
 - `dex/goal.md` — index of goal records
 
@@ -385,7 +400,7 @@ You can extend TBC by:
 ### Extension Location
 
 ```
-tbc/extensions/
+sys/ext/
 ```
 
 The root record may override this path.

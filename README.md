@@ -11,7 +11,7 @@ This repository is the **TBC project repository**.
 It contains:
 
 - The CLI and core framework code
-- System specifications
+- System specifications and skills
 - Documentation for users, testers, and developers
 
 It is **not** a TBC instance.
@@ -45,6 +45,7 @@ If you understand the following concepts, you understand TBC:
 - **Record**: An atomic unit of knowledge or state
 - **Root Record**: The constitution of a companion
 - **Specs**: Canonical system definitions (provided by this project)
+- **Skills**: Instructional guides for operations (provided by this project)
 - **Flows**: Deterministic operations over records
 - **CLI**: An orchestrator, not magic
 
@@ -56,8 +57,9 @@ All meaningful cognitive state lives in the **instance repository**, not here.
 .
 ├── apps/
 │   └── tbc-cli/          # CLI application
-│       └── assets/       # Embedded system specs
 ├── packages/             # Core framework packages
+│   └── tbc-system/
+│       └── assets/       # System specs and skills
 ├── doc/                  # Documentation
 │   ├── user-guide.md
 │   ├── developer-guide.md
@@ -106,7 +108,7 @@ This guide covers architecture, flows, plugins, and extension patterns.
 
 ## Safety Notice
 
-Do not run `tbc init`, `tbc dex`, or other destructive commands in this repository.
+Do not run `tbc sys`, `tbc dex`, or other destructive commands in this repository.
 
 This repository must never be treated as a TBC root.
 

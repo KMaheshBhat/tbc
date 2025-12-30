@@ -52,6 +52,17 @@ Every record has an **ID** and a **type**.
 
 The relationship between them is defined explicitly in records — not assumed.
 
+### 2.4 Skills
+
+A **Skill** is an instructional guide for performing specific TBC operations.
+
+- Stored as `SKILL.md` files in `skills/core/` (standard operations) and `skills/ext/` (extensions)
+- Contains detailed guides for CLI commands and workflows
+- Indexed in `dex/skills.md` for quick discovery
+- Used by agents to understand how to perform specific tasks
+
+Skills are automatically discovered and injected into activity contexts when relevant to the current task.
+
 ## 3. Installation
 
 ### 3.1 Prerequisites
@@ -94,8 +105,8 @@ tbc sys init --companion Tessera --prime "Mahesh"
 
 This will:
 
-- Create the `tbc/` system directory
-- Create the `vault/`
+- Create the `sys/` system directory
+- Create the `mem/` memory vault
 - Generate the root record
 - Copy system specifications
 
@@ -111,18 +122,25 @@ If validation passes, your companion is ready.
 
 ```
 my-companion/
-├── tbc/
-│   ├── specs/            # System specifications (copied at init)
-│   ├── root.md           # Core definition & identity
-│   ├── companion.id
-│   ├── prime.id
-│   └── extensions/
-├── vault/                # All records live here
-├── dex/                  # Generated indexes
+├── sys/                  # MOTIVATION: Normative Authority
+│   ├── core/             # Core Specs (TBC 0.4 standard)
+│   ├── ext/              # Extension Specs (Optional adopted logic)
+│   ├── root.md           # System Identity and State
+│   ├── companion.id      # Companion Actor Identification
+│   └── prime.id          # Prime User Actor Identification
+├── skills/               # SPECIFICATION: Capabilities (Instructional)
+│   ├── core/             # Standard CLI/System Skills
+│   └── ext/              # Skills provided by Extensions
+├── mem/                  # GRATIFICATION: Long-term Memory (The Vault)
+├── act/                  # WORKSPACE: Short-term Cognitive Buffer
+│   ├── current/          # Active session workspaces
+│   ├── backlog/          # Suspended session workspaces
+│   └── archive/          # Completed/Assimilated session workspaces
+├── dex/                  # VIEWS: Generated Indices & Navigation Maps
 └── .git/
 ```
 
-## 6. The Root Record (`tbc/root.md`)
+## 6. The Root Record (`sys/root.md`)
 
 The **root record** is the heart of your companion.
 
@@ -132,6 +150,7 @@ It defines:
 - Motivation
 - Canonical definitions
 - Entry points to memory
+- Skills and operational guides
 
 You should treat this file as *constitution‑level*.
 
@@ -152,7 +171,7 @@ Common record types include:
 - `goal` — objectives and intentions
 - `log` — interactions and reflections
 
-All live under `vault/`.
+All live under `mem/`.
 
 ### 7.2 Creating Records
 
@@ -171,6 +190,33 @@ Helper:
 ```bash
 tbc gen uuid
 ```
+
+## 7.3 Working With Skills
+
+Skills are instructional guides that help agents understand how to perform specific TBC operations.
+
+### Skill Discovery
+
+Skills are automatically indexed in `dex/skills.md`. You can refresh this index:
+
+```bash
+tbc dex skills
+```
+
+### Skill Organization
+
+- `skills/core/` — Standard TBC operations (system, memory, activity management)
+- `skills/ext/` — Extension-specific guides and custom workflows
+
+### Using Skills
+
+Agents automatically discover and use relevant skills based on the current task. Skills contain:
+
+- Detailed CLI command usage
+- Step-by-step operational guides
+- Method mappings for specific workflows
+
+Skills are injected into activity contexts when the Gather Context method identifies relevant operations.
 
 ## 8. Daily Usage Pattern
 
@@ -203,6 +249,12 @@ tbc dex core
 tbc dex records
 ```
 
+### Refresh Skills Index
+
+```bash
+tbc dex skills
+```
+
 Indexes are safe to regenerate at any time.
 
 ## 10. Upgrading a Companion
@@ -215,9 +267,9 @@ tbc sys upgrade
 
 This will:
 
-- Backup the existing `tbc/` directory
+- Backup the existing `sys/` directory
 - Refresh system files
-- Preserve your vault and extensions
+- Preserve your memory vault and extensions
 
 Always commit before upgrading.
 
