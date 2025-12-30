@@ -7,6 +7,12 @@ export class PrepareCloseRecordsNode extends HAMINode<TBCActivityStorage> {
         return "tbc-activity:prepare-close-records";
     }
 
+    private isValidUuid7(id: string): boolean {
+        // UUID v7 regex: 8-4-4-4-12 with version 7
+        const uuidV7Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        return uuidV7Regex.test(id);
+    }
+
     async prep(shared: TBCActivityStorage): Promise<void> {
         // No prep needed
     }
@@ -17,7 +23,10 @@ export class PrepareCloseRecordsNode extends HAMINode<TBCActivityStorage> {
 
     async post(shared: TBCActivityStorage, _prepRes: void, _execRes: void): Promise<string | undefined> {
         const collectionResults = shared.fetchResults?.[shared.collection!];
-        const records = collectionResults ? Object.values(collectionResults) : [];
+        let records = collectionResults ? Object.values(collectionResults) : [];
+
+        // Filter to only include records with valid UUID v7 IDs (TBC records)
+        records = records.filter(record => this.isValidUuid7(record.id));
 
         // For assimilation, we want records stored directly in mem/ with simple filenames
         for (const record of records) {
