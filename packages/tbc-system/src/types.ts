@@ -41,8 +41,10 @@ type TBCCoreStorage = {
   generateRootResults?: string[];
   /** Backup TBC results containing backup operation information. */
   backupTbcResults?: { backedUp: boolean; backupPath?: string };
-  /** Restore extensions results containing restore operation information. */
-  restoreExtensionsResults?: { restored: boolean; message?: string };
+  /** Restore sys extensions results containing restore operation information. */
+  restoreSysExtensionsResults?: { restored: boolean; message?: string };
+  /** Restore skill extensions results containing restore operation information. */
+  restoreSkillExtensionsResults?: { restored: boolean; message?: string };
   /** Restore root results containing restore operation information. */
   restoreRootResults?: { restored: boolean; message?: string };
   /** Fetched records by collection and ID (from record-fs operations). */

@@ -35,22 +35,42 @@ export class CopyAssetsNode extends HAMINode<TBCCoreStorage> {
         const assetsPath = shared.assetsPath!;
         const results: string[] = [];
 
-        // Copy specs from assets/core/ to sys/core/
-        const specsSource = join(assetsPath, "core");
-        const specsTarget = join(rootDir, "sys", "core");
+        // Copy specs from assets/sys/core/ to sys/core/
+        const specsCoreSource = join(assetsPath, "sys", "core");
+        const specsCoreTarget = join(rootDir, "sys", "core");
         try {
-            await cp(specsSource, specsTarget, { recursive: true });
-            results.push(`Copied specs from ${specsSource} to ${specsTarget}`);
+            await cp(specsCoreSource, specsCoreTarget, { recursive: true });
+            results.push(`Copied specs from ${specsCoreSource} to ${specsCoreTarget}`);
         } catch (error) {
             throw new Error(`Failed to copy specs: ${(error as Error).message}`);
         }
 
-        // Copy tools from assets/ext/ to sys/ext/
-        const toolsSource = join(assetsPath, "ext");
-        const toolsTarget = join(rootDir, "sys", "ext");
+        // Copy tools from assets/sys/ext/ to sys/ext/
+        const specsExtSource = join(assetsPath, "sys", "ext");
+        const specsExtTarget = join(rootDir, "sys", "ext");
         try {
-            await cp(toolsSource, toolsTarget, { recursive: true });
-            results.push(`Copied tools from ${toolsSource} to ${toolsTarget}`);
+            await cp(specsExtSource, specsExtTarget, { recursive: true });
+            results.push(`Copied tools from ${specsExtSource} to ${specsExtTarget}`);
+        } catch (error) {
+            throw new Error(`Failed to copy tools: ${(error as Error).message}`);
+        }
+
+        // Copy skills from assets/skills/core/ to skills/core/
+        const skillsCoreSource = join(assetsPath, "skills", "core");
+        const skillsCoreTarget = join(rootDir, "skills", "core");
+        try {
+            await cp(skillsCoreSource, skillsCoreTarget, { recursive: true });
+            results.push(`Copied specs from ${skillsCoreSource} to ${skillsCoreTarget}`);
+        } catch (error) {
+            throw new Error(`Failed to copy specs: ${(error as Error).message}`);
+        }
+
+        // Copy tools from assets/skills/ext/ to skills/ext/
+        const skillsExtSource = join(assetsPath, "sys", "ext");
+        const skillsExtTarget = join(rootDir, "sys", "ext");
+        try {
+            await cp(skillsExtSource, skillsExtTarget, { recursive: true });
+            results.push(`Copied tools from ${skillsExtSource} to ${skillsExtTarget}`);
         } catch (error) {
             throw new Error(`Failed to copy tools: ${(error as Error).message}`);
         }

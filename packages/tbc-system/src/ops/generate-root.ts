@@ -61,6 +61,8 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
                 prime: `/mem/${recordIds.prime}.md`,
                 system_path: "/sys/core/",
                 extension_path: "/sys/ext/",
+                skills_path: "skills/core",
+                skills_extension_path: "skills/ext",
                 memory_path: "/mem/",
                 view_path: "/dex/",
                 activity_path: "/act",

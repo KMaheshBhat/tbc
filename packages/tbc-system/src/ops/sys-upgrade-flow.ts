@@ -65,10 +65,12 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
 
         upgrade
             .next(n('tbc-system:backup-sys'))
+            .next(n('tbc-system:backup-skills'))
             .next(n('tbc-system:init'))
             .next(n('tbc-system:copy-assets'))
             .next(n('tbc-system:restore-root'))
-            .next(n('tbc-system:restore-extensions'))
+            .next(n('tbc-system:restore-sys-extensions'))
+            .next(n('tbc-system:restore-skill-extensions'))
             .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
@@ -80,6 +82,7 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
             .next(logTableNode(shared['registry'], 'copyAssetResults'))
             .next(logTableNode(shared['registry'], 'restoreRootResults'))
             .next(logTableNode(shared['registry'], 'restoreExtensionsResults'))
+            .next(logTableNode(shared['registry'], 'restoreSkillExtensionsResults'))
             .next(logTableNode(shared['registry'], 'messages'));
 
         return super.run(shared);

@@ -5,18 +5,18 @@ import { HAMINode } from "@hami-frameworx/core";
 
 import { TBCCoreStorage } from "../types.js";
 
-type RestoreSysExtensionsNodeOutput = {
+type RestoreSkillExtensionsNodeOutput = {
     restored: boolean;
     message?: string;
 };
 
-export class RestoreSysExtensionsNode extends HAMINode<TBCCoreStorage> {
+export class RestoreSkillExtensionsNode extends HAMINode<TBCCoreStorage> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-system:restore-sys-extensions";
+        return "tbc-system:restore-skill-extensions";
     }
 
     async prep(
@@ -24,12 +24,12 @@ export class RestoreSysExtensionsNode extends HAMINode<TBCCoreStorage> {
     ): Promise<{ rootDirectory: string; backupDirs: string[] }> {
         // Ensure rootDirectory is set
         if (!shared.rootDirectory) {
-            throw new Error("rootDirectory is required for restore-sys-extensions operation");
+            throw new Error("rootDirectory is required for restore-skill-extensions operation");
         }
 
         const rootDirectory = shared.rootDirectory;
-        // Find the most recent sys backup directory
-        const backupPattern = /^sys-\d{14}$/;
+        // Find the most recent skills backup directory
+        const backupPattern = /^skills-\d{14}$/;
         const items = await readdir(rootDirectory);
         const backupDirs = items
             .filter(item => backupPattern.test(item))
@@ -41,7 +41,7 @@ export class RestoreSysExtensionsNode extends HAMINode<TBCCoreStorage> {
 
     async exec(
         prepRes: { rootDirectory: string; backupDirs: string[] },
-    ): Promise<RestoreSysExtensionsNodeOutput> {
+    ): Promise<RestoreSkillExtensionsNodeOutput> {
         const { rootDirectory, backupDirs } = prepRes;
 
         if (backupDirs.length === 0) {
@@ -51,7 +51,7 @@ export class RestoreSysExtensionsNode extends HAMINode<TBCCoreStorage> {
         const backupDir = backupDirs[0];
         const backupPath = join(rootDirectory, backupDir);
         const extensionsBackupPath = join(backupPath, 'ext');
-        const extensionsTargetPath = join(rootDirectory, 'sys', 'ext');
+        const extensionsTargetPath = join(rootDirectory, 'skills', 'ext');
 
         if (existsSync(extensionsBackupPath)) {
             await cp(extensionsBackupPath, extensionsTargetPath, { recursive: true });
@@ -61,16 +61,16 @@ export class RestoreSysExtensionsNode extends HAMINode<TBCCoreStorage> {
         } else {
             // Clean up backup even if no extensions
             await rm(backupPath, { recursive: true, force: true });
-            return { restored: false, message: 'No extensions to restore' };
+            return { restored: false, message: 'No skill extensions to restore' };
         }
     }
 
     async post(
         shared: TBCCoreStorage,
         _prepRes: { rootDirectory: string; backupDirs: string[] },
-        execRes: RestoreSysExtensionsNodeOutput,
+        execRes: RestoreSkillExtensionsNodeOutput,
     ): Promise<string | undefined> {
-        shared.restoreSysExtensionsResults = execRes;
+        shared.restoreSkillExtensionsResults = execRes;
         return "default";
     }
 }

@@ -7,7 +7,9 @@ import { GenerateRootNode } from "./ops/generate-root.js";
 import { GenerateInitRecordsNode } from "./ops/generate-init-records.js";
 import { GenerateInitIdsNode } from "./ops/generate-init-ids.js";
 import { BackupSysNode } from "./ops/backup-sys.js";
-import { RestoreExtensionsNode } from "./ops/restore-extensions.js";
+import { BackupSkillNode } from "./ops/backup-skills.js";
+import { RestoreSysExtensionsNode } from "./ops/restore-extensions.js";
+import { RestoreSkillExtensionsNode } from "./ops/restore-skill-extensions.js"; 
 import { RestoreRootNode } from "./ops/restore-root.js";
 import { ResolveNode } from "./ops/resolve.js";
 import { ValidateNode } from "./ops/validate.js";
@@ -24,7 +26,9 @@ import { GenerateRoleDefinitionNode } from "./ops/generate-role-definition.js";
  * - `tbc-system:generate-root`: Generates initial tbc/root.md file
  * - `tbc-system:generate-init-ids`: Generates companion.id and prime.id records for tbc/ collection
  * - `tbc-system:backup-sys`: Creates timestamped backup of sys/ directory
+ * - `tbc-system:backup-skills`: Creates timestamped backup of skills/ directory
  * - `tbc-system:restore-extensions`: Restores extensions/ from backup and cleans up
+ * - `tbc-system:restore-skill-extensions`: Restores skills/extensions/ from backup and cleans up
  * - `tbc-system:resolve`: Resolves working directory for TBC operations
  * - `tbc-system:validate`: Validates TBC directory structure (tbc/, vault/, dex/)
  * - `tbc-system:generate-role-definition`: Generates standard TBC role definition for AI integrations
@@ -40,7 +44,9 @@ const TBCSystemPlugin = createPlugin(
         GenerateInitRecordsNode as any,
         GenerateInitIdsNode as any,
         BackupSysNode as any,
-        RestoreExtensionsNode as any,
+        BackupSkillNode as any,
+        RestoreSysExtensionsNode as any,
+        RestoreSkillExtensionsNode as any,
         RestoreRootNode as any,
         ResolveNode as any,
         ValidateNode as any,
