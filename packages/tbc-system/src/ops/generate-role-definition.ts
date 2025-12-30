@@ -30,7 +30,7 @@ export class GenerateRoleDefinitionNode extends HAMINode<TBCCoreStorage> {
         const companionName = params.companionName;
 
         // Generate the standard TBC role definition
-        const roleDefinition = `At the start of an iteraction, ALWAYS read @tbc/root.md file at the root of the repository, and follow all specifications from it recursively until you have read and understood. ALWAYS read top level @dex/core.md and @dex/extensions.md when available or execute the script to generate it. For the interaction, you will act as ${companionName}`;
+        const roleDefinition = `At the start of an iteraction, ALWAYS read @tbc/root.md file at the root of the repository, and follow all specifications from it recursively until you have read and understood. ALWAY READ FULLY: @dex/core.md @dex/extensions.md @dex/skills.md when available or execute the script to generate it. For the interaction, you will act as ${companionName}`;
 
         return roleDefinition;
     }

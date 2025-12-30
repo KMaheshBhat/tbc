@@ -6,7 +6,7 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Index & View Maintenance (`skills/core/tbc-dex-ops`)
 specification_name: tbc-dex-ops
-description: Use this skill when setting up a new interface to interact with the TBC repository.
+description: Use this skill to generate, refresh, or maintain index files in the dex/ directory (such as core.md, extensions.md, skills.md, goal.md, party.md, log.md and other {record_type}.md) whenever you need to query, list, or navigate records by type. Essential for operations involving record discovery, mapping, or summary views to ensure up-to-date non-authoritative indexes before proceeding with queries or reflections.
 methods_supported: Reflection, Internal Indexing (FOR ALMOST ALL Methods, USE THIS SKILL WHERE AVAILABLE).
 ---
 # Index & View Maintenance (`tbc-dex-ops`)

@@ -74,8 +74,9 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
 - Agent: [${companion}](/mem/${recordIds.companion}.md)
 - Primer User: [${prime}](/mem/${recordIds.prime}.md)
 - Specifications:
-  - [core](/dex/core.md) - use 'Refresh Core Index' Method if not present; provides full definitions.
-  - [extensions](/dex/extensions.md) - use 'Refresh Extensions Index' Method if not present; only provides summary; read specific extensions from /tbc/extensions/ as needed.
+  - [core](/dex/core.md) - use 'Index Management Skill' if not present; provides full definitions.
+  - [extensions](/dex/extensions.md) - use 'Index Management Skill' Method if not present; only provides summary; read specific extensions from /sys/ext/ as needed.
+  - [skills](/dex/skills.md) - use 'Index Management Skill' if not present; only provides summary; read specific extensions from /skills/{core|ext}/{id}/SKILL.md as needed.
 
 ## Agent Identity
 
@@ -107,8 +108,9 @@ ${companion} is the AI Assistant as per the Third Brain Companion System Definit
 - Agent: Your Agent Name
 - Prime User: Your Name
 - Specifications:
-  - [core](/dex/core.md) - use 'Refresh Core Index' Method if not present; provides full definitions.
-  - [extensions](/dex/extensions.md) - use 'Refresh Extensions Index' Method if not present; only provides summary; read specific extensions from /tbc/extensions/ as needed.
+  - [core](/dex/core.md) - use 'Index Management Skill' if not present; provides full definitions.
+  - [extensions](/dex/extensions.md) - use 'Index Management Skill' Method if not present; only provides summary; read specific extensions from /sys/ext/ as needed.
+  - [skills](/dex/skills.md) - use 'Index Management Skill' if not present; only provides summary; read specific extensions from /skills/{core|ext}/{id}/SKILL.md as needed.
 
 ## Agent Identity
 
