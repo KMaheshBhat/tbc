@@ -276,7 +276,17 @@ tbc int generic
 
 This generates an `AGENTS.md` file in the repository root with system instructions for AI assistants, allowing them to act as the TBC companion.
 
-### 13.2 Kilo Code Interface
+### 13.2 Gemini CLI Interface
+
+To enable Gemini CLI AI assistant interface:
+
+```bash
+tbc int gemini-cli
+```
+
+This generates a `.gemini/GEMINI.md` file in the repository root with system instructions for Gemini CLI, allowing it to act as the TBC companion.
+
+### 13.3 Kilo Code Interface
 
 To enable Kilo Code AI assistant interface:
 
@@ -286,7 +296,7 @@ tbc int kilocode
 
 This generates a `.kilocodemodes` file in the repository root with system instructions for Kilo Code, allowing it to act as the TBC companion.
 
-### 13.3 Goose Interface
+### 13.4 Goose Interface
 
 To enable Goose AI assistant interface:
 
@@ -296,7 +306,7 @@ tbc int goose
 
 This generates a `.goosehints` file in the repository root with system instructions for Goose, allowing it to act as the TBC companion.
 
-### 13.4 GitHub Copilot Interface
+### 13.5 GitHub Copilot Interface
 
 To enable GitHub Copilot AI assistant interface:
 

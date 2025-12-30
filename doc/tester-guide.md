@@ -242,6 +242,17 @@ Validate:
 - `AGENTS.md` created in the repository root with the role definition content
 - Content matches the standard TBC role definition for the companion
 
+#### Gemini CLI Interface
+
+```bash
+tbc int gemini-cli --root ./_test/fresh-init
+```
+
+Validate:
+
+- `.gemini/GEMINI.md` created in the repository root with the role definition content
+- Content matches the standard TBC role definition for the companion
+
 #### GitHub Copilot Interface
 
 ```bash

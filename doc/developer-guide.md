@@ -73,6 +73,7 @@ TBC is implemented as a **monorepo** with modular packages that can be composed 
 | **tbc-record-fs** | File system operations for records | fetch-records, store-records, file format handling |
 | **tbc-generator** | ID generation utilities | UUID v7, TSID generation flows |
 | **tbc-interface** | Cross-application interface flows | IntProbeFlow, IntGenericFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow |
+| **tbc-gemini** | Gemini CLI specific operations | generate-core for Gemini CLI configuration |
 | **tbc-kilocode** | Kilo Code specific operations | generate-core for Kilo Code modes |
 | **tbc-goose** | Goose specific operations | generate-core for Goose hints |
 | **tbc-github-copilot** | GitHub Copilot specific operations | generate-core for Copilot instructions |
@@ -100,6 +101,7 @@ packages/
    tbc-record-fs/        # File‑system based vault implementation
    tbc-generator/        # ID generation utilities and flows
    tbc-interface/        # Interface operations (flows for various tools like Kilo Code, Goose, GitHub Copilot)
+   tbc-gemini/           # Gemini CLI integration operations
    tbc-kilocode/         # Kilo Code integration operations
    tbc-goose/            # Goose integration operations
    tbc-github-copilot/   # GitHub Copilot integration operations
@@ -225,6 +227,7 @@ Key flows:
 
 - **IntProbeFlow**: Probes the environment for TBC CLI and system information
 - **IntGenericFlow**: Generates generic AI assistant interface configuration
+- **IntGeminiCliFlow**: Generates Gemini CLI interface configuration
 - **IntKilocodeFlow**: Generates Kilo Code interface configuration
 - **IntGooseFlow**: Generates Goose interface configuration
 - **IntGitHubCopilotFlow**: Generates GitHub Copilot interface configuration
@@ -284,6 +287,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc sys validate` | `SysValidateFlow` | `@tbc-frameworx/tbc-system` |
 | `tbc int probe` | `IntProbeFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int generic` | `IntGenericFlow` | `@tbc-frameworx/tbc-interface` |
+| `tbc int gemini-cli` | `IntGeminiCliFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` | `@tbc-frameworx/tbc-view` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` | `@tbc-frameworx/tbc-generator` |
 | `tbc int kilocode` | `IntKilocodeFlow` | `@tbc-frameworx/tbc-interface` |

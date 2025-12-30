@@ -5,7 +5,7 @@ import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
 import { SysValidateFlow, SysInitFlow, SysUpgradeFlow } from '@tbc-frameworx/tbc-system';
 import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
-import { IntProbeFlow, IntGenericFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
+import { IntProbeFlow, IntGenericFlow, IntGeminiCliFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
 import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
@@ -508,6 +508,31 @@ let cmdIntGeneric = new Command('generic')
     });
 
 cmdInt.addCommand(cmdIntGeneric);
+
+let cmdIntGeminiCli = new Command('gemini-cli')
+    .description('Generate Gemini CLI interface configuration')
+    .action(async (opts) => {
+      try {
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const generateGeminiCliCoreInterfaceFlow = new IntGeminiCliFlow({
+          root: root,
+          verbose: isVerbose,
+        });
+        await generateGeminiCliCoreInterfaceFlow.run({
+          registry: registry,
+          opts: { verbose: isVerbose },
+          root: root,
+        });
+      } catch (error) {
+        console.error('Error during int gemini-cli:', error);
+        process.exit(1);
+      }
+      return;
+    });
+
+cmdInt.addCommand(cmdIntGeminiCli);
 
 let cmdIntKilocode = new Command('kilocode')
     .description('Generate Kilo Code interface configuration')
