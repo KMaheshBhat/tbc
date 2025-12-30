@@ -22,10 +22,10 @@ export class ExtractPrimeNameNode extends HAMINode<TBCMemoryStorage> {
     }
 
     async exec(params: ExtractPrimeNameInput): Promise<ExtractPrimeNameOutput> {
-        if (!params.name && !params.title) {
-            throw new Error('Prime record missing name/title');
+        if (!params.name && !params.title && !params.record_title) {
+            throw new Error('Prime record missing name/title/record_title');
         }
-        return params.name || params.title;
+        return params.name || params.title || params.record_title;
     }
 
     async post(shared: TBCMemoryStorage, _prepRes: ExtractPrimeNameInput, execRes: ExtractPrimeNameOutput): Promise<string | undefined> {

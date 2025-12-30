@@ -22,10 +22,10 @@ export class ExtractCompanionNameNode extends HAMINode<TBCMemoryStorage> {
     }
 
     async exec(params: ExtractCompanionNameInput): Promise<ExtractCompanionNameOutput> {
-        if (!params.name && !params.title) {
-            throw new Error('Companion record missing name/title');
+        if (!params.name && !params.title && !params.record_title) {
+            throw new Error('Companion record missing name/title/record_title');
         }
-        return params.name || params.title;
+        return params.name || params.title || params.record_title;
     }
 
     async post(shared: TBCMemoryStorage, _prepRes: ExtractCompanionNameInput, execRes: ExtractCompanionNameOutput): Promise<string | undefined> {
