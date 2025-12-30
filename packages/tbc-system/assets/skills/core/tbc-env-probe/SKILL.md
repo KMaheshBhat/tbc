@@ -4,9 +4,10 @@ record_type: specification
 record_tags:
   - c/public/tbc
 record_create_date: 2025-12-30 07:00:00 UTC
-record_title:  (`skills/core/tbc-env-probe`)
+record_title: Environment Awareness (`skills/core/tbc-env-probe`)
 specification_name: tbc-env-probe
 description: Use this skill upon instantiation or "Ejection" to orient the Companion to the host system.
+methods_supported: Gather Context, Eject Kernel
 ---
 # Environment Awareness (`tbc-env-probe`)
 

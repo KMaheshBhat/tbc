@@ -4,7 +4,7 @@ record_type: specification
 record_tags:
   - c/public/tbc
 record_create_date: 2025-12-30 07:00:00 UTC
-record_title:  (`skills/core/tbc-int-gen`)
+record_title: Interface Integration (`skills/core/tbc-int-gen`)
 specification_name: tbc-int-gen
 description: Use this skill when setting up a new interface to interact with the TBC repository.
 ---

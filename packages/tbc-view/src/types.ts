@@ -27,6 +27,8 @@ type TBCViewStorage = {
   generatedDexRecords?: Record<string, any>[];
   /** Generated dex extensions for storage operations. */
   generatedDexExtensions?: Record<string, any>[];
+  /** Generated dex skills for storage operations. */
+  generatedDexSkills?: Record<string, any>[];
   /** Records grouped by their record_type for dex generation. */
   recordsByType?: Record<string, any[]>;
   /** Array of records to store (for record-fs operations). */

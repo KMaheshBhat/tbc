@@ -8,7 +8,7 @@ import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
 import { IntProbeFlow, IntGenericFlow, IntGeminiCliFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
 import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
-import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
+import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow, RefreshSkillsFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();
 
@@ -185,9 +185,32 @@ let cmdDexExtensions = new Command('extensions')
         return;
     });
 
+let cmdDexSkills = new Command('skills')
+    .description('Refresh skills index')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = opts.root || cliOpts.root;
+            const refreshSkillsFlow = new RefreshSkillsFlow({
+                verbose: isVerbose,
+            });
+            await refreshSkillsFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during dex skills:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
 cmdDex.addCommand(cmdDexCore);
 cmdDex.addCommand(cmdDexRecords);
 cmdDex.addCommand(cmdDexExtensions);
+cmdDex.addCommand(cmdDexSkills);
 
 program.addCommand(cmdDex);
 

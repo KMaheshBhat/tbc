@@ -7,6 +7,7 @@ record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Memory and Record Operations (`skills/core/tbc-mem-ops`)
 specification_name: tbc-mem-ops
 description: Use this skill to read/write on long-term memory and perform accelerated operations, like id(UUID, TSID) generations.
+methods_supported: Persist Memories, Reflection
 ---
 # Memory & Record Operations (`tbc-mem-ops`)
 

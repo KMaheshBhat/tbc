@@ -7,6 +7,7 @@ record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Activity Workspace Management (`skills/core/tbc-act-ops`)
 specification_name: tbc-act-ops
 description: Use this skill to maintain activity state - to stop, backlog/pause, and close activity..
+methods_supported: Start Activity, Suspend Activity, Close Activity
 ---
 # Activity Workspace Management (`tbc-act-ops`)
 
