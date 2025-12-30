@@ -101,9 +101,21 @@ For each test:
 ```bash
 rm -rf _test/fresh-init
 mkdir _test/fresh-init
+cd _test/fresh-init
+git init
 ```
 
 This ensures **idempotent, reproducible runs**.
+
+### 4.3 CLI Installation
+
+Before testing CLI commands, install the TBC CLI globally:
+
+```bash
+bun run cli:install
+```
+
+This ensures you're using the built CLI rather than the development version. Use the `tbc` command for all testing.
 
 ## 5. CLI Test Matrix
 
@@ -218,6 +230,17 @@ tbc int goose --root ./_test/fresh-init
 Validate:
 
 - `.goosehints` created with correct content
+
+#### Generic Interface
+
+```bash
+tbc int generic --root ./_test/fresh-init
+```
+
+Validate:
+
+- `AGENTS.md` created in the repository root with the role definition content
+- Content matches the standard TBC role definition for the companion
 
 #### GitHub Copilot Interface
 

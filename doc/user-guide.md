@@ -266,7 +266,17 @@ When using an AI agent with TBC:
 
 Treat the agent as a **junior archivist**, not an oracle.
 
-### 13.1 Kilo Code Interface
+### 13.1 Generic Interface
+
+To enable a generic AI assistant interface:
+
+```bash
+tbc int generic
+```
+
+This generates an `AGENTS.md` file in the repository root with system instructions for AI assistants, allowing them to act as the TBC companion.
+
+### 13.2 Kilo Code Interface
 
 To enable Kilo Code AI assistant interface:
 
@@ -276,7 +286,7 @@ tbc int kilocode
 
 This generates a `.kilocodemodes` file in the repository root with system instructions for Kilo Code, allowing it to act as the TBC companion.
 
-### 13.2 Goose Interface
+### 13.3 Goose Interface
 
 To enable Goose AI assistant interface:
 
@@ -286,7 +296,7 @@ tbc int goose
 
 This generates a `.goosehints` file in the repository root with system instructions for Goose, allowing it to act as the TBC companion.
 
-### 13.3 GitHub Copilot Interface
+### 13.4 GitHub Copilot Interface
 
 To enable GitHub Copilot AI assistant interface:
 

@@ -21,6 +21,10 @@ type TBCInterfaceStorage = {
   companionId?: string;
   /** Companion name */
   companionName?: string;
+  /** Role definition for the companion */
+  roleDefinition?: string;
+  /** Records to be stored */
+  records?: Record<string, any>[];
 }
 
 export {

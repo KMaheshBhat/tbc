@@ -70,7 +70,12 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
     }
 
     private determineFileFormat(record: Record<string, any>): 'markdown' | 'json' | 'yaml' | 'raw' {
-        // Check filename extension first
+        // Check contentType first for interface files
+        if (record.contentType === 'text') {
+            return 'raw';
+        }
+
+        // Check filename extension
         if (record.filename) {
             if (record.filename.endsWith('.md')) {
                 return 'markdown';

@@ -72,7 +72,7 @@ TBC is implemented as a **monorepo** with modular packages that can be composed 
 | **tbc-view** | Index generation and dex management | RefreshCoreFlow, RefreshRecordsFlow, dex files |
 | **tbc-record-fs** | File system operations for records | fetch-records, store-records, file format handling |
 | **tbc-generator** | ID generation utilities | UUID v7, TSID generation flows |
-| **tbc-interface** | Cross-application interface flows | IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow |
+| **tbc-interface** | Cross-application interface flows | IntProbeFlow, IntGenericFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow |
 | **tbc-kilocode** | Kilo Code specific operations | generate-core for Kilo Code modes |
 | **tbc-goose** | Goose specific operations | generate-core for Goose hints |
 | **tbc-github-copilot** | GitHub Copilot specific operations | generate-core for Copilot instructions |
@@ -224,6 +224,7 @@ These are used both by the CLI and by agents.
 Key flows:
 
 - **IntProbeFlow**: Probes the environment for TBC CLI and system information
+- **IntGenericFlow**: Generates generic AI assistant interface configuration
 - **IntKilocodeFlow**: Generates Kilo Code interface configuration
 - **IntGooseFlow**: Generates Goose interface configuration
 - **IntGitHubCopilotFlow**: Generates GitHub Copilot interface configuration
@@ -282,6 +283,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc sys upgrade` | `SysUpgradeFlow` | `@tbc-frameworx/tbc-system` |
 | `tbc sys validate` | `SysValidateFlow` | `@tbc-frameworx/tbc-system` |
 | `tbc int probe` | `IntProbeFlow` | `@tbc-frameworx/tbc-interface` |
+| `tbc int generic` | `IntGenericFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow` | `@tbc-frameworx/tbc-view` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` | `@tbc-frameworx/tbc-generator` |
 | `tbc int kilocode` | `IntKilocodeFlow` | `@tbc-frameworx/tbc-interface` |

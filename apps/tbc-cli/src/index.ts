@@ -5,7 +5,7 @@ import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
 import { SysValidateFlow, SysInitFlow, SysUpgradeFlow } from '@tbc-frameworx/tbc-system';
 import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
-import { IntProbeFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
+import { IntProbeFlow, IntGenericFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
 import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
 import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow } from '@tbc-frameworx/tbc-view';
@@ -483,6 +483,31 @@ let cmdIntProbe = new Command('probe')
     });
 
 cmdInt.addCommand(cmdIntProbe);
+
+let cmdIntGeneric = new Command('generic')
+    .description('Generate generic AI assistant interface configuration')
+    .action(async (opts) => {
+      try {
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const generateGenericCoreInterfaceFlow = new IntGenericFlow({
+          root: root,
+          verbose: isVerbose,
+        });
+        await generateGenericCoreInterfaceFlow.run({
+          registry: registry,
+          opts: { verbose: isVerbose },
+          root: root,
+        });
+      } catch (error) {
+        console.error('Error during int generic:', error);
+        process.exit(1);
+      }
+      return;
+    });
+
+cmdInt.addCommand(cmdIntGeneric);
 
 let cmdIntKilocode = new Command('kilocode')
     .description('Generate Kilo Code interface configuration')

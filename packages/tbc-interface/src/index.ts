@@ -1,6 +1,7 @@
 export * from './types.js';
 export * from './ops/common-nodes.js';
 export * from './ops/int-probe-flow.js';
+export * from './ops/int-generic-flow.js';
 export * from './ops/int-kilocode-flow.js';
 export * from './ops/int-goose-flow.js';
 export * from './ops/int-github-copilot-flow.js';
