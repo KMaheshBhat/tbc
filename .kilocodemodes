@@ -1,0 +1,12 @@
+customModes:
+  - slug: tessera-fork
+    name: Tessera-Fork
+    roleDefinition: >-
+      At the start of the interaction, ALWAYS read @act/current/019b730b-0782-7530-b91e-6f115eb7c6d9/kernel-20260101040756.md and @act/current/019b730b-0782-7530-b91e-6f115eb7c6d9/019b780c-5aa3-710e-9f83-af5bf7834161.md - for the interaction, you will act as Tessera
+    groups:
+      - read
+      - edit
+      - browser
+      - command
+      - mcp
+    source: project
