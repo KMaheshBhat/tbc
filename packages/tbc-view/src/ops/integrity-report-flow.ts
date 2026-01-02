@@ -1,0 +1,76 @@
+import assert from "assert";
+import { Node } from "pocketflow";
+
+import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
+import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
+
+interface IntegrityReportFlowConfig {
+    verbose: boolean;
+    outputFormat: 'table' | 'json';
+}
+
+const IntegrityReportFlowConfigSchema: ValidationSchema = {
+    type: "object",
+    properties: {
+        verbose: { type: "boolean" },
+        outputFormat: { type: "string", enum: ["table", "json"] },
+    },
+    required: ["verbose", "outputFormat"],
+};
+
+export class IntegrityReportFlow extends HAMIFlow<Record<string, any>, IntegrityReportFlowConfig> {
+    startNode: Node;
+    config: IntegrityReportFlowConfig;
+
+    constructor(config: IntegrityReportFlowConfig) {
+        const startNode = new Node();
+        super(startNode, config);
+        this.startNode = startNode;
+        this.config = config;
+    }
+
+    kind(): string {
+        return "tbc-view:integrity-report-flow";
+    }
+
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode.bind(shared.registry);
+
+        shared.opts = { verbose: this.config.verbose };
+        shared.rootDirectory = shared.rootDirectory || process.cwd();
+
+        // Initialize ViewStore if not present
+        if (!shared.viewStore) {
+            const path = require('path');
+            const dbPath = path.join(shared.rootDirectory, 'dex', 'tbc-view.db');
+            const { ViewStore } = await import('./view-store.js');
+            shared.viewStore = new ViewStore(dbPath);
+        }
+
+        // Wire the reporting pipeline
+        this.startNode
+            .next(n('tbc-view:health-summary-query'))
+            .next(n('tbc-view:zombie-detection'))
+            .next(n('tbc-view:orphan-detection'))
+            .next(n('tbc-view:schema-violation-check'))
+            .next(n('tbc-view:repair-recommendations'))
+            .next(n('tbc-view:report-generator'))
+            .next(n('core:log-result', {
+                resultKey: 'integrityReport',
+                format: this.config.outputFormat,
+                prefix: 'SRE Integrity Report:',
+                verbose: this.config.verbose
+            }));
+
+        return super.run(shared);
+    }
+
+    validateConfig(config: IntegrityReportFlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, IntegrityReportFlowConfigSchema);
+        return {
+            valid: result.isValid,
+            errors: result.errors || [],
+        };
+    }
+}

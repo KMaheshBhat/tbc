@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
@@ -8,7 +8,7 @@ import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
 import { IntProbeFlow, IntGenericFlow, IntGeminiCliFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
 import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
-import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow, RefreshSkillsFlow } from '@tbc-frameworx/tbc-view';
+import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow, RefreshSkillsFlow, GraphMinerFlow, IntegrityReportFlow, ViewStatusFlow, ViewAuditFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();
 
@@ -213,6 +213,118 @@ cmdDex.addCommand(cmdDexExtensions);
 cmdDex.addCommand(cmdDexSkills);
 
 program.addCommand(cmdDex);
+
+let cmdView = new Command('view')
+    .description('View operations for TBC health and indexing');
+
+let cmdViewIndex = new Command('index')
+    .description('Index filesystem records into TKG database with watermark checks')
+    .action(async () => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const graphMinerFlow = new GraphMinerFlow({
+                verbose: isVerbose,
+            });
+            await graphMinerFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during view index:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+let cmdViewHealth = new Command('health')
+    .description('Generate comprehensive SRE integrity report')
+    .option('--format <format>', 'Output format: table or json', 'table')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const format = opts.format as 'table' | 'json';
+            if (!['table', 'json'].includes(format)) {
+                console.error('Error: --format must be one of: table, json');
+                process.exit(1);
+            }
+            const integrityReportFlow = new IntegrityReportFlow({
+                verbose: isVerbose,
+                outputFormat: format,
+            });
+            await integrityReportFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during view health:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+let cmdViewStatus = new Command('status')
+    .description('Display quick system health summary')
+    .action(async () => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const viewStatusFlow = new ViewStatusFlow({
+                verbose: isVerbose,
+            });
+            await viewStatusFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during view status:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+let cmdViewAudit = new Command('audit')
+    .description('Perform comprehensive system audit (index + health report)')
+    .option('--format <format>', 'Output format: table or json', 'table')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const format = opts.format as 'table' | 'json';
+            if (!['table', 'json'].includes(format)) {
+                console.error('Error: --format must be one of: table, json');
+                process.exit(1);
+            }
+            const viewAuditFlow = new ViewAuditFlow({
+                verbose: isVerbose,
+                outputFormat: format,
+            });
+            await viewAuditFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during view audit:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+cmdView.addCommand(cmdViewIndex);
+cmdView.addCommand(cmdViewHealth);
+cmdView.addCommand(cmdViewStatus);
+cmdView.addCommand(cmdViewAudit);
+
+program.addCommand(cmdView);
 
 let cmdGen = new Command('gen')
     .description('Generate IDs')

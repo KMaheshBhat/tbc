@@ -1,3 +1,5 @@
+import { ViewStore } from "./ops/view-store.js";
+
 /**
  * Options for TBC view operations.
  * Defines configuration flags that can be used across TBC view operations.
@@ -35,6 +37,85 @@ type TBCViewStorage = {
   records?: Record<string, any>[];
   /** Collection directory to store records in (for record-fs operations). */
   collection?: string;
+  /** ViewStore instance for TKG database operations. */
+  viewStore?: ViewStore;
+  /** Files discovered by FS walker. */
+  discoveredFiles?: Array<{
+    id: string;
+    collection: string;
+    filePath: string;
+    hash: string;
+    mtime: number;
+  }>;
+  /** Files that have changed since last indexing. */
+  changedFiles?: Array<{
+    id: string;
+    collection: string;
+    filePath: string;
+    hash: string;
+    mtime: number;
+    isNew: boolean;
+  }>;
+  /** Records processed by metadata extractor. */
+  processedRecords?: Array<{
+    node: {
+      id: string;
+      collection: string;
+      record_type: string;
+      hash: string;
+      last_seen_at: number;
+      file_path: string;
+    };
+    attributes: Record<string, any>;
+    edges: Array<{
+      target_id: string;
+      edge_type: string;
+      created_at: number;
+    }>;
+  }>;
+  /** Watermark check results. */
+  watermarkResults?: Array<{
+    nodeId: string;
+    watermarks: Record<string, { status: number; message?: string }>;
+  }>;
+  /** System health summary. */
+  healthSummary?: {
+    total_records: number;
+    healthy_records: number;
+    health_percentage: number;
+  };
+  /** Zombie links detected. */
+  zombieLinks?: Array<{
+    source_id: string;
+    target_id: string;
+    source_collection: string;
+    source_type: string;
+    edge_type: string;
+  }>;
+  /** Orphan records detected. */
+  orphanRecords?: Array<{
+    id: string;
+    collection: string;
+    record_type: string;
+    title?: string;
+  }>;
+  /** Schema violations detected. */
+  schemaViolations?: Array<{
+    id: string;
+    collection: string;
+    record_type: string;
+    violation_details?: string;
+  }>;
+  /** Repair recommendations. */
+  repairRecommendations?: Array<{
+    issue_type: string;
+    severity: 'critical' | 'warning' | 'info';
+    description: string;
+    affected_records: number;
+    recommended_action: string;
+  }>;
+  /** Integrity report data. */
+  integrityReport?: any;
 }
 
 export type {
