@@ -1,0 +1,144 @@
+{
+  "id": "019b7f35-c6c6-7399-b002-04477b02443d",
+  "startedAt": "2026-01-02T14:56:29.073Z",
+  "endedAt": "2026-01-02T14:56:30.322Z",
+  "endpoint": "search",
+  "formState": {
+    "extractSetupCompleted": false,
+    "urls": [],
+    "extractSchema": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "company_mission": {
+          "type": "string"
+        },
+        "supports_sso": {
+          "type": "boolean"
+        },
+        "is_open_source": {
+          "type": "boolean"
+        },
+        "is_in_yc": {
+          "type": "boolean"
+        }
+      }
+    },
+    "extractPrompt": "Extract the company details, following the schema.",
+    "enableWebSearch": false,
+    "constrainUrls": false,
+    "options": {
+      "onlyMainContent": false,
+      "parsePDF": true,
+      "stealthMode": false,
+      "excludeTags": [],
+      "includeTags": [],
+      "waitFor": "",
+      "timeout": "",
+      "maxAge": "2 days",
+      "ignoreSitemap": false,
+      "crawlEntireDomain": false,
+      "sitemap": "include",
+      "limit": "10",
+      "maxDepth": "",
+      "excludePaths": [],
+      "includePaths": [],
+      "includeSubdomains": false,
+      "search": "",
+      "scrapeContentFromSearchResults": true,
+      "timeBasedSearch": "",
+      "location": "",
+      "prompt": ""
+    },
+    "formats": [],
+    "sources": [
+      "web"
+    ],
+    "categories": [],
+    "jsonSchema": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "company_name": {
+          "type": "string"
+        },
+        "company_description": {
+          "type": "string"
+        }
+      }
+    },
+    "jsonPrompt": "",
+    "agent": {},
+    "url": "SQLite vector extension support",
+    "endpoint": "search"
+  },
+  "status": "success",
+  "version": "ToGhfD8B8LaLSbhsTqpXi",
+  "isPreview": false,
+  "web": [
+    {
+      "url": "https://github.com/sqliteai/sqlite-vector",
+      "title": "sqliteai/sqlite-vector",
+      "description": "SQLite Vector is a cross-platform, ultra-efficient SQLite extension that brings vector search capabilities to your embedded database.",
+      "position": 1,
+      "category": "github"
+    },
+    {
+      "url": "https://www.sqlite.ai/sqlite-vector",
+      "title": "SQLite Vector - A blazing fast and memory efficient vector ...",
+      "description": "SQLite-Vector is a cross-platform, ultra-efficient SQLite extension that brings vector search capabilities directly into your embedded database Whether you're ...",
+      "position": 2
+    },
+    {
+      "url": "https://www.reddit.com/r/LocalLLaMA/comments/1ehlazq/introducing_sqlitevec_v010_a_vector_search_sqlite/",
+      "title": "Introducing sqlite-vec v0.1.0: a vector search ...",
+      "description": "A no-dependency SQLite extension written entirely in C that runs everywhere (MacOS, Linux, Windows, WASM in the browser, Raspberry Pis, etc).",
+      "position": 3
+    },
+    {
+      "url": "https://medium.com/@stephenc211/how-sqlite-vec-works-for-storing-and-querying-vector-embeddings-165adeeeceea",
+      "title": "How sqlite-vec Works for Storing and Querying Vector ...",
+      "description": "sqlite-vec extends SQLite with native vector support. It introduces a new vector data type and adds a suite of functions for working with vectors.",
+      "position": 4
+    },
+    {
+      "url": "https://docs.langchain.com/oss/python/integrations/vectorstores/sqlitevec",
+      "title": "SQLiteVec - Docs by LangChain",
+      "description": "SQLite-Vec is an SQLite extension designed for vector search, emphasizing local-first operations and easy integration into applications without external ...",
+      "position": 5
+    },
+    {
+      "url": "https://github.com/asg017/sqlite-vec",
+      "title": "asg017/sqlite-vec: A vector search ...",
+      "description": "Store and query float, int8, and binary vectors in vec0 virtual tables; Written in pure C, no dependencies, runs anywhere SQLite runs (Linux/MacOS/Windows, ...",
+      "position": 6,
+      "category": "github"
+    },
+    {
+      "url": "https://observablehq.com/@asg017/introducing-sqlite-vss",
+      "title": "Introducing sqlite-vss: A SQLite Extension for Vector Search",
+      "description": "sqlite-vss is a new SQLite extension that adds vector search capabilities to SQLite, based on Faiss. It's several steps above storing embeddings as JSON or ...",
+      "position": 7
+    },
+    {
+      "url": "https://turso.tech/blog/using-sqlite-as-your-llm-vector-database",
+      "title": "Using SQLite as your LLM Vector Database",
+      "description": "And now Turso has introduced native vector embedding support for SQLite via their Open Contribution fork libSQL. But more on this later ...",
+      "position": 8
+    },
+    {
+      "url": "https://alexgarcia.xyz/blog/2024/sqlite-vec-stable-release/index.html",
+      "title": "Introducing sqlite-vec v0.1.0: a vector search SQLite extension ...",
+      "description": "sqlite-vec supports bit vectors alongside \"regular\" float vectors. These take up much less space — 1 bit per element, a 32x reduction! This does ...",
+      "position": 9
+    },
+    {
+      "url": "https://forum.xojo.com/t/does-xojos-sqlite-implementation-support-this/84807",
+      "title": "Does Xojo's SQLite implementation support this?",
+      "description": "From my research, it looks like SQLite doesn't natively support vector search but there are many extensions to SQLite that do, for example:.",
+      "position": 10
+    }
+  ],
+  "news": [],
+  "images": []
+}
