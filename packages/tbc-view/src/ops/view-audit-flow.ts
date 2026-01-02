@@ -44,7 +44,7 @@ export class ViewAuditFlow extends HAMIFlow<Record<string, any>, ViewAuditFlowCo
         if (!shared.viewStore) {
             const path = require('path');
             const dbPath = path.join(shared.rootDirectory, 'dex', 'tbc-view.db');
-            const { ViewStore } = await import('./view-store.js');
+            const { ViewStore } = await import('../store/view-store.js');
             shared.viewStore = new ViewStore(dbPath);
         }
 

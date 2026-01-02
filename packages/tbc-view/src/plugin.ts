@@ -12,7 +12,11 @@ import { GraphMinerFlow } from "./ops/graph-miner-flow.js";
 import { FSWalkerNode } from "./ops/fs-walker.js";
 import { ChangeDetectorNode } from "./ops/change-detector.js";
 import { MetadataExtractorNode } from "./ops/metadata-extractor.js";
-import { WatermarkExecutorNode } from "./ops/watermark-executor.js";
+import { PresenceWatermarkNode } from "./ops/presence-watermark-node.js";
+import { SchemaWatermarkNode } from "./ops/schema-watermark-node.js";
+import { StructureWatermarkNode } from "./ops/structure-watermark-node.js";
+import { LinksWatermarkNode } from "./ops/links-watermark-node.js";
+import { VectorWatermarkNode } from "./ops/vector-watermark-node.js";
 import { IntegrityReportFlow } from "./ops/integrity-report-flow.js";
 import { HealthSummaryQueryNode } from "./ops/health-summary-query.js";
 import { ZombieDetectionNode } from "./ops/zombie-detection.js";
@@ -40,7 +44,6 @@ import { ViewAuditFlow } from "./ops/view-audit-flow.js";
  * - `tbc-view:fs-walker`: Discovers files in TBC collections
  * - `tbc-view:change-detector`: Detects changed files since last indexing
  * - `tbc-view:metadata-extractor`: Parses YAML frontmatter and extracts links
- * - `tbc-view:watermark-executor`: Executes integrity watermark checks
  * - `tbc-view:integrity-report-flow`: Generates comprehensive SRE integrity reports
  * - `tbc-view:health-summary-query`: Queries system health summary
  * - `tbc-view:zombie-detection`: Detects broken links (zombies)
@@ -65,7 +68,11 @@ const TBCViewPlugin = createPlugin(
         FSWalkerNode as any,
         ChangeDetectorNode as any,
         MetadataExtractorNode as any,
-        WatermarkExecutorNode as any,
+        PresenceWatermarkNode as any,
+        SchemaWatermarkNode as any,
+        StructureWatermarkNode as any,
+        LinksWatermarkNode as any,
+        VectorWatermarkNode as any,
         IntegrityReportFlow as any,
         HealthSummaryQueryNode as any,
         ZombieDetectionNode as any,

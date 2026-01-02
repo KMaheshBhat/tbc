@@ -207,17 +207,7 @@ let cmdDexSkills = new Command('skills')
         return;
     });
 
-cmdDex.addCommand(cmdDexCore);
-cmdDex.addCommand(cmdDexRecords);
-cmdDex.addCommand(cmdDexExtensions);
-cmdDex.addCommand(cmdDexSkills);
-
-program.addCommand(cmdDex);
-
-let cmdView = new Command('view')
-    .description('View operations for TBC health and indexing');
-
-let cmdViewIndex = new Command('index')
+let cmdDexIndex = new Command('index')
     .description('Index filesystem records into TKG database with watermark checks')
     .action(async () => {
         try {
@@ -233,13 +223,13 @@ let cmdViewIndex = new Command('index')
                 root: root,
             });
         } catch (error) {
-            console.error('Error during view index:', error);
+            console.error('Error during dex index:', error);
             process.exit(1);
         }
         return;
     });
 
-let cmdViewHealth = new Command('health')
+let cmdDexHealth = new Command('health')
     .description('Generate comprehensive SRE integrity report')
     .option('--format <format>', 'Output format: table or json', 'table')
     .action(async (opts) => {
@@ -262,13 +252,13 @@ let cmdViewHealth = new Command('health')
                 root: root,
             });
         } catch (error) {
-            console.error('Error during view health:', error);
+            console.error('Error during dex health:', error);
             process.exit(1);
         }
         return;
     });
 
-let cmdViewStatus = new Command('status')
+let cmdDexStatus = new Command('status')
     .description('Display quick system health summary')
     .action(async () => {
         try {
@@ -284,13 +274,13 @@ let cmdViewStatus = new Command('status')
                 root: root,
             });
         } catch (error) {
-            console.error('Error during view status:', error);
+            console.error('Error during dex status:', error);
             process.exit(1);
         }
         return;
     });
 
-let cmdViewAudit = new Command('audit')
+let cmdDexAudit = new Command('audit')
     .description('Perform comprehensive system audit (index + health report)')
     .option('--format <format>', 'Output format: table or json', 'table')
     .action(async (opts) => {
@@ -313,18 +303,23 @@ let cmdViewAudit = new Command('audit')
                 root: root,
             });
         } catch (error) {
-            console.error('Error during view audit:', error);
+            console.error('Error during dex audit:', error);
             process.exit(1);
         }
         return;
     });
 
-cmdView.addCommand(cmdViewIndex);
-cmdView.addCommand(cmdViewHealth);
-cmdView.addCommand(cmdViewStatus);
-cmdView.addCommand(cmdViewAudit);
+cmdDex.addCommand(cmdDexCore);
+cmdDex.addCommand(cmdDexRecords);
+cmdDex.addCommand(cmdDexExtensions);
+cmdDex.addCommand(cmdDexSkills);
+cmdDex.addCommand(cmdDexIndex);
+cmdDex.addCommand(cmdDexHealth);
+cmdDex.addCommand(cmdDexStatus);
+cmdDex.addCommand(cmdDexAudit);
 
-program.addCommand(cmdView);
+program.addCommand(cmdDex);
+
 
 let cmdGen = new Command('gen')
     .description('Generate IDs')

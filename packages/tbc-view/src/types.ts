@@ -1,4 +1,4 @@
-import { ViewStore } from "./ops/view-store.js";
+import { ViewStore } from "./store/view-store.js";
 
 /**
  * Options for TBC view operations.
@@ -77,6 +77,31 @@ type TBCViewStorage = {
   watermarkResults?: Array<{
     nodeId: string;
     watermarks: Record<string, { status: number; message?: string }>;
+  }>;
+  /** Presence watermark results. */
+  presenceResults?: Array<{
+    nodeId: string;
+    presence: { status: number; message?: string };
+  }>;
+  /** Schema watermark results. */
+  schemaResults?: Array<{
+    nodeId: string;
+    schema: { status: number; message?: string };
+  }>;
+  /** Structure watermark results. */
+  structureResults?: Array<{
+    nodeId: string;
+    structure: { status: number; message?: string };
+  }>;
+  /** Links watermark results. */
+  linksResults?: Array<{
+    nodeId: string;
+    links: { status: number; message?: string };
+  }>;
+  /** Vector watermark results. */
+  vectorResults?: Array<{
+    nodeId: string;
+    vector: { status: number; message?: string };
   }>;
   /** System health summary. */
   healthSummary?: {

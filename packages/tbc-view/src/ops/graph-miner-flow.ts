@@ -4,7 +4,7 @@ import path from "path";
 
 import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
 import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
-import { ViewStore } from "./view-store.js";
+import { ViewStore } from "../store/view-store.js";
 import type { TBCViewStorage } from "../types.js";
 
 interface GraphMinerFlowConfig {
@@ -52,7 +52,11 @@ export class GraphMinerFlow extends HAMIFlow<Record<string, any>, GraphMinerFlow
             .next(n('tbc-view:fs-walker'))
             .next(n('tbc-view:change-detector'))
             .next(n('tbc-view:metadata-extractor'))
-            .next(n('tbc-view:watermark-executor'))
+            .next(n('tbc-view:presence-watermark'))
+            .next(n('tbc-view:schema-watermark'))
+            .next(n('tbc-view:structure-watermark'))
+            .next(n('tbc-view:links-watermark'))
+            .next(n('tbc-view:vector-watermark'))
             .next(n('core:log-result', {
                 resultKey: 'indexingResults',
                 format: 'table' as const,
