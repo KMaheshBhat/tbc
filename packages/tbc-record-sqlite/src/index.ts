@@ -1,0 +1,1 @@
+export { TBCRecordSQLitePlugin } from "./plugin.js";

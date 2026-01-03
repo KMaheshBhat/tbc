@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "tbc",
@@ -150,6 +151,18 @@
         "typescript": "^5.0.0",
       },
     },
+    "packages/tbc-record-sqlite": {
+      "name": "@tbc-frameworx/tbc-record-sqlite",
+      "version": "0.1.0",
+      "dependencies": {
+        "@hami-frameworx/core": "0.1.1",
+        "pocketflow": "^1.0.4",
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+      },
+    },
     "packages/tbc-system": {
       "name": "@tbc-frameworx/tbc-system",
       "version": "0.1.0",
@@ -198,6 +211,8 @@
     "@tbc-frameworx/tbc-memory": ["@tbc-frameworx/tbc-memory@workspace:packages/tbc-memory"],
 
     "@tbc-frameworx/tbc-record-fs": ["@tbc-frameworx/tbc-record-fs@workspace:packages/tbc-record-fs"],
+
+    "@tbc-frameworx/tbc-record-sqlite": ["@tbc-frameworx/tbc-record-sqlite@workspace:packages/tbc-record-sqlite"],
 
     "@tbc-frameworx/tbc-system": ["@tbc-frameworx/tbc-system@workspace:packages/tbc-system"],
 

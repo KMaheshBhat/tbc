@@ -1,7 +1,7 @@
 {
-  "name": "@tbc-frameworx/tbc-view",
+  "name": "@tbc-frameworx/tbc-record-sqlite",
   "version": "0.1.0",
-  "description": "TBC View operations library",
+  "description": "TBC SQLite operations library",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -10,13 +10,12 @@
     "build": "bunx tsc",
     "dev": "bun run build"
   },
-  "dependencies": {
-    "@hami-frameworx/core": "0.1.1",
-    "gray-matter": "4.0.3",
-    "pocketflow": "^1.0.4"
-  },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@hami-frameworx/core": "0.1.1",
+    "pocketflow": "^1.0.4"
   }
 }

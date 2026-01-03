@@ -71,6 +71,7 @@ TBC is implemented as a **monorepo** with modular packages that can be composed 
 | **tbc-system** | System lifecycle, validation, initialization | SysInitFlow, SysValidateFlow, probe operations |
 | **tbc-view** | Index generation and dex management | RefreshCoreFlow, RefreshRecordsFlow, dex files |
 | **tbc-record-fs** | File system operations for records | fetch-records, store-records, file format handling |
+| **tbc-record-sqlite** | SQLite database operations for records | fetch-records, store-records, fetch-relations, store-relations |
 | **tbc-generator** | ID generation utilities | UUID v7, TSID generation flows |
 | **tbc-interface** | Cross-application interface flows | IntProbeFlow, IntGenericFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow |
 | **tbc-gemini** | Gemini CLI specific operations | generate-core for Gemini CLI configuration |
@@ -211,7 +212,32 @@ When fetching a record by ID, files are searched in this order:
 
 This allows flexibility while preserving determinism.
 
-### 6.4 `@tbc-frameworx/tbc-generator`
+### 6.4 `@tbc-frameworx/tbc-record-sqlite`
+
+**Responsibility**: SQLite database operations for records and relationships.
+
+Database Schema:
+
+- **nodes**: Core entity storage (id, collection, record_type, hash, timestamps)
+- **node_attributes**: Extensible key-value metadata for nodes
+- **edges**: Directed relationships between records
+- **edge_attributes**: Metadata for relationships
+
+#### Operations
+
+- `fetch-records`: Retrieve records by IDs from SQLite database
+- `fetch-all-ids`: Get all record IDs from a collection
+- `store-records`: Persist records with metadata
+- `fetch-relations`: Query relationships between records
+- `store-relations`: Store relationship data
+
+#### Database Selection
+
+Operations accept a `database` parameter to select between:
+- `records`: General TBC record indexing
+- `meta`: System metadata and watermarks
+
+### 6.5 `@tbc-frameworx/tbc-generator`
 
 **Responsibility**: ID generation utilities.
 
@@ -222,7 +248,7 @@ Supported generators:
 
 These are used both by the CLI and by agents.
 
-### 6.5 `@tbc-frameworx/tbc-interface`
+### 6.6 `@tbc-frameworx/tbc-interface`
 
 **Responsibility**: Interface operations for generating configurations for various AI tools.
 
@@ -237,7 +263,7 @@ Key flows:
 
 This package provides reusable flows that can be used by different application types (CLI, GUI, server) to expose TBC functionality to various AI tools.
 
-### 6.6 `@tbc-frameworx/tbc-kilocode`
+### 6.7 `@tbc-frameworx/tbc-kilocode`
 
 **Responsibility**: Kilo Code interface operations.
 
@@ -245,7 +271,7 @@ Key operations:
 
 - **generate-core**: Generates Kilo Code modes configuration for the companion
 
-### 6.7 `@tbc-frameworx/tbc-goose`
+### 6.8 `@tbc-frameworx/tbc-goose`
 
 **Responsibility**: Goose interface operations.
 
@@ -253,7 +279,7 @@ Key operations:
 
 - **generate-core**: Generates Goose hints configuration for the companion
 
-### 6.8 `@tbc-frameworx/tbc-github-copilot`
+### 6.9 `@tbc-frameworx/tbc-github-copilot`
 
 **Responsibility**: GitHub Copilot interface operations.
 
@@ -261,7 +287,7 @@ Key operations:
 
 - **generate-core**: Generates GitHub Copilot instructions configuration for the companion
 
-### 6.9 `@tbc-frameworx/tbc-memory`
+### 6.10 `@tbc-frameworx/tbc-memory`
 
 **Responsibility**: Memory operations for accessing and manipulating TBC records.
 
@@ -273,7 +299,7 @@ Key node categories:
 
 This package provides reusable HAMINodes for memory operations that can be used across different TBC packages and applications. The nodes follow proper HAMI patterns with prep/exec/post methods for better testability and reusability.
 
-### 6.10 `@tbc-frameworx/tbc-view` (Extended)
+### 6.11 `@tbc-frameworx/tbc-view` (Extended)
 
 **Responsibility**: View operations including indexing and dex generation (extended with skills support).
 
