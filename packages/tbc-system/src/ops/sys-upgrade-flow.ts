@@ -31,13 +31,45 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
     }
 
     kind(): string {
-        return "tbc-cli:sys-upgrade-flow";
+        return "tbc-system:sys-upgrade-flow";
+    }
+
+    async prep(shared: Record<string, any>): Promise<void> {
+        assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode.bind(shared.registry);
+        const upgrade = new Node();
+        const resultLog = new Node();
+        // Wire the flow
+        this.startNode
+            .next(n('tbc-system:validate', {
+                verbose: this.config.verbose,
+            }))
+            .next(upgrade)
+            ;
+        upgrade
+            .next(n('tbc-system:backup-sys'))
+            .next(n('tbc-system:backup-skills'))
+            .next(n('tbc-system:init'))
+            .next(n('tbc-system:copy-assets'))
+            .next(n('tbc-system:restore-root'))
+            .next(n('tbc-system:restore-sys-extensions'))
+            .next(n('tbc-system:restore-skill-extensions'))
+            .next(n('tbc-system:validate', {
+                verbose: this.config.verbose,
+            }))
+            .next(resultLog)
+            ;
+        resultLog
+            .next(logTableNode(shared['registry'], 'backupSysResults'))
+            .next(logTableNode(shared['registry'], 'initResults'))
+            .next(logTableNode(shared['registry'], 'copyAssetResults'))
+            .next(logTableNode(shared['registry'], 'restoreRootResults'))
+            .next(logTableNode(shared['registry'], 'restoreExtensionsResults'))
+            .next(logTableNode(shared['registry'], 'restoreSkillExtensionsResults'))
+            .next(logTableNode(shared['registry'], 'messages'));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
-        assert(shared.registry, 'registry is required');
-        const n = shared.registry.createNode.bind(shared.registry);
-
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
 
@@ -52,39 +84,6 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
         const packageDir = resolve(currentDir, '../..'); // Always package root
 
         shared.assetsPath = join(packageDir, 'assets');
-
-        const upgrade = new Node();
-        const resultLog = new Node();
-
-        // Wire the flow
-        this.startNode
-            .next(n('tbc-system:validate', {
-                verbose: this.config.verbose,
-            }))
-            .next(upgrade);
-
-        upgrade
-            .next(n('tbc-system:backup-sys'))
-            .next(n('tbc-system:backup-skills'))
-            .next(n('tbc-system:init'))
-            .next(n('tbc-system:copy-assets'))
-            .next(n('tbc-system:restore-root'))
-            .next(n('tbc-system:restore-sys-extensions'))
-            .next(n('tbc-system:restore-skill-extensions'))
-            .next(n('tbc-system:validate', {
-                verbose: this.config.verbose,
-            }))
-            .next(resultLog);
-
-        resultLog
-            .next(logTableNode(shared['registry'], 'backupSysResults'))
-            .next(logTableNode(shared['registry'], 'initResults'))
-            .next(logTableNode(shared['registry'], 'copyAssetResults'))
-            .next(logTableNode(shared['registry'], 'restoreRootResults'))
-            .next(logTableNode(shared['registry'], 'restoreExtensionsResults'))
-            .next(logTableNode(shared['registry'], 'restoreSkillExtensionsResults'))
-            .next(logTableNode(shared['registry'], 'messages'));
-
         return super.run(shared);
     }
 

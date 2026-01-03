@@ -33,20 +33,9 @@ export class IntegrityReportFlow extends HAMIFlow<Record<string, any>, Integrity
         return "tbc-view:integrity-report-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        shared.opts = { verbose: this.config.verbose };
-        shared.rootDirectory = shared.rootDirectory || process.cwd();
-
-        // Initialize ViewStore if not present
-        if (!shared.viewStore) {
-            const path = require('path');
-            const dbPath = path.join(shared.rootDirectory, 'dex', 'tbc-view.db');
-            const { ViewStore } = await import('../store/view-store.js');
-            shared.viewStore = new ViewStore(dbPath);
-        }
 
         // Wire the reporting pipeline
         this.startNode
@@ -61,7 +50,21 @@ export class IntegrityReportFlow extends HAMIFlow<Record<string, any>, Integrity
                 format: this.config.outputFormat,
                 prefix: 'SRE Integrity Report:',
                 verbose: this.config.verbose
-            }));
+            }))
+            ;
+    }
+
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = { verbose: this.config.verbose };
+        shared.rootDirectory = shared.rootDirectory || process.cwd();
+
+        // Initialize ViewStore if not present
+        if (!shared.viewStore) {
+            const path = require('path');
+            const dbPath = path.join(shared.rootDirectory, 'dex', 'tbc-view.db');
+            const { ViewStore } = await import('../store/view-store.js');
+            shared.viewStore = new ViewStore(dbPath);
+        }
 
         return super.run(shared);
     }

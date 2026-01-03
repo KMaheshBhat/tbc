@@ -3,12 +3,9 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { SysValidateFlow, SysInitFlow, SysUpgradeFlow } from '@tbc-frameworx/tbc-system';
-import { GenUuidFlow, GenTsidFlow } from '@tbc-frameworx/tbc-generator';
-import { IntProbeFlow, IntGenericFlow, IntGeminiCliFlow, IntKilocodeFlow, IntGooseFlow, IntGitHubCopilotFlow } from '@tbc-frameworx/tbc-interface';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
 import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
-import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow, RefreshSkillsFlow, GraphMinerFlow, IntegrityReportFlow, ViewStatusFlow, ViewAuditFlow } from '@tbc-frameworx/tbc-view';
+import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow, RefreshSkillsFlow, GraphMinerFlow } from '@tbc-frameworx/tbc-view';
 
 const { registry } = await bootstrap();
 
@@ -35,14 +32,12 @@ let cmdSysInit = new Command('init')
             const root = cliOpts.root;
             const companion = opts.companion;
             const prime = opts.prime;
-
             // Validation: both companion and prime must be provided
             if (!companion || !prime) {
                 console.error('Error: Both --companion and --prime flags are required');
                 process.exit(1);
             }
-
-            const initFlow = new SysInitFlow({
+            const initFlow = registry.createNode('tbc-system:sys-init-flow', {
                 root: root,
                 verbose: isVerbose,
                 companion: companion,
@@ -68,8 +63,7 @@ let cmdSysUpgrade = new Command('upgrade')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-
-            const upgradeFlow = new SysUpgradeFlow({
+            const upgradeFlow = registry.createNode('tbc-system:sys-upgrade-flow', {
                 root: root,
                 verbose: isVerbose,
             });
@@ -94,7 +88,7 @@ let cmdSysValidate = new Command('validate')
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
             const opts = { verbose: isVerbose };
-            const validateFlow = new SysValidateFlow({
+            const validateFlow = registry.createNode('tbc-system:sys-validate-flow', {
                 verbose: opts.verbose,
             });
             await validateFlow.run({
@@ -242,7 +236,7 @@ let cmdDexHealth = new Command('health')
                 console.error('Error: --format must be one of: table, json');
                 process.exit(1);
             }
-            const integrityReportFlow = new IntegrityReportFlow({
+            const integrityReportFlow = registry.createNode('tbc-view:integrity-report-flow', {
                 verbose: isVerbose,
                 outputFormat: format,
             });
@@ -265,7 +259,7 @@ let cmdDexStatus = new Command('status')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const viewStatusFlow = new ViewStatusFlow({
+            const viewStatusFlow = registry.createNode('tbc-view:view-status-flow', {
                 verbose: isVerbose,
             });
             await viewStatusFlow.run({
@@ -293,7 +287,7 @@ let cmdDexAudit = new Command('audit')
                 console.error('Error: --format must be one of: table, json');
                 process.exit(1);
             }
-            const viewAuditFlow = new ViewAuditFlow({
+            const viewAuditFlow = registry.createNode('tbc-view:view-audit-flow', {
                 verbose: isVerbose,
                 outputFormat: format,
             });
@@ -320,7 +314,6 @@ cmdDex.addCommand(cmdDexAudit);
 
 program.addCommand(cmdDex);
 
-
 let cmdGen = new Command('gen')
     .description('Generate IDs')
     .option('--root <path>', 'Root directory')
@@ -334,7 +327,7 @@ let cmdGenUuid = new Command('uuid')
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
             const count = parseInt(cmd.parent.opts().count, 10);
-            const genUuidFlow = new GenUuidFlow({
+            const genUuidFlow = registry.createNode('tbc-generator:gen-uuid', {
                 verbose: isVerbose,
             });
             await genUuidFlow.run({
@@ -349,6 +342,7 @@ let cmdGenUuid = new Command('uuid')
         }
         return;
     });
+cmdGen.addCommand(cmdGenUuid);
 
 let cmdGenTsid = new Command('tsid')
     .description('Generate a timestamp ID')
@@ -358,7 +352,7 @@ let cmdGenTsid = new Command('tsid')
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
             const count = parseInt(cmd.parent.opts().count, 10);
-            const genTsidFlow = new GenTsidFlow({
+            const genTsidFlow = registry.createNode('tbc-generator:gen-tsid', {
                 verbose: isVerbose,
             });
             await genTsidFlow.run({
@@ -373,8 +367,6 @@ let cmdGenTsid = new Command('tsid')
         }
         return;
     });
-
-cmdGen.addCommand(cmdGenUuid);
 cmdGen.addCommand(cmdGenTsid);
 
 program.addCommand(cmdGen);
@@ -410,7 +402,6 @@ let cmdMemCompanion = new Command('companion')
         }
         return;
     });
-
 cmdMem.addCommand(cmdMemCompanion);
 
 let cmdMemPrime = new Command('prime')
@@ -441,7 +432,6 @@ let cmdMemPrime = new Command('prime')
         }
         return;
     });
-
 cmdMem.addCommand(cmdMemPrime);
 
 let cmdMemStub = new Command('stub')
@@ -472,7 +462,6 @@ let cmdMemStub = new Command('stub')
         }
         return;
     });
-
 cmdMem.addCommand(cmdMemStub);
 
 program.addCommand(cmdMem);
@@ -503,7 +492,6 @@ let cmdActStart = new Command('start')
         }
         return;
     });
-
 cmdAct.addCommand(cmdActStart);
 
 let cmdActBacklog = new Command('backlog')
@@ -529,7 +517,6 @@ let cmdActBacklog = new Command('backlog')
         }
         return;
     });
-
 cmdAct.addCommand(cmdActBacklog);
 
 let cmdActClose = new Command('close')
@@ -555,7 +542,6 @@ let cmdActClose = new Command('close')
         }
         return;
     });
-
 cmdAct.addCommand(cmdActClose);
 
 let cmdActShow = new Command('show')
@@ -579,7 +565,6 @@ let cmdActShow = new Command('show')
         }
         return;
     });
-
 cmdAct.addCommand(cmdActShow);
 
 program.addCommand(cmdAct);
@@ -595,8 +580,8 @@ let cmdIntProbe = new Command('probe')
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
         const opts = { verbose: isVerbose };
-        const probeFlow = new IntProbeFlow({
-          verbose: opts.verbose,
+        const probeFlow = registry.createNode('tbc-interface:int-probe-flow', {
+            verbose: isVerbose,
         });
         await probeFlow.run({
           registry: registry,
@@ -611,7 +596,6 @@ let cmdIntProbe = new Command('probe')
       }
       return;
     });
-
 cmdInt.addCommand(cmdIntProbe);
 
 let cmdIntGeneric = new Command('generic')
@@ -621,7 +605,7 @@ let cmdIntGeneric = new Command('generic')
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
-        const generateGenericCoreInterfaceFlow = new IntGenericFlow({
+        const generateGenericCoreInterfaceFlow = registry.createNode('tbc-interface:int-generic-flow', {
           root: root,
           verbose: isVerbose,
         });
@@ -636,7 +620,6 @@ let cmdIntGeneric = new Command('generic')
       }
       return;
     });
-
 cmdInt.addCommand(cmdIntGeneric);
 
 let cmdIntGeminiCli = new Command('gemini-cli')
@@ -646,7 +629,7 @@ let cmdIntGeminiCli = new Command('gemini-cli')
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
-        const generateGeminiCliCoreInterfaceFlow = new IntGeminiCliFlow({
+        const generateGeminiCliCoreInterfaceFlow = registry.createNode('tbc-interface:int-gemini-cli-flow', {
           root: root,
           verbose: isVerbose,
         });
@@ -661,33 +644,7 @@ let cmdIntGeminiCli = new Command('gemini-cli')
       }
       return;
     });
-
 cmdInt.addCommand(cmdIntGeminiCli);
-
-let cmdIntKilocode = new Command('kilocode')
-    .description('Generate Kilo Code interface configuration')
-    .action(async (opts) => {
-      try {
-        const cliOpts = program.opts();
-        const isVerbose = !!cliOpts.verbose;
-        const root = cliOpts.root;
-        const generateKilocodeCoreInterfaceFlow = new IntKilocodeFlow({
-          root: root,
-          verbose: isVerbose,
-        });
-        await generateKilocodeCoreInterfaceFlow.run({
-          registry: registry,
-          opts: { verbose: isVerbose },
-          root: root,
-        });
-      } catch (error) {
-        console.error('Error during int kilocode:', error);
-        process.exit(1);
-      }
-      return;
-    });
-
-cmdInt.addCommand(cmdIntKilocode);
 
 let cmdIntGoose = new Command('goose')
     .description('Generate Goose interface configuration')
@@ -696,7 +653,7 @@ let cmdIntGoose = new Command('goose')
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
-        const generateGooseCoreInterfaceFlow = new IntGooseFlow({
+        const generateGooseCoreInterfaceFlow = registry.createNode('tbc-interface:int-goose-flow', {
           root: root,
           verbose: isVerbose,
         });
@@ -711,7 +668,6 @@ let cmdIntGoose = new Command('goose')
       }
       return;
     });
-
 cmdInt.addCommand(cmdIntGoose);
 
 let cmdIntGitHubCopilot = new Command('github-copilot')
@@ -721,7 +677,7 @@ let cmdIntGitHubCopilot = new Command('github-copilot')
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
-        const generateGitHubCopilotCoreInterfaceFlow = new IntGitHubCopilotFlow({
+        const generateGitHubCopilotCoreInterfaceFlow = registry.createNode('tbc-interface:int-github-copilot-flow', {
           root: root,
           verbose: isVerbose,
         });
@@ -736,8 +692,31 @@ let cmdIntGitHubCopilot = new Command('github-copilot')
       }
       return;
     });
-
 cmdInt.addCommand(cmdIntGitHubCopilot);
+
+let cmdIntKilocode = new Command('kilocode')
+    .description('Generate Kilo Code interface configuration')
+    .action(async (opts) => {
+      try {
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const generateKilocodeCoreInterfaceFlow = registry.createNode('tbc-interface:int-kilocode-flow', {
+          root: root,
+          verbose: isVerbose,
+        });
+        await generateKilocodeCoreInterfaceFlow.run({
+          registry: registry,
+          opts: { verbose: isVerbose },
+          root: root,
+        });
+      } catch (error) {
+        console.error('Error during int kilocode:', error);
+        process.exit(1);
+      }
+      return;
+    });
+cmdInt.addCommand(cmdIntKilocode);
 
 program.addCommand(cmdInt);
 

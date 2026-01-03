@@ -27,17 +27,12 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, ValidateFlowC
     }
 
     kind(): string {
-        return "tbc-cli:sys-validate-flow";
+        return "tbc-system:sys-validate-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose };
-        // root is already set in shared state by CLI if --root flag was used
-
         this.startNode
             .next(n('tbc-system:resolve'))
             .next(n('tbc-system:validate', {
@@ -48,7 +43,10 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, ValidateFlowC
                 format: 'table',
             }))
             ;
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = { verbose: this.config.verbose };
         return super.run(shared);
     }
 

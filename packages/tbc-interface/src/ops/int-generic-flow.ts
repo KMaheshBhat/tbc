@@ -34,24 +34,10 @@ export class IntGenericFlow extends HAMIFlow<Record<string, any>, IntGenericFlow
         return "tbc-interface:int-generic-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose };
-
-        // Determine root directory
-        shared.rootDirectory = shared.root || process.cwd();
-
-        shared.collection = 'sys';
-        shared.IDs = ['companion.id'];
-
-        // Custom nodes
         const setStoreCollectionNode = createSetStoreCollectionNode();
-        const generateGenericCoreNode = new GenerateGenericCoreNode();
-
-        // Wire the flow
         this.startNode
             .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
@@ -61,11 +47,17 @@ export class IntGenericFlow extends HAMIFlow<Record<string, any>, IntGenericFlow
             .next(n('tbc-record-fs:fetch-records'))
             .next(n('tbc-memory:extract-companion-name'))
             .next(n('tbc-system:generate-role-definition'))
-            .next(generateGenericCoreNode)
+            .next(n('tbc-interface:generate-generic-core'))
             .next(setStoreCollectionNode)
             .next(n('tbc-record-fs:store-records'))
             .next(logTableNode(shared['registry'], 'storeResults'));
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = { verbose: this.config.verbose };
+        shared.rootDirectory = shared.root || process.cwd();
+        shared.collection = 'sys';
+        shared.IDs = ['companion.id'];
         return super.run(shared);
     }
 

@@ -28,19 +28,12 @@ export class GenUuidFlow extends HAMIFlow<Record<string, any>, GenUuidFlowConfig
     }
 
     kind(): string {
-        return "tbc-cli:gen-uuid";
+        return "tbc-generator:gen-uuid";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose };
-
-        // Set count in shared state
-        shared.count = shared.count || 1;
-
-        // Wire the flow
         this.startNode
             .next(n('tbc-generator:uuid'))
             .next(n('core:log-result', {
@@ -48,8 +41,13 @@ export class GenUuidFlow extends HAMIFlow<Record<string, any>, GenUuidFlowConfig
                 format: 'list',
                 prefix: 'Generated UUIDs:',
                 verbose: this.config.verbose
-            }));
+            }))
+            ;
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = { verbose: this.config.verbose };
+        shared.count = shared.count || 1;
         return super.run(shared);
     }
 

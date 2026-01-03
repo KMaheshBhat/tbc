@@ -14,6 +14,9 @@ import { RestoreRootNode } from "./ops/restore-root.js";
 import { ResolveNode } from "./ops/resolve.js";
 import { ValidateNode } from "./ops/validate.js";
 import { GenerateRoleDefinitionNode } from "./ops/generate-role-definition.js";
+import { SysInitFlow } from "./ops/sys-init-flow.js";
+import { SysUpgradeFlow } from "./ops/sys-upgrade-flow.js";
+import { SysValidateFlow } from "./ops/sys-validate-flow.js";
 
 /**
  * TBC System Plugin for HAMI.
@@ -32,6 +35,9 @@ import { GenerateRoleDefinitionNode } from "./ops/generate-role-definition.js";
  * - `tbc-system:resolve`: Resolves working directory for TBC operations
  * - `tbc-system:validate`: Validates TBC directory structure (tbc/, vault/, dex/)
  * - `tbc-system:generate-role-definition`: Generates standard TBC role definition for AI integrations
+ * - `tbc-system:sys-init-flow`: Comprehensive flow for initializing a TBC environment
+ * - `tbc-system:sys-upgrade-flow`: Comprehensive flow for upgrading a TBC environment
+ * - `tbc-system:sys-validate-flow`: Comprehensive flow for validating a TBC environment
  */
 const TBCSystemPlugin = createPlugin(
     "@tbc-frameworx/tbc-system",
@@ -51,6 +57,9 @@ const TBCSystemPlugin = createPlugin(
         ResolveNode as any,
         ValidateNode as any,
         GenerateRoleDefinitionNode as any,
+        SysInitFlow as any,
+        SysUpgradeFlow as any,
+        SysValidateFlow as any,
     ],
     "TBC System Plugin - Environment probing, initialization, validation, and core management operations",
 );

@@ -36,13 +36,46 @@ export class SysInitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
     }
 
     kind(): string {
-        return "tbc-cli:sys-init-flow";
+        return "tbc-system:sys-init-flow";
+    }
+
+    async prep(shared: Record<string, any>): Promise<void> {
+        assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode.bind(shared.registry);
+        const resultLog = new Node();
+        this.startNode
+            .next(n('tbc-system:validate', {
+                verbose: this.config.verbose,
+            }))
+            .next(n('tbc-generator:uuid'))
+            .next(n('tbc-system:generate-init-records'))
+            .next(n('tbc-system:init'))
+            .next(n('tbc-record-fs:store-records'))
+            .next(n('tbc-system:generate-init-ids'))
+            .next(n('tbc-record-fs:store-records'))
+            .next(n('tbc-system:copy-assets'))
+            .next(n('tbc-system:generate-root', {
+                companion: this.config.companion,
+                prime: this.config.prime,
+            }))
+            .next(n('tbc-record-fs:store-records'))
+            .next(n('tbc-system:validate', {
+                verbose: this.config.verbose,
+            }))
+            .next(resultLog)
+            ;
+        resultLog
+            .next(logTableNode(shared['registry'], 'generatedIds'))
+            .next(logTableNode(shared['registry'], 'generateInitRecordsResults'))
+            .next(logTableNode(shared['registry'], 'generateInitIdsResults'))
+            .next(logTableNode(shared['registry'], 'initResults'))
+            .next(logTableNode(shared['registry'], 'copyAssetResults'))
+            .next(logTableNode(shared['registry'], 'generateRootResults'))
+            .next(logTableNode(shared['registry'], 'messages'))
+            ;
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
-        assert(shared.registry, 'registry is required');
-        const n = shared.registry.createNode.bind(shared.registry);
-
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
 
@@ -65,39 +98,6 @@ export class SysInitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
 
         shared.assetsPath = join(packageDir, 'assets');
         shared.count = 3; // For UUID generation
-
-        const resultLog = new Node();
-
-        // Wire the flow
-        this.startNode
-            .next(n('tbc-system:validate', {
-                verbose: this.config.verbose,
-            }))
-            .next(n('tbc-generator:uuid'))
-            .next(n('tbc-system:generate-init-records'))
-            .next(n('tbc-system:init'))
-            .next(n('tbc-record-fs:store-records'))
-            .next(n('tbc-system:generate-init-ids'))
-            .next(n('tbc-record-fs:store-records'))
-            .next(n('tbc-system:copy-assets'))
-            .next(n('tbc-system:generate-root', {
-                companion: this.config.companion,
-                prime: this.config.prime,
-            }))
-            .next(n('tbc-record-fs:store-records'))
-            .next(n('tbc-system:validate', {
-                verbose: this.config.verbose,
-            }))
-            .next(resultLog);
-
-        resultLog
-            .next(logTableNode(shared['registry'], 'generatedIds'))
-            .next(logTableNode(shared['registry'], 'generateInitRecordsResults'))
-            .next(logTableNode(shared['registry'], 'generateInitIdsResults'))
-            .next(logTableNode(shared['registry'], 'initResults'))
-            .next(logTableNode(shared['registry'], 'copyAssetResults'))
-            .next(logTableNode(shared['registry'], 'generateRootResults'))
-            .next(logTableNode(shared['registry'], 'messages'));
 
         return super.run(shared);
     }

@@ -30,13 +30,9 @@ export class IntProbeFlow extends HAMIFlow<Record<string, any>, IntProbeFlowConf
         return "tbc-interface:int-probe-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose };
-
         this.startNode
             .next(n('tbc-system:resolve'))
             .next(n('tbc-system:validate', {
@@ -50,7 +46,10 @@ export class IntProbeFlow extends HAMIFlow<Record<string, any>, IntProbeFlowConf
                 verbose: this.config.verbose
             }))
             ;
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = { verbose: this.config.verbose };
         return super.run(shared);
     }
 

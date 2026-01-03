@@ -4,12 +4,12 @@ import { Node } from "pocketflow";
 import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 import { createSetStoreCollectionNode, logTableNode } from "./common-nodes.js";
 
-interface IntKilocodeFlowConfig {
+interface IntKiloCodeFlowConfig {
     root?: string;
     verbose: boolean;
 }
 
-const IntKilocodeFlowConfigSchema: ValidationSchema = {
+const IntKiloCodeFlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         root: { type: "string" },
@@ -18,11 +18,11 @@ const IntKilocodeFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class IntKilocodeFlow extends HAMIFlow<Record<string, any>, IntKilocodeFlowConfig> {
+export class IntKiloCodeFlow extends HAMIFlow<Record<string, any>, IntKiloCodeFlowConfig> {
     startNode: Node;
-    config: IntKilocodeFlowConfig;
+    config: IntKiloCodeFlowConfig;
 
-    constructor(config: IntKilocodeFlowConfig) {
+    constructor(config: IntKiloCodeFlowConfig) {
         const startNode = new Node();
         super(startNode, config);
         this.startNode = startNode;
@@ -33,24 +33,10 @@ export class IntKilocodeFlow extends HAMIFlow<Record<string, any>, IntKilocodeFl
         return "tbc-interface:int-kilocode-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        // Determine root directory
-        shared.rootDirectory = shared.root || process.cwd();
-
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose };
-
-        shared.collection = 'sys';
-        shared.IDs = ['companion.id'];
-
-        // Custom nodes
         const setStoreCollectionNode = createSetStoreCollectionNode();
-
-
-        // Wire the flow
         this.startNode
             .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
@@ -63,13 +49,20 @@ export class IntKilocodeFlow extends HAMIFlow<Record<string, any>, IntKilocodeFl
             .next(n('tbc-kilocode:generate-core'))
             .next(setStoreCollectionNode)
             .next(n('tbc-record-fs:store-records'))
-            .next(logTableNode(shared['registry'], 'storeResults'));
+            .next(logTableNode(shared['registry'], 'storeResults'))
+            ;
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.rootDirectory = shared.root || process.cwd();
+        shared.opts = { verbose: this.config.verbose };
+        shared.collection = 'sys';
+        shared.IDs = ['companion.id'];
         return super.run(shared);
     }
 
-    validateConfig(config: IntKilocodeFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, IntKilocodeFlowConfigSchema)
+    validateConfig(config: IntKiloCodeFlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, IntKiloCodeFlowConfigSchema)
         return {
             valid: result.isValid,
             errors: result.errors || [],

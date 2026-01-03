@@ -33,24 +33,10 @@ export class IntGitHubCopilotFlow extends HAMIFlow<Record<string, any>, IntGitHu
         return "tbc-interface:int-github-copilot-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose };
-
-        // Determine root directory
-        shared.rootDirectory = shared.root || process.cwd();
-
-        shared.collection = 'sys';
-        shared.IDs = ['companion.id'];
-
-        // Custom nodes
         const setStoreCollectionNode = createSetStoreCollectionNode();
-
-
-        // Wire the flow
         this.startNode
             .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
@@ -63,8 +49,15 @@ export class IntGitHubCopilotFlow extends HAMIFlow<Record<string, any>, IntGitHu
             .next(n('tbc-github-copilot:generate-core'))
             .next(setStoreCollectionNode)
             .next(n('tbc-record-fs:store-records'))
-            .next(logTableNode(shared['registry'], 'storeResults'));
+            .next(logTableNode(shared['registry'], 'storeResults'))
+            ;
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = { verbose: this.config.verbose };
+        shared.rootDirectory = shared.root || process.cwd();
+        shared.collection = 'sys';
+        shared.IDs = ['companion.id'];
         return super.run(shared);
     }
 

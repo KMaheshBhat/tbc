@@ -3,7 +3,6 @@ import { HAMINode } from "@hami-frameworx/core";
 import { TBCInterfaceStorage } from "../types.js";
 
 type GenerateGenericCoreInput = {
-    companionName: string;
     roleDefinition: string;
 };
 
@@ -19,20 +18,15 @@ export class GenerateGenericCoreNode extends HAMINode<TBCInterfaceStorage> {
     }
 
     async prep(shared: TBCInterfaceStorage): Promise<GenerateGenericCoreInput> {
-        if (!shared.companionName) {
-            throw new Error("companionName is required in shared state");
-        }
         if (!shared.roleDefinition) {
             throw new Error("roleDefinition is required in shared state");
         }
         return {
-            companionName: shared.companionName,
             roleDefinition: shared.roleDefinition,
         };
     }
 
     async exec(params: GenerateGenericCoreInput): Promise<GenerateGenericCoreOutput> {
-        const companionName = params.companionName;
         const roleDefinition = params.roleDefinition;
 
         // Return as records array for store-records

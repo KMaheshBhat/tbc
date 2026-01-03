@@ -31,10 +31,23 @@ export class ViewStatusFlow extends HAMIFlow<Record<string, any>, ViewStatusFlow
         return "tbc-view:view-status-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
 
+        // Simple status query
+        this.startNode
+            .next(n('tbc-view:health-summary-query'))
+            .next(n('core:log-result', {
+                resultKey: 'healthSummary',
+                format: 'table' as const,
+                prefix: 'System Health Status:',
+                verbose: this.config.verbose
+            }))
+            ;
+    }
+
+    async run(shared: Record<string, any>): Promise<string | undefined> {
         shared.opts = { verbose: this.config.verbose };
         shared.rootDirectory = shared.rootDirectory || process.cwd();
 
@@ -45,16 +58,6 @@ export class ViewStatusFlow extends HAMIFlow<Record<string, any>, ViewStatusFlow
             const { ViewStore } = await import('../store/view-store.js');
             shared.viewStore = new ViewStore(dbPath);
         }
-
-        // Simple status query
-        this.startNode
-            .next(n('tbc-view:health-summary-query'))
-            .next(n('core:log-result', {
-                resultKey: 'healthSummary',
-                format: 'table' as const,
-                prefix: 'System Health Status:',
-                verbose: this.config.verbose
-            }));
 
         return super.run(shared);
     }
