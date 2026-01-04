@@ -53,9 +53,9 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         // Wire the flow
         this.startNode
             .next(n('tbc-system:resolve'))
-            .next(n('core:map', { 'collection': 'rootCollection', 'IDs': 'rootIDs' }))
+            .next(n('core:assign', { 'collection': 'rootCollection', 'IDs': 'rootIDs' }))
             .next(n('tbc-record-fs:fetch-records'))
-            .next(n('core:map', { 'collection': 'specsCollection' }))
+            .next(n('core:assign', { 'collection': 'specsCollection' }))
             .next(n('tbc-record-fs:fetch-all-ids'))
             .next(n('tbc-record-fs:fetch-records'))
             .next(n('tbc-view:generate-dex-core'))

@@ -5,18 +5,19 @@ import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
 import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
-import { RefreshCoreFlow, RefreshExtensionsFlow,  RefreshRecordsFlow, RefreshSkillsFlow, GraphMinerFlow } from '@tbc-frameworx/tbc-view';
+import { RefreshCoreFlow, RefreshExtensionsFlow, RefreshRecordsFlow, RefreshSkillsFlow, GraphMinerFlow } from '@tbc-frameworx/tbc-view';
+import { FetchRecordsFlow } from '@tbc-frameworx/tbc-record';
 
 const { registry } = await bootstrap();
 
 const program = new Command();
 
 program
-  .name('tbc')
-  .description('Third Brain Companion CLI')
-  .option('--verbose', 'Enable verbose logging')
-  .option('--root <path>', 'Specify root directory for operations (defaults to current working directory)')
-  .version(packageJson.version);
+    .name('tbc')
+    .description('Third Brain Companion CLI')
+    .option('--verbose', 'Enable verbose logging')
+    .option('--root <path>', 'Specify root directory for operations (defaults to current working directory)')
+    .version(packageJson.version);
 
 let cmdSys = new Command('sys')
     .description('System management commands');
@@ -575,149 +576,180 @@ let cmdInt = new Command('int')
 let cmdIntProbe = new Command('probe')
     .description('Probe the environment for TBC CLI and system information')
     .action(async () => {
-      try {
-        const cliOpts = program.opts();
-        const isVerbose = !!cliOpts.verbose;
-        const root = cliOpts.root;
-        const opts = { verbose: isVerbose };
-        const probeFlow = registry.createNode('tbc-interface:int-probe-flow', {
-            verbose: isVerbose,
-        });
-        await probeFlow.run({
-          registry: registry,
-          opts: opts,
-          root: root,
-          app: 'TBC CLI',
-          appVersion: packageJson.version,
-        });
-      } catch (error) {
-        console.error('Error during probe:', error);
-        process.exit(1);
-      }
-      return;
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const opts = { verbose: isVerbose };
+            const probeFlow = registry.createNode('tbc-interface:int-probe-flow', {
+                verbose: isVerbose,
+            });
+            await probeFlow.run({
+                registry: registry,
+                opts: opts,
+                root: root,
+                app: 'TBC CLI',
+                appVersion: packageJson.version,
+            });
+        } catch (error) {
+            console.error('Error during probe:', error);
+            process.exit(1);
+        }
+        return;
     });
 cmdInt.addCommand(cmdIntProbe);
 
 let cmdIntGeneric = new Command('generic')
     .description('Generate generic AI assistant interface configuration')
     .action(async (opts) => {
-      try {
-        const cliOpts = program.opts();
-        const isVerbose = !!cliOpts.verbose;
-        const root = cliOpts.root;
-        const generateGenericCoreInterfaceFlow = registry.createNode('tbc-interface:int-generic-flow', {
-          root: root,
-          verbose: isVerbose,
-        });
-        await generateGenericCoreInterfaceFlow.run({
-          registry: registry,
-          opts: { verbose: isVerbose },
-          root: root,
-        });
-      } catch (error) {
-        console.error('Error during int generic:', error);
-        process.exit(1);
-      }
-      return;
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const generateGenericCoreInterfaceFlow = registry.createNode('tbc-interface:int-generic-flow', {
+                root: root,
+                verbose: isVerbose,
+            });
+            await generateGenericCoreInterfaceFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during int generic:', error);
+            process.exit(1);
+        }
+        return;
     });
 cmdInt.addCommand(cmdIntGeneric);
 
 let cmdIntGeminiCli = new Command('gemini-cli')
     .description('Generate Gemini CLI interface configuration')
     .action(async (opts) => {
-      try {
-        const cliOpts = program.opts();
-        const isVerbose = !!cliOpts.verbose;
-        const root = cliOpts.root;
-        const generateGeminiCliCoreInterfaceFlow = registry.createNode('tbc-interface:int-gemini-cli-flow', {
-          root: root,
-          verbose: isVerbose,
-        });
-        await generateGeminiCliCoreInterfaceFlow.run({
-          registry: registry,
-          opts: { verbose: isVerbose },
-          root: root,
-        });
-      } catch (error) {
-        console.error('Error during int gemini-cli:', error);
-        process.exit(1);
-      }
-      return;
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const generateGeminiCliCoreInterfaceFlow = registry.createNode('tbc-interface:int-gemini-cli-flow', {
+                root: root,
+                verbose: isVerbose,
+            });
+            await generateGeminiCliCoreInterfaceFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during int gemini-cli:', error);
+            process.exit(1);
+        }
+        return;
     });
 cmdInt.addCommand(cmdIntGeminiCli);
 
 let cmdIntGoose = new Command('goose')
     .description('Generate Goose interface configuration')
     .action(async (opts) => {
-      try {
-        const cliOpts = program.opts();
-        const isVerbose = !!cliOpts.verbose;
-        const root = cliOpts.root;
-        const generateGooseCoreInterfaceFlow = registry.createNode('tbc-interface:int-goose-flow', {
-          root: root,
-          verbose: isVerbose,
-        });
-        await generateGooseCoreInterfaceFlow.run({
-          registry: registry,
-          opts: { verbose: isVerbose },
-          root: root,
-        });
-      } catch (error) {
-        console.error('Error during int goose:', error);
-        process.exit(1);
-      }
-      return;
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const generateGooseCoreInterfaceFlow = registry.createNode('tbc-interface:int-goose-flow', {
+                root: root,
+                verbose: isVerbose,
+            });
+            await generateGooseCoreInterfaceFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during int goose:', error);
+            process.exit(1);
+        }
+        return;
     });
 cmdInt.addCommand(cmdIntGoose);
 
 let cmdIntGitHubCopilot = new Command('github-copilot')
     .description('Generate GitHub Copilot interface configuration')
     .action(async (opts) => {
-      try {
-        const cliOpts = program.opts();
-        const isVerbose = !!cliOpts.verbose;
-        const root = cliOpts.root;
-        const generateGitHubCopilotCoreInterfaceFlow = registry.createNode('tbc-interface:int-github-copilot-flow', {
-          root: root,
-          verbose: isVerbose,
-        });
-        await generateGitHubCopilotCoreInterfaceFlow.run({
-          registry: registry,
-          opts: { verbose: isVerbose },
-          root: root,
-        });
-      } catch (error) {
-        console.error('Error during int github-copilot:', error);
-        process.exit(1);
-      }
-      return;
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const generateGitHubCopilotCoreInterfaceFlow = registry.createNode('tbc-interface:int-github-copilot-flow', {
+                root: root,
+                verbose: isVerbose,
+            });
+            await generateGitHubCopilotCoreInterfaceFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during int github-copilot:', error);
+            process.exit(1);
+        }
+        return;
     });
 cmdInt.addCommand(cmdIntGitHubCopilot);
 
 let cmdIntKilocode = new Command('kilocode')
     .description('Generate Kilo Code interface configuration')
     .action(async (opts) => {
-      try {
-        const cliOpts = program.opts();
-        const isVerbose = !!cliOpts.verbose;
-        const root = cliOpts.root;
-        const generateKilocodeCoreInterfaceFlow = registry.createNode('tbc-interface:int-kilocode-flow', {
-          root: root,
-          verbose: isVerbose,
-        });
-        await generateKilocodeCoreInterfaceFlow.run({
-          registry: registry,
-          opts: { verbose: isVerbose },
-          root: root,
-        });
-      } catch (error) {
-        console.error('Error during int kilocode:', error);
-        process.exit(1);
-      }
-      return;
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const generateKilocodeCoreInterfaceFlow = registry.createNode('tbc-interface:int-kilocode-flow', {
+                root: root,
+                verbose: isVerbose,
+            });
+            await generateKilocodeCoreInterfaceFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during int kilocode:', error);
+            process.exit(1);
+        }
+        return;
     });
 cmdInt.addCommand(cmdIntKilocode);
 
 program.addCommand(cmdInt);
+
+let cmdTest = new Command('test')
+    .description('Temporary test command to invoke tbc-record:fetch-records-flow')
+    .argument('[providers...]', 'Record providers to use (e.g., fs sqlite)', ['fs'])
+    .action(async (providers) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const fetchRecordsFlow = new FetchRecordsFlow({
+                verbose: isVerbose,
+                recordProviders: providers,
+                root: root,
+            });
+            await fetchRecordsFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                record: {
+                    rootDirectory: root,
+                    collection: "sys",
+                    IDs: ["companion.id", "prime.id"],
+                }
+            });
+        } catch (error) {
+            console.error('Error during test:', error);
+            process.exit(1);
+        }
+        return;
+    });
+
+program.addCommand(cmdTest);
 
 program.parse();

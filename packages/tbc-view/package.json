@@ -11,7 +11,7 @@
     "dev": "bun run build"
   },
   "dependencies": {
-    "@hami-frameworx/core": "0.1.1",
+    "@hami-frameworx/core": "0.1.2",
     "gray-matter": "4.0.3",
     "pocketflow": "^1.0.4"
   },

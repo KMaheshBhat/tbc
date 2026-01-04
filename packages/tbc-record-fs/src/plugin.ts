@@ -3,6 +3,7 @@ import { createPlugin } from "@hami-frameworx/core";
 import { FetchRecordsNode } from "./ops/fetch-records.js";
 import { FetchAllIdsNode } from "./ops/fetch-all-ids.js";
 import { StoreRecordsNode } from "./ops/store-records.js";
+import { FetchRecordsNewNode } from "./ops/fetch-records-new.js";
 
 /**
  * TBC Record File System Plugin for HAMI.
@@ -18,6 +19,7 @@ const TBCRecordFSPlugin = createPlugin(
     "0.1.0",
     [
         FetchRecordsNode as any,
+        FetchRecordsNewNode as any,
         FetchAllIdsNode as any,
         StoreRecordsNode as any,
     ],

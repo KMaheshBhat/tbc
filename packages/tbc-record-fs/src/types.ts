@@ -1,5 +1,7 @@
 import { HAMIRegistrationManager } from "@hami-frameworx/core";
 
+import { TBCRecord, TBCRecordStorage} from "@tbc-frameworx/tbc-record";
+
 /**
  * Options for TBC record file system operations.
  * Defines configuration flags that can be used across TBC record file system operations.
@@ -13,7 +15,7 @@ type TBCRecordFSOpts = {
  * Record structure for TBC record file system operations.
  * Defines the structure of a record with support for multiple file formats.
  */
-type TBCRecord = {
+type TBCRecordFS = TBCRecord & {
   /** Unique identifier for the record. */
   id: string;
   /** Optional filename for the record (including extension). */
@@ -31,7 +33,7 @@ type TBCRecord = {
  * Defines the structure of data that can be shared between TBC record file system operation nodes.
  * Contains paths, configuration options, and results from various TBC record file system operations.
  */
-type TBCRecordFSStorage = {
+type TBCRecordFSStorage = TBCRecordStorage & {
   /** Optional configuration options for TBC record file system operations. */
   opts?: TBCRecordFSOpts;
   /** Explicit root directory path (optional, defaults to CWD). */
@@ -50,8 +52,10 @@ type TBCRecordFSStorage = {
   IDs?: string[];
   /** Fetched records by collection and ID. */
   fetchResults?: Record<string, Record<string, Record<string, any>>>;
+  /** Fetched records by collection and ID. */
+  recordFetchResults?: Record<string, Record<string, Record<string, any>>>;
   /** Array of records to store. */
-  records?: TBCRecord[];
+  records?: TBCRecordFS[];
   /** Stored record IDs by collection. */
   storeResults?: Record<string, string[]>;
 }
@@ -59,5 +63,5 @@ type TBCRecordFSStorage = {
 export {
   TBCRecordFSOpts,
   TBCRecordFSStorage,
-  TBCRecord,
+  TBCRecordFS,
 };

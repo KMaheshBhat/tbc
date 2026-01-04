@@ -1,49 +1,50 @@
-import { HAMINode } from "@hami-frameworx/core";
-
+import assert from "assert";
 import { readFileSync, existsSync, readdirSync } from "fs";
 import { join, extname, basename } from "path";
 import matter from "gray-matter";
 
+import { HAMINode } from "@hami-frameworx/core";
+
 import { TBCRecordFSStorage } from "../types.js";
+import { TBCStore } from "@tbc-frameworx/tbc-record";
 
-type FetchRecordsInput = {
-    rootDirectory: string;
-    collection: string;
-    IDs: string[];
-};
-
-type FetchRecordsOutput = Record<string, Record<string, any>>; // id -> record
-
-export class FetchRecordsNode extends HAMINode<TBCRecordFSStorage> {
+export class FetchRecordsNewNode extends HAMINode<TBCRecordFSStorage> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
 
+    // TODO - Rename to `tbc=record-fs:fetch-records`
+    //   Once `tbc-record:fetch-records` have been replaced at call sites
+    //   of `tbc-record-fs:fetch-records`, then the old one needs to be
+    //   cleaned up and the `-new` dropped.  The class name should
+    //   also be updated.
     kind(): string {
-        return "tbc-record-fs:fetch-records";
+        return "tbc-record-fs:fetch-records-new";
     }
 
-    async prep(shared: TBCRecordFSStorage): Promise<FetchRecordsInput> {
-        if (!shared.rootDirectory || !shared.collection || !shared.IDs) {
-            throw new Error("rootDirectory, collection, and IDs are required in shared state");
-        }
-        return {
-            rootDirectory: shared.rootDirectory,
-            collection: shared.collection,
-            IDs: shared.IDs,
-        };
+    async prep(shared: TBCRecordFSStorage): Promise<[string, string, string[]]> {
+        assert(shared.record, 'shared.record is required');
+        assert(shared.record?.rootDirectory, 'shared.record.rootDirectory is required');
+        assert(shared.record?.collection, 'shared.record.collection is required');
+        assert(shared.record?.IDs, 'shared.record.IDs is required');
+        return [
+            shared.record?.rootDirectory!,
+            shared.record?.collection!,
+            shared.record?.IDs!,
+        ];
     }
 
-    async exec(params: FetchRecordsInput): Promise<FetchRecordsOutput> {
-        const results: FetchRecordsOutput = {};
-        const collectionPath = join(params.rootDirectory, params.collection);
-        for (const id of params.IDs) {
-            const record = this.findAndParseRecord(collectionPath, params.collection, id);
+    async exec(params: [string, string, string[]]): Promise<TBCStore> {
+        const [rootDirectory, collection, IDs] = params;
+        const results: TBCStore = {};
+        const collectionPath = join(rootDirectory, collection);
+        for (const id of IDs) {
+            const record = this.findAndParseRecord(collectionPath, collection, id);
             if (record) {
                 results[id] = record;
             }
         }
-        return results;
+        return {[collection]: results};
     }
 
     private findAndParseRecord(collectionPath: string, collection: string, id: string): Record<string, any> | null {
@@ -102,9 +103,13 @@ export class FetchRecordsNode extends HAMINode<TBCRecordFSStorage> {
         }
     }
 
-    async post(shared: TBCRecordFSStorage, _prepRes: FetchRecordsInput, execRes: FetchRecordsOutput): Promise<string | undefined> {
-        shared.fetchResults = { ...shared.fetchResults, [shared.collection!]: execRes };
-        shared.recordFetchResults = shared.fetchResults;
+    async post(
+        shared: TBCRecordFSStorage,
+        _prepRes: [string, string, string[]],
+        execRes: TBCStore,
+    ): Promise<string | undefined> {
+        assert(shared.record, 'shared.record is required');
+        shared.record.results = execRes;
         return "default";
     }
 }
