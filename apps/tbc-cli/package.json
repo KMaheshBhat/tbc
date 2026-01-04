@@ -9,11 +9,11 @@
     "tbc": "dist/index.js"
   },
   "scripts": {
-    "build": "bun build src/index.ts --outfile=dist/index.js --target=bun && bunx tsc --emitDeclarationOnly --outDir dist",
+    "build": "bunx tsc",
     "start": "bun run dist/index.js"
   },
   "dependencies": {
-    "commander": "^12.0.0",
+    "commander": "^14.0.2",
     "pocketflow": "^1.0.4",
     "@hami-frameworx/core": "0.1.2",
     "@tbc-frameworx/tbc-record": "^0.1.0",

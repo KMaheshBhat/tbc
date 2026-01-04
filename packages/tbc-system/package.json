@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "bun build src/index.ts --outfile=dist/index.js --target=bun && bunx tsc --emitDeclarationOnly --outDir dist"
+    "build": "bunx tsc"
   },
   "dependencies": {
     "@hami-frameworx/core": "0.1.2",
