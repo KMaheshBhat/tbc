@@ -24,7 +24,7 @@
     "kilocode:build": "bun run --filter='@tbc-frameworx/tbc-kilocode' build",
     "goose:build": "bun run --filter='@tbc-frameworx/tbc-goose' build",
     "github-copilot:build": "bun run --filter='@tbc-frameworx/tbc-github-copilot' build",
-    "all:build": "bun run record:build && bun run record-fs:build && bun run record-sqlite:build && bun run generator:build && bun run interface:build && bun run memory:build && bun run activity:build && bun run view:build && bun run system:build && bun run gemini:build && bun run kilocode:build && bun run goose:build && bun run github-copilot:build && bun run cli:build",
+    "all:build": "bun run scripts/build-all.ts",
     "all:clean": "rimraf apps/*/dist packages/*/dist",
     "node_modules:clean": "rimraf apps/*/node_modules packages/*/node_modules"
   },
