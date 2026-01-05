@@ -4,6 +4,7 @@ import { FetchRecordsNode } from "./ops/fetch-records.js";
 import { FetchAllIdsNode } from "./ops/fetch-all-ids.js";
 import { StoreRecordsNode } from "./ops/store-records.js";
 import { FetchRecordsNewNode } from "./ops/fetch-records-new.js";
+import { StoreRecordsNewNode } from "./ops/store-records-new.js";
 
 /**
  * TBC Record File System Plugin for HAMI.
@@ -22,6 +23,7 @@ const TBCRecordFSPlugin = createPlugin(
         FetchRecordsNewNode as any,
         FetchAllIdsNode as any,
         StoreRecordsNode as any,
+        StoreRecordsNewNode as any,
     ],
     "TBC Record File System Plugin - File system operations for TBC directories",
 );

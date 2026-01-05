@@ -6,7 +6,7 @@ import { bootstrap } from './bootstrap.js';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
 import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
 import { RefreshCoreFlow, RefreshExtensionsFlow, RefreshRecordsFlow, RefreshSkillsFlow, GraphMinerFlow } from '@tbc-frameworx/tbc-view';
-import { FetchRecordsFlow } from '@tbc-frameworx/tbc-record';
+import { FetchRecordsFlow, StoreRecordsFlow } from '@tbc-frameworx/tbc-record';
 
 const { registry } = await bootstrap();
 
@@ -722,25 +722,46 @@ cmdInt.addCommand(cmdIntKilocode);
 program.addCommand(cmdInt);
 
 let cmdTest = new Command('test')
-    .description('Temporary test command to invoke tbc-record:fetch-records-flow')
+    .description('Temporary test command to invoke tbc-record:store-records-flow with hardcoded records')
     .argument('[providers...]', 'Record providers to use (e.g., fs sqlite)', ['fs'])
     .action(async (providers) => {
         try {
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const fetchRecordsFlow = new FetchRecordsFlow({
+            const storeRecordsFlow = new StoreRecordsFlow({
                 verbose: isVerbose,
                 recordProviders: providers,
                 root: root,
             });
-            await fetchRecordsFlow.run({
+            await storeRecordsFlow.run({
                 registry: registry,
                 opts: { verbose: isVerbose },
                 record: {
                     rootDirectory: root,
-                    collection: "sys",
-                    IDs: ["companion.id", "prime.id"],
+                    collection: "_test",
+                    records: [
+                        {
+                            id: "test-note-001",
+                            record_type: "note",
+                            record_tags: ["c/test"],
+                            record_create_date: new Date().toISOString(),
+                            record_title: "Test Note for Store Records",
+                            content: "This is a test note created by the store-records test command."
+                        },
+                        {
+                            id: "test-goal-001",
+                            contentType: "markdown",
+                            record_type: "goal",
+                            record_tags: ["c/test"],
+                            record_create_date: new Date().toISOString(),
+                            record_title: "Test Goal for Store Records",
+                            goal_owner: "test-user",
+                            goal_type: "task",
+                            goal_status: "open",
+                            goal_class: "task"
+                        }
+                    ],
                 }
             });
         } catch (error) {
