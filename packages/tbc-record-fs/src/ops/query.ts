@@ -5,7 +5,7 @@ import { readdirSync } from "fs";
 import { join } from "path";
 
 import { TBCRecordFSStorage } from "../types.js";
-import { TBCQueryParams, TBCQueryResult } from "@tbc-frameworx/tbc-record";
+import { TBCQueryParams, TBCResult } from "@tbc-frameworx/tbc-record";
 
 type QueryInput = {
     rootDirectory: string;
@@ -13,7 +13,7 @@ type QueryInput = {
     query: TBCQueryParams;
 };
 
-type QueryOutput = TBCQueryResult;
+type QueryOutput = TBCResult;
 
 export class QueryNode extends HAMINode<TBCRecordFSStorage> {
     constructor(maxRetries?: number, wait?: number) {
@@ -51,7 +51,7 @@ export class QueryNode extends HAMINode<TBCRecordFSStorage> {
         }
     }
 
-    private handleListAllIds(rootDirectory: string, query: TBCQueryParams, collection: string): TBCQueryResult {
+    private handleListAllIds(rootDirectory: string, query: TBCQueryParams, collection: string): TBCResult {
         const collectionPath = join(rootDirectory, collection);
         try {
             const files = readdirSync(collectionPath);
@@ -72,23 +72,22 @@ export class QueryNode extends HAMINode<TBCRecordFSStorage> {
             return {
                 ids,
                 totalCount: ids.length,
-                hasMore: false, // TODO: Implement pagination
             };
         } catch (error: any) {
             if (error.code !== 'ENOENT') {
                 console.error(`Error reading directory ${collectionPath}:`, error);
             }
-            return { ids: [], totalCount: 0, hasMore: false };
+            return { ids: [], totalCount: 0 };
         }
     }
 
-    private handleFilterByTags(rootDirectory: string, query: TBCQueryParams, collection: string): TBCQueryResult {
+    private handleFilterByTags(rootDirectory: string, query: TBCQueryParams, collection: string): TBCResult {
         // TODO: Implement tag filtering
         // This would require reading frontmatter from files and checking record_tags
         throw new Error("filter-by-tags not yet implemented");
     }
 
-    private handleSearchByContent(rootDirectory: string, query: TBCQueryParams, collection: string): TBCQueryResult {
+    private handleSearchByContent(rootDirectory: string, query: TBCQueryParams, collection: string): TBCResult {
         // TODO: Implement content search
         // This would require reading file contents and searching for the term
         throw new Error("search-by-content not yet implemented");
@@ -112,7 +111,8 @@ export class QueryNode extends HAMINode<TBCRecordFSStorage> {
     }
 
     async post(shared: TBCRecordFSStorage, _prepRes: QueryInput, execRes: QueryOutput): Promise<string | undefined> {
-        shared.record!.queryResult = execRes;
+        if (!shared.record!.result) shared.record!.result = {};
+        Object.assign(shared.record!.result, execRes);
         return "default";
     }
 }

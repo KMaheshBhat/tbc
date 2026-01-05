@@ -44,14 +44,14 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, StoreRecords
         let tailNode = providers.length > 0 ? new Node() : finalNode;
         this.startNode
             .next(new PrintNode("---Starting StoreRecordsFlow---"))
-            .next(n("core:assign", { "record.accumulate": "record.results" }))
+            .next(n("core:assign", { "record.accumulate": "record.result.records" }))
             .next(tailNode);
         for (const [i, provider] of providers.entries()) {
             const isLast = i === providers.length - 1;
             const targetNext = isLast ? finalNode : new Node();
             tailNode
                 .next(new PrintNode(`---Storing records with ${provider}---`))
-                .next(n("core:assign", { "record.results": "record.empty" }))
+                .next(n("core:assign", { "record.result.records": "record.empty" }))
                 .next(n(`tbc-record-${provider}:store-records-new`))
                 .next(new AccumulateNode())
                 .next(new PrintNode('------'))
@@ -59,9 +59,8 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, StoreRecords
             tailNode = targetNext;
         }
         finalNode
-            .next(n("core:assign", { "record.results": "record.accumulate" }))
+            .next(n("core:assign", { "record.result.records": "record.accumulate" }))
             .next(n("core:assign", { "record.accumulate": "record.empty" }))
-            .next(n("core:debug"))
             .next(new PrintNode("---Completed StoreRecordsFlow---"));
     }
 
@@ -85,7 +84,7 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, StoreRecords
 class AccumulateNode extends Node {
     async prep(shared: TBCRecordStorage): Promise<[TBCStore, TBCStore]> {
         assert(shared.record, 'shared.record is required');
-        return [shared.record?.accumulate || {}, shared.record?.results || {}];
+        return [shared.record?.accumulate || {}, shared.record?.result?.records || {}];
     }
 
     async exec(prepRes: [TBCStore, TBCStore]): Promise<TBCStore> {

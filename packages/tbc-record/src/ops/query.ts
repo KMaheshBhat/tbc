@@ -2,7 +2,7 @@ import assert from "assert";
 
 import { Node } from "pocketflow";
 import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { TBCRecordStorage, TBCQueryParams, TBCQueryResult } from "../types";
+import { TBCRecordStorage, TBCQueryParams, TBCResult, TBCStore } from "../types";
 
 interface QueryFlowConfig {
     verbose: boolean;
@@ -44,14 +44,14 @@ export class QueryFlow extends HAMIFlow<Record<string, any>, QueryFlowConfig> {
         let tailNode = providers.length > 0 ? new Node() : finalNode;
         this.startNode
             .next(new PrintNode("---Starting QueryFlow---"))
-            .next(n("core:assign", { "record.queryResult": "emptyQueryResult" }))
+            .next(n("core:assign", { "record.result": "emptyQueryResult" }))
             .next(tailNode);
         for (const [i, provider] of providers.entries()) {
             const isLast = i === providers.length - 1;
             const targetNext = isLast ? finalNode : new Node();
             tailNode
                 .next(new PrintNode(`---Querying records from ${provider}---`))
-                .next(n("core:assign", { "record.queryResult": "emptyQueryResult" }))
+                .next(n("core:assign", { "record.result": "emptyQueryResult" }))
                 .next(n(`tbc-record-${provider}:query`))
                 .next(new AccumulateQueryNode())
                 .next(new PrintNode('------'))
@@ -59,7 +59,7 @@ export class QueryFlow extends HAMIFlow<Record<string, any>, QueryFlowConfig> {
             tailNode = targetNext;
         }
         finalNode
-            .next(n("core:assign", { "record.queryResult": "accumulatedQueryResult" }))
+            .next(n("core:assign", { "record.result": "accumulatedQueryResult" }))
             .next(n("core:assign", { "accumulatedQueryResult": "emptyQueryResult" }))
             .next(new PrintNode("---Completed QueryFlow---"));
     }
@@ -87,25 +87,39 @@ export class QueryFlow extends HAMIFlow<Record<string, any>, QueryFlowConfig> {
 }
 
 class AccumulateQueryNode extends Node {
-    async prep(shared: TBCRecordStorage): Promise<[TBCQueryResult, TBCQueryResult]> {
-        return [shared.accumulatedQueryResult || { ids: [] }, shared.record?.queryResult || { ids: [] }];
+    async prep(shared: TBCRecordStorage): Promise<[TBCResult, TBCResult]> {
+        return [shared.accumulatedQueryResult || { ids: [] }, shared.record?.result || { ids: [] }];
     }
 
-    async exec(prepRes: [TBCQueryResult, TBCQueryResult]): Promise<TBCQueryResult> {
+    async exec(prepRes: [TBCResult, TBCResult]): Promise<TBCResult> {
         const [accumulated, incoming] = prepRes;
-        const master: TBCQueryResult = {
+        const master: TBCResult = {
             ids: [...(accumulated.ids || []), ...(incoming.ids || [])],
-            records: [...(accumulated.records || []), ...(incoming.records || [])],
             totalCount: (accumulated.totalCount || 0) + (incoming.totalCount || 0),
-            hasMore: (accumulated.hasMore || false) || (incoming.hasMore || false),
         };
+        // Merge records as TBCStore
+        const accRecords = accumulated.records || {};
+        const incRecords = incoming.records || {};
+        const mergedRecords: TBCStore = { ...accRecords };
+        for (const collection in incRecords) {
+            mergedRecords[collection] = mergedRecords[collection] || {};
+            for (const id in incRecords[collection]) {
+                mergedRecords[collection][id] = {
+                    ...(mergedRecords[collection][id] || {}),
+                    ...incRecords[collection][id]
+                };
+            }
+        }
+        if (Object.keys(mergedRecords).length > 0) {
+            master.records = mergedRecords;
+        }
         return master;
     }
 
     async post(
         shared: TBCRecordStorage,
-        _prepRes: [TBCQueryResult, TBCQueryResult],
-        execRes: TBCQueryResult,
+        _prepRes: [TBCResult, TBCResult],
+        execRes: TBCResult,
     ): Promise<string | undefined> {
         shared.accumulatedQueryResult = execRes;
         return undefined;

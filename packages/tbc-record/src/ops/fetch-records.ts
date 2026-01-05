@@ -44,7 +44,7 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FetchRecords
         let tailNode = providers.length > 0 ? new Node() : finalNode;
         this.startNode
             .next(new PrintNode("---Starting FetchRecordsFlow---"))
-            .next(n("core:assign", { "record.accumulate": "record.results" }))
+            .next(n("core:assign", { "record.accumulate": "record.result.records" }))
             .next(tailNode);
         for (const [i, provider] of providers.entries()) {
             const isLast = i === providers.length - 1;
@@ -59,7 +59,7 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FetchRecords
             tailNode = targetNext;
         }
         finalNode
-            .next(n("core:assign", { "record.results": "record.accumulate" }))
+            .next(n("core:assign", { "record.result.records": "record.accumulate" }))
             .next(n("core:assign", { "record.accumulate": "record.empty" }))
             .next(new PrintNode("---Completed FetchRecordsFlow---"));
     }
@@ -84,7 +84,7 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FetchRecords
 class AccumulateNode extends Node {
     async prep(shared: TBCRecordStorage): Promise<[TBCStore, TBCStore]> {
         assert(shared.record, 'shared.record is required');
-        return [shared.record?.accumulate || {}, shared.record?.results || {}];
+        return [shared.record?.accumulate || {}, shared.record?.result?.records || {}];
     }
 
     async exec(prepRes: [TBCStore, TBCStore]): Promise<TBCStore> {

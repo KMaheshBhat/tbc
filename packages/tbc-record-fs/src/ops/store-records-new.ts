@@ -152,7 +152,9 @@ export class StoreRecordsNewNode extends HAMINode<TBCRecordFSStorage> {
         execRes: TBCStore,
     ): Promise<string | undefined> {
         assert(shared.record, 'shared.record is required');
-        shared.record.results = execRes;
+        if (!shared.record.result) shared.record.result = {};
+        shared.record.result.records = execRes;
+        shared.record.result.totalCount = Object.values(execRes).reduce((sum, collection) => sum + Object.keys(collection).length, 0);
         return "default";
     }
 }

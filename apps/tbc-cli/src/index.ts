@@ -731,12 +731,7 @@ let cmdTestRecords = new Command('test-records')
             const root = cliOpts.root;
 
             console.log('=== Step 1: Storing test records ===');
-            const storeRecordsFlow = new StoreRecordsFlow({
-                verbose: isVerbose,
-                recordProviders: providers,
-                root: root,
-            });
-            await storeRecordsFlow.run({
+            const storeShared = {
                 registry: registry,
                 opts: { verbose: isVerbose },
                 record: {
@@ -764,9 +759,16 @@ let cmdTestRecords = new Command('test-records')
                             goal_class: "task"
                         }
                     ],
-                }
+                },
+            };
+            const storeRecordsFlow = new StoreRecordsFlow({
+                verbose: isVerbose,
+                recordProviders: providers,
+                root: root,
             });
+            await storeRecordsFlow.run(storeShared as any);
             console.log('✓ Records stored successfully');
+            console.log('Result:', JSON.stringify((storeShared.record as any)?.result, null, 2));
 
             console.log('\n=== Step 2: Querying records ===');
             const queryFlow = new QueryFlow({
@@ -788,7 +790,8 @@ let cmdTestRecords = new Command('test-records')
                 }
             };
             await queryFlow.run(queryShared as any);
-            console.log('Query result:', JSON.stringify((queryShared.record as any)?.queryResult, null, 2));
+            console.log('✓ Query executed successfully');
+            console.log('Result: ', JSON.stringify((queryShared.record as any)?.result, null, 2))
 
             console.log('\n=== Step 3: Fetching records back ===');
             const fetchRecordsFlow = new FetchRecordsFlow({
@@ -806,7 +809,8 @@ let cmdTestRecords = new Command('test-records')
                 }
             };
             await fetchRecordsFlow.run(fetchShared as any);
-            console.log('Fetched records:', JSON.stringify((fetchShared.record as any)?.results, null, 2));
+            console.log('✓ Fetch executed successfully');
+            console.log('Result:', JSON.stringify((fetchShared.record as any)?.result, null, 2));
 
             console.log('\n✓ Record lifecycle test completed successfully');
         } catch (error) {

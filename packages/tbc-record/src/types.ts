@@ -16,23 +16,21 @@ type TBCQueryParams = {
    sortOrder?: 'asc' | 'desc';
 };
 
-type TBCQueryResult = {
-   ids?: string[];
-   records?: TBCRecord[];
-   totalCount?: number;
-   hasMore?: boolean;
+type TBCResult = {
+    ids?: string[];
+    records?: TBCStore;
+    totalCount?: number;
 };
 
 type TBCRecordOperation = {
-   rootDirectory?: string;
-   IDs?: string[];
-   collection?: string;
-   records?: TBCRecord[];
-   results?: TBCStore;
-   accumulate?: TBCStore;
-   empty?: TBCStore;
-   query?: TBCQueryParams;
-   queryResult?: TBCQueryResult;
+    rootDirectory?: string;
+    IDs?: string[];
+    collection?: string;
+    records?: TBCRecord[];
+    result?: TBCResult;
+    accumulate?: TBCStore;
+    empty?: TBCStore;
+    query?: TBCQueryParams;
 }
 
 /**
@@ -50,36 +48,36 @@ type TBCRecordOpts = {
  * Contains configuration options and results from various TBC record operations.
  */
 type TBCRecordStorage = {
-   /** HAMI registration manager for node creation and management. */
-   registry: HAMIRegistrationManager;
-   /** Optional configuration options for TBC record operations. */
-   opts?: TBCRecordOpts;
-   /** Current record operation */
-   record?: TBCRecordOperation;
-   /** Root directory for operations */
-   rootDirectory?: string;
-   /** Store path for operations */
-   storePath?: string;
-   /** Collection for operations */
-   collection?: string;
-   /** Records data */
-   records?: Record<string, any>[];
-   /** Echo message for testing */
-   echoMessage?: string;
-   /** Accumulated query result for query operations */
-   accumulatedQueryResult?: TBCQueryResult;
-   /** Empty query result template */
-   emptyQueryResult?: TBCQueryResult;
+    /** HAMI registration manager for node creation and management. */
+    registry: HAMIRegistrationManager;
+    /** Optional configuration options for TBC record operations. */
+    opts?: TBCRecordOpts;
+    /** Current record operation */
+    record?: TBCRecordOperation;
+    /** Root directory for operations */
+    rootDirectory?: string;
+    /** Store path for operations */
+    storePath?: string;
+    /** Collection for operations */
+    collection?: string;
+    /** Records data */
+    records?: Record<string, any>[];
+    /** Echo message for testing */
+    echoMessage?: string;
+    /** Accumulated query result for query operations */
+    accumulatedQueryResult?: TBCResult;
+    /** Empty query result template */
+    emptyQueryResult?: TBCResult;
 }
 
 export {
-   TBCRecord,
-   TBCCollection,
-   TBCStore,
-   TBCRecordOperation,
-   TBCRecordOpts,
-   TBCRecordStorage,
-   TBCQueryType,
-   TBCQueryParams,
-   TBCQueryResult,
+    TBCRecord,
+    TBCCollection,
+    TBCStore,
+    TBCResult,
+    TBCRecordOperation,
+    TBCRecordOpts,
+    TBCRecordStorage,
+    TBCQueryType,
+    TBCQueryParams,
 };
