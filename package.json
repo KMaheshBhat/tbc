@@ -25,7 +25,7 @@
     "goose:build": "bun run --filter='@tbc-frameworx/tbc-goose' build",
     "github-copilot:build": "bun run --filter='@tbc-frameworx/tbc-github-copilot' build",
     "all:build": "bun run scripts/build-all.ts",
-    "all:clean": "rimraf apps/*/dist packages/*/dist",
+    "all:clean": "rimraf apps/*/{dist,tsconfig.tsbuildinfo} packages/*/{dist,tsconfig.tsbuildinfo}",
     "node_modules:clean": "rimraf apps/*/node_modules packages/*/node_modules"
   },
   "devDependencies": {
