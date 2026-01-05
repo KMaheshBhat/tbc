@@ -6,7 +6,7 @@ import { bootstrap } from './bootstrap.js';
 import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
 import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
 import { RefreshCoreFlow, RefreshExtensionsFlow, RefreshRecordsFlow, RefreshSkillsFlow, GraphMinerFlow } from '@tbc-frameworx/tbc-view';
-import { FetchRecordsFlow, StoreRecordsFlow } from '@tbc-frameworx/tbc-record';
+import { FetchRecordsFlow, StoreRecordsFlow, QueryFlow } from '@tbc-frameworx/tbc-record';
 
 const { registry } = await bootstrap();
 
@@ -721,14 +721,16 @@ cmdInt.addCommand(cmdIntKilocode);
 
 program.addCommand(cmdInt);
 
-let cmdTest = new Command('test')
-    .description('Temporary test command to invoke tbc-record:store-records-flow with hardcoded records')
+let cmdTestRecords = new Command('test-records')
+    .description('Test the complete record lifecycle: store records, query them, and fetch them back')
     .argument('[providers...]', 'Record providers to use (e.g., fs sqlite)', ['fs'])
     .action(async (providers) => {
         try {
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
+
+            console.log('=== Step 1: Storing test records ===');
             const storeRecordsFlow = new StoreRecordsFlow({
                 verbose: isVerbose,
                 recordProviders: providers,
@@ -764,13 +766,56 @@ let cmdTest = new Command('test')
                     ],
                 }
             });
+            console.log('✓ Records stored successfully');
+
+            console.log('\n=== Step 2: Querying records ===');
+            const queryFlow = new QueryFlow({
+                verbose: isVerbose,
+                recordProviders: providers,
+                root: root,
+            });
+            const queryShared = {
+                registry: registry,
+                opts: { verbose: isVerbose },
+                record: {
+                    rootDirectory: root,
+                    collection: '_test',
+                    query: {
+                        type: 'list-all-ids' as const,
+                        sortBy: 'id' as const,
+                        sortOrder: 'asc' as const,
+                    },
+                }
+            };
+            await queryFlow.run(queryShared as any);
+            console.log('Query result:', JSON.stringify((queryShared.record as any)?.queryResult, null, 2));
+
+            console.log('\n=== Step 3: Fetching records back ===');
+            const fetchRecordsFlow = new FetchRecordsFlow({
+                verbose: isVerbose,
+                recordProviders: providers,
+                root: root,
+            });
+            const fetchShared = {
+                registry: registry,
+                opts: { verbose: isVerbose },
+                record: {
+                    rootDirectory: root,
+                    collection: "_test",
+                    IDs: ["test-note-001", "test-goal-001"],
+                }
+            };
+            await fetchRecordsFlow.run(fetchShared as any);
+            console.log('Fetched records:', JSON.stringify((fetchShared.record as any)?.results, null, 2));
+
+            console.log('\n✓ Record lifecycle test completed successfully');
         } catch (error) {
-            console.error('Error during test:', error);
+            console.error('Error during test-records:', error);
             process.exit(1);
         }
         return;
     });
 
-program.addCommand(cmdTest);
+program.addCommand(cmdTestRecords);
 
 program.parse();
