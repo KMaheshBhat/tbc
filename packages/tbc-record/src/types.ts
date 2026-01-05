@@ -28,13 +28,9 @@ type TBCRecordOperation = {
    IDs?: string[];
    collection?: string;
    records?: TBCRecord[];
-   // results?: TBCStore | Record<string, string[]>;
-   // accumulate?: TBCStore | Record<string, string[]>;
-   // empty?: TBCStore | Record<string, string[]>;
    results?: TBCStore;
    accumulate?: TBCStore;
    empty?: TBCStore;
-   // Query-specific fields
    query?: TBCQueryParams;
    queryResult?: TBCQueryResult;
 }
