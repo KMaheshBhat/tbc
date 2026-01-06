@@ -4,13 +4,13 @@ import { Node } from "pocketflow";
 import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 import { TBCRecordStorage, TBCQueryParams, TBCResult, TBCStore } from "../types";
 
-interface QueryFlowConfig {
+interface QueryRecordsFlowConfig {
     verbose: boolean;
     recordProviders?: string[];
     root?: string;
 }
 
-const QueryFlowConfigSchema: ValidationSchema = {
+const QueryRecordsFlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         verbose: { type: "boolean" },
@@ -20,11 +20,11 @@ const QueryFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class QueryFlow extends HAMIFlow<Record<string, any>, QueryFlowConfig> {
+export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, QueryRecordsFlowConfig> {
     startNode: Node;
-    config: QueryFlowConfig;
+    config: QueryRecordsFlowConfig;
 
-    constructor(config: QueryFlowConfig) {
+    constructor(config: QueryRecordsFlowConfig) {
         const startNode = new Node();
         super(startNode, config);
         this.startNode = startNode;
@@ -32,14 +32,14 @@ export class QueryFlow extends HAMIFlow<Record<string, any>, QueryFlowConfig> {
     }
 
     kind(): string {
-        return "tbc-record:query-flow";
+        return "tbc-record:query-records-flow";
     }
 
     async prep(shared: TBCRecordStorage): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         const providers = this.config.recordProviders || [];
-        // TODO validate `tbc-record-${provider}:query` exists for each provider
+        // TODO validate `tbc-record-${provider}:query-records` exists for each provider
         let finalNode = new Node();
         let tailNode = providers.length > 0 ? new Node() : finalNode;
         this.startNode
@@ -52,7 +52,7 @@ export class QueryFlow extends HAMIFlow<Record<string, any>, QueryFlowConfig> {
             tailNode
                 .next(new PrintNode(`---Querying records from ${provider}---`))
                 .next(n("core:assign", { "record.result": "emptyQueryResult" }))
-                .next(n(`tbc-record-${provider}:query`))
+                .next(n(`tbc-record-${provider}:query-records`))
                 .next(new AccumulateQueryNode())
                 .next(new PrintNode('------'))
                 .next(targetNext);
@@ -77,8 +77,8 @@ export class QueryFlow extends HAMIFlow<Record<string, any>, QueryFlowConfig> {
         return super.run(shared);
     }
 
-    validateConfig(config: QueryFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, QueryFlowConfigSchema)
+    validateConfig(config: QueryRecordsFlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, QueryRecordsFlowConfigSchema)
         return {
             valid: result.isValid,
             errors: result.errors || [],

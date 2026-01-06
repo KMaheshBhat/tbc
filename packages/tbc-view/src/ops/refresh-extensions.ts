@@ -71,7 +71,7 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
                 'record.collection': 'extensionsCollection',
                 'record.query': 'queryAllIDs',
             }))
-            .next(n('tbc-record:query-flow', {
+            .next(n('tbc-record:query-records-flow', {
                 recordProviders: ['fs'],
                 verbose: this.config.verbose,
              }))

@@ -39,7 +39,7 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FetchRecords
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         const providers = this.config.recordProviders || [];
-        // TODO validate `tbc-record-${provider}:fetch-records-new` exists for each provider
+        // TODO validate `tbc-record-${provider}:fetch-records` exists for each provider
         let finalNode = new Node();
         let tailNode = providers.length > 0 ? new Node() : finalNode;
         this.startNode
@@ -52,7 +52,7 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FetchRecords
             tailNode
                 .next(new PrintNode(`---Fetching records from ${provider}---`))
                 .next(n("core:assign", { "record.results": "record.empty" }))
-                .next(n(`tbc-record-${provider}:fetch-records-new`))
+                .next(n(`tbc-record-${provider}:fetch-records`))
                 .next(new AccumulateNode())
                 .next(new PrintNode('------'))
                 .next(targetNext);

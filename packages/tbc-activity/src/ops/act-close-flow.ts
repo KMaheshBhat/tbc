@@ -40,7 +40,7 @@ export class ActCloseFlow extends HAMIFlow<Record<string, any>, ActCloseFlowConf
                 'record.collection': 'collection',
                 'record.query': 'queryAllIDs',
             }))
-            .next(n('tbc-record:query-flow', {
+            .next(n('tbc-record:query-records-flow', {
                 recordProviders: ['fs'],
                 verbose: this.config.verbose,
              }))

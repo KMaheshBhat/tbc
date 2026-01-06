@@ -7,24 +7,24 @@ import { join } from "path";
 import { TBCRecordFSStorage } from "../types.js";
 import { TBCQueryParams, TBCResult } from "@tbc-frameworx/tbc-record";
 
-type QueryInput = {
+type QueryRecordsInput = {
     rootDirectory: string;
     collection: string;
     query: TBCQueryParams;
 };
 
-type QueryOutput = TBCResult;
+type QueryRecordsOutput = TBCResult;
 
-export class QueryNode extends HAMINode<TBCRecordFSStorage> {
+export class QueryRecordsNode extends HAMINode<TBCRecordFSStorage> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-record-fs:query";
+        return "tbc-record-fs:query-records";
     }
 
-    async prep(shared: TBCRecordFSStorage): Promise<QueryInput> {
+    async prep(shared: TBCRecordFSStorage): Promise<QueryRecordsInput> {
         assert(shared.record, 'shared.record is required');
         assert(shared.record.rootDirectory, 'shared.record.rootDirectory is required');
         assert(shared.record.collection, 'shared.record.collection is required');
@@ -36,7 +36,7 @@ export class QueryNode extends HAMINode<TBCRecordFSStorage> {
         };
     }
 
-    async exec(params: QueryInput): Promise<QueryOutput> {
+    async exec(params: QueryRecordsInput): Promise<QueryRecordsOutput> {
         const { rootDirectory, collection, query } = params;
 
         switch (query.type) {
@@ -110,7 +110,7 @@ export class QueryNode extends HAMINode<TBCRecordFSStorage> {
         });
     }
 
-    async post(shared: TBCRecordFSStorage, _prepRes: QueryInput, execRes: QueryOutput): Promise<string | undefined> {
+    async post(shared: TBCRecordFSStorage, _prepRes: QueryRecordsInput, execRes: QueryRecordsOutput): Promise<string | undefined> {
         if (!shared.record!.result) shared.record!.result = {};
         Object.assign(shared.record!.result, execRes);
         return "default";

@@ -3,7 +3,6 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { FetchRecordsFlow, StoreRecordsFlow, QueryFlow } from '@tbc-frameworx/tbc-record';
 
 const { registry } = await bootstrap();
 
@@ -717,106 +716,5 @@ let cmdIntKilocode = new Command('kilocode')
 cmdInt.addCommand(cmdIntKilocode);
 
 program.addCommand(cmdInt);
-
-let cmdTestRecords = new Command('test-records')
-    .description('Test the complete record lifecycle: store records, query them, and fetch them back')
-    .argument('[providers...]', 'Record providers to use (e.g., fs sqlite)', ['fs'])
-    .action(async (providers) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-
-            console.log('=== Step 1: Storing test records ===');
-            const storeShared = {
-                registry: registry,
-                opts: { verbose: isVerbose },
-                record: {
-                    rootDirectory: root,
-                    collection: "_test",
-                    records: [
-                        {
-                            id: "test-note-001",
-                            record_type: "note",
-                            record_tags: ["c/test"],
-                            record_create_date: new Date().toISOString(),
-                            record_title: "Test Note for Store Records",
-                            content: "This is a test note created by the store-records test command."
-                        },
-                        {
-                            id: "test-goal-001",
-                            contentType: "markdown",
-                            record_type: "goal",
-                            record_tags: ["c/test"],
-                            record_create_date: new Date().toISOString(),
-                            record_title: "Test Goal for Store Records",
-                            goal_owner: "test-user",
-                            goal_type: "task",
-                            goal_status: "open",
-                            goal_class: "task"
-                        }
-                    ],
-                },
-            };
-            const storeRecordsFlow = new StoreRecordsFlow({
-                verbose: isVerbose,
-                recordProviders: providers,
-                root: root,
-            });
-            await storeRecordsFlow.run(storeShared as any);
-            console.log('✓ Records stored successfully');
-            console.log('Result:', JSON.stringify((storeShared.record as any)?.result, null, 2));
-
-            console.log('\n=== Step 2: Querying records ===');
-            const queryFlow = new QueryFlow({
-                verbose: isVerbose,
-                recordProviders: providers,
-                root: root,
-            });
-            const queryShared = {
-                registry: registry,
-                opts: { verbose: isVerbose },
-                record: {
-                    rootDirectory: root,
-                    collection: '_test',
-                    query: {
-                        type: 'list-all-ids' as const,
-                        sortBy: 'id' as const,
-                        sortOrder: 'asc' as const,
-                    },
-                }
-            };
-            await queryFlow.run(queryShared as any);
-            console.log('✓ Query executed successfully');
-            console.log('Result: ', JSON.stringify((queryShared.record as any)?.result, null, 2))
-
-            console.log('\n=== Step 3: Fetching records back ===');
-            const fetchRecordsFlow = new FetchRecordsFlow({
-                verbose: isVerbose,
-                recordProviders: providers,
-                root: root,
-            });
-            const fetchShared = {
-                registry: registry,
-                opts: { verbose: isVerbose },
-                record: {
-                    rootDirectory: root,
-                    collection: "_test",
-                    IDs: ["test-note-001", "test-goal-001"],
-                }
-            };
-            await fetchRecordsFlow.run(fetchShared as any);
-            console.log('✓ Fetch executed successfully');
-            console.log('Result:', JSON.stringify((fetchShared.record as any)?.result, null, 2));
-
-            console.log('\n✓ Record lifecycle test completed successfully');
-        } catch (error) {
-            console.error('Error during test-records:', error);
-            process.exit(1);
-        }
-        return;
-    });
-
-program.addCommand(cmdTestRecords);
 
 program.parse();
