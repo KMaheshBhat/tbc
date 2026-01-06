@@ -32,40 +32,43 @@ export class MemCompanionFlow extends HAMIFlow<Record<string, any>, MemCompanion
         return "tbc-memory:mem-companion-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose, show: this.config.show };
-
-        // First fetch companion.id from sys
-        shared.collection = 'sys';
-        shared.IDs = ['companion.id'];
-
-        // Wire the flow
         let flow = this.startNode
             .next(n('tbc-system:resolve'))
-            .next(n('tbc-record-fs:fetch-records'))
+            .next(n('core:assign', {
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'collection',
+                'record.IDs': 'IDs',
+            }))
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-memory:extract-companion-id'));
-
         if (this.config.show === 'name' || this.config.show === 'full') {
             flow = flow
-                .next(n('tbc-record-fs:fetch-records'))
+                .next(n('core:assign', {
+                    'record.rootDirectory': 'rootDirectory',
+                    'record.collection': 'collection',
+                    'record.IDs': 'IDs',
+                }))
+                .next(n('tbc-record:fetch-records-flow', {
+                    recordProviders: ['fs'],
+                    verbose: this.config.verbose,
+                }))
                 .next(n('tbc-memory:extract-companion-name'));
         }
-
         if (this.config.show === 'full') {
             flow = flow
                 .next(n('tbc-memory:extract-companion-record'));
         }
-
         const resultKey = this.config.show === 'id' ? 'companionId' :
                          this.config.show === 'name' ? 'companionName' : 'companionRecord';
         const format = this.config.show === 'full' ? 'table' : 'text';
         const prefix = this.config.show === 'id' ? 'Companion ID:' :
                       this.config.show === 'name' ? 'Companion Name:' : 'Companion Record:';
-
         flow.next(n('core:log-result', {
             resultKey,
             format,
@@ -73,6 +76,15 @@ export class MemCompanionFlow extends HAMIFlow<Record<string, any>, MemCompanion
             verbose: this.config.verbose
         }));
 
+    }
+
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = {
+            verbose: this.config.verbose,
+            show: this.config.show,
+        };
+        shared.collection = 'sys';
+        shared.IDs = ['companion.id'];
         return super.run(shared);
     }
 

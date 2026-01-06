@@ -3,9 +3,6 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
-import { MemCompanionFlow, MemPrimeFlow, MemStubFlow } from '@tbc-frameworx/tbc-memory';
-import { ActStartFlow, ActBacklogFlow, ActCloseFlow, ActShowFlow } from '@tbc-frameworx/tbc-activity';
-import { RefreshCoreFlow, RefreshExtensionsFlow, RefreshRecordsFlow, RefreshSkillsFlow, GraphMinerFlow } from '@tbc-frameworx/tbc-view';
 import { FetchRecordsFlow, StoreRecordsFlow, QueryFlow } from '@tbc-frameworx/tbc-record';
 
 const { registry } = await bootstrap();
@@ -121,8 +118,8 @@ let cmdDexCore = new Command('core')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
-            const refreshCoreFlow = new RefreshCoreFlow({
-                verbose: isVerbose,
+            const refreshCoreFlow = registry.createNode('tbc-view:refresh-core', {
+                verbose: opts.verbose,
             });
             await refreshCoreFlow.run({
                 registry: registry,
@@ -143,7 +140,7 @@ let cmdDexRecords = new Command('records')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
-            const refreshRecordsFlow = new RefreshRecordsFlow({
+            const refreshRecordsFlow = registry.createNode('tbc-view:refresh-records', { 
                 verbose: isVerbose,
             });
             await refreshRecordsFlow.run({
@@ -165,7 +162,7 @@ let cmdDexExtensions = new Command('extensions')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
-            const refreshExtensionsFlow = new RefreshExtensionsFlow({
+            const refreshExtensionsFlow = registry.createNode('tbc-view:refresh-extensions', {
                 verbose: isVerbose,
             });
             await refreshExtensionsFlow.run({
@@ -187,7 +184,7 @@ let cmdDexSkills = new Command('skills')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
-            const refreshSkillsFlow = new RefreshSkillsFlow({
+            const refreshSkillsFlow = registry.createNode('tbc-view:refresh-skills', {
                 verbose: isVerbose,
             });
             await refreshSkillsFlow.run({
@@ -209,7 +206,7 @@ let cmdDexIndex = new Command('index')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const graphMinerFlow = new GraphMinerFlow({
+            const graphMinerFlow = registry.createNode('tbc-view:graph-miner-flow', {
                 verbose: isVerbose,
             });
             await graphMinerFlow.run({
@@ -388,7 +385,7 @@ let cmdMemCompanion = new Command('companion')
                 console.error('Error: --show must be one of: id, name, full');
                 process.exit(1);
             }
-            const memCompanionFlow = new MemCompanionFlow({
+            const memCompanionFlow = registry.createNode('tbc-memory:mem-companion-flow', {
                 verbose: isVerbose,
                 show: show,
             });
@@ -418,7 +415,7 @@ let cmdMemPrime = new Command('prime')
                 console.error('Error: --show must be one of: id, name, full');
                 process.exit(1);
             }
-            const memPrimeFlow = new MemPrimeFlow({
+            const memPrimeFlow = registry.createNode('tbc-memory:mem-prime-flow', {
                 verbose: isVerbose,
                 show: show,
             });
@@ -448,7 +445,7 @@ let cmdMemStub = new Command('stub')
                 console.error(`Error: Invalid record type '${recordType}'. Must be one of: ${validTypes.join(', ')}`);
                 process.exit(1);
             }
-            const memStubFlow = new MemStubFlow({
+            const memStubFlow = registry.createNode('tbc-memory:mem-stub-flow', {
                 verbose: isVerbose,
                 recordType: recordType,
             });
@@ -478,7 +475,7 @@ let cmdActStart = new Command('start')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const actStartFlow = new ActStartFlow({
+            const actStartFlow = registry.createNode('tbc-activity:act-start-flow', {
                 verbose: isVerbose,
                 activityId: uuid,
             });
@@ -503,7 +500,7 @@ let cmdActBacklog = new Command('backlog')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const actBacklogFlow = new ActBacklogFlow({
+            const actBacklogFlow = registry.createNode('tbc-activity:act-backlog-flow', {
                 verbose: isVerbose,
                 activityId: uuid,
             });
@@ -528,7 +525,7 @@ let cmdActClose = new Command('close')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const actCloseFlow = new ActCloseFlow({
+            const actCloseFlow = registry.createNode('tbc-activity:act-close-flow', {
                 verbose: isVerbose,
                 activityId: uuid,
             });
@@ -552,7 +549,7 @@ let cmdActShow = new Command('show')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const actShowFlow = new ActShowFlow({
+            const actShowFlow = registry.createNode('tbc-activity:act-show-flow', {
                 verbose: isVerbose,
             });
             await actShowFlow.run({

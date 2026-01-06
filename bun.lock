@@ -131,6 +131,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@hami-frameworx/core": "0.1.2",
+        "@tbc-frameworx/tbc-record": "workspace:*",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -195,6 +196,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@hami-frameworx/core": "0.1.2",
+        "@tbc-frameworx/tbc-record": "^0.1.0",
         "gray-matter": "4.0.3",
         "pocketflow": "^1.0.4",
       },

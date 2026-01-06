@@ -23,15 +23,11 @@ export class ActBacklogFlow extends HAMIFlow<Record<string, any>, ActBacklogFlow
         return "tbc-activity:act-backlog-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        shared.opts = { verbose: this.config.verbose, activityId: this.config.activityId };
-        shared.rootDirectory = shared.root || process.cwd();
-        shared.activityId = this.config.activityId;
-
         this.startNode
+            .next(n('tbc-system:resolve'))
             .next(n('tbc-activity:check-activity-state'))
             .next(n('tbc-activity:validate-backlog-state'))
             .next(n('tbc-activity:move-activity-directory'))
@@ -41,7 +37,14 @@ export class ActBacklogFlow extends HAMIFlow<Record<string, any>, ActBacklogFlow
                 prefix: 'Moved activity to backlog:',
                 verbose: this.config.verbose
             }));
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = {
+            verbose: this.config.verbose,
+            activityId: this.config.activityId,
+        };
+        shared.activityId = this.config.activityId;
         return super.run(shared);
     }
 }

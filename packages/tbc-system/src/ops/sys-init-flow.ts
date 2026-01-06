@@ -42,29 +42,50 @@ export class SysInitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
     async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-        const resultLog = new Node();
         this.startNode
+            .next(n('tbc-system:resolve'))
             .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-generator:uuid'))
             .next(n('tbc-system:generate-init-records'))
             .next(n('tbc-system:init'))
-            .next(n('tbc-record-fs:store-records'))
+            .next(n('core:assign', { 
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'collection',
+                'record.records': 'records',
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-system:generate-init-ids'))
-            .next(n('tbc-record-fs:store-records'))
+            .next(n('core:assign', { 
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'collection',
+                'record.records': 'records',
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-system:copy-assets'))
             .next(n('tbc-system:generate-root', {
                 companion: this.config.companion,
                 prime: this.config.prime,
             }))
-            .next(n('tbc-record-fs:store-records'))
+            .next(n('core:assign', { 
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'collection',
+                'record.records': 'records',
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
-            .next(resultLog)
-            ;
-        resultLog
             .next(logTableNode(shared['registry'], 'generatedIds'))
             .next(logTableNode(shared['registry'], 'generateInitRecordsResults'))
             .next(logTableNode(shared['registry'], 'generateInitIdsResults'))
@@ -76,29 +97,16 @@ export class SysInitFlow extends HAMIFlow<Record<string, any>, InitFlowConfig> {
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
-        // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
-
-        // Set companion and prime names in shared state
         shared.companion = this.config.companion;
         shared.prime = this.config.prime;
-
-        // Set count for UUID generation
-        shared.count = 3;
-
-        // Determine root directory
-        const rootDir = this.config.root || process.cwd();
-        shared.rootDirectory = rootDir;
-
+        shared.count = 3; // Set count for UUID generation
         // Determine assets path (relative to tbc-system package)
         // Works in both development (source) and production (installed) environments
         const currentFile = fileURLToPath(import.meta.url);
         const currentDir = dirname(currentFile);
         const packageDir = resolve(currentDir, '../..'); // Always package root
-
         shared.assetsPath = join(packageDir, 'assets');
-        shared.count = 3; // For UUID generation
-
         return super.run(shared);
     }
 

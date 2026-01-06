@@ -15,10 +15,10 @@ export class ExtractCompanionRecordNode extends HAMINode<TBCMemoryStorage> {
     }
 
     async prep(shared: TBCMemoryStorage): Promise<ExtractCompanionRecordInput> {
-        if (!shared.fetchResults?.['mem']?.[shared.companionId!]) {
+        if (!shared.record?.result?.records?.['mem']?.[shared.companionId!]) {
             throw new Error('companion record not fetched');
         }
-        return shared.fetchResults['mem'][shared.companionId!];
+        return shared.record?.result?.records?.['mem']?.[shared.companionId!];
     }
 
     async exec(params: ExtractCompanionRecordInput): Promise<ExtractCompanionRecordOutput> {

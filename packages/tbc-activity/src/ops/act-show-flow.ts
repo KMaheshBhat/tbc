@@ -22,16 +22,11 @@ export class ActShowFlow extends HAMIFlow<Record<string, any>, ActShowFlowConfig
         return "tbc-activity:act-show-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        shared.opts = { verbose: this.config.verbose };
-
-        const rootDir = shared.root || process.cwd();
-        shared.rootDirectory = rootDir;
-
         this.startNode
+            .next(n('tbc-system:resolve'))
             .next(n('tbc-activity:list-activity-directories'))
             .next(n('core:log-result', {
                 resultKey: 'currentActivities',
@@ -45,7 +40,12 @@ export class ActShowFlow extends HAMIFlow<Record<string, any>, ActShowFlowConfig
                 prefix: 'Backlog activities:',
                 verbose: this.config.verbose
             }));
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = {
+            verbose: this.config.verbose,
+        };
         return super.run(shared);
     }
 }

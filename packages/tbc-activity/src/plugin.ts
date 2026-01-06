@@ -11,7 +11,6 @@ import { ActBacklogFlow } from "./ops/act-backlog-flow.js";
 import { ValidateBacklogStateNode } from "./ops/validate-backlog-state.js";
 import { ActCloseFlow } from "./ops/act-close-flow.js";
 import { ValidateCloseStateNode } from "./ops/validate-close-state.js";
-import { PrepareMemStoreNode } from "./ops/prepare-mem-store.js";
 import { PrepareCloseRecordsNode } from "./ops/prepare-close-records.js";
 import { RemoveActivityRecordsNode } from "./ops/remove-activity-records.js";
 import { ListActivityDirectoriesNode } from "./ops/list-activity-directories.js";
@@ -30,7 +29,6 @@ import { ActShowFlow } from "./ops/act-show-flow.js";
  * - `tbc-activity:validate-start-state`: Validates state for start operation
  * - `tbc-activity:validate-backlog-state`: Validates state for backlog operation
  * - `tbc-activity:validate-close-state`: Validates state for close operation
- * - `tbc-activity:prepare-mem-store`: Prepares for storing to memory
  * - `tbc-activity:remove-activity-records`: Removes record files from current activity directory
  * - `tbc-activity:list-activity-directories`: Lists activity directories in current and backlog
  * - Activity flows for start, backlog, close, and show operations
@@ -50,7 +48,6 @@ const TBCActivityPlugin = createPlugin(
         ActBacklogFlow as any,
         ValidateCloseStateNode as any,
         ActCloseFlow as any,
-        PrepareMemStoreNode as any,
         PrepareCloseRecordsNode as any,
         RemoveActivityRecordsNode as any,
         ListActivityDirectoriesNode as any,

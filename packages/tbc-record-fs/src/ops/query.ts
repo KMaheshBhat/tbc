@@ -55,13 +55,13 @@ export class QueryNode extends HAMINode<TBCRecordFSStorage> {
         const collectionPath = join(rootDirectory, collection);
         try {
             const files = readdirSync(collectionPath);
-            let ids = files
+            let IDs = files
                 .filter(file => file.endsWith('.md'))
                 .map(file => file.replace(/\.md$/, ''));
 
             // Apply sorting if specified
             if (query.sortBy) {
-                ids = this.sortIds(ids, query.sortBy, query.sortOrder || 'asc');
+                IDs = this.sortIds(IDs, query.sortBy, query.sortOrder || 'asc');
             }
             // TODO: Implement pagination when limit/offset parameters are added
             // if (query.limit !== undefined) {
@@ -70,14 +70,14 @@ export class QueryNode extends HAMINode<TBCRecordFSStorage> {
             // }
 
             return {
-                ids,
-                totalCount: ids.length,
+                IDs: IDs,
+                totalCount: IDs.length,
             };
         } catch (error: any) {
             if (error.code !== 'ENOENT') {
                 console.error(`Error reading directory ${collectionPath}:`, error);
             }
-            return { ids: [], totalCount: 0 };
+            return { IDs: [], totalCount: 0 };
         }
     }
 

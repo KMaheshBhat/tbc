@@ -29,43 +29,46 @@ export class MemPrimeFlow extends HAMIFlow<Record<string, any>, MemPrimeFlowConf
     }
 
     kind(): string {
-        return "tbc-memory:mem-prime";
+        return "tbc-memory:mem-prime-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose, show: this.config.show };
-
-        // First fetch prime.id from sys
-        shared.collection = 'sys';
-        shared.IDs = ['prime.id'];
-
-        // Wire the flow
         let flow = this.startNode
             .next(n('tbc-system:resolve'))
-            .next(n('tbc-record-fs:fetch-records'))
+            .next(n('core:assign', {
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'collection',
+                'record.IDs': 'IDs',
+            }))
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-memory:extract-prime-id'));
-
         if (this.config.show === 'name' || this.config.show === 'full') {
             flow = flow
-                .next(n('tbc-record-fs:fetch-records'))
+                .next(n('core:assign', {
+                    'record.rootDirectory': 'rootDirectory',
+                    'record.collection': 'collection',
+                    'record.IDs': 'IDs',
+                }))
+                .next(n('tbc-record:fetch-records-flow', {
+                    recordProviders: ['fs'],
+                    verbose: this.config.verbose,
+                }))
                 .next(n('tbc-memory:extract-prime-name'));
         }
-
         if (this.config.show === 'full') {
             flow = flow
                 .next(n('tbc-memory:extract-prime-record'));
         }
-
         const resultKey = this.config.show === 'id' ? 'primeId' :
-                         this.config.show === 'name' ? 'primeName' : 'primeRecord';
+                          this.config.show === 'name' ? 'primeName' : 'primeRecord';
         const format = this.config.show === 'full' ? 'table' : 'text';
         const prefix = this.config.show === 'id' ? 'Prime ID:' :
-                      this.config.show === 'name' ? 'Prime Name:' : 'Prime Record:';
-
+                       this.config.show === 'name' ? 'Prime Name:' : 'Prime Record:';
         flow.next(n('core:log-result', {
             resultKey,
             format,
@@ -73,6 +76,15 @@ export class MemPrimeFlow extends HAMIFlow<Record<string, any>, MemPrimeFlowConf
             verbose: this.config.verbose
         }));
 
+    }
+
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = {
+            verbose: this.config.verbose,
+            show: this.config.show,
+        };
+        shared.collection = 'sys';
+        shared.IDs = ['prime.id'];
         return super.run(shared);
     }
 

@@ -1,5 +1,8 @@
-import { HAMIFlow } from "@hami-frameworx/core";
+import assert from "assert";
 import { Node } from "pocketflow";
+
+import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
+import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
 
 class GroupExtensionsByTypeNode extends Node {
     async prep(shared: Record<string, any>): Promise<any> {
@@ -31,6 +34,14 @@ interface RefreshExtensionsFlowConfig {
     verbose: boolean;
 }
 
+const RefreshExtensionsFlowConfigSchema: ValidationSchema = {
+    type: "object",
+    properties: {
+        verbose: { type: "boolean" },
+    },
+    required: ["verbose"],
+};
+
 export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, RefreshExtensionsFlowConfig> {
     startNode: Node;
     config: RefreshExtensionsFlowConfig;
@@ -46,18 +57,9 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
         return "tbc-view:refresh-extensions";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
+        assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose };
-
-        // Determine root directory
-        const rootDir = shared.root || process.cwd();
-        shared.rootDirectory = rootDir;
-
-        // Set collection for fetch operations
-        shared.collection = 'sys/ext';
 
         // Group extensions by type
         const groupExtensions = new GroupExtensionsByTypeNode();
@@ -65,13 +67,68 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
         // Wire the flow
         this.startNode
             .next(n('tbc-system:resolve'))
-            .next(n('tbc-record-fs:fetch-all-ids'))
-            .next(n('tbc-record-fs:fetch-records'))
+            .next(n('core:assign', {
+                'record.collection': 'extensionsCollection',
+                'record.query': 'queryAllIDs',
+            }))
+            .next(n('tbc-record:query-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+             }))
+            .next(n('core:assign', {
+                'record.IDs': 'record.result.IDs',
+            }))
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(groupExtensions)
-            .next(n('tbc-view:generate-dex-extensions', { verbose: this.config.verbose }))
-            .next(n('tbc-record-fs:store-records'))
-            .next(n('core:log-result', { resultKey: 'storeResults', format: 'table'}))
+            .next(n('tbc-view:generate-dex-extensions', {
+                verbose: this.config.verbose,
+            }))
+            .next(n('core:assign', {
+                'record.collection': 'collection',
+                'record.records': 'records',
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
+            .next(n('core:log-result', {
+                resultKey: 'storeResults',
+                format: 'table',
+            }))
+            ;
+    }
+
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        // Set options in shared state
+        shared.opts = { verbose: this.config.verbose };
+
+        // Determine root directory
+        const rootDir = shared.root || process.cwd();
+        shared.rootDirectory = rootDir;
+        shared.record = {
+            rootDirectory: rootDir,
+        }
+
+        // Initialize fetchResults
+        shared.fetchResults = {};
+
+        // Set collection names
+        shared.extensionsCollection = 'sys/ext';
+        shared.queryAllIDs = {
+            type: 'list-all-ids',
+        }
 
         return super.run(shared);
+    }
+
+    validateConfig(config: RefreshExtensionsFlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, RefreshExtensionsFlowConfigSchema)
+        return {
+            valid: result.isValid,
+            errors: result.errors || [],
+        };
     }
 }

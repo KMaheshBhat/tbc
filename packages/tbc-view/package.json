@@ -10,9 +10,11 @@
     "build": "bun build src/index.ts --outfile=dist/index.js --target=bun && bunx tsc --emitDeclarationOnly --outDir dist"
   },
   "dependencies": {
-    "@hami-frameworx/core": "0.1.2",
     "gray-matter": "4.0.3",
-    "pocketflow": "^1.0.4"
+    "pocketflow": "^1.0.4",
+    "@hami-frameworx/core": "0.1.2",
+    "@tbc-frameworx/tbc-record": "^0.1.0"
+
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -23,24 +23,44 @@ export class ActCloseFlow extends HAMIFlow<Record<string, any>, ActCloseFlowConf
         return "tbc-activity:act-close-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
 
-        shared.opts = { verbose: this.config.verbose, activityId: this.config.activityId, targetState: 'archive' };
-        const rootDir = shared.root || process.cwd();
-        shared.rootDirectory = rootDir;
-        shared.activityId = this.config.activityId;
-
         this.startNode
+            .next(n('tbc-system:resolve'))
+            .next(n('tbc-system:validate', {
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-activity:check-activity-state'))
             .next(n('tbc-activity:validate-close-state'))
             .next(n('tbc-activity:assimilate-logs'))
-            .next(n('tbc-record-fs:fetch-all-ids'))
-            .next(n('tbc-record-fs:fetch-records'))
+            .next(n('core:assign', {
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'collection',
+                'record.query': 'queryAllIDs',
+            }))
+            .next(n('tbc-record:query-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+             }))
+            .next(n('core:assign', {
+                'record.IDs': 'record.result.IDs'
+            }))
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-activity:prepare-close-records'))
-            .next(n('tbc-activity:prepare-mem-store'))
-            .next(n('tbc-record-fs:store-records'))
+            .next(n('core:assign', {
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'collection',
+                'record.records': 'records',
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-activity:remove-activity-records'))
             .next(n('tbc-activity:move-activity-directory'))
             .next(n('core:log-result', {
@@ -49,7 +69,18 @@ export class ActCloseFlow extends HAMIFlow<Record<string, any>, ActCloseFlowConf
                 prefix: 'Closed activity:',
                 verbose: this.config.verbose
             }));
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = {
+            verbose: this.config.verbose,
+            activityId: this.config.activityId,
+            targetState: 'archive',
+        };
+        shared.activityId = this.config.activityId;
+        shared.queryAllIDs = {
+            type: 'list-all-ids',
+        }
         return super.run(shared);
     }
 }

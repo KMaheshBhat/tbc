@@ -1,3 +1,5 @@
+import { TBCRecordOperation } from '@tbc-frameworx/tbc-record';
+
 /**
  * Options for TBC memory operations.
  * Defines configuration flags that can be used across TBC memory operations.
@@ -19,6 +21,8 @@ type TBCMemoryOpts = {
 type TBCMemoryStorage = {
   /** Optional configuration options for TBC memory operations. */
   opts?: TBCMemoryOpts;
+  /** Current record operation */
+  record?: TBCRecordOperation;
   /** Root directory for operations */
   rootDirectory?: string;
   /** Companion ID */

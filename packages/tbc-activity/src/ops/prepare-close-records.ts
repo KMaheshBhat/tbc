@@ -38,6 +38,7 @@ export class PrepareCloseRecordsNode extends HAMINode<TBCActivityStorage> {
         }
 
         shared.records = records;
+        shared.collection = 'mem';
         return "default";
     }
 }

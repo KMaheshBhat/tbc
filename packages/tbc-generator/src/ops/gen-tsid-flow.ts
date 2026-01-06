@@ -46,7 +46,9 @@ export class GenTsidFlow extends HAMIFlow<Record<string, any>, GenTsidFlowConfig
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
-        shared.opts = { verbose: this.config.verbose };
+        shared.opts = { 
+            verbose: this.config.verbose,
+        };
         shared.count = shared.count || 1;
         return super.run(shared);
     }

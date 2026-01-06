@@ -15,10 +15,10 @@ export class ExtractPrimeIdNode extends HAMINode<TBCMemoryStorage> {
     }
 
     async prep(shared: TBCMemoryStorage): Promise<ExtractPrimeIdInput> {
-        if (!shared.fetchResults?.['sys']?.['prime.id']) {
+        if (!shared.record?.result?.records?.['sys']?.['prime.id']) {
             throw new Error('prime.id not fetched');
         }
-        return shared.fetchResults['sys']['prime.id'];
+        return shared.record?.result?.records?.['sys']?.['prime.id'];
     }
 
     async exec(params: ExtractPrimeIdInput): Promise<ExtractPrimeIdOutput> {

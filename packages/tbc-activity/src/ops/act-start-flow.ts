@@ -23,38 +23,63 @@ export class ActStartFlow extends HAMIFlow<Record<string, any>, ActStartFlowConf
         return "tbc-activity:act-start-flow";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        shared.opts = { verbose: this.config.verbose, activityId: this.config.activityId };
-
-        const rootDir = shared.root || process.cwd();
-        shared.rootDirectory = rootDir;
-
-        // Fetch companion info
-        shared.collection = 'sys';
-        shared.IDs = ['companion.id'];
-
         this.startNode
             .next(n('tbc-system:resolve'))
-            .next(n('tbc-record-fs:fetch-records'))
+            .next(n('tbc-system:validate', {
+                verbose: this.config.verbose,
+            }))
+            .next(n('core:assign', {
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'fetchCollection',
+                'record.IDs': 'IDs',
+            }))
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-memory:extract-companion-id'))
-            .next(n('tbc-record-fs:fetch-records'))
+            .next(n('core:assign', {
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'collection',
+                'record.IDs': 'IDs',
+            }))
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('tbc-memory:extract-companion-name'))
             .next(n('tbc-activity:generate-activity-id'))
             .next(n('tbc-activity:check-activity-state'))
             .next(n('tbc-activity:validate-start-state'))
             .next(n('tbc-activity:move-activity-directory'))
             .next(n('tbc-activity:create-activity-log-stub'))
-            .next(n('tbc-record-fs:store-records'))
+            .next(n('core:assign', {
+                'record.rootDirectory': 'rootDirectory',
+                'record.collection': 'collection',
+                'record.records': 'records',
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
             .next(n('core:log-result', {
                 resultKey: 'createdRecordId',
                 format: 'text' as const,
                 prefix: 'Started activity:',
                 verbose: this.config.verbose
             }));
+    }
 
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.opts = { 
+            verbose: this.config.verbose,
+            activityId: this.config.activityId,
+        };
+        shared.fetchCollection = 'sys';
+        shared.IDs = ['companion.id'];
         return super.run(shared);
     }
 }

@@ -67,7 +67,7 @@ export class QueryFlow extends HAMIFlow<Record<string, any>, QueryFlowConfig> {
     async run(shared: TBCRecordStorage): Promise<string | undefined> {
         assert(shared.record, 'shared.record (operation state) is required');
         assert(shared.record.query, 'shared.record.query is required');
-        shared.emptyQueryResult = { ids: [] };
+        shared.emptyQueryResult = { IDs: [] };
         const rootDir = shared.record.rootDirectory || this.config.root || process.cwd();
         shared.record.rootDirectory = rootDir;
         // Collection should be set by the caller or from shared state
@@ -88,13 +88,13 @@ export class QueryFlow extends HAMIFlow<Record<string, any>, QueryFlowConfig> {
 
 class AccumulateQueryNode extends Node {
     async prep(shared: TBCRecordStorage): Promise<[TBCResult, TBCResult]> {
-        return [shared.accumulatedQueryResult || { ids: [] }, shared.record?.result || { ids: [] }];
+        return [shared.accumulatedQueryResult || { IDs: [] }, shared.record?.result || { IDs: [] }];
     }
 
     async exec(prepRes: [TBCResult, TBCResult]): Promise<TBCResult> {
         const [accumulated, incoming] = prepRes;
         const master: TBCResult = {
-            ids: [...(accumulated.ids || []), ...(incoming.ids || [])],
+            IDs: [...(accumulated.IDs || []), ...(incoming.IDs || [])],
             totalCount: (accumulated.totalCount || 0) + (incoming.totalCount || 0),
         };
         // Merge records as TBCStore

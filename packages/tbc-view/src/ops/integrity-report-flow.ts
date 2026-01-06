@@ -36,9 +36,8 @@ export class IntegrityReportFlow extends HAMIFlow<Record<string, any>, Integrity
     async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
-        // Wire the reporting pipeline
         this.startNode
+            .next(n('tbc-system:resolve'))
             .next(n('tbc-view:health-summary-query'))
             .next(n('tbc-view:zombie-detection'))
             .next(n('tbc-view:orphan-detection'))
@@ -55,17 +54,17 @@ export class IntegrityReportFlow extends HAMIFlow<Record<string, any>, Integrity
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
-        shared.opts = { verbose: this.config.verbose };
-        shared.rootDirectory = shared.rootDirectory || process.cwd();
-
+        shared.opts = {
+            verbose: this.config.verbose,
+        };
         // Initialize ViewStore if not present
         if (!shared.viewStore) {
+            shared.rootDirectory = shared.rootDirectory || process.cwd();  // TODO below should be a node that uses `tbc-system:resolve`
             const path = require('path');
             const dbPath = path.join(shared.rootDirectory, 'dex', 'tbc-view.db');
             const { ViewStore } = await import('../store/view-store.js');
             shared.viewStore = new ViewStore(dbPath);
         }
-
         return super.run(shared);
     }
 

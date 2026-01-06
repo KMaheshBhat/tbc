@@ -1,3 +1,4 @@
+import { TBCRecordOperation } from '@tbc-frameworx/tbc-record';
 import { ViewStore } from "./store/view-store.js";
 
 /**
@@ -17,6 +18,8 @@ type TBCViewOpts = {
 type TBCViewStorage = {
   /** Optional configuration options for TBC view operations. */
   opts?: TBCViewOpts;
+  /** Current record operation */
+  record?: TBCRecordOperation;
   /** Explicit root directory path (optional, defaults to CWD). */
   root?: string;
   /** Resolved root directory for TBC operations. */

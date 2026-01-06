@@ -31,7 +31,7 @@ export class GenerateDexCoreNode extends HAMINode<TBCViewStorage> {
         }
         return {
             rootDirectory: shared.rootDirectory,
-            fetchResults: shared.fetchResults,
+            fetchResults: shared.record?.result?.records || {},
         };
     }
 

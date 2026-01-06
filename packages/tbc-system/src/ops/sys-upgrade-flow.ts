@@ -37,16 +37,11 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
     async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-        const upgrade = new Node();
-        const resultLog = new Node();
-        // Wire the flow
         this.startNode
+            .next(n('tbc-system:resolve'))
             .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
-            .next(upgrade)
-            ;
-        upgrade
             .next(n('tbc-system:backup-sys'))
             .next(n('tbc-system:backup-skills'))
             .next(n('tbc-system:init'))
@@ -57,9 +52,6 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
             .next(n('tbc-system:validate', {
                 verbose: this.config.verbose,
             }))
-            .next(resultLog)
-            ;
-        resultLog
             .next(logTableNode(shared['registry'], 'backupSysResults'))
             .next(logTableNode(shared['registry'], 'initResults'))
             .next(logTableNode(shared['registry'], 'copyAssetResults'))
@@ -70,19 +62,14 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
-        // Set options in shared state
-        shared.opts = { verbose: this.config.verbose };
-
-        // Determine root directory
-        const rootDir = this.config.root || process.cwd();
-        shared.rootDirectory = rootDir;
-
+        shared.opts = {
+            verbose: this.config.verbose,
+        };
         // Determine assets path (relative to tbc-system package)
         // Works in both development (source) and production (installed) environments
         const currentFile = fileURLToPath(import.meta.url);
         const currentDir = dirname(currentFile);
         const packageDir = resolve(currentDir, '../..'); // Always package root
-
         shared.assetsPath = join(packageDir, 'assets');
         return super.run(shared);
     }

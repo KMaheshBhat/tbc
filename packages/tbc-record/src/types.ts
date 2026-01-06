@@ -17,7 +17,7 @@ type TBCQueryParams = {
 };
 
 type TBCResult = {
-    ids?: string[];
+    IDs?: string[];
     records?: TBCStore;
     totalCount?: number;
 };

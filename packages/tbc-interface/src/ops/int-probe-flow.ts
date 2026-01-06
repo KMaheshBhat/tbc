@@ -49,7 +49,9 @@ export class IntProbeFlow extends HAMIFlow<Record<string, any>, IntProbeFlowConf
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
-        shared.opts = { verbose: this.config.verbose };
+        shared.opts = { 
+            verbose: this.config.verbose,
+        };
         return super.run(shared);
     }
 

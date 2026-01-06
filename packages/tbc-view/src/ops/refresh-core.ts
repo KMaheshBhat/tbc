@@ -31,16 +31,63 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         return "tbc-view:refresh-core";
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
 
+        // Wire the flow
+        this.startNode
+            .next(n('tbc-system:resolve'))
+            .next(n('core:assign', { 
+                'record.collection': 'rootCollection',
+                'record.IDs': 'rootIDs',
+            }))
+            .next(n('tbc-record:fetch-records-flow',{ 
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
+            .next(n('core:assign', {
+                'record.collection': 'specsCollection',
+                'record.query': 'queryAllIDs',
+            }))
+            .next(n('tbc-record:query-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
+            .next(n('core:assign', {
+                'record.IDs': 'record.result.IDs'
+            }))
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
+            .next(n('tbc-view:generate-dex-core'))
+            .next(n('core:assign', { 
+                'record.collection': 'collection',
+                'record.records': 'records',
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                recordProviders: ['fs'],
+                verbose: this.config.verbose,
+            }))
+            .next(n('core:log-result', {
+                resultKey: 'storeResults',
+                format: 'table',
+            }))
+            ;
+
+    }
+
+    async run(shared: Record<string, any>): Promise<string | undefined> {
         // Set options in shared state
         shared.opts = { verbose: this.config.verbose };
 
         // Determine root directory
         const rootDir = shared.root || process.cwd();
         shared.rootDirectory = rootDir;
+        shared.record = {
+            rootDirectory: rootDir,
+        }
 
         // Initialize fetchResults
         shared.fetchResults = {};
@@ -49,19 +96,9 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         shared.rootCollection = 'sys';
         shared.rootIDs = ['root'];
         shared.specsCollection = 'sys/core';
-
-        // Wire the flow
-        this.startNode
-            .next(n('tbc-system:resolve'))
-            .next(n('core:assign', { 'collection': 'rootCollection', 'IDs': 'rootIDs' }))
-            .next(n('tbc-record-fs:fetch-records'))
-            .next(n('core:assign', { 'collection': 'specsCollection' }))
-            .next(n('tbc-record-fs:fetch-all-ids'))
-            .next(n('tbc-record-fs:fetch-records'))
-            .next(n('tbc-view:generate-dex-core'))
-            .next(n('tbc-record-fs:store-records'))
-            .next(n('core:log-result', { resultKey: 'storeResults', format: 'table'}))
-            ;
+        shared.queryAllIDs = {
+            type: 'list-all-ids',
+        }
 
         return super.run(shared);
     }
