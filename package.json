@@ -9,6 +9,7 @@
     "packages/*"
   ],
   "scripts": {
+    "cli:test": "bun test --filter='@tbc-frameworx/tbc-cli' --concurrency=1",
     "cli:build": "bun run --filter='@tbc-frameworx/tbc-cli' build",
     "cli:install": "bun run cli:build && cd apps/tbc-cli && bun link",
     "system:build": "bun run --filter='@tbc-frameworx/tbc-system' build",

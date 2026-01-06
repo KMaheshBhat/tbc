@@ -435,16 +435,21 @@ The root record may override this path.
 
 For detailed, non-destructive testing procedures (including AI-assistant safety rules), see [Tester Guide](./tester-guide.md).
 
+In the spirit of the fast-moving project, we prioritize strategic integration tests over comprehensive unit test coverage. Integration tests validate end-to-end functionality and critical workflows, ensuring the system works as a whole.
 
 Currently:
 
+- Minimal integration tests for key CLI commands
+- Strategic test scenarios covering core functionality
+- Non-destructive testing in sandbox environments
 - Validation is structural
 - Determinism is enforced via flows
 - Git history acts as audit log
 
 **Recommended future work**:
 
-- Node‑level unit tests
+- Expand integration test coverage progressively
+- Node‑level unit tests (when needed for complex logic)
 - Snapshot tests for generated records
 - CLI golden‑file tests
 
