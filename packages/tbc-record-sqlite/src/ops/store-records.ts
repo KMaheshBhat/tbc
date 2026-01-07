@@ -1,16 +1,18 @@
+import assert from "assert";
 import { HAMINode } from "@hami-frameworx/core";
 import { Database } from "bun:sqlite";
 
 import type { TBCRecordSQLiteStorage, TBCRecord } from "../types.js";
+import { TBCStore } from "@tbc-frameworx/tbc-record";
+import { ensureTables } from "../store.js";
 
 type StoreRecordsInput = {
     storePath: string;
     collection: string;
     records: TBCRecord[];
-    database: 'records' | 'meta';
 };
 
-type StoreRecordsOutput = string[]; // array of stored IDs
+type StoreRecordsOutput = TBCStore;
 
 export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
     constructor(maxRetries?: number, wait?: number) {
@@ -22,15 +24,14 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
     }
 
     async prep(shared: TBCRecordSQLiteStorage): Promise<StoreRecordsInput> {
-        if (!shared.storePath || !shared.collection || !shared.records) {
-            throw new Error("storePath, collection, and records are required in shared state");
-        }
-        const database = shared.database || 'records';
+        assert(shared.record, 'shared.record is required');
+        assert(shared.storePath, 'shared.storePath is required');
+        assert(shared.record.collection, 'shared.record.collection is required');
+        assert(shared.record.records, 'shared.record.records is required');
         return {
-            storePath: shared.storePath,
-            collection: shared.collection,
-            records: shared.records,
-            database,
+            storePath: shared.storePath!,
+            collection: shared.record.collection!,
+            records: shared.record.records!,
         };
     }
 
@@ -38,9 +39,11 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         const db = new Database(params.storePath);
         try {
             // Ensure tables exist
-            this.ensureTables(db);
+            ensureTables(db);
 
-            const storedIds: string[] = [];
+            const storedTBCStore: TBCStore = {
+                [params.collection]: {},
+            };
 
             for (const record of params.records) {
                 if (!record.id) {
@@ -50,17 +53,17 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
 
                 try {
                     await this.storeRecord(db, params.collection, record);
-                    storedIds.push(record.id);
+                    storedTBCStore[params.collection][record.id!] = record;
                 } catch (error) {
                     console.error(`Error storing record ${record.id}:`, error);
                     // Continue with other records
                 }
             }
 
-            return storedIds;
+            return storedTBCStore;
         } catch (error: any) {
             console.error(`Error storing records to ${params.storePath}:`, error);
-            return [];
+            return {[params.collection]: {}};
         } finally {
             db.close();
         }
@@ -124,7 +127,7 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
                 valueType = 'json';
             }
 
-            attrQuery.run(record.id, key, valueStr, valueType, now);
+            attrQuery.run(record.id!, key, valueStr, valueType, now);
         }
     }
 
@@ -140,57 +143,12 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         return Math.abs(hash).toString(16);
     }
 
-    private ensureTables(db: Database): void {
-        db.run(`
-            CREATE TABLE IF NOT EXISTS nodes (
-                id TEXT PRIMARY KEY,
-                collection TEXT NOT NULL,
-                record_type TEXT NOT NULL,
-                hash TEXT NOT NULL,
-                last_seen_at INTEGER NOT NULL,
-                created_at INTEGER,
-                file_path TEXT
-            )
-        `);
-
-        db.run(`
-            CREATE TABLE IF NOT EXISTS node_attributes (
-                node_id TEXT NOT NULL,
-                key TEXT NOT NULL,
-                value TEXT,
-                value_type TEXT NOT NULL,
-                updated_at INTEGER NOT NULL,
-                PRIMARY KEY (node_id, key),
-                FOREIGN KEY (node_id) REFERENCES nodes(id) ON DELETE CASCADE
-            )
-        `);
-
-        db.run(`
-            CREATE TABLE IF NOT EXISTS edges (
-                source_id TEXT NOT NULL,
-                target_id TEXT NOT NULL,
-                edge_type TEXT NOT NULL,
-                created_at INTEGER NOT NULL,
-                PRIMARY KEY (source_id, target_id, edge_type),
-                FOREIGN KEY (source_id) REFERENCES nodes(id) ON DELETE CASCADE
-            )
-        `);
-
-        db.run(`
-            CREATE TABLE IF NOT EXISTS edge_attributes (
-                source_id TEXT NOT NULL,
-                target_id TEXT NOT NULL,
-                edge_type TEXT NOT NULL,
-                key TEXT NOT NULL,
-                value TEXT,
-                PRIMARY KEY (source_id, target_id, edge_type, key),
-                FOREIGN KEY (source_id, target_id, edge_type) REFERENCES edges(source_id, target_id, edge_type) ON DELETE CASCADE
-            )
-        `);
-    }
 
     async post(shared: TBCRecordSQLiteStorage, _prepRes: StoreRecordsInput, execRes: StoreRecordsOutput): Promise<string | undefined> {
-        shared.storeResults = { ...shared.storeResults, [shared.collection!]: execRes };
+        assert(shared.record, 'shared.record is required');
+        if (!shared.record.result) shared.record.result = {};
+        shared.record.result.records = execRes;
+        shared.record.result.totalCount = Object.values(execRes).reduce((sum, collection) => sum + Object.keys(collection).length, 0);
         return "default";
     }
 }

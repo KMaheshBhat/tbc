@@ -1,5 +1,7 @@
 import { HAMIRegistrationManager } from "@hami-frameworx/core";
 
+import { TBCRecordStorage } from "@tbc-frameworx/tbc-record";
+
 /**
  * Options for TBC record SQLite operations.
  * Defines configuration flags that can be used across TBC record SQLite operations.
@@ -15,7 +17,7 @@ type TBCRecordSQLiteOpts = {
  */
 type TBCRecord = {
   /** Unique identifier for the record. */
-  id: string;
+  id?: string;
   /** Optional filename for the record (including extension). */
   filename?: string;
   /** Optional content type for the record. */
@@ -31,7 +33,7 @@ type TBCRecord = {
  * Defines the structure of data that can be shared between TBC record SQLite operation nodes.
  * Contains paths, configuration options, and results from various TBC record SQLite operations.
  */
-type TBCRecordSQLiteStorage = {
+type TBCRecordSQLiteStorage = TBCRecordStorage & {
   /** Optional configuration options for TBC record SQLite operations. */
   opts?: TBCRecordSQLiteOpts;
   /** SQLite database file path. */

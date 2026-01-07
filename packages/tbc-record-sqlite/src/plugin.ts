@@ -1,7 +1,7 @@
 import { createPlugin } from "@hami-frameworx/core";
 
 import { FetchRecordsNode } from "./ops/fetch-records.js";
-import { FetchAllIdsNode } from "./ops/fetch-all-ids.js";
+import { QueryRecordsNode } from "./ops/query-records.js";
 import { StoreRecordsNode } from "./ops/store-records.js";
 import { FetchRelationsNode } from "./ops/fetch-relations.js";
 import { StoreRelationsNode } from "./ops/store-relations.js";
@@ -12,7 +12,7 @@ import { StoreRelationsNode } from "./ops/store-relations.js";
  *
  * Included operations:
  * - `tbc-record-sqlite:fetch-records`: Fetches records by IDs from a SQLite database
- * - `tbc-record-sqlite:fetch-all-ids`: Retrieves all record IDs from a SQLite database collection
+ * - `tbc-record-sqlite:query-records`: Queries records from a SQLite database collection
  * - `tbc-record-sqlite:store-records`: Stores records into a SQLite database
  * - `tbc-record-sqlite:fetch-relations`: Fetches relationships between records
  * - `tbc-record-sqlite:store-relations`: Stores relationships between records
@@ -22,7 +22,7 @@ const TBCRecordSQLitePlugin = createPlugin(
     "0.1.0",
     [
         FetchRecordsNode as any,
-        FetchAllIdsNode as any,
+        QueryRecordsNode as any,
         StoreRecordsNode as any,
         FetchRelationsNode as any,
         StoreRelationsNode as any,
