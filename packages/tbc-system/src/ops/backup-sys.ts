@@ -3,14 +3,14 @@ import { join } from "node:path";
 import { existsSync } from "node:fs";
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
 type BackupSysNodeOutput = {
     backedUp: boolean;
     backupPath?: string;
 };
 
-export class BackupSysNode extends HAMINode<TBCCoreStorage> {
+export class BackupSysNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -20,8 +20,8 @@ export class BackupSysNode extends HAMINode<TBCCoreStorage> {
     }
 
     async prep(
-        shared: TBCCoreStorage,
-    ): Promise<TBCCoreStorage> {
+        shared: Shared,
+    ): Promise<Shared> {
         // Ensure rootDirectory is set
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required for backup-sys operation");
@@ -30,7 +30,7 @@ export class BackupSysNode extends HAMINode<TBCCoreStorage> {
     }
 
     async exec(
-        shared: TBCCoreStorage,
+        shared: Shared,
     ): Promise<BackupSysNodeOutput> {
         const rootDir = shared.rootDirectory!;
         const sysPath = join(rootDir, 'sys');
@@ -47,7 +47,7 @@ export class BackupSysNode extends HAMINode<TBCCoreStorage> {
     }
 
     async post(
-        shared: TBCCoreStorage,
+        shared: Shared,
         _prepRes: void,
         execRes: BackupSysNodeOutput,
     ): Promise<string | undefined> {

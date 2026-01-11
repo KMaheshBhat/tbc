@@ -1,14 +1,14 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-type GenerateRoleDefinitionInput = {
+type NodeInput = {
     companionName: string;
 };
 
-type GenerateRoleDefinitionOutput = string;
+type NodeOutput = string;
 
-export class GenerateRoleDefinitionNode extends HAMINode<TBCCoreStorage> {
+export class GenerateRoleDefinitionNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -17,7 +17,7 @@ export class GenerateRoleDefinitionNode extends HAMINode<TBCCoreStorage> {
         return "tbc-system:generate-role-definition";
     }
 
-    async prep(shared: TBCCoreStorage): Promise<GenerateRoleDefinitionInput> {
+    async prep(shared: Shared): Promise<NodeInput> {
         if (!shared.companionName) {
             throw new Error("companionName is required in shared state");
         }
@@ -26,7 +26,7 @@ export class GenerateRoleDefinitionNode extends HAMINode<TBCCoreStorage> {
         };
     }
 
-    async exec(params: GenerateRoleDefinitionInput): Promise<GenerateRoleDefinitionOutput> {
+    async exec(params: NodeInput): Promise<NodeOutput> {
         const companionName = params.companionName;
 
         // Generate the standard TBC role definition
@@ -35,7 +35,7 @@ export class GenerateRoleDefinitionNode extends HAMINode<TBCCoreStorage> {
         return roleDefinition;
     }
 
-    async post(shared: TBCCoreStorage, _prepRes: GenerateRoleDefinitionInput, execRes: GenerateRoleDefinitionOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: NodeInput, execRes: NodeOutput): Promise<string | undefined> {
         shared.roleDefinition = execRes;
         return "default";
     }

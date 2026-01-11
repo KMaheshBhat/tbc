@@ -1,6 +1,6 @@
 import { HAMIRegistrationManager } from "@hami-frameworx/core";
 
-import { TBCRecord, TBCRecordStorage} from "@tbc-frameworx/tbc-record";
+import { TBCRecord, TBCShared as TBCRecordShared} from "@tbc-frameworx/tbc-record";
 
 /**
  * Options for TBC record file system operations.
@@ -33,7 +33,7 @@ type TBCRecordFS = TBCRecord & {
  * Defines the structure of data that can be shared between TBC record file system operation nodes.
  * Contains paths, configuration options, and results from various TBC record file system operations.
  */
-type TBCRecordFSStorage = TBCRecordStorage & {
+type TBCRecordFSShared = TBCRecordShared & {
   /** Optional configuration options for TBC record file system operations. */
   opts?: TBCRecordFSOpts;
   /** Explicit root directory path (optional, defaults to CWD). */
@@ -61,7 +61,7 @@ type TBCRecordFSStorage = TBCRecordStorage & {
 }
 
 export {
-  TBCRecordFSOpts,
-  TBCRecordFSStorage,
+  TBCRecordFSShared,
   TBCRecordFS,
+  TBCRecordFSOpts,
 };

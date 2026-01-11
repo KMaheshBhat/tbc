@@ -12,9 +12,8 @@
   "dependencies": {
     "gray-matter": "4.0.3",
     "pocketflow": "^1.0.4",
-    "@hami-frameworx/core": "0.1.2",
+    "@hami-frameworx/core": "0.1.3",
     "@tbc-frameworx/tbc-record": "^0.1.0"
-
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -2,14 +2,14 @@ import { uuidv7 } from 'uuidv7';
 
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCGeneratorStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class UuidNode extends HAMINode<TBCGeneratorStorage> {
+export class UuidNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-generator:uuid";
     }
 
-    async prep(shared: TBCGeneratorStorage): Promise<number> {
+    async prep(shared: Shared): Promise<number> {
         return shared.count || 1;
     }
 
@@ -22,7 +22,7 @@ export class UuidNode extends HAMINode<TBCGeneratorStorage> {
         return ids;
     }
 
-    async post(shared: TBCGeneratorStorage, _prepRes: number, execRes: string[]): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: number, execRes: string[]): Promise<string | undefined> {
         shared.generatedIds = execRes;
         return "default";
     }

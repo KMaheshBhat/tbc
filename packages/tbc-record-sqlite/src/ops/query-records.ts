@@ -2,19 +2,19 @@ import assert from "assert";
 import { HAMINode } from "@hami-frameworx/core";
 import { Database } from "bun:sqlite";
 
-import type { TBCRecordSQLiteStorage } from "../types.js";
+import type { TBCRecordSQLiteShared as Shared } from "../types.js";
 import { TBCQueryParams, TBCResult } from "@tbc-frameworx/tbc-record";
 import { ensureTables } from "../store.js";
 
-type QueryRecordsInput = {
+type NodeInput = {
     storePath: string;
     collection: string;
     query: TBCQueryParams;
 };
 
-type QueryRecordsOutput = TBCResult;
+type NodeOutput = TBCResult;
 
-export class QueryRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
+export class QueryRecordsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -23,7 +23,7 @@ export class QueryRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         return "tbc-record-sqlite:query-records";
     }
 
-    async prep(shared: TBCRecordSQLiteStorage): Promise<QueryRecordsInput> {
+    async prep(shared: Shared): Promise<NodeInput> {
         assert(shared.record, 'shared.record is required');
         assert(shared.storePath, 'shared.storePath is required');
         assert(shared.record.collection, 'shared.record.collection is required');
@@ -35,7 +35,7 @@ export class QueryRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         };
     }
 
-    async exec(params: QueryRecordsInput): Promise<QueryRecordsOutput> {
+    async exec(params: NodeInput): Promise<NodeOutput> {
         const { storePath, collection, query } = params;
 
         switch (query.type) {
@@ -103,7 +103,7 @@ export class QueryRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
     }
 
 
-    async post(shared: TBCRecordSQLiteStorage, _prepRes: QueryRecordsInput, execRes: QueryRecordsOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: NodeInput, execRes: NodeOutput): Promise<string | undefined> {
         if (!shared.record!.result) shared.record!.result = {};
         Object.assign(shared.record!.result, execRes);
         return "default";

@@ -3,14 +3,14 @@ import { join } from "node:path";
 import { existsSync } from "node:fs";
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-type RestoreSysExtensionsNodeOutput = {
+type NodeOutput = {
     restored: boolean;
     message?: string;
 };
 
-export class RestoreSysExtensionsNode extends HAMINode<TBCCoreStorage> {
+export class RestoreSysExtensionsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -20,7 +20,7 @@ export class RestoreSysExtensionsNode extends HAMINode<TBCCoreStorage> {
     }
 
     async prep(
-        shared: TBCCoreStorage,
+        shared: Shared,
     ): Promise<{ rootDirectory: string; backupDirs: string[] }> {
         // Ensure rootDirectory is set
         if (!shared.rootDirectory) {
@@ -41,7 +41,7 @@ export class RestoreSysExtensionsNode extends HAMINode<TBCCoreStorage> {
 
     async exec(
         prepRes: { rootDirectory: string; backupDirs: string[] },
-    ): Promise<RestoreSysExtensionsNodeOutput> {
+    ): Promise<NodeOutput> {
         const { rootDirectory, backupDirs } = prepRes;
 
         if (backupDirs.length === 0) {
@@ -66,9 +66,9 @@ export class RestoreSysExtensionsNode extends HAMINode<TBCCoreStorage> {
     }
 
     async post(
-        shared: TBCCoreStorage,
+        shared: Shared,
         _prepRes: { rootDirectory: string; backupDirs: string[] },
-        execRes: RestoreSysExtensionsNodeOutput,
+        execRes: NodeOutput,
     ): Promise<string | undefined> {
         shared.restoreSysExtensionsResults = execRes;
         return "default";

@@ -29,22 +29,18 @@ let cmdSysInit = new Command('init')
             const root = cliOpts.root;
             const companion = opts.companion;
             const prime = opts.prime;
-            // Validation: both companion and prime must be provided
             if (!companion || !prime) {
                 console.error('Error: Both --companion and --prime flags are required');
                 process.exit(1);
             }
-            const initFlow = registry.createNode('tbc-system:sys-init-flow', {
-                root: root,
+            const initFlow = registry.createNode('tbc-system:init-flow', {
                 verbose: isVerbose,
-                companion: companion,
-                prime: prime,
+                rootDirectory: root,
+                companionName: companion,
+                primeName: prime,
             });
             await initFlow.run({
                 registry: registry,
-                opts: { verbose: isVerbose },
-                app: 'TBC CLI',
-                appVersion: packageJson.version,
             });
         } catch (error) {
             console.error('Error during initialization:', error);
@@ -85,7 +81,7 @@ let cmdSysValidate = new Command('validate')
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
             const opts = { verbose: isVerbose };
-            const validateFlow = registry.createNode('tbc-system:sys-validate-flow', {
+            const validateFlow = registry.createNode('tbc-system:validate-flow', {
                 verbose: opts.verbose,
             });
             await validateFlow.run({

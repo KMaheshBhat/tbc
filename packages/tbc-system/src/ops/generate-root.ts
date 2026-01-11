@@ -1,10 +1,10 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-type GenerateRootNodeOutput = any[];
+type NodeOutput = any[];
 
-export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
+export class GenerateRootNode extends HAMINode<Shared> {
     private companion?: string;
     private prime?: string;
 
@@ -19,7 +19,7 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
     }
 
     async prep(
-        shared: TBCCoreStorage,
+        shared: Shared,
     ): Promise<{ rootDirectory: string; companion?: string; prime?: string; recordIds?: { companion: string; prime: string; memory: string } }> {
         // Ensure rootDirectory is set
         if (!shared.rootDirectory) {
@@ -39,9 +39,9 @@ export class GenerateRootNode extends HAMINode<TBCCoreStorage> {
     }
 
     async exec(
-        params: { rootDirectory: string; companion?: string; prime?: string; recordIds?: { companion: string; prime: string; memory: string } },
-    ): Promise<GenerateRootNodeOutput> {
-        const { companion, prime, recordIds } = params;
+        input: { rootDirectory: string; companion?: string; prime?: string; recordIds?: { companion: string; prime: string; memory: string } },
+    ): Promise<NodeOutput> {
+        const { companion, prime, recordIds } = input;
 
         // Helper function to convert to lower-snake-case
         const toLowerSnakeCase = (str: string) => str.toLowerCase().replace(/\s+/g, '_');
@@ -131,9 +131,9 @@ ${companion} is the AI Assistant as per the Third Brain Companion System Definit
     }
 
     async post(
-        shared: TBCCoreStorage,
+        shared: Shared,
         _prepRes: void,
-        execRes: GenerateRootNodeOutput,
+        execRes: NodeOutput,
     ): Promise<string | undefined> {
         // Set records and collection for store-records operation
         shared.records = execRes;

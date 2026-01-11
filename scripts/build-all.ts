@@ -7,13 +7,18 @@
 const BUILD_ORDER = [
   [
     "@tbc-frameworx/tbc-record",
+    "@tbc-frameworx/tbc-generator",
   ],
   [
     "@tbc-frameworx/tbc-record-fs",
     "@tbc-frameworx/tbc-record-sqlite",
+    "@tbc-frameworx/tbc-generator-uuid",
+    "@tbc-frameworx/tbc-generator-tsid",
   ],
   [
-    "@tbc-frameworx/tbc-generator",
+    "@tbc-frameworx/tbc-system"
+  ],
+  [
     "@tbc-frameworx/tbc-memory",
     "@tbc-frameworx/tbc-activity",
     "@tbc-frameworx/tbc-view",
@@ -24,9 +29,6 @@ const BUILD_ORDER = [
     "@tbc-frameworx/tbc-kilocode",
     "@tbc-frameworx/tbc-goose",
     "@tbc-frameworx/tbc-github-copilot"
-  ],
-  [
-    "@tbc-frameworx/tbc-system"
   ],
   [
     "@tbc-frameworx/tbc-cli"

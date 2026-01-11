@@ -1,10 +1,10 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-type GenerateInitIdsNodeOutput = any[];
+type Output = any[];
 
-export class GenerateInitIdsNode extends HAMINode<TBCCoreStorage> {
+export class GenerateInitIdsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -14,7 +14,7 @@ export class GenerateInitIdsNode extends HAMINode<TBCCoreStorage> {
     }
 
     async prep(
-        shared: TBCCoreStorage,
+        shared: Shared,
     ): Promise<{ recordIds: { companion: string; prime: string; memory: string } }> {
         // Ensure required data is available
         if (!shared.recordIds) {
@@ -28,7 +28,7 @@ export class GenerateInitIdsNode extends HAMINode<TBCCoreStorage> {
 
     async exec(
         params: { recordIds: { companion: string; prime: string; memory: string } },
-    ): Promise<GenerateInitIdsNodeOutput> {
+    ): Promise<Output> {
         const { recordIds } = params;
 
         // Create ID records for companion and prime
@@ -51,9 +51,9 @@ export class GenerateInitIdsNode extends HAMINode<TBCCoreStorage> {
     }
 
     async post(
-        shared: TBCCoreStorage,
+        shared: Shared,
         _prepRes: any,
-        execRes: GenerateInitIdsNodeOutput,
+        execRes: Output,
     ): Promise<string | undefined> {
         shared.records = execRes;
         shared.collection = "sys";

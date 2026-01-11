@@ -3,19 +3,19 @@ import { HAMINode } from "@hami-frameworx/core";
 
 import { Database } from "bun:sqlite";
 
-import type { TBCRecordSQLiteStorage } from "../types.js";
+import type { TBCRecordSQLiteShared as Shared } from "../types.js";
 import { TBCStore } from "@tbc-frameworx/tbc-record";
 import { ensureTables } from "../store.js";
 
-type FetchRecordsInput = {
+type NodeInput = {
     storePath: string;
     collection: string;
     IDs: string[];
 };
 
-type FetchRecordsOutput = TBCStore;
+type NodeOutput = TBCStore;
 
-export class FetchRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
+export class FetchRecordsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -24,7 +24,7 @@ export class FetchRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         return "tbc-record-sqlite:fetch-records";
     }
 
-    async prep(shared: TBCRecordSQLiteStorage): Promise<FetchRecordsInput> {
+    async prep(shared: Shared): Promise<NodeInput> {
         assert(shared.record, 'shared.record is required');
         assert(shared.storePath, 'shared.storePath is required');
         assert(shared.record.collection, 'shared.record.collection is required');
@@ -36,7 +36,7 @@ export class FetchRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         };
     }
 
-    async exec(params: FetchRecordsInput): Promise<FetchRecordsOutput> {
+    async exec(params: NodeInput): Promise<NodeOutput> {
         const db = new Database(params.storePath);
         try {
             // Ensure tables exist
@@ -101,7 +101,11 @@ export class FetchRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
     }
 
 
-    async post(shared: TBCRecordSQLiteStorage, _prepRes: FetchRecordsInput, execRes: FetchRecordsOutput): Promise<string | undefined> {
+    async post(
+        shared: Shared,
+        _prepRes: NodeInput,
+        execRes: NodeOutput,
+    ): Promise<string> {
         assert(shared.record, 'shared.record is required');
         if (!shared.record.result) shared.record.result = {};
         shared.record.result.records = execRes;

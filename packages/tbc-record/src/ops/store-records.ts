@@ -1,16 +1,16 @@
 import assert from "assert";
 
 import { Node } from "pocketflow";
-import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { TBCRecordStorage, TBCStore } from "../types";
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { TBCResult, TBCShared as Shared, TBCStore } from "../types";
 
-interface StoreRecordsFlowConfig {
+interface FlowConfig {
     verbose: boolean;
     recordProviders?: string[];
     root?: string;
 }
 
-const StoreRecordsFlowConfigSchema: ValidationSchema = {
+const FlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         verbose: { type: "boolean" },
@@ -20,12 +20,27 @@ const StoreRecordsFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, StoreRecordsFlowConfig> {
-    startNode: Node;
-    config: StoreRecordsFlowConfig;
+class StartNode extends HAMINode<Shared, FlowConfig> {
+    constructor(config?: FlowConfig, maxRetries?: number, wait?: number) {
+        super(config, maxRetries, wait);
+    }
 
-    constructor(config: StoreRecordsFlowConfig) {
-        const startNode = new Node();
+    kind(): string {
+        return "tbc-system:query-records-flow-start"
+    }
+
+    post(shared: Shared, prepRes: unknown, execRes: unknown): Promise<string> {
+        shared.record.rootDirectory = shared.record.rootDirectory || this.config?.root || process.cwd();
+        return Promise.resolve("default");
+    }
+}
+
+export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
+    startNode: Node;
+    config: FlowConfig;
+
+    constructor(config: FlowConfig) {
+        const startNode = new StartNode(config);
         super(startNode, config);
         this.startNode = startNode;
         this.config = config;
@@ -35,23 +50,42 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, StoreRecords
         return "tbc-record:store-records-flow";
     }
 
-    async prep(shared: TBCRecordStorage): Promise<void> {
+    async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         const providers = this.config.recordProviders || [];
-        // TODO validate `tbc-record-${provider}:store-records` exists for each provider
+        for (const provider of providers) {
+            const nodeKind = `tbc-record-${provider}:store-records`;
+            assert(
+                shared.registry.hasNodeClass(nodeKind),
+                `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`
+            );
+        }
         let finalNode = new Node();
         let tailNode = providers.length > 0 ? new Node() : finalNode;
         this.startNode
             .next(new PrintNode("---Starting StoreRecordsFlow---"))
-            .next(n("core:assign", { "record.accumulate": "record.result.records" }))
+            .next(n("core:assign", { "record.accumulate": "record.result" }))
             .next(tailNode);
         for (const [i, provider] of providers.entries()) {
             const isLast = i === providers.length - 1;
             const targetNext = isLast ? finalNode : new Node();
             tailNode
                 .next(new PrintNode(`---Storing records with ${provider}---`))
-                .next(n("core:assign", { "record.result.records": "record.empty" }))
+            // .next(n('core:mutate', {
+            //     mutate: (shared: Record<string, any>) => {
+            //         shared.records = shared.record.records;
+            //     }
+            // }))
+            // .next(n('core:log-result', {
+            //     'format': 'json',
+            //     'resultKey': 'records',
+            // }))
+                .next(n('core:mutate', {
+                    mutate: async (shared: Shared) => {
+                        shared.record!.result!.records = undefined;
+                    }
+                }))
                 .next(n(`tbc-record-${provider}:store-records`))
                 .next(new AccumulateNode())
                 .next(new PrintNode('------'))
@@ -59,21 +93,24 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, StoreRecords
             tailNode = targetNext;
         }
         finalNode
-            .next(n("core:assign", { "record.result.records": "record.accumulate" }))
-            .next(n("core:assign", { "record.accumulate": "record.empty" }))
+            .next(n('core:mutate', {
+                mutate: async (shared: Shared) => {
+                    shared.record!.result = shared.record!.accumulate;
+                    shared.record!.accumulate = undefined;
+                }
+            }))
             .next(new PrintNode("---Completed StoreRecordsFlow---"));
     }
 
-    async run(shared: TBCRecordStorage): Promise<string | undefined> {
+    async run(shared: Shared): Promise<string | undefined> {
         assert(shared.record, 'shared.record (operation state) is required');
-        shared.record.empty = {};
         const rootDir = shared.record.rootDirectory || this.config.root || process.cwd();
         shared.record.rootDirectory = rootDir;
         return super.run(shared);
     }
 
-    validateConfig(config: StoreRecordsFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, StoreRecordsFlowConfigSchema)
+    validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, FlowConfigSchema)
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -82,20 +119,21 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, StoreRecords
 }
 
 class AccumulateNode extends Node {
-    async prep(shared: TBCRecordStorage): Promise<[TBCStore, TBCStore]> {
+    async prep(shared: Shared): Promise<[TBCResult, TBCResult]> {
         assert(shared.record, 'shared.record is required');
-        return [shared.record?.accumulate || {}, shared.record?.result?.records || {}];
+        return [shared.record?.accumulate || {}, shared.record?.result || {}];
     }
 
-    async exec(prepRes: [TBCStore, TBCStore]): Promise<TBCStore> {
+    async exec(prepRes: [TBCResult, TBCResult]): Promise<TBCResult> {
         const [accumulated, incoming] = prepRes;
         const master = accumulated || {};
-        for (const collection in incoming) {
-            master[collection] = master[collection] || {};
-            for (const id in incoming[collection]) {
-                master[collection][id] = {
-                    ...(master[collection][id] || {}),
-                    ...incoming[collection][id]
+        for (const collection in incoming.records) {
+            if (!master.records) master.records = {};
+            master.records[collection] = master.records[collection] || {};
+            for (const id in incoming.records[collection]) {
+                master.records[collection][id] = {
+                    ...(master.records[collection][id] || {}),
+                    ...incoming.records[collection][id]
                 };
             }
         }
@@ -103,7 +141,7 @@ class AccumulateNode extends Node {
     }
 
     async post(
-        shared: TBCRecordStorage,
+        shared: Shared,
         _prepRes: [TBCStore, TBCStore],
         execRes: TBCStore,
     ): Promise<string | undefined> {

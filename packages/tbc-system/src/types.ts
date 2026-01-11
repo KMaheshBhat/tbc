@@ -1,18 +1,29 @@
-/**
- * Options for TBC core operations.
- * Defines configuration flags that can be used across TBC core operations.
- */
-type TBCCoreOpts = {
-  /** Whether to enable verbose logging for operations. */
-  verbose?: boolean;
-}
+import { HAMIRegistrationManager } from "@hami-frameworx/core";
+import { TBCRecord, TBCRecordOperation } from "@tbc-frameworx/tbc-record";
+
+type SharedStage = Record<string, any>;
+type TBCSystemOperation = {
+  rootDirectory: string;
+  isValidTBCRoot: boolean;
+  manifest: Record<string, string[]>;
+  rootRecord: TBCRecord;
+  companionID: string;
+  companionRecord: TBCRecord;
+  primeID: string;
+  primeRecord: TBCRecord;
+  memoryMapID: string;
+  memoryMapRecord: TBCRecord;
+};
 
 /**
- * Shared storage interface for TBC core operations.
- * Defines the structure of data that can be shared between TBC core operation nodes.
- * Contains configuration options and results from various TBC core operations.
+ * Shared state interface for TBC System operations.
  */
-type TBCCoreStorage = {
+type Shared = {
+  /** HAMI registration manager for node creation and management. */
+  registry: HAMIRegistrationManager;
+  stage: SharedStage;
+  system: TBCSystemOperation;
+  record: TBCRecordOperation;
   /** Optional configuration options for TBC core operations. */
   opts?: TBCCoreOpts;
   /** Application name (injected from CLI). */
@@ -79,7 +90,16 @@ type TBCCoreStorage = {
   roleDefinition?: string;
 }
 
+/**
+ * Options for TBC System operations.
+ * Defines configuration flags that can be used across TBC System operations.
+ */
+type TBCCoreOpts = {
+  /** Whether to enable verbose logging for operations. */
+  verbose?: boolean;
+}
+
+
 export {
-  TBCCoreOpts,
-  TBCCoreStorage,
+  Shared,
 };

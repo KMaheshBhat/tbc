@@ -6,10 +6,10 @@ import yaml from "js-yaml";
 
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCRecordFSStorage } from "../types.js";
+import { TBCRecordFSShared as Shared } from "../types.js";
 import { TBCStore } from "@tbc-frameworx/tbc-record";
 
-export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
+export class StoreRecordsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -18,7 +18,7 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
         return "tbc-record-fs:store-records";
     }
 
-    async prep(shared: TBCRecordFSStorage): Promise<[string, string, Record<string, any>[]]> {
+    async prep(shared: Shared): Promise<[string, string, Record<string, any>[]]> {
         assert(shared.record, 'shared.record is required');
         assert(shared.record?.rootDirectory, 'shared.record.rootDirectory is required');
         assert(shared.record?.collection, 'shared.record.collection is required');
@@ -142,7 +142,7 @@ export class StoreRecordsNode extends HAMINode<TBCRecordFSStorage> {
     }
 
     async post(
-        shared: TBCRecordFSStorage,
+        shared: Shared,
         _prepRes: [string, string, Record<string, any>[]],
         execRes: TBCStore,
     ): Promise<string | undefined> {

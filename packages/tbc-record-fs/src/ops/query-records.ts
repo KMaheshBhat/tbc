@@ -1,21 +1,21 @@
 import assert from "assert";
 import { HAMINode } from "@hami-frameworx/core";
 
-import { readdirSync } from "fs";
-import { join } from "path";
+import { readdirSync, statSync } from "fs";
+import { join, relative } from "path";
 
-import { TBCRecordFSStorage } from "../types.js";
+import { TBCRecordFSShared as Shared } from "../types.js";
 import { TBCQueryParams, TBCResult } from "@tbc-frameworx/tbc-record";
 
-type QueryRecordsInput = {
+type NodeInput = {
     rootDirectory: string;
     collection: string;
     query: TBCQueryParams;
 };
 
-type QueryRecordsOutput = TBCResult;
+type NodeOutput = TBCResult;
 
-export class QueryRecordsNode extends HAMINode<TBCRecordFSStorage> {
+export class QueryRecordsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -24,7 +24,7 @@ export class QueryRecordsNode extends HAMINode<TBCRecordFSStorage> {
         return "tbc-record-fs:query-records";
     }
 
-    async prep(shared: TBCRecordFSStorage): Promise<QueryRecordsInput> {
+    async prep(shared: Shared): Promise<NodeInput> {
         assert(shared.record, 'shared.record is required');
         assert(shared.record.rootDirectory, 'shared.record.rootDirectory is required');
         assert(shared.record.collection, 'shared.record.collection is required');
@@ -36,7 +36,7 @@ export class QueryRecordsNode extends HAMINode<TBCRecordFSStorage> {
         };
     }
 
-    async exec(params: QueryRecordsInput): Promise<QueryRecordsOutput> {
+    async exec(params: NodeInput): Promise<NodeOutput> {
         const { rootDirectory, collection, query } = params;
 
         switch (query.type) {
@@ -54,10 +54,17 @@ export class QueryRecordsNode extends HAMINode<TBCRecordFSStorage> {
     private handleListAllIds(rootDirectory: string, query: TBCQueryParams, collection: string): TBCResult {
         const collectionPath = join(rootDirectory, collection);
         try {
-            const files = readdirSync(collectionPath);
-            let IDs = files
-                .filter(file => file.endsWith('.md'))
-                .map(file => file.replace(/\.md$/, ''));
+            let IDs: string[];
+            if (query.recursive) {
+                IDs = this.getAllRecordFiles(collectionPath, collectionPath);
+            } else {
+                const items = readdirSync(collectionPath);
+                IDs = items.filter(item => {
+                    const fullPath = join(collectionPath, item);
+                    const stat = statSync(fullPath);
+                    return stat.isFile();
+                });
+            }
 
             // Apply sorting if specified
             if (query.sortBy) {
@@ -110,7 +117,31 @@ export class QueryRecordsNode extends HAMINode<TBCRecordFSStorage> {
         });
     }
 
-    async post(shared: TBCRecordFSStorage, _prepRes: QueryRecordsInput, execRes: QueryRecordsOutput): Promise<string | undefined> {
+    private getAllRecordFiles(dir: string, relativeTo: string): string[] {
+        const files: string[] = [];
+        try {
+            const items = readdirSync(dir);
+            for (const item of items) {
+                const fullPath = join(dir, item);
+                const stat = statSync(fullPath);
+                if (stat.isDirectory()) {
+                    files.push(...this.getAllRecordFiles(fullPath, relativeTo));
+                } else {
+                    const relativePath = relative(relativeTo, fullPath);
+                    files.push(relativePath);
+                }
+            }
+        } catch (error) {
+            // Directory doesn't exist or other error, return empty
+        }
+        return files;
+    }
+
+    async post(
+        shared: Shared,
+        _prepRes: NodeInput,
+        execRes: NodeOutput,
+    ): Promise<string> {
         if (!shared.record!.result) shared.record!.result = {};
         Object.assign(shared.record!.result, execRes);
         return "default";

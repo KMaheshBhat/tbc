@@ -4,6 +4,7 @@ import { UuidNode } from "./ops/uuid.js";
 import { TsidNode } from "./ops/tsid.js";
 import { GenUuidFlow } from "./ops/gen-uuid-flow.js";
 import { GenTsidFlow } from "./ops/gen-tsid-flow.js";
+import { MintIDsFlow } from "./ops/mint-ids-flow.js";
 
 
 /**
@@ -15,6 +16,7 @@ import { GenTsidFlow } from "./ops/gen-tsid-flow.js";
  * - `tbc-generator:tsid`: Generates a UTC timestamp ID in YYYYMMDDHHmmSS format
  * - `tbc-cli:gen-uuid`: Flow to generate multiple UUIDs and log them
  * - `tbc-cli:gen-tsid`: Flow to generate multiple TSIDs and log them
+ * - `tbc-generator:mint-ids-flow`: Flow to generate multiple IDs (keyed and batched) for given types
  */
 const TBCGeneratorPlugin = createPlugin(
     "@tbc-frameworx/tbc-generator",
@@ -24,6 +26,7 @@ const TBCGeneratorPlugin = createPlugin(
         TsidNode as any,
         GenUuidFlow as any,
         GenTsidFlow as any,
+        MintIDsFlow as any,
     ],
     "TBC Generator Plugin - ID generation operations for TBC",
 );

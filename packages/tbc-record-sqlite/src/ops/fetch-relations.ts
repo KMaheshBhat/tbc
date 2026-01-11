@@ -2,21 +2,21 @@ import assert from "assert";
 import { HAMINode } from "@hami-frameworx/core";
 import { Database } from "bun:sqlite";
 
-import type { TBCRecordSQLiteStorage } from "../types.js";
+import type { TBCRecordSQLiteShared as Shared } from "../types.js";
 import { ensureTables } from "../store.js";
 
-type FetchRelationsInput = {
+type NodeInput = {
     storePath: string;
 };
 
-type FetchRelationsOutput = Array<{
+type NodeOutput = Array<{
     source_id: string;
     target_id: string;
     edge_type: string;
     attributes?: Record<string, any>;
 }>;
 
-export class FetchRelationsNode extends HAMINode<TBCRecordSQLiteStorage> {
+export class FetchRelationsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -25,7 +25,7 @@ export class FetchRelationsNode extends HAMINode<TBCRecordSQLiteStorage> {
         return "tbc-record-sqlite:fetch-relations";
     }
 
-    async prep(shared: TBCRecordSQLiteStorage): Promise<FetchRelationsInput> {
+    async prep(shared: Shared): Promise<NodeInput> {
         assert(shared.record, 'shared.record is required');
         assert(shared.storePath, 'shared.storePath is required');
         return {
@@ -33,7 +33,7 @@ export class FetchRelationsNode extends HAMINode<TBCRecordSQLiteStorage> {
         };
     }
 
-    async exec(params: FetchRelationsInput): Promise<FetchRelationsOutput> {
+    async exec(params: NodeInput): Promise<NodeOutput> {
         const db = new Database(params.storePath);
         try {
             // Ensure tables exist
@@ -87,7 +87,7 @@ export class FetchRelationsNode extends HAMINode<TBCRecordSQLiteStorage> {
     }
 
 
-    async post(shared: TBCRecordSQLiteStorage, _prepRes: FetchRelationsInput, execRes: FetchRelationsOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: NodeInput, execRes: NodeOutput): Promise<string | undefined> {
         assert(shared.record, 'shared.record is required');
         if (!shared.record.result) shared.record.result = {};
         (shared.record.result as any).relations = execRes;

@@ -2,11 +2,11 @@ import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-type InitNodeOutput = string[];
+type NodeOutput = string[];
 
-export class InitNode extends HAMINode<TBCCoreStorage> {
+export class InitNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -16,8 +16,8 @@ export class InitNode extends HAMINode<TBCCoreStorage> {
     }
 
     async prep(
-        shared: TBCCoreStorage,
-    ): Promise<TBCCoreStorage> {
+        shared: Shared,
+    ): Promise<Shared> {
         // Ensure rootDirectory is set
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required for init operation");
@@ -26,9 +26,9 @@ export class InitNode extends HAMINode<TBCCoreStorage> {
     }
 
     async exec(
-        shared: TBCCoreStorage,
-    ): Promise<InitNodeOutput> {
-        const rootDir = shared.rootDirectory!;
+        input: Shared,
+    ): Promise<NodeOutput> {
+        const rootDir = input.rootDirectory!;
         const results: string[] = [];
 
         // Create TBC directory structure
@@ -51,9 +51,9 @@ export class InitNode extends HAMINode<TBCCoreStorage> {
     }
 
     async post(
-        shared: TBCCoreStorage,
+        shared: Shared,
         _prepRes: void,
-        execRes: InitNodeOutput,
+        execRes: NodeOutput,
     ): Promise<string | undefined> {
         shared.initResults = execRes;
         return "default";

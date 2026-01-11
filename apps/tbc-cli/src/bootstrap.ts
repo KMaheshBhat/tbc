@@ -4,6 +4,8 @@ import { TBCRecordFSPlugin } from '@tbc-frameworx/tbc-record-fs';
 import { TBCSystemPlugin } from '@tbc-frameworx/tbc-system';
 import { TBCViewPlugin } from '@tbc-frameworx/tbc-view';
 import { TBCGeneratorPlugin } from '@tbc-frameworx/tbc-generator';
+import { TBCGeneratorUuidPlugin } from '@tbc-frameworx/tbc-generator-uuid';
+import { TBCGeneratorTsidPlugin } from '@tbc-frameworx/tbc-generator-tsid';
 import { TBCInterfacePlugin } from '@tbc-frameworx/tbc-interface';
 import { TBCMemoryPlugin } from '@tbc-frameworx/tbc-memory';
 import { TBCActivityPlugin } from '@tbc-frameworx/tbc-activity';
@@ -20,6 +22,8 @@ export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }
     await registry.registerPlugin(TBCSystemPlugin);
     await registry.registerPlugin(TBCViewPlugin);
     await registry.registerPlugin(TBCGeneratorPlugin);
+    await registry.registerPlugin(TBCGeneratorUuidPlugin);
+    await registry.registerPlugin(TBCGeneratorTsidPlugin);
     await registry.registerPlugin(TBCInterfacePlugin);
     await registry.registerPlugin(TBCMemoryPlugin);
     await registry.registerPlugin(TBCActivityPlugin);

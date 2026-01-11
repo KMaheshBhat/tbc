@@ -1,13 +1,13 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCGeneratorStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class TsidNode extends HAMINode<TBCGeneratorStorage> {
+export class TsidNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-generator:tsid";
     }
 
-    async prep(shared: TBCGeneratorStorage): Promise<number> {
+    async prep(shared: Shared): Promise<number> {
         return shared.count || 1;
     }
 
@@ -31,7 +31,7 @@ export class TsidNode extends HAMINode<TBCGeneratorStorage> {
         return ids;
     }
 
-    async post(shared: TBCGeneratorStorage, _prepRes: number, execRes: string[]): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: number, execRes: string[]): Promise<string | undefined> {
         shared.generatedIds = execRes;
         return "default";
     }

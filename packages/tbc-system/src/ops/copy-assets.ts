@@ -2,11 +2,11 @@ import { cp } from "node:fs/promises";
 import { join } from "node:path";
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
 type CopyAssetsNodeOutput = string[];
 
-export class CopyAssetsNode extends HAMINode<TBCCoreStorage> {
+export class CopyAssetsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -16,8 +16,8 @@ export class CopyAssetsNode extends HAMINode<TBCCoreStorage> {
     }
 
     async prep(
-        shared: TBCCoreStorage,
-    ): Promise<TBCCoreStorage> {
+        shared: Shared,
+    ): Promise<Shared> {
         // Ensure required paths are set
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required for copy-assets operation");
@@ -29,7 +29,7 @@ export class CopyAssetsNode extends HAMINode<TBCCoreStorage> {
     }
 
     async exec(
-        shared: TBCCoreStorage,
+        shared: Shared,
     ): Promise<CopyAssetsNodeOutput> {
         const rootDir = shared.rootDirectory!;
         const assetsPath = shared.assetsPath!;
@@ -79,7 +79,7 @@ export class CopyAssetsNode extends HAMINode<TBCCoreStorage> {
     }
 
     async post(
-        shared: TBCCoreStorage,
+        shared: Shared,
         _prepRes: void,
         execRes: CopyAssetsNodeOutput,
     ): Promise<string | undefined> {

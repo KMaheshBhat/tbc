@@ -2,7 +2,7 @@ import assert from "assert";
 import { HAMINode } from "@hami-frameworx/core";
 import { Database } from "bun:sqlite";
 
-import type { TBCRecordSQLiteStorage } from "../types.js";
+import type { TBCRecordSQLiteShared as Shared } from "../types.js";
 import { ensureTables } from "../store.js";
 
 type Relation = {
@@ -12,14 +12,14 @@ type Relation = {
     attributes?: Record<string, any>;
 };
 
-type StoreRelationsInput = {
+type NodeInput = {
     storePath: string;
     relations: Relation[];
 };
 
-type StoreRelationsOutput = number; // number of stored relations
+type NodeOutput = number; // number of stored relations
 
-export class StoreRelationsNode extends HAMINode<TBCRecordSQLiteStorage> {
+export class StoreRelationsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -28,7 +28,7 @@ export class StoreRelationsNode extends HAMINode<TBCRecordSQLiteStorage> {
         return "tbc-record-sqlite:store-relations";
     }
 
-    async prep(shared: TBCRecordSQLiteStorage): Promise<StoreRelationsInput> {
+    async prep(shared: Shared): Promise<NodeInput> {
         assert(shared.record, 'shared.record is required');
         assert(shared.storePath, 'shared.storePath is required');
         const relations = (shared.record as any).relations || [];
@@ -38,7 +38,7 @@ export class StoreRelationsNode extends HAMINode<TBCRecordSQLiteStorage> {
         };
     }
 
-    async exec(params: StoreRelationsInput): Promise<StoreRelationsOutput> {
+    async exec(params: NodeInput): Promise<NodeOutput> {
         const db = new Database(params.storePath);
         try {
             // Ensure tables exist
@@ -101,7 +101,7 @@ export class StoreRelationsNode extends HAMINode<TBCRecordSQLiteStorage> {
     }
 
 
-    async post(shared: TBCRecordSQLiteStorage, _prepRes: StoreRelationsInput, execRes: StoreRelationsOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: NodeInput, execRes: NodeOutput): Promise<string | undefined> {
         assert(shared.record, 'shared.record is required');
         if (!shared.record.result) shared.record.result = {};
         (shared.record.result as any).storedRelationsCount = execRes;

@@ -1,6 +1,6 @@
 import { HAMIRegistrationManager } from "@hami-frameworx/core";
 
-import { TBCRecordStorage } from "@tbc-frameworx/tbc-record";
+import { TBCShared as TBCRecordShared } from "@tbc-frameworx/tbc-record";
 
 /**
  * Options for TBC record SQLite operations.
@@ -15,7 +15,7 @@ type TBCRecordSQLiteOpts = {
  * Record structure for TBC record SQLite operations.
  * Defines the structure of a record with support for multiple file formats.
  */
-type TBCRecord = {
+type TBCRecordSQLite = {
   /** Unique identifier for the record. */
   id?: string;
   /** Optional filename for the record (including extension). */
@@ -33,7 +33,7 @@ type TBCRecord = {
  * Defines the structure of data that can be shared between TBC record SQLite operation nodes.
  * Contains paths, configuration options, and results from various TBC record SQLite operations.
  */
-type TBCRecordSQLiteStorage = TBCRecordStorage & {
+type TBCRecordSQLiteShared = TBCRecordShared & {
   /** Optional configuration options for TBC record SQLite operations. */
   opts?: TBCRecordSQLiteOpts;
   /** SQLite database file path. */
@@ -45,7 +45,7 @@ type TBCRecordSQLiteStorage = TBCRecordStorage & {
   /** Fetched records by collection and ID. */
   fetchResults?: Record<string, Record<string, Record<string, any>>>;
   /** Array of records to store. */
-  records?: TBCRecord[];
+  records?: TBCRecordSQLite[];
   /** Stored record IDs by collection. */
   storeResults?: Record<string, string[]>;
   /** Database selection for operations. */
@@ -53,7 +53,7 @@ type TBCRecordSQLiteStorage = TBCRecordStorage & {
 }
 
 export {
+  TBCRecordSQLite,
+  TBCRecordSQLiteShared,
   TBCRecordSQLiteOpts,
-  TBCRecordSQLiteStorage,
-  TBCRecord,
 };

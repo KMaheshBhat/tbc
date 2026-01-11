@@ -2,19 +2,19 @@ import assert from "assert";
 import { HAMINode } from "@hami-frameworx/core";
 import { Database } from "bun:sqlite";
 
-import type { TBCRecordSQLiteStorage, TBCRecord } from "../types.js";
+import type { TBCRecordSQLiteShared as Shared, TBCRecordSQLite as Record } from "../types.js";
 import { TBCStore } from "@tbc-frameworx/tbc-record";
 import { ensureTables } from "../store.js";
 
-type StoreRecordsInput = {
+type NodeInput = {
     storePath: string;
     collection: string;
-    records: TBCRecord[];
+    records: Record[];
 };
 
-type StoreRecordsOutput = TBCStore;
+type NodeOutput = TBCStore;
 
-export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
+export class StoreRecordsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -23,7 +23,7 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         return "tbc-record-sqlite:store-records";
     }
 
-    async prep(shared: TBCRecordSQLiteStorage): Promise<StoreRecordsInput> {
+    async prep(shared: Shared): Promise<NodeInput> {
         assert(shared.record, 'shared.record is required');
         assert(shared.storePath, 'shared.storePath is required');
         assert(shared.record.collection, 'shared.record.collection is required');
@@ -35,7 +35,7 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         };
     }
 
-    async exec(params: StoreRecordsInput): Promise<StoreRecordsOutput> {
+    async exec(params: NodeInput): Promise<NodeOutput> {
         const db = new Database(params.storePath);
         try {
             // Ensure tables exist
@@ -69,7 +69,7 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         }
     }
 
-    private async storeRecord(db: Database, collection: string, record: TBCRecord): Promise<void> {
+    private async storeRecord(db: Database, collection: string, record: Record): Promise<void> {
         const now = Date.now();
 
         // Prepare node data
@@ -131,7 +131,7 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
         }
     }
 
-    private generateHash(record: TBCRecord): string {
+    private generateHash(record: Record): string {
         // Simple hash for now - in production, use proper content hashing
         const content = JSON.stringify(record);
         let hash = 0;
@@ -144,7 +144,7 @@ export class StoreRecordsNode extends HAMINode<TBCRecordSQLiteStorage> {
     }
 
 
-    async post(shared: TBCRecordSQLiteStorage, _prepRes: StoreRecordsInput, execRes: StoreRecordsOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: NodeInput, execRes: NodeOutput): Promise<string | undefined> {
         assert(shared.record, 'shared.record is required');
         if (!shared.record.result) shared.record.result = {};
         shared.record.result.records = execRes;

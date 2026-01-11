@@ -4,9 +4,9 @@ import { existsSync } from "fs";
 import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 import { join } from "path";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-type ValidateNodeConfig = {
+type Config = {
     verbose: boolean;
 }
 
@@ -20,19 +20,19 @@ const ValidateNodeConfigSchema: ValidationSchema = {
     required: ['verbose'],
 };
 
-type ValidateNodeInput = {
+type NodeInput = {
     targetWorkingDirectory: string,
     verbose: boolean;
 };
 
-type ValidateNodeOutput = {
+type NodeOutput = {
     isValidTBCRoot: boolean;
     isGitRepository: boolean;
     messages: string[];
 };
 
-export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
-    constructor(config?: ValidateNodeConfig, maxRetries?: number, wait?: number) {
+export class ValidateNode extends HAMINode<Shared, Config> {
+    constructor(config?: Config, maxRetries?: number, wait?: number) {
         super(config, maxRetries, wait);
     }
 
@@ -40,7 +40,7 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
         return "tbc-system:validate";
     }
 
-    validateConfig(config: ValidateNodeConfig): HAMINodeConfigValidateResult {
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
         const result = validateAgainstSchema(config, ValidateNodeConfigSchema)
         return {
             valid: result.isValid,
@@ -49,8 +49,8 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
     }
 
     async prep(
-        shared: TBCCoreStorage,
-    ): Promise<ValidateNodeInput> {
+        shared: Shared,
+    ): Promise<NodeInput> {
         assert(shared.rootDirectory, 'rootDirectory is required');
         return {
             targetWorkingDirectory: shared.rootDirectory,
@@ -59,11 +59,11 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
     }
 
     async exec(
-        params: ValidateNodeInput,
-    ): Promise<ValidateNodeOutput> {
+        input: NodeInput,
+    ): Promise<NodeOutput> {
 
-        const workingDir = params.targetWorkingDirectory!;
-        const verbose = params.verbose;
+        const workingDir = input.targetWorkingDirectory!;
+        const verbose = input.verbose;
 
         const messages: string[] = []; // collect messages if needed
         let message;
@@ -146,13 +146,13 @@ export class ValidateNode extends HAMINode<TBCCoreStorage, ValidateNodeConfig> {
     }
 
     async post(
-        shared: TBCCoreStorage,
-        _prepRes: ValidateNodeInput,
-        execRes: ValidateNodeOutput,
+        shared: Shared,
+        _input: NodeInput,
+        output: NodeOutput,
     ): Promise<string | undefined> {
-        shared.isValidTBCRoot = execRes.isValidTBCRoot;
-        shared.isGitRepository = execRes.isGitRepository;
-        shared.messages = execRes.messages;
+        shared.isValidTBCRoot = output.isValidTBCRoot;
+        shared.isGitRepository = output.isGitRepository;
+        shared.messages = output.messages;
         return "default";
     }
 }

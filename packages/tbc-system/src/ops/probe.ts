@@ -1,11 +1,11 @@
 import { platform, release, type, arch, uptime, hostname } from "os";
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-type ProbeNodeOutput = string[];
+type NodeOutput = string[];
 
-export class ProbeNode extends HAMINode<TBCCoreStorage> {
+export class ProbeNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -15,15 +15,15 @@ export class ProbeNode extends HAMINode<TBCCoreStorage> {
     }
 
     async prep(
-        shared: TBCCoreStorage,
-    ): Promise<TBCCoreStorage> {
+        shared: Shared,
+    ): Promise<Shared> {
         // Pass shared state to exec
         return shared;
     }
 
     async exec(
-        shared: TBCCoreStorage,
-    ): Promise<ProbeNodeOutput> {
+        shared: Shared,
+    ): Promise<NodeOutput> {
         const results: string[] = [];
 
         // Application info (injected from CLI)
@@ -59,9 +59,9 @@ export class ProbeNode extends HAMINode<TBCCoreStorage> {
     }
 
     async post(
-        shared: TBCCoreStorage,
+        shared: Shared,
         _prepRes: void,
-        execRes: ProbeNodeOutput,
+        execRes: NodeOutput,
     ): Promise<string | undefined> {
         shared.probeResults = execRes;
         return "default";

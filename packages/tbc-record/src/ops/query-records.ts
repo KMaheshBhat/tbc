@@ -1,16 +1,16 @@
 import assert from "assert";
 
 import { Node } from "pocketflow";
-import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { TBCRecordStorage, TBCQueryParams, TBCResult, TBCStore } from "../types";
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { TBCShared as Shared, TBCQueryParams, TBCResult, TBCStore } from "../types";
 
-interface QueryRecordsFlowConfig {
+interface FlowConfig {
     verbose: boolean;
     recordProviders?: string[];
     root?: string;
 }
 
-const QueryRecordsFlowConfigSchema: ValidationSchema = {
+const FlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         verbose: { type: "boolean" },
@@ -20,12 +20,27 @@ const QueryRecordsFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, QueryRecordsFlowConfig> {
-    startNode: Node;
-    config: QueryRecordsFlowConfig;
+class StartNode extends HAMINode<Shared, FlowConfig> {
+    constructor(config?: FlowConfig, maxRetries?: number, wait?: number) {
+        super(config, maxRetries, wait);
+    }
 
-    constructor(config: QueryRecordsFlowConfig) {
-        const startNode = new Node();
+    kind(): string {
+        return "tbc-system:query-records-flow-start"
+    }
+
+    post(shared: Shared, prepRes: unknown, execRes: unknown): Promise<string> {
+        shared.record.rootDirectory = shared.record.rootDirectory || this.config?.root || process.cwd();
+        return Promise.resolve("default");
+    }
+}
+
+export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
+    startNode: Node;
+    config: FlowConfig;
+
+    constructor(config: FlowConfig) {
+        const startNode = new StartNode(config);
         super(startNode, config);
         this.startNode = startNode;
         this.config = config;
@@ -35,23 +50,33 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, QueryRecords
         return "tbc-record:query-records-flow";
     }
 
-    async prep(shared: TBCRecordStorage): Promise<void> {
+    async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         const providers = this.config.recordProviders || [];
-        // TODO validate `tbc-record-${provider}:query-records` exists for each provider
+        for (const provider of providers) {
+            const nodeKind = `tbc-record-${provider}:query-records`;
+            assert(
+                shared.registry.hasNodeClass(nodeKind),
+                `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`
+            );
+        }
         let finalNode = new Node();
         let tailNode = providers.length > 0 ? new Node() : finalNode;
         this.startNode
             .next(new PrintNode("---Starting QueryFlow---"))
-            .next(n("core:assign", { "record.result": "emptyQueryResult" }))
+            .next(n("core:assign", { "record.accumulate": "record.result" }))
             .next(tailNode);
         for (const [i, provider] of providers.entries()) {
             const isLast = i === providers.length - 1;
             const targetNext = isLast ? finalNode : new Node();
             tailNode
                 .next(new PrintNode(`---Querying records from ${provider}---`))
-                .next(n("core:assign", { "record.result": "emptyQueryResult" }))
+                .next(n('core:mutate', {
+                    mutate: async (shared: Shared) => {
+                        shared.record!.result = undefined;
+                    }
+                }))
                 .next(n(`tbc-record-${provider}:query-records`))
                 .next(new AccumulateQueryNode())
                 .next(new PrintNode('------'))
@@ -59,26 +84,23 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, QueryRecords
             tailNode = targetNext;
         }
         finalNode
-            .next(n("core:assign", { "record.result": "accumulatedQueryResult" }))
-            .next(n("core:assign", { "accumulatedQueryResult": "emptyQueryResult" }))
+            .next(n("core:assign", { "record.result": "record.accumulate" }))
+                .next(n('core:mutate', {
+                    mutate: async (shared: Shared) => {
+                        shared.record!.accumulate = undefined;
+                    }
+                }))
             .next(new PrintNode("---Completed QueryFlow---"));
     }
 
-    async run(shared: TBCRecordStorage): Promise<string | undefined> {
+    async run(shared: Shared): Promise<string | undefined> {
         assert(shared.record, 'shared.record (operation state) is required');
         assert(shared.record.query, 'shared.record.query is required');
-        shared.emptyQueryResult = { IDs: [] };
-        const rootDir = shared.record.rootDirectory || this.config.root || process.cwd();
-        shared.record.rootDirectory = rootDir;
-        // Collection should be set by the caller or from shared state
-        if (!shared.record.collection && shared.collection) {
-            shared.record.collection = shared.collection;
-        }
         return super.run(shared);
     }
 
-    validateConfig(config: QueryRecordsFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, QueryRecordsFlowConfigSchema)
+    validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, FlowConfigSchema)
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -87,8 +109,8 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, QueryRecords
 }
 
 class AccumulateQueryNode extends Node {
-    async prep(shared: TBCRecordStorage): Promise<[TBCResult, TBCResult]> {
-        return [shared.accumulatedQueryResult || { IDs: [] }, shared.record?.result || { IDs: [] }];
+    async prep(shared: Shared): Promise<[TBCResult, TBCResult]> {
+        return [shared.record!.accumulate || { IDs: [] }, shared.record?.result || { IDs: [] }];
     }
 
     async exec(prepRes: [TBCResult, TBCResult]): Promise<TBCResult> {
@@ -96,32 +118,27 @@ class AccumulateQueryNode extends Node {
         const master: TBCResult = {
             IDs: [...(accumulated.IDs || []), ...(incoming.IDs || [])],
             totalCount: (accumulated.totalCount || 0) + (incoming.totalCount || 0),
+            records: accumulated.records,
         };
-        // Merge records as TBCStore
-        const accRecords = accumulated.records || {};
-        const incRecords = incoming.records || {};
-        const mergedRecords: TBCStore = { ...accRecords };
-        for (const collection in incRecords) {
-            mergedRecords[collection] = mergedRecords[collection] || {};
-            for (const id in incRecords[collection]) {
-                mergedRecords[collection][id] = {
-                    ...(mergedRecords[collection][id] || {}),
-                    ...incRecords[collection][id]
+        for (const collection in incoming.records) {
+            if (!master.records) master.records = {};
+            master.records[collection] = master.records[collection] || {};
+            for (const id in incoming.records[collection]) {
+                master.records[collection][id] = {
+                    ...(master.records[collection][id] || {}),
+                    ...incoming.records[collection][id]
                 };
             }
-        }
-        if (Object.keys(mergedRecords).length > 0) {
-            master.records = mergedRecords;
         }
         return master;
     }
 
     async post(
-        shared: TBCRecordStorage,
+        shared: Shared,
         _prepRes: [TBCResult, TBCResult],
         execRes: TBCResult,
     ): Promise<string | undefined> {
-        shared.accumulatedQueryResult = execRes;
+        shared.record!.accumulate = execRes;
         return undefined;
     }
 }
@@ -129,17 +146,18 @@ class AccumulateQueryNode extends Node {
 class PrintNode extends Node {
     message: string;
     isVerbose: boolean;
-    constructor(message: string) {
+    constructor(message: string, isVerbose?: boolean) {
         super();
         this.message = message;
         this.isVerbose = false;
     }
-    async prep(shared: Record<string, any>): Promise<void> {
-        this.isVerbose = shared.opts?.verbose || false;
+    async prep(shared: Record<string, any>): Promise<string> {
+        this.isVerbose = shared.stage?.verbose || false;
+        return shared.record.collection;
     }
-    async exec(): Promise<void> {
+    async exec(collection: string): Promise<void> {
         if (this.isVerbose) {
-            console.log(this.message);
+            console.log(`${collection}: ${this.message}`);
         }
     }
 }

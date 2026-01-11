@@ -7,6 +7,7 @@ type TBCQueryType = 'list-all-ids' | 'filter-by-tags' | 'search-by-content';
 
 type TBCQueryParams = {
    type: TBCQueryType;
+   recursive?: boolean;
    // TODO: Add future query parameters as implementations are added:
    // tags?: string[];
    // searchTerm?: string;
@@ -27,19 +28,9 @@ type TBCRecordOperation = {
     IDs?: string[];
     collection?: string;
     records?: TBCRecord[];
-    result?: TBCResult;
-    accumulate?: TBCStore;
-    empty?: TBCStore;
     query?: TBCQueryParams;
-}
-
-/**
- * Options for TBC record operations.
- * Defines configuration flags that can be used across TBC record operations.
- */
-type TBCRecordOpts = {
-  /** Whether to enable verbose logging for operations. */
-  verbose?: boolean;
+    result?: TBCResult;
+    accumulate?: TBCResult;
 }
 
 /**
@@ -47,27 +38,11 @@ type TBCRecordOpts = {
  * Defines the structure of data that can be shared between TBC record operation nodes.
  * Contains configuration options and results from various TBC record operations.
  */
-type TBCRecordStorage = {
+type TBCShared = {
     /** HAMI registration manager for node creation and management. */
     registry: HAMIRegistrationManager;
-    /** Optional configuration options for TBC record operations. */
-    opts?: TBCRecordOpts;
-    /** Current record operation */
-    record?: TBCRecordOperation;
-    /** Root directory for operations */
-    rootDirectory?: string;
-    /** Store path for operations */
-    storePath?: string;
-    /** Collection for operations */
-    collection?: string;
-    /** Records data */
-    records?: Record<string, any>[];
-    /** Echo message for testing */
-    echoMessage?: string;
-    /** Accumulated query result for query operations */
-    accumulatedQueryResult?: TBCResult;
-    /** Empty query result template */
-    emptyQueryResult?: TBCResult;
+    /** Current record operaton */
+    record: TBCRecordOperation;
 }
 
 export {
@@ -76,8 +51,7 @@ export {
     TBCStore,
     TBCResult,
     TBCRecordOperation,
-    TBCRecordOpts,
-    TBCRecordStorage,
+    TBCShared,
     TBCQueryType,
     TBCQueryParams,
 };

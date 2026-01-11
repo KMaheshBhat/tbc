@@ -3,14 +3,14 @@ import { join } from "node:path";
 import { existsSync } from "node:fs";
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCCoreStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-type RestoreRootNodeOutput = {
+type NodeOutput = {
     restored: boolean;
     message?: string;
 };
 
-export class RestoreRootNode extends HAMINode<TBCCoreStorage> {
+export class RestoreRootNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -20,7 +20,7 @@ export class RestoreRootNode extends HAMINode<TBCCoreStorage> {
     }
 
     async prep(
-        shared: TBCCoreStorage,
+        shared: Shared,
     ): Promise<{ rootDirectory: string; backupDirs: string[] }> {
         // Ensure rootDirectory is set
         if (!shared.rootDirectory) {
@@ -41,7 +41,7 @@ export class RestoreRootNode extends HAMINode<TBCCoreStorage> {
 
     async exec(
         prepRes: { rootDirectory: string; backupDirs: string[] },
-    ): Promise<RestoreRootNodeOutput> {
+    ): Promise<NodeOutput> {
         const { rootDirectory, backupDirs } = prepRes;
 
         if (backupDirs.length === 0) {
@@ -66,9 +66,9 @@ export class RestoreRootNode extends HAMINode<TBCCoreStorage> {
     }
 
     async post(
-        shared: TBCCoreStorage,
+        shared: Shared,
         _prepRes: { rootDirectory: string; backupDirs: string[] },
-        execRes: RestoreRootNodeOutput,
+        execRes: NodeOutput,
     ): Promise<string | undefined> {
         shared.restoreRootResults = execRes;
         return "default";
