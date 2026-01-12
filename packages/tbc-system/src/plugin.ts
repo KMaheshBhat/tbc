@@ -1,5 +1,8 @@
 import { createPlugin } from "@hami-frameworx/core";
 
+import { PrepareMessagesNode } from "./ops/prepare-messages.js";
+import { ClearMessagesNode } from "./ops/clear-messages.js";
+import { LogAndClearMessagesNode } from "./ops/log-and-clear-messages.js";
 import { ResolveRootDirectoryNode } from "./ops/resolve-root-directory.js";
 import { LoadSystemAssetsNode } from "./ops/load-system-asset.js";
 import { PrepareRecordsManifestNode } from "./ops/prepare-records-manifest.js";
@@ -28,6 +31,9 @@ import { SysValidateFlow } from "./ops/validate-flow.js";
  * Provides essential TBC system operations for probing environment information, initialization, validation, and core management.
  *
  * Included operations:
+ * - `tbc-system:prepare-messages`: Setup staged messages for TBC operations
+ * - `tbc-system:clear-messages`: Clear staged messages but add to allMessages
+ * - `tbc-system:log-and-clear-messages`: Log staged messages but add to allMessages
  * - `tbc-system:resolve-root-directory`: Resolves working directory for TBC operations
  * - `tbc-system:load-system-assets`: Loads system assets into shared stage records
  * - `tbc-system:prepare-records-manifest`: Recreates the stage.manifest from stage.records
@@ -53,6 +59,9 @@ const TBCSystemPlugin = createPlugin(
     "@tbc-frameworx/tbc-system",
     "0.1.0",
     [
+        PrepareMessagesNode as any,
+        ClearMessagesNode as any,
+        LogAndClearMessagesNode as any,
         ResolveRootDirectoryNode as any,
         LoadSystemAssetsNode as any,
         PrepareRecordsManifestNode as any,

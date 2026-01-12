@@ -111,7 +111,7 @@ describe("TBC-CLI Integration", () => {
     test("🐵 LETS-GO: running sys init with companion and prime flags is successful", async () => {
         const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, ["sys", "init", "--root", TBC_ROOT, "--companion", "Mojo", "--prime", "Jojo"]);
         if (!success) console.log("Tree on failure:\n", getFileTree(TBC_ROOT));
-        console.log("CLI Output:\n", output);
+        console.log(output);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         const companionIdPath = join(TBC_ROOT, "sys", "companion.id");
@@ -120,7 +120,7 @@ describe("TBC-CLI Integration", () => {
         const primeIdPath = join(TBC_ROOT, "sys", "prime.id");
         const primeId = (await file(primeIdPath).text()).trim();
         expectUUID(primeId);
-        expect(output).toContain('[✓] STABLE | 0 error(s) detected.')
+        expect(output).toContain('[✓] STABLE   | 0 error(s) detected.')
     });
 
     afterAll(() => {

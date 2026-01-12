@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { Shared } from "../types.js";
+import { TBCMessage, Shared } from "../types.js";
 
 type NodeInput = {
     rootDirectory?: string;
@@ -33,6 +33,12 @@ export class ResolveRootDirectoryNode extends HAMINode<Shared> {
         output: NodeOutput,
     ): Promise<string | undefined> {
         shared.stage = shared.stage || {};
+        shared.stage.messages = shared.stage.messages || [];
+        shared.stage.messages.push({
+            level: 'info',
+            source: this.kind(),
+            message: output,
+        });
         shared.stage.rootDirectory = output;
         shared.system.rootDirectory = output;
         return "default";

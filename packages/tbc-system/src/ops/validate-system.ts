@@ -1,24 +1,5 @@
 import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { Shared } from "../types.js";
-
-/**
- * TBC Sensory Interface
- */
-export type TBCLevel = 'info' | 'warn' | 'error';
-
-export const TBC_LEVEL_ICON_MAP = {
-    info: 'i',
-    warn: '!',
-    error: '✗',
-} as const;
-
-export interface TBCMessage {
-    level: TBCLevel;
-    source: string;      // The node or specific check that generated this
-    code: string;        // Machine-readable error code for logic branching
-    message: string;     // Descriptive message for the LLM
-    suggestion?: string; // Actionable hint for self-healing
-}
+import { TBCLevel, TBCMessage, Shared } from "../types.js";
 
 export interface TBCValidationResult {
     success: boolean;
@@ -219,6 +200,22 @@ export class ValidateSystemNode extends HAMINode<Shared, Config> {
 
     async post(shared: Shared, _input: NodeInput, output: NodeOutput): Promise<string | undefined> {
         shared.stage.validationResult = output;
+        shared.stage.messages = shared.stage.messages || [];
+        const { success, messages } = output;
+        const errorCount = messages.filter(m => m.level === 'error').length;
+        shared.stage.messages.push({
+            level: 'raw',
+            message: ' ┌┤ Validation Audit ├────────────────────────────────────────',
+        });
+        shared.stage.messages.push(...messages);
+        shared.stage.messages.push({
+            level: 'raw',
+            message: ' └┼───────────────────────────────────────────────────────────',
+        });
+        shared.stage.messages.push({
+            level: 'raw',
+            message: `${success ? '[✓] STABLE  ' : '[✗] DEGRADED'} | ${errorCount} error(s) detected.`
+        });
         return "default";
     }
 }

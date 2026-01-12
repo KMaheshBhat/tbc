@@ -4,8 +4,6 @@ import { Node } from 'pocketflow';
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
 import { Shared } from '../types';
-import { TBCValidationResult } from './validate-system';
-import { composeMessage } from './common';
 
 interface FlowConfig {
     verbose?: boolean;
@@ -80,6 +78,7 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         this.startNode
+            .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
             .next(n('core:assign', {
                 'record.rootDirectory': 'system.rootDirectory',
@@ -149,7 +148,7 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 'record.collection': 'stage.memCollection',
             }))
             .next(n('core:assign', {
-                'stage.records': 'record.result.records', 
+                'stage.records': 'record.result.records',
             }))
             .next(n('tbc-system:prepare-records-manifest'))
             .next(n('core:mutate', {
@@ -195,34 +194,7 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 }
             }))
             .next(n('tbc-system:validate-system'))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.validationResult = shared.stage.validationResult;
-                }
-            }))
-            .next(n('core:log-result', {
-                resultKey: 'validationResult',
-                format: 'custom',
-                customFormatter: this.composeReport,
-            }))
+            .next(n('tbc-system:log-and-clear-messages'))
     }
-
-    composeReport(validationResult: TBCValidationResult): string {
-        const { success, messages } = validationResult;
-        const lines: string[] = [];
-
-        lines.push("\n─────────────┤ TBC Manifest Validation Audit ├─────────────");
-
-        messages.forEach(m => {
-            lines.push(...composeMessage(m));
-        });
-
-        const errorCount = messages.filter(m => m.level === 'error').length;
-        lines.push("─────────────────────────────────────────────────────────────");
-        lines.push(`${success ? '[✓] STABLE' : '[✗] DEGRADED'} | ${errorCount} error(s) detected.\n`);
-
-        return lines.join('\n');
-    }
-
 
 }

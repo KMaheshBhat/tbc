@@ -4,9 +4,8 @@ import { Node } from "pocketflow";
 
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { Shared } from "../types";
-import { TBCMessage, TBCValidationResult } from "./validate-system";
-import { composeMessages } from "./common";
+import { TBCMessage, Shared } from "../types";
+import { TBCValidationResult } from "./validate-system";
 
 interface FlowConfig {
     verbose?: boolean;
@@ -79,20 +78,13 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         const n = shared.registry.createNode.bind(shared.registry);
         const abortSequence = new Node();
         abortSequence
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.messages = shared.stage.messages;
-                }
-            }))
-            .next(n('core:log-result', {
-                resultKey: 'messages',
-                format: 'custom',
-                customFormatter: composeMessages,
-            }))
+            .next(n('tbc-system:log-and-clear-messages'))
         const branchToAbort = new BranchToAbort()
         branchToAbort.on('abort', abortSequence)
         this.startNode
+            .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
+            .next(n('tbc-system:log-and-clear-messages'))
             .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
@@ -229,18 +221,22 @@ class BranchToAbort extends Node {
         return validationResult.success;
     }
     async post(shared: Shared, validationResult: TBCValidationResult, shouldAbort: boolean): Promise<string> {
+        shared.stage.messages = shared.stage.messages || [];
         if (!shouldAbort) {
+            shared.stage.messages.push({
+                level: 'info',
+                source: 'init-flow',
+                message: 'no existing valid TBC root found, proceeding ...',
+            });
             return 'default';
         }
-        const messages: TBCMessage[] = [];
-        messages.push({
+        shared.stage.messages.push({
             level: 'error',
             code: 'OVERWRITE-GUARD',
-            source: shared.system.rootDirectory,
+            source: 'init-flow',
             message: `has existing companion ${shared.system.companionID}`,
             suggestion: 'Use "tbc sys upgrade" instead.'
         });
-        shared.stage.messages = messages;
         return 'abort';
     }
 }

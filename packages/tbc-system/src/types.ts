@@ -1,6 +1,23 @@
 import { HAMIRegistrationManager } from "@hami-frameworx/core";
 import { TBCRecord, TBCRecordOperation } from "@tbc-frameworx/tbc-record";
 
+type TBCLevel = 'info' | 'warn' | 'error' | 'raw';
+
+const TBC_LEVEL_ICON_MAP = {
+    info: 'i',
+    warn: '!',
+    error: '✗',
+    raw: '',
+} as const;
+
+interface TBCMessage {
+    level: TBCLevel;
+    source: string;      // The node or specific check that generated this
+    code: string;        // Machine-readable error code for logic branching
+    message: string;     // Descriptive message for the LLM
+    suggestion?: string; // Actionable hint for self-healing
+}
+
 type SharedStage = Record<string, any>;
 type TBCSystemOperation = {
   rootDirectory: string;
@@ -102,4 +119,7 @@ type TBCCoreOpts = {
 
 export {
   Shared,
+  TBCLevel,
+  TBC_LEVEL_ICON_MAP,
+  TBCMessage,
 };
