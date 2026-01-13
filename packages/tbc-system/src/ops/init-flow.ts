@@ -4,8 +4,9 @@ import { Node } from "pocketflow";
 
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { TBCMessage, Shared } from "../types";
+import { Shared } from "../types";
 import { TBCValidationResult } from "./validate-system";
+import packageJson from '../../package.json' with { type: 'json' };
 
 interface FlowConfig {
     verbose?: boolean;
@@ -85,6 +86,15 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
             .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: 'Checking first ...',
+                    });
+                }
+            }))
             .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
@@ -97,9 +107,45 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     { type: 'uuid', 'key': 'memoryMapID' },
                 ],
             }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Minted IDs: ${JSON.stringify(shared.stage.minted.keys)}`,
+                    });
+                }
+            }))
             .next(n('tbc-system:synthesize-mem-records'))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: 'Synthesized memory records.',
+                    });
+                }
+            }))
             .next(n('tbc-system:load-system-assets'))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Loaded TBC ${packageJson.version} core assets (specs and skills).`,
+                    });
+                }
+            }))
             .next(n('tbc-system:synthesize-sys-records'))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: 'Synthesized system records.',
+                    });
+                }
+            }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.record.rootDirectory = shared.system.rootDirectory;
@@ -113,6 +159,15 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
                 recordProviders: ['fs'],
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
+                    });
+                }
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -133,6 +188,15 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
+                    });
+                }
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
                     shared.record.rootDirectory = shared.system.rootDirectory;
                     shared.record.collection = `${shared.stage.sysCollection}/ext`;
                     shared.record.records = [];
@@ -147,6 +211,15 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
                 recordProviders: ['fs'],
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
+                    });
+                }
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -167,6 +240,15 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
+                    });
+                }
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
                     shared.record.rootDirectory = shared.system.rootDirectory;
                     shared.record.collection = `${shared.stage.skillsCollection}/ext`;
                     shared.record.records = [];
@@ -184,6 +266,15 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
+                    });
+                }
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
                     shared.record.rootDirectory = shared.system.rootDirectory;
                     shared.record.collection = shared.stage.memCollection;
                     shared.record.records = [];
@@ -195,6 +286,24 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
                 recordProviders: ['fs'],
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
+                    });
+                }
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: 'Validating again ...',
+                    });
+                }
             }))
             .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,

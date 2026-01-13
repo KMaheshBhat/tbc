@@ -1,6 +1,6 @@
 {
   "name": "@tbc-frameworx/tbc-system",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "description": "TBC Core operations library",
   "license": "MIT",
   "type": "module",
