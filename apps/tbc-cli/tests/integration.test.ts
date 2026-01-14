@@ -117,6 +117,8 @@ describe("TBC-CLI Integration", () => {
         ]);
         console.log(output);
         expect(exitCode).toBe(0);
+        expect(output).toContain('[✗] ┬─ error | init-flow | has no existing companion (not a valid TBC Root)');
+        expect(output).toContain('    └─ Suggestion: Use "tbc sys init" instead');
     });
 
     test("🐵 LETS-GO: running sys init with companion and prime flags is successful", async () => {
