@@ -1,17 +1,21 @@
 import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
 import { Shared, TBCMessage, TBC_LEVEL_ICON_MAP } from "../types.js";
+import assert from "node:assert";
 
-export function composeMessages(messages: TBCMessage[]): string {
+export function composeMessages(messages: TBCMessage[], verbose: boolean): string {
     const lines: string[] = [];
     messages.forEach(m => {
-        lines.push(...composeMessage(m));
+        lines.push(...composeMessage(m, verbose));
     })
     return lines.join('\n');
 }
 
-export function composeMessage(m: TBCMessage): string[] {
+export function composeMessage(m: TBCMessage, verbose: boolean): string[] {
     const lines: string[] = [];
+    if (!verbose && m.level === 'debug') {
+        return lines;
+    }
     if (m.level === 'raw') {
         lines.push(m.message);
         return lines;
@@ -33,7 +37,10 @@ type Config = {
 const ValidateNodeConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
-        verbose: { type: 'boolean' },
+        verbose: {
+            type: 'boolean',
+            default: false,
+        },
     },
     required: ['verbose'],
 };
@@ -52,11 +59,13 @@ export class LogAndClearMessagesNode extends HAMINode<Shared, Config> {
     }
 
     async prep(shared: Shared): Promise<TBCMessage[]> {
+        this.config = this.config || { verbose: false };
+        this.config.verbose = shared.stage.verbose || false;
         return shared.stage.messages || [];
     }
 
     async exec(messages: TBCMessage[]): Promise<TBCMessage[]> {
-        console.log(composeMessages(messages));
+        console.log(composeMessages(messages, this.config?.verbose || false));
         return messages;
     }
 

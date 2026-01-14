@@ -88,7 +88,7 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
-                        level: 'info',
+                        level: 'debug',
                         source: 'validate-flow',
                         message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
                     });
@@ -113,7 +113,7 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
-                        level: 'info',
+                        level: 'debug',
                         source: 'validate-flow',
                         message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
                     });
@@ -138,7 +138,7 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
-                        level: 'info',
+                        level: 'debug',
                         source: 'validate-flow',
                         message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
                     });
@@ -163,7 +163,7 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
-                        level: 'info',
+                        level: 'debug',
                         source: 'validate-flow',
                         message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
                     });
@@ -212,17 +212,17 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
-                        level: 'info',
+                        level: 'debug',
                         source: 'validate-flow',
                         message: `Identifying companionID (${shared.system.companionID}) and load from ${shared.record.collection}`
                     });
                     shared.stage.messages.push({
-                        level: 'info',
+                        level: 'debug',
                         source: 'validate-flow',
                         message: `Identifying primeID (${shared.system.primeID}) and load from ${shared.record.collection}`
                     });
                     shared.stage.messages.push({
-                        level: 'info',
+                        level: 'debug',
                         source: 'validate-flow',
                         message: `Identifying memoryMapID (${shared.system.memoryMapID}) and load from ${shared.record.collection}`
                     });

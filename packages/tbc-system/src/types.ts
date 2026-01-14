@@ -1,9 +1,10 @@
 import { HAMIRegistrationManager } from "@hami-frameworx/core";
 import { TBCRecord, TBCRecordOperation } from "@tbc-frameworx/tbc-record";
 
-type TBCLevel = 'info' | 'warn' | 'error' | 'raw';
+type TBCLevel = 'debug' | 'info' | 'warn' | 'error' | 'raw';
 
 const TBC_LEVEL_ICON_MAP = {
+    debug: '»',
     info: 'i',
     warn: '!',
     error: '✗',

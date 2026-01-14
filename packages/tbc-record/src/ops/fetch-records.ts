@@ -49,14 +49,12 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         let finalNodeSequence = new Node();
         let tailNode = providers.length > 0 ? new Node() : finalNodeSequence;
         this.startNode
-            .next(new PrintNode("---Starting FetchRecordsFlow---"))
             .next(n("core:assign", { "record.accumulate": "record.result" }))
             .next(tailNode);
         for (const [i, provider] of providers.entries()) {
             const isLast = i === providers.length - 1;
             const targetNext = isLast ? finalNodeSequence : new Node();
             tailNode
-                .next(new PrintNode(`---Fetching records from ${provider}---`))
                 .next(n('core:mutate', {
                     mutate: async (shared: Shared) => {
                         shared.record!.result = undefined;
@@ -64,7 +62,6 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                 }))
                 .next(n(`tbc-record-${provider}:fetch-records`))
                 .next(new AccumulateNode())
-                .next(new PrintNode('------'))
                 .next(targetNext);
             tailNode = targetNext;
         }
@@ -75,7 +72,6 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                     shared.record!.accumulate = undefined;
                 }
             }))
-            .next(new PrintNode("---Completed FetchRecordsFlow---"));
     }
 
     async run(shared: Shared): Promise<string | undefined> {
@@ -124,24 +120,5 @@ class AccumulateNode extends Node {
         assert(shared.record, 'shared.record is required');
         shared.record.accumulate = execRes;
         return undefined;
-    }
-}
-
-class PrintNode extends Node {
-    message: string;
-    isVerbose: boolean;
-    constructor(message: string, isVerbose?: boolean) {
-        super();
-        this.message = message;
-        this.isVerbose = false;
-    }
-    async prep(shared: Record<string, any>): Promise<string> {
-        this.isVerbose = shared.stage?.verbose || false;
-        return shared.record.collection;
-    }
-    async exec(collection: string): Promise<void> {
-        if (this.isVerbose) {
-            console.log(`${collection}: ${this.message}`);
-        }
     }
 }

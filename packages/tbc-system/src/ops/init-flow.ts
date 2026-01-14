@@ -309,6 +309,31 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Companion: ${shared.system.companionRecord.record_title} [${shared.system.companionID}]`,
+                    });
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Prime: ${shared.system.primeRecord.record_title} [${shared.system.primeID}]`,
+                    });
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Map of Memories [${shared.system.memoryMapID}] initialized.`,
+                    });
+                    shared.stage.messages.push({
+                        level: 'raw',
+                        message: `[✓] Third Brain Companion ${packageJson.version} initialized.`,
+                    });
+                }
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            ;
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {

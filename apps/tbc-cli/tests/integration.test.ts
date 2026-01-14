@@ -120,7 +120,11 @@ describe("TBC-CLI Integration", () => {
         const primeIdPath = join(TBC_ROOT, "sys", "prime.id");
         const primeId = (await file(primeIdPath).text()).trim();
         expectUUID(primeId);
-        expect(output).toContain('[✓] STABLE   | 0 error(s) detected.')
+        expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
+        expect(output).toContain('[i] ── info  | init-flow | Companion: Mojo');
+        expect(output).toContain('[i] ── info  | init-flow | Prime: Jojo');
+        expect(output).toContain('[i] ── info  | init-flow | Map of Memories');
+        expect(output).toContain('[✓] Third Brain Companion 0.4.0 initialized.')
     });
 
     afterAll(() => {

@@ -64,23 +64,12 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         let finalNode = new Node();
         let tailNode = providers.length > 0 ? new Node() : finalNode;
         this.startNode
-            .next(new PrintNode("---Starting StoreRecordsFlow---"))
             .next(n("core:assign", { "record.accumulate": "record.result" }))
             .next(tailNode);
         for (const [i, provider] of providers.entries()) {
             const isLast = i === providers.length - 1;
             const targetNext = isLast ? finalNode : new Node();
             tailNode
-                .next(new PrintNode(`---Storing records with ${provider}---`))
-            // .next(n('core:mutate', {
-            //     mutate: (shared: Record<string, any>) => {
-            //         shared.records = shared.record.records;
-            //     }
-            // }))
-            // .next(n('core:log-result', {
-            //     'format': 'json',
-            //     'resultKey': 'records',
-            // }))
                 .next(n('core:mutate', {
                     mutate: async (shared: Shared) => {
                         shared.record!.result!.records = undefined;
@@ -88,7 +77,6 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                 }))
                 .next(n(`tbc-record-${provider}:store-records`))
                 .next(new AccumulateNode())
-                .next(new PrintNode('------'))
                 .next(targetNext);
             tailNode = targetNext;
         }
@@ -99,7 +87,6 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                     shared.record!.accumulate = undefined;
                 }
             }))
-            .next(new PrintNode("---Completed StoreRecordsFlow---"));
     }
 
     async run(shared: Shared): Promise<string | undefined> {
@@ -148,23 +135,5 @@ class AccumulateNode extends Node {
         assert(shared.record, 'shared.record is required');
         shared.record.accumulate = execRes;
         return undefined;
-    }
-}
-
-class PrintNode extends Node {
-    message: string;
-    isVerbose: boolean;
-    constructor(message: string) {
-        super();
-        this.message = message;
-        this.isVerbose = false;
-    }
-    async prep(shared: Record<string, any>): Promise<void> {
-        this.isVerbose = shared.opts?.verbose || false;
-    }
-    async exec(): Promise<void> {
-        if (this.isVerbose) {
-            console.log(this.message);
-        }
     }
 }
