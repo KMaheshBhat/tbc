@@ -23,7 +23,7 @@ import { ValidateNode } from "./ops/validate.js";
 import { ValidateSystemNode } from "./ops/validate-system.js";
 import { GenerateRoleDefinitionNode } from "./ops/generate-role-definition.js";
 import { InitFlow } from "./ops/init-flow.js";
-import { SysUpgradeFlow } from "./ops/sys-upgrade-flow.js";
+import { UpgradeFlow } from "./ops/upgrade-flow.js";
 import { SysValidateFlow } from "./ops/validate-flow.js";
 
 /**
@@ -82,7 +82,7 @@ const TBCSystemPlugin = createPlugin(
         ValidateSystemNode as any,
         GenerateRoleDefinitionNode as any,
         InitFlow as any,
-        SysUpgradeFlow as any,
+        UpgradeFlow as any,
         SysValidateFlow as any,
     ],
     "TBC System Plugin - Environment probing, initialization, validation, and core management operations",

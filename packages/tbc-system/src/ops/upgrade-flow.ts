@@ -5,12 +5,12 @@ import { fileURLToPath } from "node:url";
 
 import { HAMIFlow, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
-interface UpgradeFlowConfig {
+interface FlowConfig {
     root?: string;
     verbose: boolean;
 }
 
-const UpgradeFlowConfigSchema: ValidationSchema = {
+const FlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         root: { type: "string" },
@@ -19,11 +19,11 @@ const UpgradeFlowConfigSchema: ValidationSchema = {
     required: ["verbose"],
 };
 
-export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowConfig> {
+export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
     startNode: Node;
-    config: UpgradeFlowConfig;
+    config: FlowConfig;
 
-    constructor(config: UpgradeFlowConfig) {
+    constructor(config: FlowConfig) {
         const startNode = new Node();
         super(startNode, config);
         this.startNode = startNode;
@@ -31,7 +31,7 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
     }
 
     kind(): string {
-        return "tbc-system:sys-upgrade-flow";
+        return "tbc-system:upgrade-flow";
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -74,8 +74,8 @@ export class SysUpgradeFlow extends HAMIFlow<Record<string, any>, UpgradeFlowCon
         return super.run(shared);
     }
 
-    validateConfig(config: UpgradeFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, UpgradeFlowConfigSchema)
+    validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, FlowConfigSchema)
         return {
             valid: result.isValid,
             errors: result.errors || [],

@@ -56,7 +56,7 @@ let cmdSysUpgrade = new Command('upgrade')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const upgradeFlow = registry.createNode('tbc-system:sys-upgrade-flow', {
+            const upgradeFlow = registry.createNode('tbc-system:upgrade-flow', {
                 root: root,
                 verbose: isVerbose,
             });
