@@ -108,8 +108,28 @@ describe("TBC-CLI Integration", () => {
         }
     });
 
+    test("🐵 LETS-GO: running sys upgrade on non-TBC-Root should fail with helpful message", async () => {
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, [
+            "sys",
+            "upgrade",
+            "--root",
+            TBC_ROOT,
+        ]);
+        console.log(output);
+        expect(exitCode).toBe(0);
+    });
+
     test("🐵 LETS-GO: running sys init with companion and prime flags is successful", async () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, ["sys", "init", "--root", TBC_ROOT, "--companion", "Mojo", "--prime", "Jojo"]);
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, [
+            "sys",
+            "init",
+            "--root",
+            TBC_ROOT,
+            "--companion",
+            "Mojo",
+            "--prime",
+            "Jojo",
+        ]);
         if (!success) console.log("Tree on failure:\n", getFileTree(TBC_ROOT));
         console.log(output);
         expect(success).toBe(true);
@@ -125,6 +145,25 @@ describe("TBC-CLI Integration", () => {
         expect(output).toContain('[i] ── info  | init-flow | Prime: Jojo');
         expect(output).toContain('[i] ── info  | init-flow | Map of Memories');
         expect(output).toContain('[✓] Third Brain Companion 0.4.0 initialized.')
+    });
+
+    test("🐵 LETS-GO: running sys init on existing TBC-Root should fail with helpful message", async () => {
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, [
+            "sys",
+            "init",
+            "--root",
+            TBC_ROOT,
+            "--companion",
+            "Mojo",
+            "--prime",
+            "Jojo",
+        ]);
+        if (!success) console.log("Tree on failure:\n", getFileTree(TBC_ROOT));
+        console.log(output);
+        expect(exitCode).toBe(0);
+        expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
+        expect(output).toContain('[✗] ┬─ error | init-flow | has existing companion');
+        expect(output).toContain('    └─ Suggestion: Use "tbc sys upgrade" instead.');
     });
 
     afterAll(() => {
