@@ -15,7 +15,7 @@
   "dependencies": {
     "commander": "^14.0.2",
     "pocketflow": "^1.0.4",
-    "@hami-frameworx/core": "0.1.3",
+    "@hami-frameworx/core": "0.1.4",
     "@tbc-frameworx/tbc-record": "^0.1.0",
     "@tbc-frameworx/tbc-record-fs": "^0.1.0",
     "@tbc-frameworx/tbc-system": "^0.4.0",

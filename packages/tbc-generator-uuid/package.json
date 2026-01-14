@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "uuidv7": "^1.0.2",
-    "@hami-frameworx/core": "0.1.3",
+    "@hami-frameworx/core": "0.1.4",
     "@tbc-frameworx/tbc-generator": "^0.1.0"
   }
 }

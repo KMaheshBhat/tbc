@@ -20,7 +20,7 @@
         "tbc": "dist/index.js",
       },
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "@tbc-frameworx/tbc-activity": "^0.1.0",
         "@tbc-frameworx/tbc-gemini": "^0.1.0",
         "@tbc-frameworx/tbc-generator": "^0.1.0",
@@ -33,7 +33,7 @@
         "@tbc-frameworx/tbc-memory": "^0.1.0",
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "@tbc-frameworx/tbc-record-fs": "^0.1.0",
-        "@tbc-frameworx/tbc-system": "^0.1.0",
+        "@tbc-frameworx/tbc-system": "^0.4.0",
         "@tbc-frameworx/tbc-view": "^0.1.0",
         "commander": "^14.0.2",
         "pocketflow": "^1.0.4",
@@ -47,7 +47,7 @@
       "name": "@tbc-frameworx/tbc-activity",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "pocketflow": "^1.0.4",
         "uuidv7": "1.1.0",
       },
@@ -60,7 +60,7 @@
       "name": "@tbc-frameworx/tbc-gemini",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -72,7 +72,7 @@
       "name": "@tbc-frameworx/tbc-generator",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "uuidv7": "^1.0.2",
       },
       "devDependencies": {
@@ -84,7 +84,7 @@
       "name": "@tbc-frameworx/tbc-generator-tsid",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "@tbc-frameworx/tbc-generator": "^0.1.0",
       },
       "devDependencies": {
@@ -96,7 +96,7 @@
       "name": "@tbc-frameworx/tbc-generator-uuid",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "@tbc-frameworx/tbc-generator": "^0.1.0",
         "uuidv7": "^1.0.2",
       },
@@ -109,7 +109,7 @@
       "name": "@tbc-frameworx/tbc-github-copilot",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -121,7 +121,7 @@
       "name": "@tbc-frameworx/tbc-goose",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -133,7 +133,7 @@
       "name": "@tbc-frameworx/tbc-interface",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -145,7 +145,7 @@
       "name": "@tbc-frameworx/tbc-kilocode",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -157,7 +157,7 @@
       "name": "@tbc-frameworx/tbc-memory",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "pocketflow": "^1.0.4",
       },
@@ -170,7 +170,7 @@
       "name": "@tbc-frameworx/tbc-record",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -182,7 +182,7 @@
       "name": "@tbc-frameworx/tbc-record-fs",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "gray-matter": "^4.0.3",
         "js-yaml": "^4.1.0",
@@ -198,7 +198,7 @@
       "name": "@tbc-frameworx/tbc-record-sqlite",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -208,9 +208,9 @@
     },
     "packages/tbc-system": {
       "name": "@tbc-frameworx/tbc-system",
-      "version": "0.1.0",
+      "version": "0.4.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "pocketflow": "^1.0.4",
       },
@@ -223,7 +223,7 @@
       "name": "@tbc-frameworx/tbc-view",
       "version": "0.1.0",
       "dependencies": {
-        "@hami-frameworx/core": "0.1.3",
+        "@hami-frameworx/core": "0.1.4",
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "gray-matter": "4.0.3",
         "pocketflow": "^1.0.4",
@@ -235,7 +235,7 @@
     },
   },
   "packages": {
-    "@hami-frameworx/core": ["@hami-frameworx/core@0.1.3", "", { "dependencies": { "pocketflow": "^1.0.4" } }, "sha512-V5dqwfkbCifIIKHvJD7RZw4cJj7P0q5LzX3p42B6b605hVRcYKeZ8Ns+IMFNuYGjccqsYBCFmbusvTwKI7lpgA=="],
+    "@hami-frameworx/core": ["@hami-frameworx/core@0.1.4", "", { "dependencies": { "pocketflow": "^1.0.4" } }, "sha512-Hc19YHb6pxTomZj00XRwvI20Vwebb/YBaUZ1xaZOdeaZdyatm82cZSN9MNP19HT/IqZmrtBOl+B4QxFnesa0xg=="],
 
     "@isaacs/balanced-match": ["@isaacs/balanced-match@4.0.1", "", {}, "sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ=="],
 
@@ -273,7 +273,7 @@
 
     "@tbc-frameworx/tbc-view": ["@tbc-frameworx/tbc-view@workspace:packages/tbc-view"],
 
-    "@types/bun": ["@types/bun@1.3.5", "", { "dependencies": { "bun-types": "1.3.5" } }, "sha512-RnygCqNrd3srIPEWBd5LFeUYG7plCoH2Yw9WaZGyNmdTEei+gWaHqydbaIRkIkcbXwhBT94q78QljxN0Sk838w=="],
+    "@types/bun": ["@types/bun@1.3.6", "", { "dependencies": { "bun-types": "1.3.6" } }, "sha512-uWCv6FO/8LcpREhenN1d1b6fcspAB+cefwD7uti8C8VffIv0Um08TKMn98FynpTiU38+y2dUO55T11NgDt8VAA=="],
 
     "@types/js-yaml": ["@types/js-yaml@4.0.9", "", {}, "sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg=="],
 
@@ -281,7 +281,7 @@
 
     "argparse": ["argparse@2.0.1", "", {}, "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q=="],
 
-    "bun-types": ["bun-types@1.3.5", "", { "dependencies": { "@types/node": "*" } }, "sha512-inmAYe2PFLs0SUbFOWSVD24sg1jFlMPxOjOSSCYqUgn4Hsc3rDc7dFvfVYjFPNHtov6kgUeulV4SxbuIV/stPw=="],
+    "bun-types": ["bun-types@1.3.6", "", { "dependencies": { "@types/node": "*" } }, "sha512-OlFwHcnNV99r//9v5IIOgQ9Uk37gZqrNMCcqEaExdkVq3Avwqok1bJFmvGMCkCE0FqzdY8VMOZpfpR3lwI+CsQ=="],
 
     "commander": ["commander@14.0.2", "", {}, "sha512-TywoWNNRbhoD0BXs1P3ZEScW8W5iKrnbithIl0YH+uCmBd0QpPOA8yc82DS3BIE5Ma6FnBVUsJ7wVUDz4dvOWQ=="],
 

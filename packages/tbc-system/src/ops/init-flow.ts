@@ -79,8 +79,26 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         const n = shared.registry.createNode.bind(shared.registry);
         const abortSequence = new Node();
         abortSequence
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'error',
+                        code: 'OVERWRITE-GUARD',
+                        source: 'init-flow',
+                        message: `has existing companion ${shared.system.companionID}`,
+                        suggestion: 'Use "tbc sys upgrade" instead.',
+                    });
+                }
+            }))
             .next(n('tbc-system:log-and-clear-messages'))
-        const branchToAbort = new BranchToAbort()
+        const branchToAbort = n('core:branch', {
+            branch: (shared: Record<string, any>) => {
+                if (shared.stage.validationResult.success) {
+                    return 'abort';
+                }
+                return 'default';
+            },
+        });
         branchToAbort.on('abort', abortSequence)
         this.startNode
             .next(n('tbc-system:prepare-messages'))
@@ -100,6 +118,15 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 rootDirectory: shared.stage.rootDirectory,
             }))
             .next(branchToAbort)
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: 'no existing valid TBC root found, proceeding ...',
+                    });
+                }
+            }))
             .next(n('tbc-generator:mint-ids-flow', {
                 requests: [
                     { type: 'uuid', 'key': 'companionID' },
@@ -345,32 +372,4 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         return super.run(shared);
     }
 
-}
-
-class BranchToAbort extends Node {
-    async prep(shared: Shared): Promise<TBCValidationResult> {
-        return shared.stage.validationResult;
-    }
-    async exec(validationResult: TBCValidationResult): Promise<boolean> {
-        return validationResult.success;
-    }
-    async post(shared: Shared, validationResult: TBCValidationResult, shouldAbort: boolean): Promise<string> {
-        shared.stage.messages = shared.stage.messages || [];
-        if (!shouldAbort) {
-            shared.stage.messages.push({
-                level: 'info',
-                source: 'init-flow',
-                message: 'no existing valid TBC root found, proceeding ...',
-            });
-            return 'default';
-        }
-        shared.stage.messages.push({
-            level: 'error',
-            code: 'OVERWRITE-GUARD',
-            source: 'init-flow',
-            message: `has existing companion ${shared.system.companionID}`,
-            suggestion: 'Use "tbc sys upgrade" instead.'
-        });
-        return 'abort';
-    }
 }
