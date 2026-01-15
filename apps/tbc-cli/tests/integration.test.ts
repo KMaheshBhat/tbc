@@ -1,7 +1,9 @@
-import { expect, test, describe, beforeAll, afterAll } from "bun:test";
-import { file, spawnSync } from "bun";
+import { file } from "bun";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { existsSync, mkdirSync, rmSync, readdirSync, statSync } from "node:fs";
+
+import { generateFileTree, runMonorepoCommand, UUID_REGEX } from "../../../scripts/common";
 import packageJson from '../package.json' with { type: 'json' };
 
 const PROJECT_ROOT = join(import.meta.dir, "../../..");
@@ -11,48 +13,8 @@ const TBC_ROOT = join(SANDBOX, "mojo");
 const TEST_BINARY = process.env.TBC_TEST_BINARY;
 const CLI_TARGET = TEST_BINARY ? join(PROJECT_ROOT, TEST_BINARY) : CLI_ENTRY;
 
-function runCMD(wd: string, target: string, args: string[]) {
-    // If target is the binary, we don't need process.execPath (Bun/Node)
-    const isBinary = target.endsWith('tbc') || !target.endsWith('.ts');
-    const command = isBinary ? [target, ...args] : [process.execPath, target, ...args];
-
-    const result = spawnSync(command, {
-        cwd: wd,
-        stdout: "pipe",
-        stderr: 1,
-        env: { ...process.env, NO_COLOR: "1" },
-    });
-
-    return {
-        output: result.stdout.toString(),
-        exitCode: result.exitCode,
-        success: result.success,
-    };
-}
-
-function getFileTree(dir: string, prefix = ""): string {
-    const files = readdirSync(dir);
-    let tree = "";
-
-    files.forEach((file, index) => {
-        const path = join(dir, file);
-        const isLast = index === files.length - 1;
-        const connector = isLast ? " └── " : " ├── ";
-
-        tree += `${prefix}${connector}${file}\n`;
-
-        if (statSync(path).isDirectory()) {
-            const newPrefix = prefix + (isLast ? "     " : " │   ");
-            tree += getFileTree(path, newPrefix);
-        }
-    });
-
-    return tree;
-}
-
 function expectUUID(content: string) {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    expect(content).toMatch(uuidRegex);
+    expect(content).toMatch(UUID_REGEX);
 }
 
 describe("TBC-CLI Integration", () => {
@@ -69,7 +31,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 PRE-FLIGHT: running with no args gives help and error exit code (still provides Usage)", () => {
-        const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, []);
+        const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, []);
         expect(success).toBe(false);
         expect(exitCode).toBe(1);
         expect(output).toContain("Third Brain Companion CLI");
@@ -77,7 +39,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 PRE-FLIGHT: running with --help gives help and success exit code", () => {
-        const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["--help"]);
+        const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, ["--help"]);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         expect(output).toContain("Third Brain Companion CLI");
@@ -86,25 +48,25 @@ describe("TBC-CLI Integration", () => {
 
     test("🐵 PRE-FLIGHT: running sys init with missing flags is fails with helpful message", () => {
         {
-            const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["sys", "init"]);
+            const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, ["sys", "init"]);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain("Both --companion and --prime flags are required");
         }
         {
-            const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["sys", "init", "--root", TBC_ROOT]);
+            const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, ["sys", "init", "--root", TBC_ROOT]);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain("Both --companion and --prime flags are required");
         }
         {
-            const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["sys", "init", "--root", TBC_ROOT, "--companion", "Mojo"]);
+            const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, ["sys", "init", "--root", TBC_ROOT, "--companion", "Mojo"]);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain("Both --companion and --prime flags are required");
         }
         {
-            const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["sys", "init", "--root", TBC_ROOT, "--prime", "Jojo"]);
+            const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, ["sys", "init", "--root", TBC_ROOT, "--prime", "Jojo"]);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain("Both --companion and --prime flags are required");
@@ -112,7 +74,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys upgrade on non-TBC-Root should fail with helpful message", async () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             "sys",
             "upgrade",
             "--root",
@@ -124,7 +86,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys init with companion and prime flags is successful", async () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             "sys",
             "init",
             "--root",
@@ -137,7 +99,7 @@ describe("TBC-CLI Integration", () => {
         if (!success) {
             console.log(output);
             console.log("Tree on failure:");
-            console.log(getFileTree(TBC_ROOT));
+            console.log(generateFileTree(TBC_ROOT));
         }
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
@@ -155,7 +117,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys init on existing TBC-Root should fail with helpful message", async () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             "sys",
             "init",
             "--root",
@@ -168,7 +130,7 @@ describe("TBC-CLI Integration", () => {
         if (!success) {
             console.log(output);
             console.log("Tree on failure:");
-            console.log(getFileTree(TBC_ROOT));
+            console.log(generateFileTree(TBC_ROOT));
         }
         expect(exitCode).toBe(0);
         expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
@@ -177,7 +139,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys upgrade on TBC-Root is successful", async () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             "sys",
             "upgrade",
             "--root",
@@ -189,7 +151,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys validate on a healthy root", () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             "sys",
             "validate",
             "--root",
@@ -209,7 +171,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys validate with --verbose shows deep trace", () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             "sys",
             "validate",
             "--root",
@@ -228,7 +190,7 @@ describe("TBC-CLI Integration", () => {
 
     afterAll(() => {
         console.log("🐵 Mojo Jojo!")
-        console.log(getFileTree(TBC_ROOT));
+        console.log(generateFileTree(TBC_ROOT));
         console.log("🐵 Suite Complete");
     });
 
