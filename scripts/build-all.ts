@@ -1,4 +1,4 @@
-// scripts/build.ts
+import { rmSync } from "node:fs";
 
 /**
  * The order of this array defines the build sequence.
@@ -37,7 +37,29 @@ const BUILD_ORDER = [
 
 async function runBuilds() {
   const startTime = performance.now();
-  console.log("🛠️  Starting Monorepo Build Sequence...\n");
+  const args = Bun.argv;
+  const shouldClean = args.includes("--clean");
+
+  if (shouldClean) {
+    console.log("🧹 Flag --clean detected. Wiping dist folders...");
+
+    // Use a recursive pattern to find all 'dist' and 'tsconfig.tsbuildinfo'
+    // We look specifically for the names, not just top-level
+    const glob = new Bun.Glob("**/{dist,tsconfig.tsbuildinfo}");
+
+    // scanSync configuration:
+    // 1. absolute: true makes rmSync much happier
+    // 2. onlyFiles: false ensures we catch the 'dist' directory itself
+    for (const file of glob.scanSync({ cwd: ".", absolute: true, onlyFiles: false })) {
+      // Safety check: only delete if it's inside apps or packages
+      if (file.includes("/apps/") || file.includes("/packages/")) {
+        console.log(`🧹 Deleting: ${file}`);
+        rmSync(file, { recursive: true, force: true });
+      }
+    }
+  }
+
+  console.log("\n🛠️ Starting Monorepo Build Sequence...\n");
 
   for (const group of BUILD_ORDER) {
     console.log(`📦 Building group: ${group.join(', ')}`);

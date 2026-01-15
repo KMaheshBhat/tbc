@@ -9,7 +9,9 @@
     "tbc": "dist/index.js"
   },
   "scripts": {
-    "build": "bunx tsc",
+    "build": "bun build:src && bun build:types",
+    "build:src": "bun build src/index.ts --outfile=dist/index.js --target=bun",
+    "build:types": "bunx tsc --emitDeclarationOnly --outDir dist",
     "start": "bun run dist/index.js"
   },
   "dependencies": {

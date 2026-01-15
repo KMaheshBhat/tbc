@@ -28,12 +28,12 @@
     "cli:build": "bun run --filter='@tbc-frameworx/tbc-cli' build",
     "cli:install": "bun run cli:build && cd apps/tbc-cli && bun link",
     "all:build": "bun run scripts/build-all.ts",
-    "all:clean": "rimraf apps/*/{dist,tsconfig.tsbuildinfo} packages/*/{dist,tsconfig.tsbuildinfo}",
-    "node_modules:clean": "rimraf apps/*/node_modules packages/*/node_modules"
+    "all:build-fresh": "bun run scripts/build-all.ts --clean",
+    "node_modules:clean": "shx rm -rf node_modules apps/*/node_modules packages/*/node_modules"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "rimraf": "^6.1.2",
+    "shx": "^0.4.0",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {

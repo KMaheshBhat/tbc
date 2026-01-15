@@ -7,7 +7,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "bun build src/index.ts --outfile=dist/index.js --target=bun && bunx tsc --emitDeclarationOnly --outDir dist"
+    "build": "bun build:src && bun build:types",
+    "build:src": "bun build src/index.ts --outfile=dist/index.js --target=bun",
+    "build:types": "bunx tsc --emitDeclarationOnly --outDir dist"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.5",

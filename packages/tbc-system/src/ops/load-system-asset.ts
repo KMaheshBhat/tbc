@@ -18,6 +18,22 @@ export class LoadSystemAssetsNode extends HAMINode<Shared> {
     }
 
     async prep(_shared: Shared): Promise<NodeInput> {
+    const currentFile = fileURLToPath(import.meta.url);
+    const currentDir = join(currentFile, "..");
+    
+    // Check if we are in a bundled state (dist/index.js) 
+    // or a development/TSC state (dist/ops/ or src/ops/)
+    const isBundled = currentFile.endsWith('index.js');
+    
+    const assetsBase = isBundled 
+        ? join(currentDir, "assets")               // dist/assets
+        : join(currentDir, "..", "..", "assets");  // dist/ops/../../assets
+        
+    return { assetsBase };
+}
+
+    /*
+    async prep(_shared: Shared): Promise<NodeInput> {
         // Resolve path in prep: stable and testable
         const currentFile = fileURLToPath(import.meta.url);
         // Assuming we are in dist/ops/ or src/ops/, we go up two levels to reach package root
@@ -25,6 +41,7 @@ export class LoadSystemAssetsNode extends HAMINode<Shared> {
         
         return { assetsBase };
     }
+    */
 
     async exec(input: NodeInput): Promise<NodeOutput> {
         const { assetsBase } = input;
