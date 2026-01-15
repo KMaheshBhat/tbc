@@ -8,11 +8,13 @@ const PROJECT_ROOT = join(import.meta.dir, "../../..");
 const CLI_ENTRY = join(PROJECT_ROOT, "apps/tbc-cli/src/index.ts");
 const SANDBOX = join(PROJECT_ROOT, "_test");
 const TBC_ROOT = join(SANDBOX, "mojo");
+const TEST_BINARY = process.env.TBC_TEST_BINARY;
+const CLI_TARGET = TEST_BINARY ? join(PROJECT_ROOT, TEST_BINARY) : CLI_ENTRY;
 
-function runCMD(wd: string, cmd: string, args: string[]) {
-    const command = (cmd.endsWith('.ts') || cmd.endsWith('.js'))
-        ? [process.execPath, cmd, ...args]
-        : [cmd, ...args];
+function runCMD(wd: string, target: string, args: string[]) {
+    // If target is the binary, we don't need process.execPath (Bun/Node)
+    const isBinary = target.endsWith('tbc') || !target.endsWith('.ts');
+    const command = isBinary ? [target, ...args] : [process.execPath, target, ...args];
 
     const result = spawnSync(command, {
         cwd: wd,

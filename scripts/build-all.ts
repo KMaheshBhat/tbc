@@ -89,12 +89,12 @@ async function runBuilds() {
 
   if (shouldPackage) {
     console.log("🚀 All packages built. Starting binary compilation...");
-    
+
     const exePath = "apps/tbc-cli/dist/tbc";
     const compileProc = Bun.spawn([
-      "bun", "build", 
-      "apps/tbc-cli/src/index.ts", 
-      "--compile", 
+      "bun", "build",
+      "apps/tbc-cli/src/index.ts",
+      "--compile",
       "--outfile", exePath
     ], {
       stdout: "inherit",
@@ -107,8 +107,26 @@ async function runBuilds() {
       console.error("\n❌ Binary compilation failed. Aborting.");
       process.exit(compileExit);
     }
-    
-    console.log(`\n💎 Standalone binary ready at: ${exePath}\n`);
+
+    console.log("🧪 Running Integration Test on Distributable Binary...");
+    const testProc = Bun.spawn([
+      "bun", "test", "apps/tbc-cli/tests/integration.test.ts"
+    ], {
+      env: {
+        ...process.env,
+        TBC_TEST_BINARY: exePath // Point tests to the NEW binary
+      },
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+
+    const testExit = await testProc.exited;
+    if (testExit !== 0) {
+      console.error("\n❌ Distributable failed integration tests. Aborting.");
+      process.exit(testExit);
+    }
+    console.log(`💎 Standalone binary ready at: ${exePath}`);
+    console.log("✅ Distributable passed all integration tests.");
   }
 
   const duration = ((performance.now() - startTime) / 1000).toFixed(2);
