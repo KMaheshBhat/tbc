@@ -255,6 +255,14 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-system:validate-system'))
             .next(n('tbc-system:log-and-clear-messages'))
+            ;
+    }
+
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.stage = shared.stage || {};
+        shared.stage.verbose = shared.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        return super.run(shared);
     }
 
 }

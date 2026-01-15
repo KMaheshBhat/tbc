@@ -80,14 +80,12 @@ let cmdSysValidate = new Command('validate')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const opts = { verbose: isVerbose };
             const validateFlow = registry.createNode('tbc-system:validate-flow', {
-                verbose: opts.verbose,
+                verbose: isVerbose,
+                rootDirectory: root,
             });
             await validateFlow.run({
                 registry: registry,
-                opts: opts,
-                root: root,
             });
         } catch (error) {
             console.error('Error during validation:', error);

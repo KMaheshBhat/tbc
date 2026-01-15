@@ -69,7 +69,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 PRE-FLIGHT: running with no args gives help and error exit code (still provides Usage)", () => {
-        const { output, exitCode, success } = runCMD(SANDBOX, CLI_ENTRY, []);
+        const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, []);
         expect(success).toBe(false);
         expect(exitCode).toBe(1);
         expect(output).toContain("Third Brain Companion CLI");
@@ -77,7 +77,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 PRE-FLIGHT: running with --help gives help and success exit code", () => {
-        const { output, exitCode, success } = runCMD(SANDBOX, CLI_ENTRY, ["--help"]);
+        const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["--help"]);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         expect(output).toContain("Third Brain Companion CLI");
@@ -86,25 +86,25 @@ describe("TBC-CLI Integration", () => {
 
     test("🐵 PRE-FLIGHT: running sys init with missing flags is fails with helpful message", () => {
         {
-            const { output, exitCode, success } = runCMD(SANDBOX, CLI_ENTRY, ["sys", "init"]);
+            const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["sys", "init"]);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain("Both --companion and --prime flags are required");
         }
         {
-            const { output, exitCode, success } = runCMD(SANDBOX, CLI_ENTRY, ["sys", "init", "--root", TBC_ROOT]);
+            const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["sys", "init", "--root", TBC_ROOT]);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain("Both --companion and --prime flags are required");
         }
         {
-            const { output, exitCode, success } = runCMD(SANDBOX, CLI_ENTRY, ["sys", "init", "--root", TBC_ROOT, "--companion", "Mojo"]);
+            const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["sys", "init", "--root", TBC_ROOT, "--companion", "Mojo"]);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain("Both --companion and --prime flags are required");
         }
         {
-            const { output, exitCode, success } = runCMD(SANDBOX, CLI_ENTRY, ["sys", "init", "--root", TBC_ROOT, "--prime", "Jojo"]);
+            const { output, exitCode, success } = runCMD(SANDBOX, CLI_TARGET, ["sys", "init", "--root", TBC_ROOT, "--prime", "Jojo"]);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain("Both --companion and --prime flags are required");
@@ -112,7 +112,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys upgrade on non-TBC-Root should fail with helpful message", async () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, [
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
             "sys",
             "upgrade",
             "--root",
@@ -124,7 +124,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys init with companion and prime flags is successful", async () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, [
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
             "sys",
             "init",
             "--root",
@@ -155,7 +155,7 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys init on existing TBC-Root should fail with helpful message", async () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, [
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
             "sys",
             "init",
             "--root",
@@ -177,16 +177,53 @@ describe("TBC-CLI Integration", () => {
     });
 
     test("🐵 LETS-GO: running sys upgrade on TBC-Root is successful", async () => {
-        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, [
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
             "sys",
             "upgrade",
             "--root",
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         expect(output).toContain(`[✓] Third Brain Companion upgraded to ${packageJson.version}.`);
+    });
+
+    test("🐵 LETS-GO: running sys validate on a healthy root", () => {
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
+            "sys",
+            "validate",
+            "--root",
+            TBC_ROOT,
+        ]);
+        expect(success).toBe(true);
+        expect(exitCode).toBe(0);
+        // Verify the Audit Box exists
+        expect(output).toContain("┌┤ Validation Audit ├");
+        expect(output).toContain("Verified presence of \"root.md\"");
+        expect(output).toContain("Referenced Root Memory Map");
+        // Verify the Status Line
+        expect(output).toContain("[✓] STABLE");
+        expect(output).toContain("0 error(s) detected.");
+        // Ensure debug noise is NOT present
+        expect(output).not.toContain("[»] ── debug");
+    });
+
+    test("🐵 LETS-GO: running sys validate with --verbose shows deep trace", () => {
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_TARGET, [
+            "sys",
+            "validate",
+            "--root",
+            TBC_ROOT,
+            "--verbose"
+        ]);
+        expect(success).toBe(true);
+        expect(exitCode).toBe(0);
+        // Verify AX/DX Debug lines are present
+        expect(output).toContain("[»] ── debug | validate-flow | Identifying companionID");
+        expect(output).toContain("[»] ── debug | validate-flow | Query");
+        // Verify the core audit is still there
+        expect(output).toContain("┌┤ Validation Audit ├");
+        expect(output).toContain("[✓] STABLE");
     });
 
     afterAll(() => {
