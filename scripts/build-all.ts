@@ -39,6 +39,7 @@ async function runBuilds() {
   const startTime = performance.now();
   const args = Bun.argv;
   const shouldClean = args.includes("--clean");
+  const shouldPackage = args.includes("--dist");
 
   if (shouldClean) {
     console.log("🧹 Flag --clean detected. Wiping dist folders...");
@@ -84,6 +85,30 @@ async function runBuilds() {
       process.exit(exitCode);
     }
     console.log(`✅ Group completed: ${group.join(', ')}\n`);
+  }
+
+  if (shouldPackage) {
+    console.log("🚀 All packages built. Starting binary compilation...");
+    
+    const exePath = "apps/tbc-cli/dist/tbc";
+    const compileProc = Bun.spawn([
+      "bun", "build", 
+      "apps/tbc-cli/src/index.ts", 
+      "--compile", 
+      "--outfile", exePath
+    ], {
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+
+    const compileExit = await compileProc.exited;
+
+    if (compileExit !== 0) {
+      console.error("\n❌ Binary compilation failed. Aborting.");
+      process.exit(compileExit);
+    }
+    
+    console.log(`\n💎 Standalone binary ready at: ${exePath}\n`);
   }
 
   const duration = ((performance.now() - startTime) / 1000).toFixed(2);

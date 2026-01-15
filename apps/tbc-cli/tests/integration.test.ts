@@ -48,7 +48,7 @@ function getFileTree(dir: string, prefix = ""): string {
     return tree;
 }
 
-async function expectUUID(content: string) {
+function expectUUID(content: string) {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     expect(content).toMatch(uuidRegex);
 }
@@ -132,7 +132,11 @@ describe("TBC-CLI Integration", () => {
             "--prime",
             "Jojo",
         ]);
-        if (!success) console.log("Tree on failure:\n", getFileTree(TBC_ROOT));
+        if (!success) {
+            console.log(output);
+            console.log("Tree on failure:");
+            console.log(getFileTree(TBC_ROOT));
+        }
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         const companionIdPath = join(TBC_ROOT, "sys", "companion.id");
@@ -159,7 +163,11 @@ describe("TBC-CLI Integration", () => {
             "--prime",
             "Jojo",
         ]);
-        if (!success) console.log("Tree on failure:\n", getFileTree(TBC_ROOT));
+        if (!success) {
+            console.log(output);
+            console.log("Tree on failure:");
+            console.log(getFileTree(TBC_ROOT));
+        }
         expect(exitCode).toBe(0);
         expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
         expect(output).toContain('[✗] ┬─ error | init-flow | has existing companion');

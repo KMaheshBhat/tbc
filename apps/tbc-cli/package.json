@@ -12,6 +12,7 @@
     "build": "bun build:src && bun build:types",
     "build:src": "bun build src/index.ts --outfile=dist/index.js --target=bun",
     "build:types": "bunx tsc --emitDeclarationOnly --outDir dist",
+    "build:exe": "bun build src/index.ts --compile --outfile dist/tbc",
     "start": "bun run dist/index.js"
   },
   "dependencies": {
@@ -40,5 +41,5 @@
   "keywords": [],
   "author": "",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "assets"]
+  "files": ["dist"]
 }

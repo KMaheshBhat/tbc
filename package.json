@@ -29,6 +29,7 @@
     "cli:install": "bun run cli:build && cd apps/tbc-cli && bun link",
     "all:build": "bun run scripts/build-all.ts",
     "all:build-fresh": "bun run scripts/build-all.ts --clean",
+    "all:build-dist": "bun run scripts/build-all.ts --clean --dist",
     "node_modules:clean": "shx rm -rf node_modules apps/*/node_modules packages/*/node_modules"
   },
   "devDependencies": {

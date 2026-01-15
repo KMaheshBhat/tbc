@@ -4,12 +4,14 @@ import { fileURLToPath } from "node:url";
 import { HAMINode } from "@hami-frameworx/core";
 import { Shared } from "../types.js";
 
-// The isolated input for exec
+import { generateAssetsManifest } from "../assets-manifest.js" with { type: "macro" };
+
+const ASSETS = await generateAssetsManifest();
+
 type NodeInput = {
     assetsBase: string;
 };
 
-// The isolated output from exec (Records grouped by collection)
 type NodeOutput = Record<string, Record<string, string>>;
 
 export class LoadSystemAssetsNode extends HAMINode<Shared> {
@@ -17,56 +19,39 @@ export class LoadSystemAssetsNode extends HAMINode<Shared> {
         return "tbc-system:load-system-assets";
     }
 
-    async prep(_shared: Shared): Promise<NodeInput> {
-    const currentFile = fileURLToPath(import.meta.url);
-    const currentDir = join(currentFile, "..");
-    
-    // Check if we are in a bundled state (dist/index.js) 
-    // or a development/TSC state (dist/ops/ or src/ops/)
-    const isBundled = currentFile.endsWith('index.js');
-    
-    const assetsBase = isBundled 
-        ? join(currentDir, "assets")               // dist/assets
-        : join(currentDir, "..", "..", "assets");  // dist/ops/../../assets
-        
-    return { assetsBase };
-}
-
-    /*
-    async prep(_shared: Shared): Promise<NodeInput> {
-        // Resolve path in prep: stable and testable
-        const currentFile = fileURLToPath(import.meta.url);
-        // Assuming we are in dist/ops/ or src/ops/, we go up two levels to reach package root
-        const assetsBase = join(currentFile, "..", "..", "assets");
-        
-        return { assetsBase };
-    }
-    */
-
     async exec(input: NodeInput): Promise<NodeOutput> {
-        const { assetsBase } = input;
         const result: NodeOutput = {};
 
         const mappings = [
-            { folder: 'templates', collection: 'templates'},
+            { folder: 'templates', collection: 'templates' },
             { folder: "sys/core", collection: "sys/core" },
             { folder: "sys/ext", collection: "sys/ext" },
             { folder: "skills/core", collection: "skills/core" },
             { folder: "skills/ext", collection: "skills/ext" }
         ];
 
-        for (const mapping of mappings) {
-            const sourcePath = join(assetsBase, mapping.folder);
-            const folderRecords = await this.readFolder(sourcePath);
-            
-            if (Object.keys(folderRecords).length > 0) {
-                result[mapping.collection] = {
-                    ...(result[mapping.collection] || {}),
-                    ...folderRecords
-                };
+        // Get all relative paths from our "baked-in" manifest
+        const assetPaths = Object.keys(ASSETS);
+        for (const { folder: directory, collection } of mappings) {
+            const directoryRecords: Record<string, string> = {};
+
+            for (const path of assetPaths) {
+                // Check if file is inside the target directory
+                if (path.startsWith(directory + "/")) {
+                    // Strip the directory prefix to get the relative ID
+                    // e.g., "skills/core/tbc-act-ops/SKILL.md" -> "tbc-act-ops/SKILL.md"
+                    const id = path.substring(directory.length + 1);
+                    directoryRecords[id] = ASSETS[path];
+                } else if (path === directory && !path.includes("/")) {
+                    // Handle cases like 'templates' if it's a flat folder with no sub-nesting
+                    directoryRecords[path] = ASSETS[path];
+                }
+            }
+
+            if (Object.keys(directoryRecords).length > 0) {
+                result[collection] = directoryRecords;
             }
         }
-
         return result;
     }
 
@@ -75,10 +60,8 @@ export class LoadSystemAssetsNode extends HAMINode<Shared> {
         _input: NodeInput,
         output: NodeOutput,
     ): Promise<string | undefined> {
-        // Only here do we touch the state
         shared.stage.records = shared.stage.records || {};
-        
-        // Merge the loaded assets into the stage
+
         for (const [collection, records] of Object.entries(output)) {
             shared.stage.records[collection] = {
                 ...(shared.stage.records[collection] || {}),
@@ -87,23 +70,5 @@ export class LoadSystemAssetsNode extends HAMINode<Shared> {
         }
 
         return "default";
-    }
-
-    private async readFolder(dir: string): Promise<Record<string, string>> {
-        const records: Record<string, string> = {};
-        try {
-            const entries = await readdir(dir, { recursive: true, withFileTypes: true });
-            for (const entry of entries) {
-                if (entry.isFile()) {
-                    const fullPath = join(entry.parentPath, entry.name);
-                    const content = await readFile(fullPath, "utf-8");
-                    const recordId = relative(dir, fullPath);
-                    records[recordId] = content;
-                }
-            }
-        } catch (e) {
-            // Optional folders might not exist, that's fine
-        }
-        return records;
     }
 }

@@ -6,6 +6,9 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "bun build:src && bun build:types && bun build:assets",
     "build:src": "bun build src/index.ts --outfile=dist/index.js --target=bun",
