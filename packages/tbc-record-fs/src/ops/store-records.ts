@@ -106,22 +106,20 @@ export class StoreRecordsNode extends HAMINode<Shared> {
     }
 
     private constructFilePath(collectionPath: string, record: Record<string, any>, format: 'markdown' | 'json' | 'yaml' | 'raw'): string {
-        // Use record.filename if provided
-        if (record.filename) {
-            return join(collectionPath, record.filename);
-        }
-
         // Default filename based on format
+        let fileName = String(record.id);
         switch (format) {
             case 'markdown':
-                return join(collectionPath, `${record.id}.md`);
+                fileName = fileName.endsWith('.md') ? fileName : `${fileName}.md`;
+                break;
             case 'json':
-                return join(collectionPath, `${record.id}.json`);
+                fileName = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
+                break;
             case 'yaml':
-                return join(collectionPath, `${record.id}.yaml`);
-            case 'raw':
-                return join(collectionPath, record.id);
+                fileName = fileName.endsWith('.yaml') ? fileName : `${fileName}.yaml`;
+                break;
         }
+        return join(collectionPath, fileName);
     }
 
     private generateFileContent(record: Record<string, any>, format: 'markdown' | 'json' | 'yaml' | 'raw'): string {
@@ -129,9 +127,10 @@ export class StoreRecordsNode extends HAMINode<Shared> {
             case 'markdown':
                 const { content, frontmatter, ...frontmatterData } = record;
                 const finalFrontmatter = frontmatter || frontmatterData;
+                delete finalFrontmatter.fullContent;
                 // Use yaml.dump with no line wrapping to keep description on single line
                 const frontmatterStr = yaml.dump(finalFrontmatter, { lineWidth: -1 });
-                return `---\n${frontmatterStr}---\n\n${content || ''}`;
+                return `---\n${frontmatterStr}---\n${content || ''}`;
             case 'json':
                 return JSON.stringify(record, null, 2);
             case 'yaml':

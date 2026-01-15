@@ -2,6 +2,7 @@ import { expect, test, describe, beforeAll, afterAll } from "bun:test";
 import { file, spawnSync } from "bun";
 import { join } from "node:path";
 import { existsSync, mkdirSync, rmSync, readdirSync, statSync } from "node:fs";
+import packageJson from '../package.json' with { type: 'json' };
 
 const PROJECT_ROOT = join(import.meta.dir, "../../..");
 const CLI_ENTRY = join(PROJECT_ROOT, "apps/tbc-cli/src/index.ts");
@@ -115,7 +116,6 @@ describe("TBC-CLI Integration", () => {
             "--root",
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(exitCode).toBe(0);
         expect(output).toContain('[✗] ┬─ error | init-flow | has no existing companion (not a valid TBC Root)');
         expect(output).toContain('    └─ Suggestion: Use "tbc sys init" instead');
@@ -133,7 +133,6 @@ describe("TBC-CLI Integration", () => {
             "Jojo",
         ]);
         if (!success) console.log("Tree on failure:\n", getFileTree(TBC_ROOT));
-        console.log(output);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         const companionIdPath = join(TBC_ROOT, "sys", "companion.id");
@@ -146,7 +145,7 @@ describe("TBC-CLI Integration", () => {
         expect(output).toContain('[i] ── info  | init-flow | Companion: Mojo');
         expect(output).toContain('[i] ── info  | init-flow | Prime: Jojo');
         expect(output).toContain('[i] ── info  | init-flow | Map of Memories');
-        expect(output).toContain('[✓] Third Brain Companion 0.4.0 initialized.')
+        expect(output).toContain(`[✓] Third Brain Companion ${packageJson.version} initialized.`);
     });
 
     test("🐵 LETS-GO: running sys init on existing TBC-Root should fail with helpful message", async () => {
@@ -161,11 +160,23 @@ describe("TBC-CLI Integration", () => {
             "Jojo",
         ]);
         if (!success) console.log("Tree on failure:\n", getFileTree(TBC_ROOT));
-        console.log(output);
         expect(exitCode).toBe(0);
         expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
         expect(output).toContain('[✗] ┬─ error | init-flow | has existing companion');
         expect(output).toContain('    └─ Suggestion: Use "tbc sys upgrade" instead.');
+    });
+
+    test("🐵 LETS-GO: running sys upgrade on TBC-Root is successful", async () => {
+        const { output, exitCode, success } = runCMD(TBC_ROOT, CLI_ENTRY, [
+            "sys",
+            "upgrade",
+            "--root",
+            TBC_ROOT,
+        ]);
+        console.log(output);
+        expect(success).toBe(true);
+        expect(exitCode).toBe(0);
+        expect(output).toContain(`[✓] Third Brain Companion upgraded to ${packageJson.version}.`);
     });
 
     afterAll(() => {

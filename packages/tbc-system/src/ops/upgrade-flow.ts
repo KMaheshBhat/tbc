@@ -1,9 +1,12 @@
 import assert from "assert";
+import { existsSync } from "node:fs";
+import { rm } from "node:fs/promises";
+import { join } from "node:path";
 import { Node } from "pocketflow";
-import { join, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+
+import packageJson from '../../package.json' with { type: 'json' };
 import { Shared } from "../types";
 
 interface FlowConfig {
@@ -34,11 +37,17 @@ class UpgradeFlowStartNode extends HAMINode<Shared,FlowConfig> {
         shared.stage.verbose = shared.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
         shared.system = shared.system || {};
+        shared.stage.queryRecursive = {
+            type: 'list-all-ids',
+            recursive: true,
+        };
         shared.stage.sysCollection = 'sys';
         shared.stage.skillsCollection = 'skills';
         shared.stage.dexCollection = 'dex';
         shared.stage.memCollection = 'mem';
         shared.stage.actCollection = 'act';
+        const timestamp = (new Date()).toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
+        shared.stage.backupCollection = `bak-${timestamp}`;
         return "default";
     }
 }
@@ -100,7 +109,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'init-flow',
+                        source: 'upgrade-flow',
                         message: 'Checking first ...',
                     });
                 }
@@ -111,38 +120,220 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
+                mutate: (shared: Shared) => {
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'init-flow',
+                        source: 'upgrade-flow',
                         message: 'existing valid TBC root found, proceeding ...',
                     });
                 }
             }))
-            /*
-            .next(n('tbc-system:resolve'))
-            .next(n('tbc-system:validate', {
-                verbose: this.config.verbose,
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.record.rootDirectory = shared.system.rootDirectory;
+                    shared.record.collection = `${shared.stage.backupCollection}/${shared.stage.sysCollection}`;
+                    shared.record.records = [];
+                    for (const [id, record] of Object.entries(shared.stage.records[shared.stage.sysCollection])) {
+                        shared.record.records.push(record);
+                    }
+                }
             }))
-            .next(n('tbc-system:backup-sys'))
-            .next(n('tbc-system:backup-skills'))
-            .next(n('tbc-system:init'))
-            .next(n('tbc-system:copy-assets'))
-            .next(n('tbc-system:restore-root'))
-            .next(n('tbc-system:restore-sys-extensions'))
-            .next(n('tbc-system:restore-skill-extensions'))
-            .next(n('tbc-system:validate', {
-                verbose: this.config.verbose,
+            .next(n('tbc-record:store-records-flow', {
+                verbose: shared.stage.verbose,
+                recordProviders: ['fs'],
             }))
-            .next(logTableNode(shared['registry'], 'backupSysResults'))
-            .next(logTableNode(shared['registry'], 'initResults'))
-            .next(logTableNode(shared['registry'], 'copyAssetResults'))
-            .next(logTableNode(shared['registry'], 'restoreRootResults'))
-            .next(logTableNode(shared['registry'], 'restoreExtensionsResults'))
-            .next(logTableNode(shared['registry'], 'restoreSkillExtensionsResults'))
-            .next(logTableNode(shared['registry'], 'messages'))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'upgrade-flow',
+                        message: `Backed up ${shared.record.records.length} ${shared.stage.sysCollection} record(s) into ${shared.record.collection}.`,
+                    });
+                }
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.record.rootDirectory = shared.system.rootDirectory;
+                    shared.record.collection = `${shared.stage.backupCollection}/${shared.stage.sysCollection}/core`;
+                    shared.record.records = [];
+                    for (const [id, record] of Object.entries(shared.stage.records[`${shared.stage.sysCollection}/core`])) {
+                        shared.record.records.push(record);
+                    }
+                }
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                verbose: shared.stage.verbose,
+                recordProviders: ['fs'],
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'upgrade-flow',
+                        message: `Backed up ${shared.record.records.length} ${shared.stage.sysCollection}/core record(s) into ${shared.record.collection}.`,
+                    });
+                }
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.record.rootDirectory = shared.system.rootDirectory;
+                    shared.record.collection = `${shared.stage.backupCollection}/${shared.stage.sysCollection}/ext`;
+                    shared.record.records = [];
+                    for (const [id, record] of Object.entries(shared.stage.records[`${shared.stage.sysCollection}/ext`])) {
+                        shared.record.records.push(record);
+                    }
+                }
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                verbose: shared.stage.verbose,
+                recordProviders: ['fs'],
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'upgrade-flow',
+                        message: `Backed up ${shared.record.records.length} ${shared.stage.sysCollection}/ext record(s) into ${shared.record.collection}.`,
+                    });
+                }
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.record.rootDirectory = shared.system.rootDirectory;
+                    shared.record.collection = `${shared.stage.backupCollection}/${shared.stage.skillsCollection}`;
+                    shared.record.records = [];
+                    for (const [id, content] of Object.entries(shared.stage.records[`${shared.stage.skillsCollection}`])) {
+                        shared.record.records.push({
+                            ...Object(content),
+                        });
+                    }
+                }
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                verbose: shared.stage.verbose,
+                recordProviders: ['fs'],
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'upgrade-flow',
+                        message: `Backed up ${shared.record.records.length} ${shared.stage.skillsCollection} record(s) into ${shared.record.collection}.`,
+                    });
+                }
+            }))
+            .next(new DeleteDirectoryNode({specDirectoryKey: 'sysCollection', collection: 'core'}))
+            .next(new DeleteDirectoryNode({specDirectoryKey: 'skillsCollection', collection: 'core'}))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'upgrade-flow',
+                        message: `Removed old sys and skill specifications.`,
+                    });
+                }
+            }))
+            .next(n('tbc-system:load-system-assets'))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'upgrade-flow',
+                        message: `Loaded TBC ${packageJson.version} core assets (specs and skills).`,
+                    });
+                }
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.record.rootDirectory = shared.system.rootDirectory;
+                    shared.record.collection = `${shared.stage.sysCollection}/core`;
+                    shared.record.records = [];
+                    for (const [id, content] of Object.entries(shared.stage.records[shared.record.collection])) {
+                        shared.record.records.push({
+                            id: id,
+                            content: content,
+                        });
+                    }
+                }
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                verbose: shared.stage.verbose,
+                recordProviders: ['fs'],
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'upgrade-flow',
+                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
+                    });
+                }
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.record.rootDirectory = shared.system.rootDirectory;
+                    shared.record.collection = `${shared.stage.skillsCollection}/core`;
+                    shared.record.records = [];
+                    for (const [id, content] of Object.entries(shared.stage.records[shared.record.collection])) {
+                        shared.record.records.push({
+                            id: id,
+                            content: content,
+                        });
+                    }
+                }
+            }))
+            .next(n('tbc-record:store-records-flow', {
+                verbose: shared.stage.verbose,
+                recordProviders: ['fs'],
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'upgrade-flow',
+                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
+                    });
+                }
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: 'Validating again ...',
+                    });
+                }
+            }))
+            .next(n('tbc-system:validate-flow', {
+                verbose: shared.stage.verbose,
+                rootDirectory: shared.stage.rootDirectory,
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Companion: ${shared.system.companionRecord.record_title} [${shared.system.companionID}]`,
+                    });
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Prime: ${shared.system.primeRecord.record_title} [${shared.system.primeID}]`,
+                    });
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Map of Memories: [${shared.system.memoryMapID}]`,
+                    });
+                    shared.stage.messages.push({
+                        level: 'raw',
+                        message: `[✓] Third Brain Companion upgraded to ${packageJson.version}.`,
+                    });
+                }
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
             ;
-            */
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -158,4 +349,34 @@ const logTableNode = (registry: HAMIRegistrationManager, resultKey: string) => {
         resultKey,
         format: 'table' as const,
     });
+}
+
+interface RemoveSpecsConfig {
+    specDirectoryKey: string;
+    collection: string;
+}
+
+class DeleteDirectoryNode extends HAMINode<Shared,RemoveSpecsConfig> {
+    constructor(config?: RemoveSpecsConfig, maxRetries?: number, wait?: number) {
+        super(config, maxRetries, wait);
+    }
+
+    kind(): string {
+        return "tbc-system:delete-directory"
+    }
+
+    async prep(shared: Shared): Promise<[string, string]> {
+        assert(this.config?.specDirectoryKey, 'must be configured with specDirectoryKey');
+        return [shared.stage.rootDirectory, shared.stage[this.config?.specDirectoryKey]];
+    }
+
+    async exec(paths: [string, string]): Promise<void> {
+        assert(this.config?.collection, 'must be configured with (sub)collection');
+        const [rootDirectory, specDirectory] = paths;
+        const path = join(rootDirectory, specDirectory, this.config.collection);
+        if(existsSync(path)) {
+            await rm(path, { recursive: true, force: true});
+        }
+    }
+
 }
