@@ -16,7 +16,7 @@
     "mint-uuid:build": "bun run --filter='@tbc-frameworx/tbc-mint-uuid' build",
     "mint-tsid:build": "bun run --filter='@tbc-frameworx/tbc-mint-tsid' build",
     "system:build": "bun run --filter='@tbc-frameworx/tbc-system' build",
-    "view:build": "bun run --filter='@tbc-frameworx/tbc-view' build",
+    "dex:build": "bun run --filter='@tbc-frameworx/tbc-dex' build",
     "interface:build": "bun run --filter='@tbc-frameworx/tbc-interface' build",
     "memory:build": "bun run --filter='@tbc-frameworx/tbc-memory' build",
     "activity:build": "bun run --filter='@tbc-frameworx/tbc-activity' build",

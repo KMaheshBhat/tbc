@@ -164,7 +164,7 @@ let cmdDexCore = new Command('core')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
-            const refreshCoreFlow = registry.createNode('tbc-view:refresh-core', {
+            const refreshCoreFlow = registry.createNode('tbc-dex:refresh-core', {
                 verbose: opts.verbose,
             });
             await refreshCoreFlow.run({
@@ -186,7 +186,7 @@ let cmdDexRecords = new Command('records')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
-            const refreshRecordsFlow = registry.createNode('tbc-view:refresh-records', { 
+            const refreshRecordsFlow = registry.createNode('tbc-dex:refresh-records', { 
                 verbose: isVerbose,
             });
             await refreshRecordsFlow.run({
@@ -208,7 +208,7 @@ let cmdDexExtensions = new Command('extensions')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
-            const refreshExtensionsFlow = registry.createNode('tbc-view:refresh-extensions', {
+            const refreshExtensionsFlow = registry.createNode('tbc-dex:refresh-extensions', {
                 verbose: isVerbose,
             });
             await refreshExtensionsFlow.run({
@@ -230,7 +230,7 @@ let cmdDexSkills = new Command('skills')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = opts.root || cliOpts.root;
-            const refreshSkillsFlow = registry.createNode('tbc-view:refresh-skills', {
+            const refreshSkillsFlow = registry.createNode('tbc-dex:refresh-skills', {
                 verbose: isVerbose,
             });
             await refreshSkillsFlow.run({
@@ -252,7 +252,7 @@ let cmdDexIndex = new Command('index')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const graphMinerFlow = registry.createNode('tbc-view:graph-miner-flow', {
+            const graphMinerFlow = registry.createNode('tbc-dex:graph-miner-flow', {
                 verbose: isVerbose,
             });
             await graphMinerFlow.run({
@@ -280,7 +280,7 @@ let cmdDexHealth = new Command('health')
                 console.error('Error: --format must be one of: table, json');
                 process.exit(1);
             }
-            const integrityReportFlow = registry.createNode('tbc-view:integrity-report-flow', {
+            const integrityReportFlow = registry.createNode('tbc-dex:integrity-report-flow', {
                 verbose: isVerbose,
                 outputFormat: format,
             });
@@ -303,7 +303,7 @@ let cmdDexStatus = new Command('status')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const viewStatusFlow = registry.createNode('tbc-view:view-status-flow', {
+            const viewStatusFlow = registry.createNode('tbc-dex:view-status-flow', {
                 verbose: isVerbose,
             });
             await viewStatusFlow.run({
@@ -331,7 +331,7 @@ let cmdDexAudit = new Command('audit')
                 console.error('Error: --format must be one of: table, json');
                 process.exit(1);
             }
-            const viewAuditFlow = registry.createNode('tbc-view:view-audit-flow', {
+            const viewAuditFlow = registry.createNode('tbc-dex:view-audit-flow', {
                 verbose: isVerbose,
                 outputFormat: format,
             });

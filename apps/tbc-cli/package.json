@@ -22,7 +22,7 @@
     "@tbc-frameworx/tbc-record": "^0.1.0",
     "@tbc-frameworx/tbc-record-fs": "^0.1.0",
     "@tbc-frameworx/tbc-system": "^0.4.0",
-    "@tbc-frameworx/tbc-view": "^0.1.0",
+    "@tbc-frameworx/tbc-dex": "^0.1.0",
     "@tbc-frameworx/tbc-mint": "^0.1.0",
     "@tbc-frameworx/tbc-mint-uuid": "^0.1.0",
     "@tbc-frameworx/tbc-mint-tsid": "^0.1.0",

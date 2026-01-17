@@ -2,7 +2,7 @@ import { CorePlugin, HAMIRegistrationManager } from '@hami-frameworx/core';
 import { TBCRecordPlugin } from '@tbc-frameworx/tbc-record';
 import { TBCRecordFSPlugin } from '@tbc-frameworx/tbc-record-fs';
 import { TBCSystemPlugin } from '@tbc-frameworx/tbc-system';
-import { TBCViewPlugin } from '@tbc-frameworx/tbc-view';
+import { TBCDexPlugin } from '@tbc-frameworx/tbc-dex';
 import { TBCMintPlugin } from '@tbc-frameworx/tbc-mint';
 import { TBCMintUuidPlugin } from '@tbc-frameworx/tbc-mint-uuid';
 import { TBCMintTsidPlugin } from '@tbc-frameworx/tbc-mint-tsid';
@@ -20,7 +20,7 @@ export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }
     await registry.registerPlugin(TBCRecordPlugin);
     await registry.registerPlugin(TBCRecordFSPlugin);
     await registry.registerPlugin(TBCSystemPlugin);
-    await registry.registerPlugin(TBCViewPlugin);
+    await registry.registerPlugin(TBCDexPlugin);
     await registry.registerPlugin(TBCMintPlugin);
     await registry.registerPlugin(TBCMintUuidPlugin);
     await registry.registerPlugin(TBCMintTsidPlugin);

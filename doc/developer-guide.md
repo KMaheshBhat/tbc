@@ -179,7 +179,7 @@ Key node categories:
 
 This package *does not write files directly* — it generates record objects.
 
-### 6.2 `@tbc-frameworx/tbc-view`
+### 6.2 `@tbc-frameworx/tbc-dex`
 
 **Responsibility**: View operations including indexing and dex generation.
 
@@ -299,7 +299,7 @@ Key node categories:
 
 This package provides reusable HAMINodes for memory operations that can be used across different TBC packages and applications. The nodes follow proper HAMI patterns with prep/exec/post methods for better testability and reusability.
 
-### 6.11 `@tbc-frameworx/tbc-view` (Extended)
+### 6.11 `@tbc-frameworx/tbc-dex` (Extended)
 
 **Responsibility**: View operations including indexing and dex generation (extended with skills support).
 
@@ -328,7 +328,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc int probe` | `IntProbeFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int generic` | `IntGenericFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int gemini-cli` | `IntGeminiCliFlow` | `@tbc-frameworx/tbc-interface` |
-| `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow`, `RefreshSkillsFlow` | `@tbc-frameworx/tbc-view` |
+| `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow`, `RefreshSkillsFlow` | `@tbc-frameworx/tbc-dex` |
 | `tbc gen` | `GenUuidFlow`, `GenTsidFlow` | `@tbc-frameworx/tbc-mint` |
 | `tbc int kilocode` | `IntKilocodeFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int goose` | `IntGooseFlow` | `@tbc-frameworx/tbc-interface` |

@@ -22,6 +22,7 @@
       "dependencies": {
         "@hami-frameworx/core": "0.1.4",
         "@tbc-frameworx/tbc-activity": "^0.1.0",
+        "@tbc-frameworx/tbc-dex": "^0.1.0",
         "@tbc-frameworx/tbc-gemini": "^0.1.0",
         "@tbc-frameworx/tbc-github-copilot": "^0.1.0",
         "@tbc-frameworx/tbc-goose": "^0.1.0",
@@ -34,7 +35,6 @@
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "@tbc-frameworx/tbc-record-fs": "^0.1.0",
         "@tbc-frameworx/tbc-system": "^0.4.0",
-        "@tbc-frameworx/tbc-view": "^0.1.0",
         "commander": "^14.0.2",
         "pocketflow": "^1.0.4",
       },
@@ -50,6 +50,20 @@
         "@hami-frameworx/core": "0.1.4",
         "pocketflow": "^1.0.4",
         "uuidv7": "1.1.0",
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+      },
+    },
+    "packages/tbc-dex": {
+      "name": "@tbc-frameworx/tbc-dex",
+      "version": "0.1.0",
+      "dependencies": {
+        "@hami-frameworx/core": "0.1.4",
+        "@tbc-frameworx/tbc-record": "^0.1.0",
+        "gray-matter": "4.0.3",
+        "pocketflow": "^1.0.4",
       },
       "devDependencies": {
         "@types/node": "^20.0.0",
@@ -221,20 +235,6 @@
         "typescript": "^5.0.0",
       },
     },
-    "packages/tbc-view": {
-      "name": "@tbc-frameworx/tbc-view",
-      "version": "0.1.0",
-      "dependencies": {
-        "@hami-frameworx/core": "0.1.4",
-        "@tbc-frameworx/tbc-record": "^0.1.0",
-        "gray-matter": "4.0.3",
-        "pocketflow": "^1.0.4",
-      },
-      "devDependencies": {
-        "@types/node": "^20.0.0",
-        "typescript": "^5.0.0",
-      },
-    },
   },
   "packages": {
     "@hami-frameworx/core": ["@hami-frameworx/core@0.1.4", "", { "dependencies": { "pocketflow": "^1.0.4" } }, "sha512-Hc19YHb6pxTomZj00XRwvI20Vwebb/YBaUZ1xaZOdeaZdyatm82cZSN9MNP19HT/IqZmrtBOl+B4QxFnesa0xg=="],
@@ -248,6 +248,8 @@
     "@tbc-frameworx/tbc-activity": ["@tbc-frameworx/tbc-activity@workspace:packages/tbc-activity"],
 
     "@tbc-frameworx/tbc-cli": ["@tbc-frameworx/tbc-cli@workspace:apps/tbc-cli"],
+
+    "@tbc-frameworx/tbc-dex": ["@tbc-frameworx/tbc-dex@workspace:packages/tbc-dex"],
 
     "@tbc-frameworx/tbc-gemini": ["@tbc-frameworx/tbc-gemini@workspace:packages/tbc-gemini"],
 
@@ -274,8 +276,6 @@
     "@tbc-frameworx/tbc-record-sqlite": ["@tbc-frameworx/tbc-record-sqlite@workspace:packages/tbc-record-sqlite"],
 
     "@tbc-frameworx/tbc-system": ["@tbc-frameworx/tbc-system@workspace:packages/tbc-system"],
-
-    "@tbc-frameworx/tbc-view": ["@tbc-frameworx/tbc-view@workspace:packages/tbc-view"],
 
     "@types/bun": ["@types/bun@1.3.6", "", { "dependencies": { "bun-types": "1.3.6" } }, "sha512-uWCv6FO/8LcpREhenN1d1b6fcspAB+cefwD7uti8C8VffIv0Um08TKMn98FynpTiU38+y2dUO55T11NgDt8VAA=="],
 

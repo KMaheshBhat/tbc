@@ -21,7 +21,7 @@ const BUILD_ORDER = [
   [
     "@tbc-frameworx/tbc-memory",
     "@tbc-frameworx/tbc-activity",
-    "@tbc-frameworx/tbc-view",
+    "@tbc-frameworx/tbc-dex",
     "@tbc-frameworx/tbc-interface"
   ],
   [
