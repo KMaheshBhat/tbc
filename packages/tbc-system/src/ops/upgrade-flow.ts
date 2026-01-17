@@ -328,7 +328,21 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     });
                     shared.stage.messages.push({
                         level: 'raw',
+                        message: ' ┌┼───────────────────────────────────────────────────────────',
+                    });
+                    shared.stage.messages.push({
+                        level: 'raw',
                         message: `[✓] Third Brain Companion upgraded to ${packageJson.version}.`,
+                    });
+                    shared.stage.messages.push({
+                        level: 'raw',
+                        message: ' └┼───────────────────────────────────────────────────────────',
+                    });
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'upgrade-flow',
+                        message: `Next Steps`,
+                        suggestion: 'Refresh indexes (tbc dex)',
                     });
                 }
             }))

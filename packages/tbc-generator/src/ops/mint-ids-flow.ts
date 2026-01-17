@@ -65,7 +65,6 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
         let finalNodeSequence = new Node();
         let tailNode = providers.length > 0 ? new Node() : finalNodeSequence;
         this.startNode
-            .next(new PrintNode("---Starting MintIDsFlow ---"))
             .next(n("core:assign", { "stage.mintedAccumulate": "stage.minted" }))
             .next(tailNode)
             ;
@@ -74,7 +73,6 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
             const targetNext = isLast ? finalNodeSequence : new Node();
             const nodeKind = `tbc-generator-${request.type}:mint`;
             tailNode
-                .next(new PrintNode(`---Minting using ${nodeKind}---`))
                 .next(n('core:mutate', {
                     mutate: async (shared: Shared) => {
                         shared.stage.mintRequest = request;
@@ -86,7 +84,6 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
                 }))
                 .next(n(nodeKind))
                 .next(new AccumulateNode())
-                .next(new PrintNode('------'))
                 .next(targetNext);
             tailNode = targetNext;
         }
@@ -100,7 +97,6 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
                     };
                 }
             }))
-            .next(new PrintNode("---Completed MintIDsFlow---"));
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
@@ -111,6 +107,7 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
         };
     }
 }
+
 class AccumulateNode extends Node {
     async prep(shared: Shared): Promise<[Minted, Minted]> {
         assert(shared.stage, 'shared.stage is required');
@@ -137,25 +134,5 @@ class AccumulateNode extends Node {
         assert(shared.stage, 'shared.stage is required');
         shared.stage.mintedAccumulate = execRes;
         return undefined;
-    }
-}
-
-
-class PrintNode extends Node {
-    message: string;
-    isVerbose: boolean;
-    constructor(message: string, isVerbose?: boolean) {
-        super();
-        this.message = message;
-        this.isVerbose = false;
-    }
-    async prep(shared: Record<string, any>): Promise<string> {
-        this.isVerbose = shared.stage?.verbose || false;
-        return shared.record.collection;
-    }
-    async exec(collection: string): Promise<void> {
-        if (this.isVerbose) {
-            console.log(`${collection}: ${this.message}`);
-        }
     }
 }

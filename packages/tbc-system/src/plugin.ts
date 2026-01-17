@@ -4,6 +4,8 @@ import { PrepareMessagesNode } from "./ops/prepare-messages.js";
 import { ClearMessagesNode } from "./ops/clear-messages.js";
 import { LogAndClearMessagesNode } from "./ops/log-and-clear-messages.js";
 import { ResolveRootDirectoryNode } from "./ops/resolve-root-directory.js";
+import { AddMintedMessagesNode } from "./ops/add-minted-messages.js";
+import { AddManifestMessagesNode } from "./ops/add-manifest-messages.js";
 import { LoadSystemAssetsNode } from "./ops/load-system-asset.js";
 import { PrepareRecordsManifestNode } from "./ops/prepare-records-manifest.js";
 import { SynthesizeMemRecordsNode } from "./ops/synthesize-mem-records.js";
@@ -25,6 +27,8 @@ import { GenerateRoleDefinitionNode } from "./ops/generate-role-definition.js";
 import { InitFlow } from "./ops/init-flow.js";
 import { UpgradeFlow } from "./ops/upgrade-flow.js";
 import { SysValidateFlow } from "./ops/validate-flow.js";
+import { GenerateUUIDsFlow } from "./ops/generate-uuids-flow.js";
+import { GenerateTSIDsFlow } from "./ops/generate-tsids-flow.js";
 
 /**
  * TBC System Plugin for HAMI.
@@ -35,6 +39,8 @@ import { SysValidateFlow } from "./ops/validate-flow.js";
  * - `tbc-system:clear-messages`: Clear staged messages but add to allMessages
  * - `tbc-system:log-and-clear-messages`: Log staged messages but add to allMessages
  * - `tbc-system:resolve-root-directory`: Resolves working directory for TBC operations
+ * - `tbc-system:add-minted-messages`: Stage messages based on minted IDs
+ * - `tbc-system:add-manifest-messages`: Stage messages based on records manifest
  * - `tbc-system:load-system-assets`: Loads system assets into shared stage records
  * - `tbc-system:prepare-records-manifest`: Recreates the stage.manifest from stage.records
  * - `tbc-system:synthesize-mem-records`: Generates initial Party (companion and prime) and Structure (map of memory) records
@@ -52,8 +58,10 @@ import { SysValidateFlow } from "./ops/validate-flow.js";
  * - `tbc-system:validate-system`: Validates the loaded system manifest
  * - `tbc-system:generate-role-definition`: Generates standard TBC role definition for AI integrations
  * - `tbc-system:init-flow`: Comprehensive flow for initializing a TBC environment
- * - `tbc-system:sys-upgrade-flow`: Comprehensive flow for upgrading a TBC environment
+ * - `tbc-system:upgrade-flow`: Comprehensive flow for upgrading a TBC environment
  * - `tbc-system:validate-flow`: Comprehensive flow for validating a TBC environment
+ * - `tbc-system:generate-uuids-flow`: Generation flow for UUID minting (batch only)
+ * - `tbc-system:generate-tsids-flow`: Generation flow for TSID minting (batch only)
  */
 const TBCSystemPlugin = createPlugin(
     "@tbc-frameworx/tbc-system",
@@ -63,6 +71,8 @@ const TBCSystemPlugin = createPlugin(
         ClearMessagesNode as any,
         LogAndClearMessagesNode as any,
         ResolveRootDirectoryNode as any,
+        AddMintedMessagesNode as any,
+        AddManifestMessagesNode as any,
         LoadSystemAssetsNode as any,
         PrepareRecordsManifestNode as any,
         SynthesizeMemRecordsNode as any,
@@ -84,6 +94,8 @@ const TBCSystemPlugin = createPlugin(
         InitFlow as any,
         UpgradeFlow as any,
         SysValidateFlow as any,
+        GenerateUUIDsFlow as any,
+        GenerateTSIDsFlow as any,
     ],
     "TBC System Plugin - Environment probing, initialization, validation, and core management operations",
 );

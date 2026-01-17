@@ -100,6 +100,59 @@ cmdSys.addCommand(cmdSysValidate);
 
 program.addCommand(cmdSys);
 
+let cmdGen = new Command('gen')
+    .description('Generate IDs')
+    .option('-c, --count <number>', 'Number of IDs to generate', '1');
+
+let cmdGenUuid = new Command('uuid')
+    .description('Generate a UUID v7')
+    .action(async (opts, cmd) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const count = parseInt(cmd.parent.opts().count, 10);
+            const genUuidFlow = registry.createNode('tbc-system:generate-uuids-flow', {
+                verbose: isVerbose,
+                count: count,
+            });
+            await genUuidFlow.run({
+                registry: registry,
+                verbose: isVerbose,
+            });
+        } catch (error) {
+            console.error('Error during gen uuid:', error);
+            process.exit(1);
+        }
+        return;
+    });
+cmdGen.addCommand(cmdGenUuid);
+
+let cmdGenTsid = new Command('tsid')
+    .description('Generate a timestamp ID')
+    .action(async (opts, cmd) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const count = parseInt(cmd.parent.opts().count, 10);
+            const genUuidFlow = registry.createNode('tbc-system:generate-tsids-flow', {
+                verbose: isVerbose,
+                count: count,
+            });
+            await genUuidFlow.run({
+                registry: registry,
+                verbose: isVerbose,
+            });
+        } catch (error) {
+            console.error('Error during gen tsid:', error);
+            process.exit(1);
+        }
+        return;
+    });
+cmdGen.addCommand(cmdGenTsid);
+
+program.addCommand(cmdGen);
+
+
 let cmdDex = new Command('dex')
     .description('Refresh indexes')
     .option('--root <path>', 'Root directory');
@@ -304,63 +357,6 @@ cmdDex.addCommand(cmdDexStatus);
 cmdDex.addCommand(cmdDexAudit);
 
 program.addCommand(cmdDex);
-
-let cmdGen = new Command('gen')
-    .description('Generate IDs')
-    .option('--root <path>', 'Root directory')
-    .option('-c, --count <number>', 'Number of IDs to generate', '1');
-
-let cmdGenUuid = new Command('uuid')
-    .description('Generate a UUID v7')
-    .action(async (opts, cmd) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = opts.root || cliOpts.root;
-            const count = parseInt(cmd.parent.opts().count, 10);
-            const genUuidFlow = registry.createNode('tbc-generator:gen-uuid', {
-                verbose: isVerbose,
-            });
-            await genUuidFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-                count: count,
-            });
-        } catch (error) {
-            console.error('Error during gen uuid:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdGen.addCommand(cmdGenUuid);
-
-let cmdGenTsid = new Command('tsid')
-    .description('Generate a timestamp ID')
-    .action(async (opts, cmd) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = opts.root || cliOpts.root;
-            const count = parseInt(cmd.parent.opts().count, 10);
-            const genTsidFlow = registry.createNode('tbc-generator:gen-tsid', {
-                verbose: isVerbose,
-            });
-            await genTsidFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-                count: count,
-            });
-        } catch (error) {
-            console.error('Error during gen tsid:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdGen.addCommand(cmdGenTsid);
-
-program.addCommand(cmdGen);
 
 let cmdMem = new Command('mem')
     .description('Memory operations');

@@ -2,10 +2,9 @@ import assert from "assert";
 
 import { Node } from "pocketflow";
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
 import { Shared } from "../types";
-import { TBCValidationResult } from "./validate-system";
 import packageJson from '../../package.json' with { type: 'json' };
 
 interface FlowConfig {
@@ -134,14 +133,9 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     { type: 'uuid', 'key': 'memoryMapID' },
                 ],
             }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'init-flow',
-                        message: `Minted IDs: ${JSON.stringify(shared.stage.minted.keys)}`,
-                    });
-                }
+            .next(n('tbc-system:add-minted-messages', {
+                source: 'init-flow',
+                level: 'info',
             }))
             .next(n('tbc-system:synthesize-mem-records'))
             .next(n('core:mutate', {
@@ -172,6 +166,12 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         message: 'Synthesized system records.',
                     });
                 }
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:prepare-records-manifest'))
+            .next(n('tbc-system:add-manifest-messages', {
+                source: 'init-flow',
+                level: 'info',
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -355,8 +355,23 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     });
                     shared.stage.messages.push({
                         level: 'raw',
+                        message: ' ┌┼───────────────────────────────────────────────────────────',
+                    });
+                    shared.stage.messages.push({
+                        level: 'raw',
                         message: `[✓] Third Brain Companion ${packageJson.version} initialized.`,
                     });
+                    shared.stage.messages.push({
+                        level: 'raw',
+                        message: ' └┼───────────────────────────────────────────────────────────',
+                    });
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'init-flow',
+                        message: `Next Steps`,
+                        suggestion: 'Refresh indexes (tbc dex) and prepare interface hooks (tbc int)',
+                    });
+
                 }
             }))
             .next(n('tbc-system:log-and-clear-messages'))
