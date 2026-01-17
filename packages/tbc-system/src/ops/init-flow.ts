@@ -126,7 +126,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     });
                 }
             }))
-            .next(n('tbc-generator:mint-ids-flow', {
+            .next(n('tbc-mint:mint-ids-flow', {
                 requests: [
                     { type: 'uuid', 'key': 'companionID' },
                     { type: 'uuid', 'key': 'primeID' },

@@ -4,7 +4,7 @@ import { Shared } from "../types.js";
 
 export class TsidNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-generator:tsid";
+        return "tbc-mint:tsid";
     }
 
     async prep(shared: Shared): Promise<number> {

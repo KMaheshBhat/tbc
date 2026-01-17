@@ -1,13 +1,13 @@
 import { uuidv7 } from 'uuidv7';
 
 import { HAMINode } from "@hami-frameworx/core";
-import { Minted, MintRequest } from '@tbc-frameworx/tbc-generator';
+import { Minted, MintRequest } from '@tbc-frameworx/tbc-mint';
 
 import { Shared } from "../types.js";
 
 export class MintUuidNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-generator-uuid:mint";
+        return "tbc-mint-uuid:mint";
     }
 
     async prep(shared: Shared): Promise<MintRequest> {

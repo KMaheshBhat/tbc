@@ -1,7 +1,7 @@
 {
-  "name": "@tbc-frameworx/tbc-generator",
+  "name": "@tbc-frameworx/tbc-mint",
   "version": "0.1.0",
-  "description": "TBC Generator operations library",
+  "description": "TBC Mint operations library",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",

@@ -53,7 +53,7 @@ describe("TBC-CLI Integration", () => {
         });
 
         test("should generate multiple UUIDs using --count", () => {
-            const count = 3;
+            const count = 5;
             const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, ["gen", "uuid", "--count", count.toString()]);
             expect(success).toBe(true);
             const matches = output.match(new RegExp(UUID_SEARCH_REGEX, 'g'));
@@ -71,7 +71,7 @@ describe("TBC-CLI Integration", () => {
         });
 
         test("should generate multiple TSIDs using -c shorthand", () => {
-            const count = 5;
+            const count = 2;
             const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, ["gen", "tsid", "-c", count.toString()]);
             expect(success).toBe(true);
             const matches = output.match(new RegExp(TSID_SEARCH_REGEX.source, 'g'));

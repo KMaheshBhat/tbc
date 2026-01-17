@@ -6,7 +6,7 @@ import { Shared } from "../types.js";
 
 export class UuidNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-generator:uuid";
+        return "tbc-mint:uuid";
     }
 
     async prep(shared: Shared): Promise<number> {

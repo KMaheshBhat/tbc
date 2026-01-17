@@ -1,7 +1,7 @@
 {
-  "name": "@tbc-frameworx/tbc-generator-tsid",
+  "name": "@tbc-frameworx/tbc-mint-uuid",
   "version": "0.1.0",
-  "description": "TBC Generator TSID operations library",
+  "description": "TBC Mint UUID operations library",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -16,7 +16,8 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "uuidv7": "^1.0.2",
     "@hami-frameworx/core": "0.1.4",
-    "@tbc-frameworx/tbc-generator": "^0.1.0"
+    "@tbc-frameworx/tbc-mint": "^0.1.0"
   }
 }

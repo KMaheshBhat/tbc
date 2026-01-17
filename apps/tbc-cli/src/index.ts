@@ -105,7 +105,7 @@ let cmdGen = new Command('gen')
     .option('-c, --count <number>', 'Number of IDs to generate', '1');
 
 let cmdGenUuid = new Command('uuid')
-    .description('Generate a UUID v7')
+    .description('Generate/mint IDs of UUID v7')
     .action(async (opts, cmd) => {
         try {
             const cliOpts = program.opts();
@@ -128,7 +128,7 @@ let cmdGenUuid = new Command('uuid')
 cmdGen.addCommand(cmdGenUuid);
 
 let cmdGenTsid = new Command('tsid')
-    .description('Generate a timestamp ID')
+    .description('Generate/mint IDs of timestamp')
     .action(async (opts, cmd) => {
         try {
             const cliOpts = program.opts();

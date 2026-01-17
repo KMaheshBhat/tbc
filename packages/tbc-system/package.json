@@ -19,7 +19,7 @@
     "pocketflow": "^1.0.4",
     "@hami-frameworx/core": "0.1.4",
     "@tbc-frameworx/tbc-record": "^0.1.0",
-    "@tbc-frameworx/tbc-generator": "^0.1.0"
+    "@tbc-frameworx/tbc-mint": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

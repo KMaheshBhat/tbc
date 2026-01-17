@@ -8,18 +8,18 @@ import { MintIDsFlow } from "./ops/mint-ids-flow.js";
 
 
 /**
- * TBC Generator Plugin for HAMI.
- * Provides essential TBC ID generation operations.
+ * TBC Mint Plugin for HAMI.
+ * Provides essential TBC ID minting operations.
  *
  * Included operations:
- * - `tbc-generator:uuid`: Generates a UUID v7
- * - `tbc-generator:tsid`: Generates a UTC timestamp ID in YYYYMMDDHHmmSS format
+ * - `tbc-mint:uuid`: Generates a UUID v7
+ * - `tbc-mint:tsid`: Generates a UTC timestamp ID in YYYYMMDDHHmmSS format
  * - `tbc-cli:gen-uuid`: Flow to generate multiple UUIDs and log them
  * - `tbc-cli:gen-tsid`: Flow to generate multiple TSIDs and log them
- * - `tbc-generator:mint-ids-flow`: Flow to generate multiple IDs (keyed and batched) for given types
+ * - `tbc-mint:mint-ids-flow`: Flow to generate multiple IDs (keyed and batched) for given types
  */
-const TBCGeneratorPlugin = createPlugin(
-    "@tbc-frameworx/tbc-generator",
+const TBCMintPlugin = createPlugin(
+    "@tbc-frameworx/tbc-mint",
     "0.1.0",
     [
         UuidNode as any,
@@ -28,7 +28,7 @@ const TBCGeneratorPlugin = createPlugin(
         GenTsidFlow as any,
         MintIDsFlow as any,
     ],
-    "TBC Generator Plugin - ID generation operations for TBC",
+    "TBC Mint Plugin - ID minting operations for TBC",
 );
 
-export { TBCGeneratorPlugin };
+export { TBCMintPlugin };

@@ -63,7 +63,7 @@ export class GenerateUUIDsFlow extends HAMIFlow<Record<string, any>, FlowConfig>
         const n = shared.registry.createNode.bind(shared.registry);
         this.startNode
             .next(n('tbc-system:prepare-messages'))
-            .next(n('tbc-generator:mint-ids-flow', {
+            .next(n('tbc-mint:mint-ids-flow', {
                 requests: [
                     { type: 'uuid', 'count': this.config.count },
                 ],

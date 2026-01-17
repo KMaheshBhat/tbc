@@ -1,6 +1,6 @@
 import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
-import { Minted } from "@tbc-frameworx/tbc-generator";
+import { Minted } from "@tbc-frameworx/tbc-mint";
 import { Shared, TBCLevel, TBCMessage } from "../types.js";
 import assert from "assert";
 

@@ -48,7 +48,7 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-generator:mint-ids-flow";
+        return "tbc-mint:mint-ids-flow";
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -56,7 +56,7 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
         const n = shared.registry.createNode.bind(shared.registry);
         const providers = [... new Set(this.config.requests.map(r => r.type))];
         for (const provider of providers) {
-            const nodeKind = `tbc-generator-${provider}:mint`;
+            const nodeKind = `tbc-mint-${provider}:mint`;
             assert(
                 shared.registry.hasNodeClass(nodeKind),
                 `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`
@@ -71,7 +71,7 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
         for (const [i, request] of this.config.requests.entries()) {
             const isLast = i === this.config.requests.length - 1;
             const targetNext = isLast ? finalNodeSequence : new Node();
-            const nodeKind = `tbc-generator-${request.type}:mint`;
+            const nodeKind = `tbc-mint-${request.type}:mint`;
             tailNode
                 .next(n('core:mutate', {
                     mutate: async (shared: Shared) => {

@@ -237,7 +237,7 @@ Operations accept a `database` parameter to select between:
 - `records`: General TBC record indexing
 - `meta`: System metadata and watermarks
 
-### 6.5 `@tbc-frameworx/tbc-generator`
+### 6.5 `@tbc-frameworx/tbc-mint`
 
 **Responsibility**: ID generation utilities.
 
@@ -329,7 +329,7 @@ The CLI is a **thin orchestration layer** that:
 | `tbc int generic` | `IntGenericFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int gemini-cli` | `IntGeminiCliFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc dex` | `RefreshCoreFlow`, `RefreshRecordsFlow`, `RefreshExtensionsFlow`, `RefreshSkillsFlow` | `@tbc-frameworx/tbc-view` |
-| `tbc gen` | `GenUuidFlow`, `GenTsidFlow` | `@tbc-frameworx/tbc-generator` |
+| `tbc gen` | `GenUuidFlow`, `GenTsidFlow` | `@tbc-frameworx/tbc-mint` |
 | `tbc int kilocode` | `IntKilocodeFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int goose` | `IntGooseFlow` | `@tbc-frameworx/tbc-interface` |
 | `tbc int github-copilot` | `IntGitHubCopilotFlow` | `@tbc-frameworx/tbc-interface` |
@@ -372,7 +372,7 @@ This separation improves testability and extensibility.
 
 Flows are organized by domain:
 
-- **Package flows**: Located in the package that owns the primary logic (e.g., system flows in `@tbc-frameworx/tbc-system`, generator flows in `@tbc-frameworx/tbc-generator`, interface flows in `@tbc-frameworx/tbc-interface`)
+- **Package flows**: Located in the package that owns the primary logic (e.g., system flows in `@tbc-frameworx/tbc-system`, generator flows in `@tbc-frameworx/tbc-mint`, interface flows in `@tbc-frameworx/tbc-interface`)
 - **CLI flows**: Orchestration flows specific to CLI commands, located in `apps/tbc-cli/src/ops/`
 - **Common utilities**: Shared nodes and utilities in package-specific locations (e.g., interface utilities in `@tbc-frameworx/tbc-interface`)
 

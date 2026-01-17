@@ -1,5 +1,5 @@
 import { HAMIRegistrationManager } from "@hami-frameworx/core";
-import { Minted, MintRequest } from "@tbc-frameworx/tbc-generator";
+import { Minted, MintRequest } from "@tbc-frameworx/tbc-mint";
 
 type SharedStage = {
   mintRequest: MintRequest;
@@ -7,8 +7,8 @@ type SharedStage = {
 };
 
 /**
- * Shared storage interface for TBC generator UUID operations.
- * Defines the structure of data that can be shared between TBC generator UUID operation nodes.
+ * Shared storage interface for TBC generator TSID operations.
+ * Defines the structure of data that can be shared between TBC generator TSID operation nodes.
  */
 type Shared = {
   /** HAMI registration manager for node creation and management. */
