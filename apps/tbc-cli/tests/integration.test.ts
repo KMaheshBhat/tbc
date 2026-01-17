@@ -161,7 +161,6 @@ describe("TBC-CLI Integration", () => {
                 "--prime",
                 "Jojo",
             ]);
-                console.log(output);
             if (!success) {
                 console.log(output);
                 console.log("Tree on failure:");
@@ -216,7 +215,6 @@ describe("TBC-CLI Integration", () => {
                 "--root",
                 TBC_ROOT,
             ]);
-                console.log(output);
             expect(success).toBe(true);
             expect(exitCode).toBe(0);
             expect(output).toContain(`[✓] Third Brain Companion upgraded to ${packageJson.version}.`);
