@@ -85,7 +85,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
-                        source: 'init-flow',
+                        source: 'upgrade-flow',
                         message: `has no existing companion (not a valid TBC Root)`,
                         suggestion: 'Use "tbc sys init" instead.',
                     });
@@ -300,7 +300,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'init-flow',
+                        source: 'upgrade-flow',
                         message: 'Validating again ...',
                     });
                 }
@@ -313,17 +313,17 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 mutate: (shared: Shared) => {
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'init-flow',
+                        source: 'upgrade-flow',
                         message: `Companion: ${shared.system.companionRecord.record_title} [${shared.system.companionID}]`,
                     });
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'init-flow',
+                        source: 'upgrade-flow',
                         message: `Prime: ${shared.system.primeRecord.record_title} [${shared.system.primeID}]`,
                     });
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'init-flow',
+                        source: 'upgrade-flow',
                         message: `Map of Memories: [${shared.system.memoryMapID}]`,
                     });
                     shared.stage.messages.push({
@@ -356,13 +356,6 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
         return super.run(shared);
     }
-}
-
-const logTableNode = (registry: HAMIRegistrationManager, resultKey: string) => {
-    return registry.createNode('core:log-result', {
-        resultKey,
-        format: 'table' as const,
-    });
 }
 
 interface RemoveSpecsConfig {
