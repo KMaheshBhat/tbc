@@ -123,4 +123,5 @@ export {
   TBCLevel,
   TBC_LEVEL_ICON_MAP,
   TBCMessage,
+  TBCSystemOperation,
 };
