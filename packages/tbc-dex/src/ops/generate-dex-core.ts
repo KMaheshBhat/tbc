@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type GenerateDexCoreInput = {
     rootDirectory: string;
@@ -16,7 +16,7 @@ type GenerateDexCoreOutput = {
     record_type: string;
 };
 
-export class GenerateDexCoreNode extends HAMINode<TBCDexStorage> {
+export class GenerateDexCoreNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -25,7 +25,7 @@ export class GenerateDexCoreNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:generate-dex-core";
     }
 
-    async prep(shared: TBCDexStorage): Promise<GenerateDexCoreInput> {
+    async prep(shared: Shared): Promise<GenerateDexCoreInput> {
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required in shared state");
         }
@@ -78,7 +78,7 @@ export class GenerateDexCoreNode extends HAMINode<TBCDexStorage> {
         return lines.join("\n");
     }
 
-    async post(shared: TBCDexStorage, _prepRes: GenerateDexCoreInput, execRes: GenerateDexCoreOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: GenerateDexCoreInput, execRes: GenerateDexCoreOutput): Promise<string | undefined> {
         // Store the generated record for use by store-records node
         shared.generatedDexCore = execRes;
         

@@ -18,6 +18,7 @@ import { UpgradeFlow } from "./ops/upgrade-flow.js";
 import { SysValidateFlow } from "./ops/validate-flow.js";
 import { GenerateUUIDsFlow } from "./ops/generate-uuids-flow.js";
 import { GenerateTSIDsFlow } from "./ops/generate-tsids-flow.js";
+import { DexRebuildFlow } from "./ops/dex-rebuild-flow.js";
 
 /**
  * TBC System Plugin for HAMI.
@@ -42,6 +43,7 @@ import { GenerateTSIDsFlow } from "./ops/generate-tsids-flow.js";
  * - `tbc-system:validate-flow`: Comprehensive flow for validating a TBC environment
  * - `tbc-system:generate-uuids-flow`: Generation flow for UUID minting (batch only)
  * - `tbc-system:generate-tsids-flow`: Generation flow for TSID minting (batch only)
+ * - `tbc-system:dex-rebuild-flow`: Rebuild all indexes
  */
 const TBCSystemPlugin = createPlugin(
     "@tbc-frameworx/tbc-system",
@@ -65,6 +67,7 @@ const TBCSystemPlugin = createPlugin(
         SysValidateFlow as any,
         GenerateUUIDsFlow as any,
         GenerateTSIDsFlow as any,
+        DexRebuildFlow as any,
     ],
     "TBC System Plugin - Environment probing, initialization, validation, and core management operations",
 );

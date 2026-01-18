@@ -154,8 +154,31 @@ program.addCommand(cmdGen);
 
 
 let cmdDex = new Command('dex')
-    .description('Refresh indexes')
+    .description('Manage inDEXes')
     .option('--root <path>', 'Root directory');
+
+let cmdDexRebuild = new Command('rebuild')
+    .description('Rebuild all inDEXes')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = opts.root || cliOpts.root;
+            const refreshCoreFlow = registry.createNode('tbc-system:dex-rebuild-flow', {
+                verbose: opts.verbose,
+            });
+            await refreshCoreFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during dex core:', error);
+            process.exit(1);
+        }
+        return;
+    });
+cmdDex.addCommand(cmdDexRebuild);
 
 let cmdDexCore = new Command('core')
     .description('Refresh the core system definitions index')
@@ -178,6 +201,7 @@ let cmdDexCore = new Command('core')
         }
         return;
     });
+cmdDex.addCommand(cmdDexCore);
 
 let cmdDexRecords = new Command('records')
     .description('Refresh all records indexes')
@@ -200,6 +224,7 @@ let cmdDexRecords = new Command('records')
         }
         return;
     });
+cmdDex.addCommand(cmdDexRecords);
 
 let cmdDexExtensions = new Command('extensions')
     .description('Refresh extensions index')
@@ -222,6 +247,7 @@ let cmdDexExtensions = new Command('extensions')
         }
         return;
     });
+cmdDex.addCommand(cmdDexExtensions);
 
 let cmdDexSkills = new Command('skills')
     .description('Refresh skills index')
@@ -244,6 +270,7 @@ let cmdDexSkills = new Command('skills')
         }
         return;
     });
+cmdDex.addCommand(cmdDexSkills);
 
 let cmdDexIndex = new Command('index')
     .description('Index filesystem records into TKG database with watermark checks')
@@ -266,6 +293,7 @@ let cmdDexIndex = new Command('index')
         }
         return;
     });
+cmdDex.addCommand(cmdDexIndex);
 
 let cmdDexHealth = new Command('health')
     .description('Generate comprehensive SRE integrity report')
@@ -295,6 +323,7 @@ let cmdDexHealth = new Command('health')
         }
         return;
     });
+cmdDex.addCommand(cmdDexHealth);
 
 let cmdDexStatus = new Command('status')
     .description('Display quick system health summary')
@@ -317,6 +346,7 @@ let cmdDexStatus = new Command('status')
         }
         return;
     });
+cmdDex.addCommand(cmdDexStatus);
 
 let cmdDexAudit = new Command('audit')
     .description('Perform comprehensive system audit (index + health report)')
@@ -346,14 +376,6 @@ let cmdDexAudit = new Command('audit')
         }
         return;
     });
-
-cmdDex.addCommand(cmdDexCore);
-cmdDex.addCommand(cmdDexRecords);
-cmdDex.addCommand(cmdDexExtensions);
-cmdDex.addCommand(cmdDexSkills);
-cmdDex.addCommand(cmdDexIndex);
-cmdDex.addCommand(cmdDexHealth);
-cmdDex.addCommand(cmdDexStatus);
 cmdDex.addCommand(cmdDexAudit);
 
 program.addCommand(cmdDex);

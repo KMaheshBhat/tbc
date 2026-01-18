@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type LinksWatermarkNodeInput = {
     processedRecords: Array<{
@@ -30,7 +30,7 @@ type LinksWatermarkNodeOutput = {
     }>;
 };
 
-export class LinksWatermarkNode extends HAMINode<TBCDexStorage> {
+export class LinksWatermarkNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -39,7 +39,7 @@ export class LinksWatermarkNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:links-watermark";
     }
 
-    async prep(shared: TBCDexStorage): Promise<LinksWatermarkNodeInput> {
+    async prep(shared: Shared): Promise<LinksWatermarkNodeInput> {
         if (!shared.processedRecords) {
             throw new Error("processedRecords is required in shared state");
         }
@@ -90,7 +90,7 @@ export class LinksWatermarkNode extends HAMINode<TBCDexStorage> {
         }
     }
 
-    async post(shared: TBCDexStorage, _prepRes: LinksWatermarkNodeInput, execRes: LinksWatermarkNodeOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: LinksWatermarkNodeInput, execRes: LinksWatermarkNodeOutput): Promise<string | undefined> {
         shared.linksResults = execRes.linksResults;
         return "default";
     }

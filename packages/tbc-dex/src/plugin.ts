@@ -27,6 +27,9 @@ import { ReportGeneratorNode } from "./ops/report-generator.js";
 import { ViewStatusFlow } from "./ops/view-status-flow.js";
 import { ViewAuditFlow } from "./ops/view-audit-flow.js";
 
+import { CollateDigestNode } from "./ops/collate-digest.js";
+import { CollateMetadataIndexNode } from "./ops/collate-metadata-index.js";
+
 /**
  * TBC View Plugin for HAMI.
  * Provides essential TBC view operations for generating and refreshing indexes.
@@ -51,6 +54,8 @@ import { ViewAuditFlow } from "./ops/view-audit-flow.js";
  * - `tbc-dex:schema-violation-check`: Checks for schema compliance issues
  * - `tbc-dex:repair-recommendations`: Generates repair suggestions
  * - `tbc-dex:report-generator`: Compiles final integrity report
+ * - `tbc-dex:collate-digest`: Collates a root and system definitions
+ * - `tbc-dex:collate-metadata-index`: Collates JSONL based index from metadata of records
  */
 const TBCDexPlugin = createPlugin(
     "@tbc-frameworx/tbc-dex",
@@ -82,6 +87,8 @@ const TBCDexPlugin = createPlugin(
         ReportGeneratorNode as any,
         ViewStatusFlow as any,
         ViewAuditFlow as any,
+        CollateDigestNode as any,
+        CollateMetadataIndexNode as any,
     ],
     "TBC View Plugin - Index generation, refresh operations, and SRE health checks",
 );

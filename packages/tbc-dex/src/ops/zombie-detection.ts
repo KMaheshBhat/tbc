@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type ZombieDetectionInput = {
     dexStore: any; // DexStore
@@ -16,7 +16,7 @@ type ZombieDetectionOutput = {
     }>;
 };
 
-export class ZombieDetectionNode extends HAMINode<TBCDexStorage> {
+export class ZombieDetectionNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -25,7 +25,7 @@ export class ZombieDetectionNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:zombie-detection";
     }
 
-    async prep(shared: TBCDexStorage): Promise<ZombieDetectionInput> {
+    async prep(shared: Shared): Promise<ZombieDetectionInput> {
         if (!shared.dexStore) {
             throw new Error("dexStore is required in shared state");
         }
@@ -39,7 +39,7 @@ export class ZombieDetectionNode extends HAMINode<TBCDexStorage> {
         return { zombieLinks };
     }
 
-    async post(shared: TBCDexStorage, _prepRes: ZombieDetectionInput, execRes: ZombieDetectionOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: ZombieDetectionInput, execRes: ZombieDetectionOutput): Promise<string | undefined> {
         shared.zombieLinks = execRes.zombieLinks;
         return "default";
     }

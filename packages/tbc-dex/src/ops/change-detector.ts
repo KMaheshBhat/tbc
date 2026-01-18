@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type ChangeDetectorInput = {
     discoveredFiles: Array<{
@@ -24,7 +24,7 @@ type ChangeDetectorOutput = {
     }>;
 };
 
-export class ChangeDetectorNode extends HAMINode<TBCDexStorage> {
+export class ChangeDetectorNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -33,7 +33,7 @@ export class ChangeDetectorNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:change-detector";
     }
 
-    async prep(shared: TBCDexStorage): Promise<ChangeDetectorInput> {
+    async prep(shared: Shared): Promise<ChangeDetectorInput> {
         if (!shared.discoveredFiles) {
             throw new Error("discoveredFiles is required in shared state");
         }
@@ -71,7 +71,7 @@ export class ChangeDetectorNode extends HAMINode<TBCDexStorage> {
         return { changedFiles };
     }
 
-    async post(shared: TBCDexStorage, _prepRes: ChangeDetectorInput, execRes: ChangeDetectorOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: ChangeDetectorInput, execRes: ChangeDetectorOutput): Promise<string | undefined> {
         shared.changedFiles = execRes.changedFiles;
         return "default";
     }

@@ -1,7 +1,7 @@
-export * from './types.js';
 export * from './ops/add-manifest-messages.js';
 export * from './ops/add-minted-messages.js';
 export * from './ops/clear-messages.js';
+export * from './ops/dex-rebuild-flow.js';
 export * from './ops/generate-role-definition.js';
 export * from './ops/generate-tsids-flow.js';
 export * from './ops/generate-uuids-flow.js';
@@ -18,3 +18,4 @@ export * from './ops/upgrade-flow.js';
 export * from './ops/validate-flow.js';
 export * from './ops/validate-system.js';
 export * from './plugin.js';
+export * from './types.js';

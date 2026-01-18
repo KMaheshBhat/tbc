@@ -10,12 +10,15 @@ type TBCDexOpts = {
   verbose?: boolean;
 }
 
+type SharedStage = Record<string, any>;
+
 /**
  * Shared storage interface for TBC dex operations.
  * Defines the structure of data that can be shared between TBC dex operation nodes.
  * Contains configuration options and results from various TBC dex operations.
  */
-type TBCDexStorage = {
+type Shared = {
+  stage: SharedStage;
   /** Optional configuration options for TBC dex operations. */
   opts?: TBCDexOpts;
   /** Current record operation */
@@ -148,5 +151,5 @@ type TBCDexStorage = {
 
 export type {
   TBCDexOpts,
-  TBCDexStorage,
+  Shared,
 };

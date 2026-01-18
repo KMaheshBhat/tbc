@@ -5,7 +5,7 @@ import path from "path";
 import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
 import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
 import { DexStore } from "../store/dex-store.js";
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 interface GraphMinerFlowConfig {
     verbose: boolean;

@@ -2,7 +2,7 @@ import { HAMINode } from "@hami-frameworx/core";
 import matter from "gray-matter";
 import path from "path";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type MetadataExtractorInput = {
     changedFiles: Array<{
@@ -36,7 +36,7 @@ type MetadataExtractorOutput = {
     }>;
 };
 
-export class MetadataExtractorNode extends HAMINode<TBCDexStorage> {
+export class MetadataExtractorNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -45,7 +45,7 @@ export class MetadataExtractorNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:metadata-extractor";
     }
 
-    async prep(shared: TBCDexStorage): Promise<MetadataExtractorInput> {
+    async prep(shared: Shared): Promise<MetadataExtractorInput> {
         if (!shared.changedFiles) {
             throw new Error("changedFiles is required in shared state");
         }
@@ -147,7 +147,7 @@ export class MetadataExtractorNode extends HAMINode<TBCDexStorage> {
         return null;
     }
 
-    async post(shared: TBCDexStorage, _prepRes: MetadataExtractorInput, execRes: MetadataExtractorOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: MetadataExtractorInput, execRes: MetadataExtractorOutput): Promise<string | undefined> {
         // Upsert nodes, attributes, and edges to database
         shared.dexStore!.beginTransaction();
 

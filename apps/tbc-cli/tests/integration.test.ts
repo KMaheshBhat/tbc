@@ -1,6 +1,6 @@
 import { file } from "bun";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 import { generateFileTree, runMonorepoCommand, UUID_REGEX, TSID_REGEX } from "../../../scripts/common";
@@ -143,7 +143,7 @@ describe("TBC-CLI Integration", () => {
                 TBC_ROOT,
             ]);
             expect(exitCode).toBe(0);
-            expect(output).toContain('[✗] ┬─ error | init-flow | has no existing companion (not a valid TBC Root)');
+            expect(output).toContain('[✗] ┬─ error | upgrade-flow | has no existing companion (not a valid TBC Root)');
             expect(output).toContain('    └─ Suggestion: Use "tbc sys init" instead');
         });
     });
@@ -257,6 +257,52 @@ describe("TBC-CLI Integration", () => {
             expect(output).toContain("┌┤ Validation Audit ├");
             expect(output).toContain("[✓] STABLE");
         });
+    });
+
+    describe("🐵 LETS-GO: tbc dex", () => {
+
+        test("running dex rebuild on non-TBC-Root should fail with helpful message", async () => {
+            const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+                "dex",
+                "rebuild",
+                "--root",
+                join(SANDBOX, "non-existent"),
+            ]);
+            expect(exitCode).toBe(0);
+            expect(output).toContain('[✗] ┬─ error | dex-rebuild-flow | has no existing companion (not a valid TBC Root)');
+            expect(output).toContain('    └─ Suggestion: Can only be run on a valid TBC Root. (Use "tbc sys init" for new Companion).');
+        });
+
+        test("running dex rebuild on TBC-Root is successful", async () => {
+            const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+                "dex",
+                "rebuild",
+                "--root",
+                TBC_ROOT,
+            ]);
+            console.log(output);
+            expect(success).toBe(true);
+            expect(exitCode).toBe(0);
+            expect(output).toContain('[✓] System Index (Dex) Rebuilt');
+            expect(output).toContain('Stored ');
+            expect(output).toContain(' dex record(s)');
+            const dexDir = join(TBC_ROOT, "dex");
+            const digestContent = readFileSync(join(dexDir, "sys.digest.txt"), 'utf-8');
+            expect(digestContent).toContain('<<< SOURCE: sys/root.md >>>');
+            expect(digestContent).toContain('<<< SOURCE: sys/core/20251228150423.md >>>');
+            expect(digestContent).toContain('# Mojo Root');
+            const expectedFiles = ["sys.digest.txt", "skills.jsonl", "party.memory.jsonl", "structure.memory.jsonl"];
+            for (const file of expectedFiles) {
+                expect(existsSync(join(dexDir, file))).toBe(true);
+            }
+            const partyContent = readFileSync(join(dexDir, "party.memory.jsonl"), 'utf-8');
+            const lines = partyContent.trim().split('\n');
+            expect(lines.length).toBeGreaterThan(0);
+            const firstLine = JSON.parse(lines[0]!);
+            expect(firstLine).toHaveProperty('record_type', 'party');
+            expect(firstLine).toHaveProperty('collection', 'mem');
+        });
+
     });
 
     afterAll(() => {

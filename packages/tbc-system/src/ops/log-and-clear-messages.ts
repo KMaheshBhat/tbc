@@ -1,7 +1,6 @@
 import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
 import { Shared, TBCMessage, TBC_LEVEL_ICON_MAP } from "../types.js";
-import assert from "node:assert";
 
 export function composeMessages(messages: TBCMessage[], verbose: boolean): string {
     const lines: string[] = [];

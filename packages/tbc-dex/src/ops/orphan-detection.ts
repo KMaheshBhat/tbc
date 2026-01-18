@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type OrphanDetectionInput = {
     dexStore: any; // DexStore
@@ -15,7 +15,7 @@ type OrphanDetectionOutput = {
     }>;
 };
 
-export class OrphanDetectionNode extends HAMINode<TBCDexStorage> {
+export class OrphanDetectionNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -24,7 +24,7 @@ export class OrphanDetectionNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:orphan-detection";
     }
 
-    async prep(shared: TBCDexStorage): Promise<OrphanDetectionInput> {
+    async prep(shared: Shared): Promise<OrphanDetectionInput> {
         if (!shared.dexStore) {
             throw new Error("dexStore is required in shared state");
         }
@@ -38,7 +38,7 @@ export class OrphanDetectionNode extends HAMINode<TBCDexStorage> {
         return { orphanRecords };
     }
 
-    async post(shared: TBCDexStorage, _prepRes: OrphanDetectionInput, execRes: OrphanDetectionOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: OrphanDetectionInput, execRes: OrphanDetectionOutput): Promise<string | undefined> {
         shared.orphanRecords = execRes.orphanRecords;
         return "default";
     }

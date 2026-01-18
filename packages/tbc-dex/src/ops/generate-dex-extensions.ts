@@ -1,17 +1,17 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 interface GenerateDexExtensionsNodeConfig {
     verbose: boolean;
 }
 
-export class GenerateDexExtensionsNode extends HAMINode<TBCDexStorage, GenerateDexExtensionsNodeConfig> {
+export class GenerateDexExtensionsNode extends HAMINode<Shared, GenerateDexExtensionsNodeConfig> {
     kind(): string {
         return "tbc-dex:generate-dex-extensions";
     }
 
-    async prep(shared: TBCDexStorage): Promise<any> {
+    async prep(shared: Shared): Promise<any> {
         return {
             rootDirectory: shared.rootDirectory,
             recordsByType: shared.recordsByType,
@@ -92,7 +92,7 @@ export class GenerateDexExtensionsNode extends HAMINode<TBCDexStorage, GenerateD
         return true;
     }
 
-    async post(shared: TBCDexStorage, prepRes: any, execRes: any[]): Promise<string | undefined> {
+    async post(shared: Shared, prepRes: any, execRes: any[]): Promise<string | undefined> {
         // Store the generated records for use by store-records node
         shared.generatedDexExtensions = execRes;
 

@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type HealthSummaryQueryInput = {
     dexStore: any; // DexStore
@@ -14,7 +14,7 @@ type HealthSummaryQueryOutput = {
     };
 };
 
-export class HealthSummaryQueryNode extends HAMINode<TBCDexStorage> {
+export class HealthSummaryQueryNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -23,7 +23,7 @@ export class HealthSummaryQueryNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:health-summary-query";
     }
 
-    async prep(shared: TBCDexStorage): Promise<HealthSummaryQueryInput> {
+    async prep(shared: Shared): Promise<HealthSummaryQueryInput> {
         if (!shared.dexStore) {
             throw new Error("dexStore is required in shared state");
         }
@@ -37,7 +37,7 @@ export class HealthSummaryQueryNode extends HAMINode<TBCDexStorage> {
         return { healthSummary };
     }
 
-    async post(shared: TBCDexStorage, _prepRes: HealthSummaryQueryInput, execRes: HealthSummaryQueryOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: HealthSummaryQueryInput, execRes: HealthSummaryQueryOutput): Promise<string | undefined> {
         shared.healthSummary = execRes.healthSummary;
         return "default";
     }

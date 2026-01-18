@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type ReportGeneratorInput = {
     healthSummary: {
@@ -83,7 +83,7 @@ type ReportGeneratorOutput = {
     };
 };
 
-export class ReportGeneratorNode extends HAMINode<TBCDexStorage> {
+export class ReportGeneratorNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -92,7 +92,7 @@ export class ReportGeneratorNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:report-generator";
     }
 
-    async prep(shared: TBCDexStorage): Promise<ReportGeneratorInput> {
+    async prep(shared: Shared): Promise<ReportGeneratorInput> {
         if (!shared.healthSummary) {
             throw new Error("healthSummary is required in shared state");
         }
@@ -148,7 +148,7 @@ export class ReportGeneratorNode extends HAMINode<TBCDexStorage> {
         return { integrityReport };
     }
 
-    async post(shared: TBCDexStorage, _prepRes: ReportGeneratorInput, execRes: ReportGeneratorOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: ReportGeneratorInput, execRes: ReportGeneratorOutput): Promise<string | undefined> {
         shared.integrityReport = execRes.integrityReport;
         return "default";
     }

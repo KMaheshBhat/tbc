@@ -3,18 +3,18 @@ import { readdirSync, readFileSync, existsSync } from "fs";
 import { join } from "path";
 import matter from "gray-matter";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 interface GenerateDexSkillsNodeConfig {
     verbose: boolean;
 }
 
-export class GenerateDexSkillsNode extends HAMINode<TBCDexStorage, GenerateDexSkillsNodeConfig> {
+export class GenerateDexSkillsNode extends HAMINode<Shared, GenerateDexSkillsNodeConfig> {
     kind(): string {
         return "tbc-dex:generate-dex-skills";
     }
 
-    async prep(shared: TBCDexStorage): Promise<any> {
+    async prep(shared: Shared): Promise<any> {
         return {
             rootDirectory: shared.rootDirectory,
             verbose: this.config?.verbose
@@ -166,7 +166,7 @@ export class GenerateDexSkillsNode extends HAMINode<TBCDexStorage, GenerateDexSk
         return true;
     }
 
-    async post(shared: TBCDexStorage, prepRes: any, execRes: any[]): Promise<string | undefined> {
+    async post(shared: Shared, prepRes: any, execRes: any[]): Promise<string | undefined> {
         // Store the generated records for use by store-records node
         shared.generatedDexSkills = execRes;
 

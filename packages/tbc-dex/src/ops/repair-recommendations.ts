@@ -1,6 +1,6 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type RepairRecommendationsInput = {
     healthSummary: {
@@ -39,7 +39,7 @@ type RepairRecommendationsOutput = {
     }>;
 };
 
-export class RepairRecommendationsNode extends HAMINode<TBCDexStorage> {
+export class RepairRecommendationsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -48,7 +48,7 @@ export class RepairRecommendationsNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:repair-recommendations";
     }
 
-    async prep(shared: TBCDexStorage): Promise<RepairRecommendationsInput> {
+    async prep(shared: Shared): Promise<RepairRecommendationsInput> {
         if (!shared.healthSummary) {
             throw new Error("healthSummary is required in shared state");
         }
@@ -119,7 +119,7 @@ export class RepairRecommendationsNode extends HAMINode<TBCDexStorage> {
         return { repairRecommendations: recommendations };
     }
 
-    async post(shared: TBCDexStorage, _prepRes: RepairRecommendationsInput, execRes: RepairRecommendationsOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: RepairRecommendationsInput, execRes: RepairRecommendationsOutput): Promise<string | undefined> {
         shared.repairRecommendations = execRes.repairRecommendations;
         return "default";
     }

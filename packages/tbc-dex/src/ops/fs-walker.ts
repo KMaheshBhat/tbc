@@ -3,7 +3,7 @@ import { readdir, stat } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 
-import type { TBCDexStorage } from "../types.js";
+import type { Shared } from "../types.js";
 
 type FSWalkerInput = {
     rootDirectory: string;
@@ -19,7 +19,7 @@ type FSWalkerOutput = {
     }>;
 };
 
-export class FSWalkerNode extends HAMINode<TBCDexStorage> {
+export class FSWalkerNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
         super(maxRetries, wait);
     }
@@ -28,7 +28,7 @@ export class FSWalkerNode extends HAMINode<TBCDexStorage> {
         return "tbc-dex:fs-walker";
     }
 
-    async prep(shared: TBCDexStorage): Promise<FSWalkerInput> {
+    async prep(shared: Shared): Promise<FSWalkerInput> {
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required in shared state");
         }
@@ -112,7 +112,7 @@ export class FSWalkerNode extends HAMINode<TBCDexStorage> {
         return crypto.createHash('sha256').update(blob).digest('hex');
     }
 
-    async post(shared: TBCDexStorage, _prepRes: FSWalkerInput, execRes: FSWalkerOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: FSWalkerInput, execRes: FSWalkerOutput): Promise<string | undefined> {
         shared.discoveredFiles = execRes.discoveredFiles;
         return "default";
     }
