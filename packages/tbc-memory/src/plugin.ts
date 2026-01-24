@@ -10,6 +10,8 @@ import { GenerateStubRecordsNode } from "./ops/generate-stub-records.js";
 import { MemCompanionFlow } from "./ops/mem-companion-flow.js";
 import { MemPrimeFlow } from "./ops/mem-prime-flow.js";
 import { MemStubFlow } from "./ops/mem-stub-flow.js";
+import { RememberFlow } from "./ops/remember-flow.js";
+import { SynthesizeRecordNode } from "./ops/synthesize-record.js"; // TODO: refactor and move to appropriate location
 
 /**
  * TBC Memory Plugin for HAMI.
@@ -18,6 +20,7 @@ import { MemStubFlow } from "./ops/mem-stub-flow.js";
  * Included operations:
  * - `tbc-memory:extract-companion-id`: Extracts companion ID from sys/companion.id
  * - `tbc-memory:extract-companion-record`: Extracts companion record from memory
+ * - `tbc-memory:remember-flow`: Creates a memory records
  * - Memory flows for companion operations
  */
 const TBCMemoryPlugin = createPlugin(
@@ -34,6 +37,8 @@ const TBCMemoryPlugin = createPlugin(
         MemCompanionFlow as any,
         MemPrimeFlow as any,
         MemStubFlow as any,
+        RememberFlow as any,
+        SynthesizeRecordNode as any,
     ],
     "TBC Memory Plugin - Memory operations for TBC",
 );

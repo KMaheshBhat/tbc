@@ -8,6 +8,7 @@ import { Minted, MintRequest, Shared } from "../types";
 
 interface FlowConfig {
     requests: MintRequest[];
+    requestsKey?: string;
 }
 
 const FlowConfigSchema: ValidationSchema = {
@@ -32,8 +33,8 @@ const FlowConfigSchema: ValidationSchema = {
                 required: ['type']
             },
         },
+        requestsKey: { type: 'string' },
     },
-    required: ['requests']
 };
 
 export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
@@ -54,7 +55,16 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
     async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-        const providers = [... new Set(this.config.requests.map(r => r.type))];
+
+        // DYNAMIC RESOLUTION
+        let activeRequests: MintRequest[] = this.config.requests || [];
+
+        if (activeRequests.length === 0 && this.config.requestsKey) {
+            activeRequests = shared.stage[this.config.requestsKey] || [];
+        }
+
+        assert(activeRequests.length > 0, `MintIDsFlow Error: No requests found in config or stage.${this.config.requestsKey}`);
+        const providers = [... new Set(activeRequests.map(r => r.type))];
         for (const provider of providers) {
             const nodeKind = `tbc-mint-${provider}:mint`;
             assert(
@@ -68,8 +78,8 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n("core:assign", { "stage.mintedAccumulate": "stage.minted" }))
             .next(tailNode)
             ;
-        for (const [i, request] of this.config.requests.entries()) {
-            const isLast = i === this.config.requests.length - 1;
+        for (const [i, request] of activeRequests.entries()) {
+            const isLast = i === activeRequests.length - 1;
             const targetNext = isLast ? finalNodeSequence : new Node();
             const nodeKind = `tbc-mint-${request.type}:mint`;
             tailNode
@@ -101,8 +111,12 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
         const result = validateAgainstSchema(config, FlowConfigSchema)
+        const errors = result.errors || [];
+        if (!config.requests && !config.requestsKey) {
+            errors.push("MintIDsFlow requires either 'requests' or 'requestsKey' to be configured.");
+        }
         return {
-            valid: result.isValid,
+            valid: errors.length === 0,
             errors: result.errors || [],
         };
     }

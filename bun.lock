@@ -34,6 +34,7 @@
         "@tbc-frameworx/tbc-mint-uuid": "^0.1.0",
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "@tbc-frameworx/tbc-record-fs": "^0.1.0",
+        "@tbc-frameworx/tbc-synthesize": "^0.1.0",
         "@tbc-frameworx/tbc-system": "^0.4.0",
         "@tbc-frameworx/tbc-write": "^0.1.0",
         "commander": "^14.0.2",
@@ -136,7 +137,9 @@
       "version": "0.1.0",
       "dependencies": {
         "@hami-frameworx/core": "0.1.4",
+        "@tbc-frameworx/tbc-mint": "^0.1.0",
         "@tbc-frameworx/tbc-record": "^0.1.0",
+        "@tbc-frameworx/tbc-system": "^0.4.0",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -221,6 +224,18 @@
         "typescript": "^5.0.0",
       },
     },
+    "packages/tbc-synthesize": {
+      "name": "@tbc-frameworx/tbc-synthesize",
+      "version": "0.1.0",
+      "dependencies": {
+        "@hami-frameworx/core": "0.1.4",
+        "@tbc-frameworx/tbc-record": "^0.1.0",
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+      },
+    },
     "packages/tbc-system": {
       "name": "@tbc-frameworx/tbc-system",
       "version": "0.4.0",
@@ -289,6 +304,8 @@
     "@tbc-frameworx/tbc-record-fs": ["@tbc-frameworx/tbc-record-fs@workspace:packages/tbc-record-fs"],
 
     "@tbc-frameworx/tbc-record-sqlite": ["@tbc-frameworx/tbc-record-sqlite@workspace:packages/tbc-record-sqlite"],
+
+    "@tbc-frameworx/tbc-synthesize": ["@tbc-frameworx/tbc-synthesize@workspace:packages/tbc-synthesize"],
 
     "@tbc-frameworx/tbc-system": ["@tbc-frameworx/tbc-system@workspace:packages/tbc-system"],
 

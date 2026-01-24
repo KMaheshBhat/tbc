@@ -1,9 +1,9 @@
 import { HAMIRegistrationManager } from "@hami-frameworx/core";
 
 type MintRequest = {
-    type: string;
-    key?: string;
-    count?: number;
+  type: string;
+  key?: string;
+  count?: number;
 };
 
 type Minted = {
@@ -24,6 +24,8 @@ type SharedStage = {
   mintRequest: MintRequest;
   minted: Minted;
   mintedAccumulate: Minted;
+  mintRequests?: MintRequest[];
+  [key: string]: any;
 };
 
 /**

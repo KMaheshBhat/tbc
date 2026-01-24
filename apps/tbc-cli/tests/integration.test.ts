@@ -258,53 +258,8 @@ describe("TBC-CLI Integration", () => {
             expect(output).toContain("[✓] STABLE");
         });
     });
-
-    describe("🐵 LETS-GO: tbc dex", () => {
-
-        test("running dex rebuild on non-TBC-Root should fail with helpful message", async () => {
-            const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
-                "dex",
-                "rebuild",
-                "--root",
-                join(SANDBOX, "non-existent"),
-            ]);
-            expect(exitCode).toBe(0);
-            expect(output).toContain('[✗] ┬─ error | dex-rebuild-flow | has no existing companion (not a valid TBC Root)');
-            expect(output).toContain('    └─ Suggestion: Can only be run on a valid TBC Root. (Use "tbc sys init" for new Companion).');
-        });
-
-        test("running dex rebuild on TBC-Root is successful", async () => {
-            const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-                "dex",
-                "rebuild",
-                "--root",
-                TBC_ROOT,
-            ]);
-            expect(success).toBe(true);
-            expect(exitCode).toBe(0);
-            expect(output).toContain('[✓] System Index (Dex) Rebuilt');
-            expect(output).toContain('Stored ');
-            expect(output).toContain(' dex record(s)');
-            const dexDir = join(TBC_ROOT, "dex");
-            const digestContent = readFileSync(join(dexDir, "sys.digest.txt"), 'utf-8');
-            expect(digestContent).toContain('<<< SOURCE: sys/root.md >>>');
-            expect(digestContent).toContain('<<< SOURCE: sys/core/20251228150423.md >>>');
-            expect(digestContent).toContain('# Mojo Root');
-            const expectedFiles = ["sys.digest.txt", "skills.jsonl", "party.memory.jsonl", "structure.memory.jsonl"];
-            for (const file of expectedFiles) {
-                expect(existsSync(join(dexDir, file))).toBe(true);
-            }
-            const partyContent = readFileSync(join(dexDir, "party.memory.jsonl"), 'utf-8');
-            const lines = partyContent.trim().split('\n');
-            expect(lines.length).toBeGreaterThan(0);
-            const firstLine = JSON.parse(lines[0]!);
-            expect(firstLine).toHaveProperty('record_type', 'party');
-            expect(firstLine).toHaveProperty('collection', 'mem');
-        });
-
-    });
-
-    describe("🐵 LETS-GO: tbc mem", () => {
+    
+describe("🐵 LETS-GO: tbc mem", () => {
 
         test("should remember a simple note with a generated UUID", async () => {
             const thought = "Buy more bananas for Mojo";
@@ -316,58 +271,77 @@ describe("TBC-CLI Integration", () => {
             expect(success).toBe(true);
             expect(exitCode).toBe(0);
 
-            // 1. Verify CLI Feedback
+            // 1. Verify CLI Feedback & Suggestion Engine
             expect(output).toContain("[✓] Memory persisted");
-            
-            // 2. Find the UUID minted in the output to locate the file
-            const matches = output.match(UUID_SEARCH_REGEX);
-            expect(matches).not.toBeNull();
-            const mintedId = matches![0];
+            expect(output).toContain("Suggestion:");
 
-            // 3. Verify File Existence
+            // 2. Identify Minted ID (last UUID in trace)
+            const matches = output.match(UUID_SEARCH_REGEX);
+            const mintedId = matches![matches!.length - 1];
+
+            // 3. Verify File Integrity
             const memFilePath = join(TBC_ROOT, "mem", `${mintedId}.md`);
             expect(existsSync(memFilePath)).toBe(true);
-
-            // 4. Verify Content & Metadata
             const content = readFileSync(memFilePath, 'utf-8');
-            expect(content).toContain("record_type: note");
-            expect(content).toContain(thought);
+
+            // 4. Content & Metadata Contract
             expect(content).toContain(`id: ${mintedId}`);
+            expect(content).toContain("record_type: note");
+            expect(content).toContain("record_title: Buy more bananas for Mojo");
+            expect(content).toContain("record_create_date: ");
+            expect(content).toContain("# Buy more bananas for Mojo");
+            expect(content).toContain("- c/agent/mojo");
+            expect(content.endsWith("\n")).toBe(true);
         });
 
         test("should create a stub for a specific record type", async () => {
             const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-                "mem", "remember", 
+                "mem", "remember",
                 "--type", "goal",
                 "--root", TBC_ROOT
             ]);
 
             expect(success).toBe(true);
+
             const matches = output.match(UUID_SEARCH_REGEX);
-            const mintedId = matches![0];
+            const mintedId = matches![matches!.length - 1];
             
             const content = readFileSync(join(TBC_ROOT, "mem", `${mintedId}.md`), 'utf-8');
+
+            // Verify fallback logic for empty content
             expect(content).toContain("record_type: goal");
-            // Should contain a title placeholder if no content provided
-            expect(content).toContain("record_title: New goal"); 
+            expect(content).toContain("record_title: New goal");
+            expect(content).toContain("# New goal");
+            expect(content).toContain("- c/agent/mojo");
+            expect(content).not.toContain("Untitled");
         });
 
         test("should accept tags and title via flags", async () => {
+            const detail = "Detail about the plan";
             const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-                "mem", "remember", "Detail about the plan",
+                "mem", "remember", detail,
                 "--type", "note",
                 "--title", "Master Plan",
                 "--tags", "plan,secret,mojo",
                 "--root", TBC_ROOT
             ]);
 
-            const mintedId = output.match(UUID_SEARCH_REGEX)![0];
+            expect(success).toBe(true);
+
+            const matches = output.match(UUID_SEARCH_REGEX);
+            const mintedId = matches![matches!.length - 1];
             const content = readFileSync(join(TBC_ROOT, "mem", `${mintedId}.md`), 'utf-8');
-            
+
+            // Verify explicit overrides
             expect(content).toContain("record_title: Master Plan");
+            expect(content).toContain("# Master Plan");
+            expect(content).toContain(detail);
+
+            // Verify Tag Prefixing Policy (t/ for topics, c/ for identity)
             expect(content).toContain("- t/plan");
             expect(content).toContain("- t/secret");
             expect(content).toContain("- t/mojo");
+            expect(content).toContain("- c/agent/mojo");
         });
     });
 

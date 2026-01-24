@@ -152,7 +152,6 @@ cmdGen.addCommand(cmdGenTsid);
 
 program.addCommand(cmdGen);
 
-
 let cmdDex = new Command('dex')
     .description('Manage inDEXes')
     .option('--root <path>', 'Root directory');
@@ -412,6 +411,38 @@ let cmdMemCompanion = new Command('companion')
         return;
     });
 cmdMem.addCommand(cmdMemCompanion);
+
+let cmdMemRemember = new Command('remember')
+    .description('Persist a thought, fact, or stub to memory')
+    .argument('[content]', 'The content of the memory')
+    .option('-t, --type <type>', 'Record type: note (default), goal, log, party, structure', 'note')
+    .option('--title <title>', 'Explicit title for the record')
+    .option('--tags <tags>', 'Comma-separated tags')
+    .action(async (content, opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+
+            const rememberFlow = registry.createNode('tbc-memory:remember-flow', {
+                verbose: isVerbose,
+                rootDirectory: root,
+                content: content,
+                type: opts.type,
+                title: opts.title,
+                tags: opts.tags ? opts.tags.split(',').map((t: string) => t.trim()) : [],
+            });
+
+            await rememberFlow.run({
+                registry: registry,
+            });
+        } catch (error) {
+            console.error('Error during memory synthesis:', error);
+            process.exit(1);
+        }
+    });
+
+cmdMem.addCommand(cmdMemRemember);
 
 let cmdMemPrime = new Command('prime')
     .description('Display prime user information')

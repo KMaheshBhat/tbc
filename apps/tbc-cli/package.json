@@ -24,6 +24,7 @@
     "@tbc-frameworx/tbc-mint": "^0.1.0",
     "@tbc-frameworx/tbc-mint-uuid": "^0.1.0",
     "@tbc-frameworx/tbc-mint-tsid": "^0.1.0",
+    "@tbc-frameworx/tbc-synthesize": "^0.1.0",
     "@tbc-frameworx/tbc-dex": "^0.1.0",
     "@tbc-frameworx/tbc-write": "^0.1.0",
     "@tbc-frameworx/tbc-system": "^0.4.0",

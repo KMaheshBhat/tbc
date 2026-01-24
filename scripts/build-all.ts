@@ -8,6 +8,7 @@ const BUILD_ORDER = [
   [
     "@tbc-frameworx/tbc-record",
     "@tbc-frameworx/tbc-mint",
+    "@tbc-frameworx/tbc-synthesize",
   ],
   [
     "@tbc-frameworx/tbc-record-fs",

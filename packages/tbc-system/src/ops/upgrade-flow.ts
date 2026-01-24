@@ -300,69 +300,6 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 collection: 'currentCollectionName',
                 syncIndex: false,
             }))
-            /*
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'upgrade-flow',
-                        message: `Loaded TBC ${packageJson.version} core assets (specs and skills).`,
-                    });
-                }
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.record.rootDirectory = shared.system.rootDirectory;
-                    shared.record.collection = `${shared.stage.sysCollection}/core`;
-                    shared.record.records = [];
-                    for (const [id, content] of Object.entries(shared.stage.records[shared.record.collection])) {
-                        shared.record.records.push({
-                            id: id,
-                            content: content,
-                        });
-                    }
-                }
-            }))
-            .next(n('tbc-record:store-records-flow', {
-                verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'upgrade-flow',
-                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
-                    });
-                }
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.record.rootDirectory = shared.system.rootDirectory;
-                    shared.record.collection = `${shared.stage.skillsCollection}/core`;
-                    shared.record.records = [];
-                    for (const [id, content] of Object.entries(shared.stage.records[shared.record.collection])) {
-                        shared.record.records.push({
-                            id: id,
-                            content: content,
-                        });
-                    }
-                }
-            }))
-            .next(n('tbc-record:store-records-flow', {
-                verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'upgrade-flow',
-                        message: `Stored ${shared.record.records.length} ${shared.record.collection} record(s).`,
-                    });
-                }
-            }))
-            */
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
