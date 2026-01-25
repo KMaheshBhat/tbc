@@ -12,7 +12,7 @@ type NodeInput = {
 
 export class SynthesizeRecordNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-synthesize-memory-core:synthesize";
+        return "tbc-system:synthesize-record";
     }
 
     async prep(shared: Shared): Promise<NodeInput> {

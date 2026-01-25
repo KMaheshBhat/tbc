@@ -7,7 +7,7 @@ import { TBCRecord, TBCRecordOperation } from "@tbc-frameworx/tbc-record";
 export type SynthesizeRequest = {
   /** The record type to fulfill (e.g., 'note', 'goal', 'log') */
   type: string;
-  /** The package suffix for the provider (e.g., 'memory-core') */
+  /** Node that provides the synthesize operation */
   provider: string;
   /** Optional identifier for the specific request batch */
   key?: string;

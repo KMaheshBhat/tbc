@@ -11,7 +11,6 @@ import { MemCompanionFlow } from "./ops/mem-companion-flow.js";
 import { MemPrimeFlow } from "./ops/mem-prime-flow.js";
 import { MemStubFlow } from "./ops/mem-stub-flow.js";
 import { RememberFlow } from "./ops/remember-flow.js";
-import { SynthesizeRecordNode } from "./ops/synthesize-record.js"; // TODO: refactor and move to appropriate location
 
 /**
  * TBC Memory Plugin for HAMI.
@@ -38,7 +37,6 @@ const TBCMemoryPlugin = createPlugin(
         MemPrimeFlow as any,
         MemStubFlow as any,
         RememberFlow as any,
-        SynthesizeRecordNode as any,
     ],
     "TBC Memory Plugin - Memory operations for TBC",
 );

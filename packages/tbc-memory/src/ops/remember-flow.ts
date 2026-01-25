@@ -30,10 +30,10 @@ const FlowConfigSchema: ValidationSchema = {
  * Maps record_type to the specific providers and ID strategies.
  */
 const RECORD_PROTOCOLS: Record<string, { provider: string; idType: 'tbc-mint:uuid-mint' | 'tbc-mint:tsid-mint' }> = {
-    note: { provider: 'memory-core', idType: 'tbc-mint:uuid-mint' },
-    goal: { provider: 'memory-core', idType: 'tbc-mint:uuid-mint' },
-    log: { provider: 'memory-core', idType: 'tbc-mint:uuid-mint' },
-    party: { provider: 'memory-core', idType: 'tbc-mint:uuid-mint' },
+    note: { provider: 'tbc-system:synthesize-record', idType: 'tbc-mint:uuid-mint' },
+    goal: { provider: 'tbc-system:synthesize-record', idType: 'tbc-mint:uuid-mint' },
+    log: { provider: 'tbc-system:synthesize-record', idType: 'tbc-mint:uuid-mint' },
+    party: { provider: 'tbc-system:synthesize-record', idType: 'tbc-mint:uuid-mint' },
 };
 
 class RememberFlowStartNode extends HAMINode<Shared, FlowConfig> {

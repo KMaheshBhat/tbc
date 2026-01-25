@@ -10,6 +10,7 @@ import { LoadSystemAssetsNode } from "./ops/load-system-asset.js";
 import { PrepareRecordsManifestNode } from "./ops/prepare-records-manifest.js";
 import { SynthesizeMemRecordsNode } from "./ops/synthesize-mem-records.js";
 import { SynthesizeSysRecordsNode } from "./ops/synthesize-sys-records.js";
+import { SynthesizeRecordNode } from "./ops/synthesize-record.js";
 import { ProbeNode } from "./ops/probe.js";
 import { ValidateSystemNode } from "./ops/validate-system.js";
 import { GenerateRoleDefinitionNode } from "./ops/generate-role-definition.js";
@@ -35,6 +36,7 @@ import { DexRebuildFlow } from "./ops/dex-rebuild-flow.js";
  * - `tbc-system:prepare-records-manifest`: Recreates the stage.manifest from stage.records
  * - `tbc-system:synthesize-mem-records`: Generates initial Party (companion and prime) and Structure (map of memory) records
  * - `tbc-system:synthesize-sys-records`: Generates system specification and connection records records
+ * - `tbc-system:synthesize-record`: Generates a single record for a given type using core templates
  * - `tbc-system:probe`: Probes the environment for TBC CLI version and OS/shell information
  * - `tbc-system:validate-system`: Validates the loaded system manifest
  * - `tbc-system:generate-role-definition`: Generates standard TBC role definition for AI integrations
@@ -59,6 +61,7 @@ const TBCSystemPlugin = createPlugin(
         PrepareRecordsManifestNode as any,
         SynthesizeMemRecordsNode as any,
         SynthesizeSysRecordsNode as any,
+        SynthesizeRecordNode as any,
         ProbeNode as any,
         ValidateSystemNode as any,
         GenerateRoleDefinitionNode as any,

@@ -56,7 +56,7 @@ export class SynthesizeRecordFlow extends HAMIFlow<Shared, FlowConfig> {
         assert(activeRequests.length > 0, `Synthesis Error: No requests found in config or stage.${this.config.requestsKey}`);
 
         // Validation: Ensure all provider nodes exist using activeRequests
-        const providerNodes = [... new Set(activeRequests.map(r => `tbc-synthesize-${r.provider}:synthesize`))];
+        const providerNodes = [... new Set(activeRequests.map(r => r.provider))];
         for (const nodeKind of providerNodes) {
             assert(
                 shared.registry.hasNodeClass(nodeKind),
@@ -78,7 +78,7 @@ export class SynthesizeRecordFlow extends HAMIFlow<Shared, FlowConfig> {
         for (const [i, request] of activeRequests.entries()) {
             const isLast = i === activeRequests.length - 1;
             const targetNext = isLast ? finalNodeSequence : new Node();
-            const nodeKind = `tbc-synthesize-${request.provider}:synthesize`;
+            const nodeKind = request.provider;
 
             tailNode
                 .next(n('core:mutate', {
