@@ -46,14 +46,14 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
                 'record.query': 'queryAllIDs',
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:query-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('core:assign', {
                 'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: this.config.verbose,
             }))
             .next(groupRecords)
@@ -65,7 +65,7 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
                 'record.records': 'records',
             }))
             .next(n('tbc-record:store-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('core:log-result', {

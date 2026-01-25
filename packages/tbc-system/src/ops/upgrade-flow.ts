@@ -175,7 +175,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -198,7 +198,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -221,7 +221,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -246,7 +246,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -287,7 +287,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(stageRecords(shared.registry, s => `${s.stage.sysCollection}/core`))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
                 syncIndex: false,
@@ -295,7 +295,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/core`))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
                 syncIndex: false,
@@ -382,7 +382,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {

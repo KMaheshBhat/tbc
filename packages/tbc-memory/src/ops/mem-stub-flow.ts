@@ -43,7 +43,7 @@ export class MemStubFlow extends HAMIFlow<Record<string, any>, MemStubFlowConfig
                 'record.IDs': 'IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-memory:extract-companion-id'))
@@ -53,7 +53,7 @@ export class MemStubFlow extends HAMIFlow<Record<string, any>, MemStubFlowConfig
                 'record.IDs': 'IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-memory:extract-companion-name'))
@@ -65,7 +65,7 @@ export class MemStubFlow extends HAMIFlow<Record<string, any>, MemStubFlowConfig
                 'record.records': 'records',
             }))
             .next(n('tbc-record:store-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('core:log-result', {

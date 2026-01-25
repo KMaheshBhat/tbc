@@ -46,7 +46,7 @@ export class RefreshSkillsFlow extends HAMIFlow<Record<string, any>, RefreshSkil
                 'record.records': 'records',
             }))
             .next(n('tbc-record:store-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('core:log-result', {

@@ -38,12 +38,12 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         // Wire the flow
         this.startNode
             .next(n('tbc-system:resolve'))
-            .next(n('core:assign', { 
+            .next(n('core:assign', {
                 'record.collection': 'rootCollection',
                 'record.IDs': 'rootIDs',
             }))
-            .next(n('tbc-record:fetch-records-flow',{ 
-                recordProviders: ['fs'],
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('core:assign', {
@@ -51,23 +51,23 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
                 'record.query': 'queryAllIDs',
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:query-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('core:assign', {
                 'record.IDs': 'record.result.IDs'
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-dex:generate-dex-core'))
-            .next(n('core:assign', { 
+            .next(n('core:assign', {
                 'record.collection': 'collection',
                 'record.records': 'records',
             }))
             .next(n('tbc-record:store-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('core:log-result', {

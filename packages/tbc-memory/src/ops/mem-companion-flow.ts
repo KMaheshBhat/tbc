@@ -43,7 +43,7 @@ export class MemCompanionFlow extends HAMIFlow<Record<string, any>, MemCompanion
                 'record.IDs': 'IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-memory:extract-companion-id'));
@@ -55,7 +55,7 @@ export class MemCompanionFlow extends HAMIFlow<Record<string, any>, MemCompanion
                     'record.IDs': 'IDs',
                 }))
                 .next(n('tbc-record:fetch-records-flow', {
-                    recordProviders: ['fs'],
+                    recordProviders: ['tbc-record-fs:fetch-records'],
                     verbose: this.config.verbose,
                 }))
                 .next(n('tbc-memory:extract-companion-name'));
@@ -65,10 +65,10 @@ export class MemCompanionFlow extends HAMIFlow<Record<string, any>, MemCompanion
                 .next(n('tbc-memory:extract-companion-record'));
         }
         const resultKey = this.config.show === 'id' ? 'companionId' :
-                         this.config.show === 'name' ? 'companionName' : 'companionRecord';
+            this.config.show === 'name' ? 'companionName' : 'companionRecord';
         const format = this.config.show === 'full' ? 'table' : 'text';
         const prefix = this.config.show === 'id' ? 'Companion ID:' :
-                      this.config.show === 'name' ? 'Companion Name:' : 'Companion Record:';
+            this.config.show === 'name' ? 'Companion Name:' : 'Companion Record:';
         flow.next(n('core:log-result', {
             resultKey,
             format,

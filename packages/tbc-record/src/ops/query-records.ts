@@ -55,7 +55,7 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         const n = shared.registry.createNode.bind(shared.registry);
         const providers = this.config.recordProviders || [];
         for (const provider of providers) {
-            const nodeKind = `tbc-record-${provider}:query-records`;
+            const nodeKind = provider;
             assert(
                 shared.registry.hasNodeClass(nodeKind),
                 `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`
@@ -75,7 +75,7 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                         shared.record!.result = undefined;
                     }
                 }))
-                .next(n(`tbc-record-${provider}:query-records`))
+                .next(n(provider))
                 .next(new AccumulateQueryNode())
                 .next(targetNext);
             tailNode = targetNext;

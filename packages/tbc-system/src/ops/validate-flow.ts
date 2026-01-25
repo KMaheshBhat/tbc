@@ -95,14 +95,14 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 }
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:query-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
                 'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
@@ -120,14 +120,14 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 }
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:query-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
                 'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
@@ -145,14 +145,14 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 }
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:query-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
                 'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
@@ -170,14 +170,14 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 }
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:query-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
                 'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
@@ -229,7 +229,7 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 }
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:mutate', {

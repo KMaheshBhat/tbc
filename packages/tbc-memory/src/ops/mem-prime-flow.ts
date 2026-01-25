@@ -43,7 +43,7 @@ export class MemPrimeFlow extends HAMIFlow<Record<string, any>, MemPrimeFlowConf
                 'record.IDs': 'IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-memory:extract-prime-id'));
@@ -55,7 +55,7 @@ export class MemPrimeFlow extends HAMIFlow<Record<string, any>, MemPrimeFlowConf
                     'record.IDs': 'IDs',
                 }))
                 .next(n('tbc-record:fetch-records-flow', {
-                    recordProviders: ['fs'],
+                    recordProviders: ['tbc-record-fs:fetch-records'],
                     verbose: this.config.verbose,
                 }))
                 .next(n('tbc-memory:extract-prime-name'));
@@ -65,10 +65,10 @@ export class MemPrimeFlow extends HAMIFlow<Record<string, any>, MemPrimeFlowConf
                 .next(n('tbc-memory:extract-prime-record'));
         }
         const resultKey = this.config.show === 'id' ? 'primeId' :
-                          this.config.show === 'name' ? 'primeName' : 'primeRecord';
+            this.config.show === 'name' ? 'primeName' : 'primeRecord';
         const format = this.config.show === 'full' ? 'table' : 'text';
         const prefix = this.config.show === 'id' ? 'Prime ID:' :
-                       this.config.show === 'name' ? 'Prime Name:' : 'Prime Record:';
+            this.config.show === 'name' ? 'Prime Name:' : 'Prime Record:';
         flow.next(n('core:log-result', {
             resultKey,
             format,

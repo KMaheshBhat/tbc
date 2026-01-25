@@ -44,7 +44,7 @@ export class IntGeminiCliFlow extends HAMIFlow<Record<string, any>, IntGeminiCli
                 'record.IDs': 'IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-memory:extract-companion-id'))
@@ -54,7 +54,7 @@ export class IntGeminiCliFlow extends HAMIFlow<Record<string, any>, IntGeminiCli
                 'record.IDs': 'IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-memory:extract-companion-name'))
@@ -66,7 +66,7 @@ export class IntGeminiCliFlow extends HAMIFlow<Record<string, any>, IntGeminiCli
                 'record.records': 'records',
             }))
             .next(n('tbc-record:store-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
                 verbose: this.config.verbose,
             }))
             .next(logTableNode(shared['registry'], 'storeResults'));

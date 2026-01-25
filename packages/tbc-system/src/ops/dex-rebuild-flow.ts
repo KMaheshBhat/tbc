@@ -131,14 +131,14 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 'record.query': 'stage.query',
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:query-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
                 'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:fetch-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:assign', {
@@ -156,7 +156,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 }
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:query-records'],
                 verbose: shared.stage.verbose,
             }))
             .next(n('tbc-system:prepare-records-manifest'))
@@ -202,7 +202,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
-                recordProviders: ['fs'],
+                recordProviders: ['tbc-record-fs:store-records'],
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
