@@ -13,8 +13,6 @@ const BUILD_ORDER = [
   [
     "@tbc-frameworx/tbc-record-fs",
     "@tbc-frameworx/tbc-record-sqlite",
-    "@tbc-frameworx/tbc-mint-uuid",
-    "@tbc-frameworx/tbc-mint-tsid",
   ],
   [
     "@tbc-frameworx/tbc-system"

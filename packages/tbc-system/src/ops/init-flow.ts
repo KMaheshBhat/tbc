@@ -163,9 +163,9 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-mint:mint-ids-flow', {
                 requests: [
-                    { type: 'uuid', 'key': 'companionID' },
-                    { type: 'uuid', 'key': 'primeID' },
-                    { type: 'uuid', 'key': 'memoryMapID' },
+                    { type: 'tbc-mint:uuid-mint', 'key': 'companionID' },
+                    { type: 'tbc-mint:uuid-mint', 'key': 'primeID' },
+                    { type: 'tbc-mint:uuid-mint', 'key': 'memoryMapID' },
                 ],
             }))
             .next(n('tbc-system:add-minted-messages', {

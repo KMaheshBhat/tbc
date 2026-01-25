@@ -66,7 +66,7 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
         assert(activeRequests.length > 0, `MintIDsFlow Error: No requests found in config or stage.${this.config.requestsKey}`);
         const providers = [... new Set(activeRequests.map(r => r.type))];
         for (const provider of providers) {
-            const nodeKind = `tbc-mint-${provider}:mint`;
+            const nodeKind = provider;
             assert(
                 shared.registry.hasNodeClass(nodeKind),
                 `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`
@@ -81,7 +81,7 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
         for (const [i, request] of activeRequests.entries()) {
             const isLast = i === activeRequests.length - 1;
             const targetNext = isLast ? finalNodeSequence : new Node();
-            const nodeKind = `tbc-mint-${request.type}:mint`;
+            const nodeKind = request.type;
             tailNode
                 .next(n('core:mutate', {
                     mutate: async (shared: Shared) => {

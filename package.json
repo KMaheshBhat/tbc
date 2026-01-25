@@ -14,8 +14,6 @@
     "record-sqlite:build": "bun run --filter='@tbc-frameworx/tbc-record-sqlite' build",
     "mint:build": "bun run --filter='@tbc-frameworx/tbc-mint' build",
     "synthesize:build": "bun run --filter='@tbc-frameworx/tbc-synthesize' build",
-    "mint-uuid:build": "bun run --filter='@tbc-frameworx/tbc-mint-uuid' build",
-    "mint-tsid:build": "bun run --filter='@tbc-frameworx/tbc-mint-tsid' build",
     "dex:build": "bun run --filter='@tbc-frameworx/tbc-dex' build",
     "write:build": "bun run --filter='@tbc-frameworx/tbc-write' build",
     "system:build": "bun run --filter='@tbc-frameworx/tbc-system' build",

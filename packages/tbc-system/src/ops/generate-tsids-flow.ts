@@ -65,7 +65,7 @@ export class GenerateTSIDsFlow extends HAMIFlow<Record<string, any>, FlowConfig>
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-mint:mint-ids-flow', {
                 requests: [
-                    { type: 'tsid', 'count': this.config.count },
+                    { type: 'tbc-mint:tsid-mint', 'count': this.config.count },
                 ],
             }))
             .next(n('tbc-system:add-minted-messages', {
