@@ -22,6 +22,7 @@ const BUILD_ORDER = [
   ],
   [
     "@tbc-frameworx/tbc-write",
+    "@tbc-frameworx/tbc-view",
   ],
   [
     "@tbc-frameworx/tbc-memory",

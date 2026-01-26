@@ -5,6 +5,7 @@ import { TBCMintPlugin } from '@tbc-frameworx/tbc-mint';
 import { TBCSynthesizePlugin } from '@tbc-frameworx/tbc-synthesize';
 import { TBCDexPlugin } from '@tbc-frameworx/tbc-dex';
 import { TBCWritePlugin } from '@tbc-frameworx/tbc-write';
+import { TBCViewPlugin } from '@tbc-frameworx/tbc-view';
 import { TBCSystemPlugin } from '@tbc-frameworx/tbc-system';
 import { TBCInterfacePlugin } from '@tbc-frameworx/tbc-interface';
 import { TBCMemoryPlugin } from '@tbc-frameworx/tbc-memory';
@@ -23,6 +24,7 @@ export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }
     await registry.registerPlugin(TBCSynthesizePlugin);
     await registry.registerPlugin(TBCDexPlugin);
     await registry.registerPlugin(TBCWritePlugin);
+    await registry.registerPlugin(TBCViewPlugin);
     await registry.registerPlugin(TBCSystemPlugin);
     await registry.registerPlugin(TBCInterfacePlugin);
     await registry.registerPlugin(TBCMemoryPlugin);
