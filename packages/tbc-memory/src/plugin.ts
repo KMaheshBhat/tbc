@@ -12,6 +12,7 @@ import { MemPrimeFlow } from "./ops/mem-prime-flow.js";
 import { MemStubFlow } from "./ops/mem-stub-flow.js";
 import { RememberFlow } from "./ops/remember-flow.js";
 import { RecallFlow } from "./ops/recall-flow.js";
+import { AddRecallMessagesNode } from "./ops/add-recall-messages.js";
 
 /**
  * TBC Memory Plugin for HAMI.
@@ -22,6 +23,7 @@ import { RecallFlow } from "./ops/recall-flow.js";
  * - `tbc-memory:extract-companion-record`: Extracts companion record from memory
  * - `tbc-memory:remember-flow`: Creates a memory records
  * - `tbc-memory:recall-flow`: Retrieves identity and memory records
+ * - `tbc-memory:add-recall-messages`: Adds recalled records from view into system messsages
  * - Memory flows for companion operations
  */
 const TBCMemoryPlugin = createPlugin(
@@ -40,6 +42,7 @@ const TBCMemoryPlugin = createPlugin(
         MemStubFlow as any,
         RememberFlow as any,
         RecallFlow as any,
+        AddRecallMessagesNode as any,
     ],
     "TBC Memory Plugin - Memory operations for TBC",
 );

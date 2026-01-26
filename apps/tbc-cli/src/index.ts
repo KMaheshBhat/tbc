@@ -418,6 +418,7 @@ let cmdMemRecall = new Command('recall')
     .description('Recall memories or identity information')
     .argument('[query]', 'Search query (e.g., "companion", "prime", or a keyword)')
     .option('-t, --type <type>', 'Filter by record type (note, goal, log, party, structure)')
+    .option('-l, --limit <number>', 'Limit the number of results', parseInt, 10)
     .action(async (query, opts) => {
         try {
             const cliOpts = program.opts();
@@ -429,6 +430,7 @@ let cmdMemRecall = new Command('recall')
                 rootDirectory: root,
                 query: query,
                 type: opts.type,
+                limit: opts.limit,
             });
 
             await recallFlow.run({

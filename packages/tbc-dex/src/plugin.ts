@@ -30,6 +30,7 @@ import { ViewAuditFlow } from "./ops/view-audit-flow.js";
 import { CollateDigestNode } from "./ops/collate-digest.js";
 import { CollateMetadataIndexNode } from "./ops/collate-metadata-index.js";
 import { SyncIncrementalIndexNode } from "./ops/sync-incremental-index.js";
+import { QueryIndicesNode } from "./ops/query-indices.js";
 
 /**
  * TBC View Plugin for HAMI.
@@ -58,6 +59,7 @@ import { SyncIncrementalIndexNode } from "./ops/sync-incremental-index.js";
  * - `tbc-dex:collate-digest`: Collates a root and system definitions
  * - `tbc-dex:collate-metadata-index`: Collates JSONL based index from metadata of records
  * - `tbc-dex:sync-incremental-index`: Incremental update of JSONL based index for dirty records
+ * - `tbc-dex:query-indices`: Query indices for provided query term
  */
 const TBCDexPlugin = createPlugin(
     "@tbc-frameworx/tbc-dex",
@@ -92,6 +94,7 @@ const TBCDexPlugin = createPlugin(
         CollateDigestNode as any,
         CollateMetadataIndexNode as any,
         SyncIncrementalIndexNode as any,
+        QueryIndicesNode as any,
     ],
     "TBC View Plugin - Index generation, refresh operations, and SRE health checks",
 );

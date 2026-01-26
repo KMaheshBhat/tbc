@@ -30,12 +30,11 @@
         "@tbc-frameworx/tbc-kilocode": "^0.1.0",
         "@tbc-frameworx/tbc-memory": "^0.1.0",
         "@tbc-frameworx/tbc-mint": "^0.1.0",
-        "@tbc-frameworx/tbc-mint-tsid": "^0.1.0",
-        "@tbc-frameworx/tbc-mint-uuid": "^0.1.0",
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "@tbc-frameworx/tbc-record-fs": "^0.1.0",
         "@tbc-frameworx/tbc-synthesize": "^0.1.0",
         "@tbc-frameworx/tbc-system": "^0.4.0",
+        "@tbc-frameworx/tbc-view": "^0.1.0",
         "@tbc-frameworx/tbc-write": "^0.1.0",
         "commander": "^14.0.2",
         "pocketflow": "^1.0.4",
@@ -140,6 +139,7 @@
         "@tbc-frameworx/tbc-mint": "^0.1.0",
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "@tbc-frameworx/tbc-system": "^0.4.0",
+        "@tbc-frameworx/tbc-view": "^0.1.0",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -152,31 +152,6 @@
       "version": "0.1.0",
       "dependencies": {
         "@hami-frameworx/core": "0.1.4",
-        "uuidv7": "^1.0.2",
-      },
-      "devDependencies": {
-        "@types/node": "^20.0.0",
-        "typescript": "^5.0.0",
-      },
-    },
-    "packages/tbc-mint-tsid": {
-      "name": "@tbc-frameworx/tbc-mint-tsid",
-      "version": "0.1.0",
-      "dependencies": {
-        "@hami-frameworx/core": "0.1.4",
-        "@tbc-frameworx/tbc-mint": "^0.1.0",
-      },
-      "devDependencies": {
-        "@types/node": "^20.0.0",
-        "typescript": "^5.0.0",
-      },
-    },
-    "packages/tbc-mint-uuid": {
-      "name": "@tbc-frameworx/tbc-mint-uuid",
-      "version": "0.1.0",
-      "dependencies": {
-        "@hami-frameworx/core": "0.1.4",
-        "@tbc-frameworx/tbc-mint": "^0.1.0",
         "uuidv7": "^1.0.2",
       },
       "devDependencies": {
@@ -243,11 +218,26 @@
         "@hami-frameworx/core": "0.1.4",
         "@tbc-frameworx/tbc-mint": "^0.1.0",
         "@tbc-frameworx/tbc-record": "^0.1.0",
+        "@tbc-frameworx/tbc-synthesize": "^0.1.0",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
         "@types/node": "^20.0.0",
         "shx": "^0.4.0",
+        "typescript": "^5.0.0",
+      },
+    },
+    "packages/tbc-view": {
+      "name": "@tbc-frameworx/tbc-view",
+      "version": "0.1.0",
+      "dependencies": {
+        "@hami-frameworx/core": "0.1.4",
+        "@tbc-frameworx/tbc-record": "^0.1.0",
+        "@tbc-frameworx/tbc-system": "^0.4.0",
+        "pocketflow": "^1.0.4",
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
         "typescript": "^5.0.0",
       },
     },
@@ -295,10 +285,6 @@
 
     "@tbc-frameworx/tbc-mint": ["@tbc-frameworx/tbc-mint@workspace:packages/tbc-mint"],
 
-    "@tbc-frameworx/tbc-mint-tsid": ["@tbc-frameworx/tbc-mint-tsid@workspace:packages/tbc-mint-tsid"],
-
-    "@tbc-frameworx/tbc-mint-uuid": ["@tbc-frameworx/tbc-mint-uuid@workspace:packages/tbc-mint-uuid"],
-
     "@tbc-frameworx/tbc-record": ["@tbc-frameworx/tbc-record@workspace:packages/tbc-record"],
 
     "@tbc-frameworx/tbc-record-fs": ["@tbc-frameworx/tbc-record-fs@workspace:packages/tbc-record-fs"],
@@ -308,6 +294,8 @@
     "@tbc-frameworx/tbc-synthesize": ["@tbc-frameworx/tbc-synthesize@workspace:packages/tbc-synthesize"],
 
     "@tbc-frameworx/tbc-system": ["@tbc-frameworx/tbc-system@workspace:packages/tbc-system"],
+
+    "@tbc-frameworx/tbc-view": ["@tbc-frameworx/tbc-view@workspace:packages/tbc-view"],
 
     "@tbc-frameworx/tbc-write": ["@tbc-frameworx/tbc-write@workspace:packages/tbc-write"],
 

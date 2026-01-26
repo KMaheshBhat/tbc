@@ -8,6 +8,7 @@ interface FlowConfig {
     rootDirectory?: string;
     query?: string;
     type?: string;
+    limit?: number,
 }
 
 const FlowConfigSchema: ValidationSchema = {
@@ -17,6 +18,7 @@ const FlowConfigSchema: ValidationSchema = {
         rootDirectory: { type: "string" },
         query: { type: "string" },
         type: { type: "string" },
+        limit: { type: "number" },
     }
 };
 
@@ -30,7 +32,7 @@ class RecallFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
 
-        // Capture inputs for downstream nodes
+        shared.view = shared.view || { query: '', matches: [], records: [] };
         shared.stage.recallQuery = shared.query || this.config?.query;
         shared.stage.recallType = shared.type || this.config?.type;
 
@@ -103,24 +105,54 @@ export class RecallFlow extends HAMIFlow<Shared, FlowConfig> {
             }
         });
 
-        // --- SEARCH SEQUENCE (The "Main" Recall) ---
-        // This will eventually live in your proposed 'view-records' style logic
+        // --- SEARCH SEQUENCE (The "Main" Memory Recall) ---
         const searchSequence = new Node();
         searchSequence
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
-                    console.log('in search sequence');
+                    // Mapping recall inputs to the view contract
+                    s.view = s.view || { query: '', matches: [], records: [] };
+                    s.view.query = s.stage.recallQuery;
+                    s.view.type = s.stage.recallType;
+
+                    // Log for the dev/verbose mode
+                    if (s.stage.verbose) {
+                        console.log(`[RecallFlow] Searching DEX for: ${s.view.query} (Type: ${s.view.type || 'all'})`);
+                    }
+                }
+            }))
+            // This flow handles: Index Scan -> ID Mapping -> Record Fetching
+            .next(n('tbc-view:view-records-flow', {
+                query: this.config?.query,
+                type: this.config?.type,
+                limit: this.config?.limit,
+                recordFetchers: ['tbc-record-fs:fetch-records'],
+                verbose: this.config?.verbose
+            }))
+            .next(n('tbc-memory:add-recall-messages', {
+                title: 'Recalled Memories',
+                source: 'recall-flow'
+            }))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    if (s.view.records.length === 0) {
+                        shared.stage.messages.push({
+                            level: 'info',
+                            source: 'recall-flow',
+                            message: 'No memory records found.',
+                            suggestion: 'Try a different query!',
+                        });
+                    } else {
+                        shared.stage.messages.push({
+                            level: 'info',
+                            source: 'recall-flow',
+                            message: `Found ${s.view.records.length} memory record(s).`,
+                            suggestion: 'Lookup those record(s) to know more.',
+                        });
+                    }
                 }
             }))
             .next(n('tbc-system:log-and-clear-messages'));
-            /*
-            .next(n('tbc-dex:query-indices', {
-                query: this.config?.query,
-                type: this.config?.type
-            }))
-            .next(n('tbc-memory:display-memories'))
-            ;
-            */
 
         router.on('identity-companion', companionSequence);
         router.on('identity-prime', primeSequence);
@@ -134,7 +166,7 @@ export class RecallFlow extends HAMIFlow<Shared, FlowConfig> {
                     s.stage.messages.push({
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
-                        source: 'remember-flow',
+                        source: 'recall-flow',
                         message: `has no existing companion (not a valid TBC Root)`,
                         suggestion: 'Use "tbc sys init" instead.',
                     });

@@ -5,21 +5,22 @@ import { Shared } from "../types";
 
 interface FlowConfig {
     verbose: boolean;
-    recordStorers: string[];
-    sourcePath: string;
-    collection: string; // name of collection key in stage
-    syncIndex: boolean;
+    query: string;
+    type?: string;
+    recordFetchers: string[];
+    limit?: number;
 }
 
 const FlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         verbose: { type: "boolean" },
-        recordStorers: { type: "array", items: { type: "string" } },
-        sourcePath: { type: "string" },
-        collection: { type: "string" },
+        query: { type: "string" },
+        type: { type: "string" },
+        recordFetchers: { type: "array", items: { type: "string" } },
+        limit: { type: "number" }
     },
-    required: ['verbose', 'recordStorers', 'sourcePath', 'collection'],
+    required: ['verbose', 'recordFetchers'],
 };
 
 class ViewRecordsStartNode extends HAMINode<Shared, FlowConfig> {
@@ -28,13 +29,19 @@ class ViewRecordsStartNode extends HAMINode<Shared, FlowConfig> {
     }
 
     async post(shared: Shared): Promise<string> {
-        // Ensure shared.system exists as we rely on it for rootDirectory indirection
         assert(shared.system?.rootDirectory, "shared.system.rootDirectory is required for ViewRecordsFlow");
+
+        // Initialize the view namespace
+        shared.view = shared.view || {
+            matches: [],
+            records: []
+        };
+
         return "default";
     }
 }
 
-export class ViewRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
+export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
     startNode: Node;
 
     constructor(config: FlowConfig) {
@@ -50,6 +57,122 @@ export class ViewRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
     async prep(shared: Shared): Promise<void> {
         assert(this.config, 'flow must be configured');
         assert(shared.registry, 'registry is required');
+        const config = this.config;
+        const n = shared.registry.createNode.bind(shared.registry);
+
+        this.startNode
+            // 0. Load DEX
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.record.query = {
+                        type: 'list-all-ids',
+                    };
+                    s.record.collection = 'dex';
+                }
+            }))
+            .next(n('tbc-record:query-records-flow', {
+                recordProviders: ['tbc-record-fs:query-records'],
+                verbose: this.config.verbose,
+            }))
+            .next(n('core:assign', {
+                'record.IDs': 'record.result.IDs'
+            }))
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['tbc-record-fs:fetch-records'],
+                verbose: this.config.verbose,
+            }))
+            .next(n('tbc-system:prepare-records-manifest'))
+            // 1. Setup Query
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.view = s.view || { query: '', matches: [], records: [] };
+                    s.view.query = config.query;
+                    s.view.type = config.type;
+                }
+            }))
+            // 2. Query DEX 
+            .next(n('tbc-dex:query-indices', {
+                query: config.query,
+                type: config.type,
+                limit: config.limit || 10,
+                outputKey: 'viewMatches' // Tell DEX where to put the results in shared.stage
+            }))
+            // 3. Map Stage to View
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    // Clear previous pollution from Step 0
+                    s.record.IDs = [];
+                    s.view.matches = s.stage.viewMatches || [];
+                    // Only fetch the IDs found by the DEX search
+                    s.record.IDs = s.view.matches.map((m: any) => m.id);
+                    s.record.collection = 'mem';
+                    s.record.result = undefined;
+                }
+            }))
+            // 4. Execute Settled Fetch Logic
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: config.recordFetchers, // Pass the fetcher kinds
+                verbose: config.verbose
+            }))
+            // 5. Project Results & Reporting
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    // 1. Extract and Flatten Records from the fetch-records-flow result
+                    const incoming = s.record.result?.records || {};
+                    const flattened: any[] = [];
+
+                    for (const col in incoming) {
+                        for (const id in incoming[col]) {
+                            const r = incoming[col][id];
+
+                            // Normalize the record structure for the View layer
+                            const normalizedRecord = {
+                                ...r,
+                                // Priority: specific field > generic field > fallback ID
+                                title: r.record_title || r.title || id,
+                                type: r.record_type || r.type || 'memory',
+                                id: r.id || id
+                            };
+
+                            flattened.push(normalizedRecord);
+                        }
+                    }
+
+                    // 2. Finalize the view state
+                    s.view.records = flattened;
+
+                    // 3. Reporting and CLI Output Generation
+                    const count = flattened.length;
+                    const queryDisplay = s.view.query || '*';
+
+                    if (count > 0) {
+                        // Standard summary message
+                        s.stage.messages.push({
+                            level: 'debug',
+                            source: 'view-records-flow',
+                            message: `Found ${count} record(s) matching "${queryDisplay}".`,
+                        });
+
+                        // Detailed recall messages for the CLI capture
+                        // This generates the "Recalled: [type] title" strings the test expects
+                        flattened.forEach(r => {
+                            s.stage.messages.push({
+                                level: 'debug',
+                                source: 'view-records-flow',
+                                message: `Recalled: [${r.type}] ${r.title}`
+                            });
+                        });
+                    } else {
+                        s.stage.messages.push({
+                            level: 'warn',
+                            source: 'view-records-flow',
+                            message: `No records found matching query: "${queryDisplay}"`,
+                            suggestion: 'Try a different keyword or check your index partitions.'
+                        });
+                    }
+                }
+            }))
+            ;
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
@@ -58,10 +181,5 @@ export class ViewRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             valid: result.isValid,
             errors: result.errors || [],
         };
-    }
-
-    protected resolvePath(obj: any, path: string): any {
-        if (!path || !obj) return undefined;
-        return path.split('.').reduce((prev, curr) => (prev ? prev[curr] : undefined), obj);
     }
 }

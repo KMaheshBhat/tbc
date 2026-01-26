@@ -34,8 +34,8 @@ export class AddManifestMessagesNode extends HAMINode<Shared, Config> {
     async prep(shared: Shared): Promise<Record<string, string[]>> {
         return shared.stage.manifest;
     }
-    
-async exec(manifest: Record<string, string[]>): Promise<TBCMessage[]> {
+
+    async exec(manifest: Record<string, string[]>): Promise<TBCMessage[]> {
         assert(this.config, "the add-manifest-messages must be configured");
         const messages: TBCMessage[] = [];
         const sortedEntries = Object.entries(manifest)

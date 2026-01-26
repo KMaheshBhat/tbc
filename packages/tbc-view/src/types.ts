@@ -2,31 +2,30 @@ import { HAMIRegistrationManager } from "@hami-frameworx/core";
 import { TBCRecord, TBCRecordOperation } from "@tbc-frameworx/tbc-record";
 import { TBCSystemOperation } from "@tbc-frameworx/tbc-system";
 
-type SharedStage = Record<string, any>;
+/** * Lean results from DEX (.jsonl). 
+ * Extracted into its own type for easier casting from stage.
+ */
+export type TBCViewMatch = {
+    id: string;
+    title: string;
+    tags: string[];
+    path: string;
+    type?: string; 
+};
 
 type TBCViewOperation = {
-    query: string;       // The user's search string
-    type?: string;       // Filter by record_type (note, goal, etc.)
-    matches: Array<{     // "Lean" results from DEX (.jsonl)
-        id: string;
-        title: string;
-        tags: string[];
-        path: string;
-    }>;
+    query?: string;
+    type?: string;
+    matches: TBCViewMatch[];
     records: TBCRecord[];
 }
 
 type Shared = {
-  /** HAMI registration manager for node creation and management. */
   registry: HAMIRegistrationManager;
-  /** Staged records and other details */
-  stage: SharedStage;
-  /** Current system operation */
+  stage: Record<string, any>; // Simplified SharedStage
   system: TBCSystemOperation;
-  /** Current record operaton */
   record: TBCRecordOperation;
+  view: TBCViewOperation;
 }
 
-export {
-  Shared,
-};
+export { Shared, TBCViewOperation };
