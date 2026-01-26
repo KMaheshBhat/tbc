@@ -382,36 +382,6 @@ program.addCommand(cmdDex);
 let cmdMem = new Command('mem')
     .description('Memory operations');
 
-let cmdMemCompanion = new Command('companion')
-    .description('Display companion information')
-    .option('--show <type>', 'What to show: id (default), name, or full', 'id')
-    .action(async (opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const show = opts.show as 'id' | 'name' | 'full';
-            if (!['id', 'name', 'full'].includes(show)) {
-                console.error('Error: --show must be one of: id, name, full');
-                process.exit(1);
-            }
-            const memCompanionFlow = registry.createNode('tbc-memory:mem-companion-flow', {
-                verbose: isVerbose,
-                show: show,
-            });
-            await memCompanionFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during mem companion:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdMem.addCommand(cmdMemCompanion);
-
 let cmdMemRemember = new Command('remember')
     .description('Persist a thought, fact, or stub to memory')
     .argument('[content]', 'The content of the memory')
@@ -443,6 +413,64 @@ let cmdMemRemember = new Command('remember')
     });
 
 cmdMem.addCommand(cmdMemRemember);
+
+let cmdMemRecall = new Command('recall')
+    .description('Recall memories or identity information')
+    .argument('[query]', 'Search query (e.g., "companion", "prime", or a keyword)')
+    .option('-t, --type <type>', 'Filter by record type (note, goal, log, party, structure)')
+    .action(async (query, opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+
+            const recallFlow = registry.createNode('tbc-memory:recall-flow', {
+                verbose: isVerbose,
+                rootDirectory: root,
+                query: query,
+                type: opts.type,
+            });
+
+            await recallFlow.run({
+                registry: registry,
+            });
+        } catch (error) {
+            console.error('Error during memory recall:', error);
+            process.exit(1);
+        }
+    });
+
+cmdMem.addCommand(cmdMemRecall);
+
+let cmdMemCompanion = new Command('companion')
+    .description('Display companion information')
+    .option('--show <type>', 'What to show: id (default), name, or full', 'id')
+    .action(async (opts) => {
+        try {
+            const cliOpts = program.opts();
+            const isVerbose = !!cliOpts.verbose;
+            const root = cliOpts.root;
+            const show = opts.show as 'id' | 'name' | 'full';
+            if (!['id', 'name', 'full'].includes(show)) {
+                console.error('Error: --show must be one of: id, name, full');
+                process.exit(1);
+            }
+            const memCompanionFlow = registry.createNode('tbc-memory:mem-companion-flow', {
+                verbose: isVerbose,
+                show: show,
+            });
+            await memCompanionFlow.run({
+                registry: registry,
+                opts: { verbose: isVerbose },
+                root: root,
+            });
+        } catch (error) {
+            console.error('Error during mem companion:', error);
+            process.exit(1);
+        }
+        return;
+    });
+cmdMem.addCommand(cmdMemCompanion);
 
 let cmdMemPrime = new Command('prime')
     .description('Display prime user information')

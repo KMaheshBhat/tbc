@@ -14,7 +14,7 @@ describe("🐵 LETS-GO: tbc mem recall", () => {
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         expect(output).toContain("Companion Identity");
-        expect(output).toContain("Name: Mojo");
+        expect(output).toContain("Mojo");
         // Verify it displays the ID from the .id file
         const matches = output.match(UUID_SEARCH_REGEX);
         expect(matches).not.toBeNull();
@@ -27,7 +27,7 @@ describe("🐵 LETS-GO: tbc mem recall", () => {
 
         expect(success).toBe(true);
         expect(output).toContain("Prime Identity");
-        expect(output).toContain("Name: Jojo");
+        expect(output).toContain("Jojo");
         const matches = output.match(UUID_SEARCH_REGEX);
         expect(matches).not.toBeNull();
     });

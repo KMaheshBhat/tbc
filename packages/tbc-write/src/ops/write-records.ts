@@ -5,7 +5,7 @@ import { Shared } from "../types";
 
 interface FlowConfig {
     verbose: boolean;
-    recordProviders: string[];
+    recordStorers: string[];
     sourcePath: string;
     collection: string; // name of collection key in stage
     syncIndex: boolean;
@@ -15,16 +15,16 @@ const FlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         verbose: { type: "boolean" },
-        recordProviders: { type: "array", items: { type: "string" } },
+        recordStorers: { type: "array", items: { type: "string" } },
         sourcePath: { type: "string" },
         collection: { type: "string" },
     },
-    required: ['verbose', 'recordProviders', 'sourcePath', 'collection'],
+    required: ['verbose', 'recordStorers', 'sourcePath', 'collection'],
 };
 
 class WriteRecordsStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-system:write-records-flow-start";
+        return "tbc-write:write-records-flow-start";
     }
 
     async post(shared: Shared): Promise<string> {
@@ -80,7 +80,7 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
             // 2. Delegate Storage (The "Command" Side)
             // This node/flow is the authority on how to write 'raw', 'markdown', etc.
             .next(n('tbc-record:store-records-flow', {
-                recordProviders: this.config.recordProviders,
+                recordProviders: this.config.recordStorers,
                 verbose: this.config.verbose,
             }))
             // 3. Delegate Indexing (The "Query" Side)

@@ -10,4 +10,5 @@ export * from './ops/mem-companion-flow.js';
 export * from './ops/mem-prime-flow.js';
 export * from './ops/mem-stub-flow.js';
 export * from './ops/remember-flow.js';
+export * from './ops/recall-flow.js';
 export * from './plugin.js';

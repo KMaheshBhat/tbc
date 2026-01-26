@@ -16,6 +16,7 @@ type Shared = {
   content?: string;
   title?: string;
   type?: string;
+  query?: string;
   tags?: string[];
 }
 

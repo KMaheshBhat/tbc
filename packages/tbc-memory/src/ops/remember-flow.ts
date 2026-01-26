@@ -87,7 +87,8 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
         const n = shared.registry.createNode.bind(shared.registry);
 
         // --- ABORT SEQUENCE: System Guard ---
-        const abortSequence = new Node()
+        const abortSequence = new Node();
+        abortSequence
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
@@ -175,7 +176,7 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
             // 3. PERSISTENCE
             .next(n('tbc-write:write-records-flow', {
                 verbose: this.config?.verbose,
-                recordProviders: ['tbc-record-fs:store-records'],
+                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'record.records',
                 collection: 'memCollection',
                 syncIndex: true

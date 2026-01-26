@@ -6,6 +6,7 @@ import { LogAndClearMessagesNode } from "./ops/log-and-clear-messages.js";
 import { ResolveRootDirectoryNode } from "./ops/resolve-root-directory.js";
 import { AddMintedMessagesNode } from "./ops/add-minted-messages.js";
 import { AddManifestMessagesNode } from "./ops/add-manifest-messages.js";
+import { AddIdentityMessagesNode } from "./ops/add-identity-messages.js";
 import { LoadSystemAssetsNode } from "./ops/load-system-asset.js";
 import { PrepareRecordsManifestNode } from "./ops/prepare-records-manifest.js";
 import { SynthesizeMemRecordsNode } from "./ops/synthesize-mem-records.js";
@@ -32,6 +33,7 @@ import { DexRebuildFlow } from "./ops/dex-rebuild-flow.js";
  * - `tbc-system:resolve-root-directory`: Resolves working directory for TBC operations
  * - `tbc-system:add-minted-messages`: Stage messages based on minted IDs
  * - `tbc-system:add-manifest-messages`: Stage messages based on records manifest
+ * - `tbc-system:add-identity-messages`: Stage messages based on given target (companionRecord or primeRecord)
  * - `tbc-system:load-system-assets`: Loads system assets into shared stage records
  * - `tbc-system:prepare-records-manifest`: Recreates the stage.manifest from stage.records
  * - `tbc-system:synthesize-mem-records`: Generates initial Party (companion and prime) and Structure (map of memory) records
@@ -57,6 +59,7 @@ const TBCSystemPlugin = createPlugin(
         ResolveRootDirectoryNode as any,
         AddMintedMessagesNode as any,
         AddManifestMessagesNode as any,
+        AddIdentityMessagesNode as any,
         LoadSystemAssetsNode as any,
         PrepareRecordsManifestNode as any,
         SynthesizeMemRecordsNode as any,
