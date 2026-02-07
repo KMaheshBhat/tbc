@@ -1,13 +1,13 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class ValidateCloseStateNode extends HAMINode<TBCActivityStorage> {
+export class ValidateCloseStateNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:validate-close-state";
     }
 
-    async prep(shared: TBCActivityStorage): Promise<{ state: string | undefined; activityId: string }> {
+    async prep(shared: Shared): Promise<{ state: string | undefined; activityId: string }> {
         return { state: shared.activityState, activityId: shared.activityId! };
     }
 
@@ -17,7 +17,7 @@ export class ValidateCloseStateNode extends HAMINode<TBCActivityStorage> {
         }
     }
 
-    async post(shared: TBCActivityStorage, _prepRes: { state: string | undefined; activityId: string }, _execRes: void): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: { state: string | undefined; activityId: string }, _execRes: void): Promise<string | undefined> {
         shared.opts!.targetState = 'archive';
         return "default";
     }

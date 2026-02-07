@@ -3,14 +3,14 @@ import { join } from 'path';
 
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class MoveActivityDirectoryNode extends HAMINode<TBCActivityStorage> {
+export class MoveActivityDirectoryNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:move-activity-directory";
     }
 
-    async prep(shared: TBCActivityStorage): Promise<{ rootDir: string; activityId: string; sourceState?: string; targetState: string }> {
+    async prep(shared: Shared): Promise<{ rootDir: string; activityId: string; sourceState?: string; targetState: string }> {
         const rootDir = shared.rootDirectory || process.cwd();
         const activityId = shared.activityId!;
         const sourceState = shared.activityState; // if set, move from there
@@ -38,7 +38,7 @@ export class MoveActivityDirectoryNode extends HAMINode<TBCActivityStorage> {
         }
     }
 
-    async post(shared: TBCActivityStorage, _prepRes: { rootDir: string; activityId: string; sourceState?: string; targetState: string }, _execRes: void): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: { rootDir: string; activityId: string; sourceState?: string; targetState: string }, _execRes: void): Promise<string | undefined> {
         // Update state to target
         shared.activityState = _prepRes.targetState as any;
         return "default";

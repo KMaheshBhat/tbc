@@ -4,14 +4,14 @@ import { join } from 'path';
 
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class RemoveActivityRecordsNode extends HAMINode<TBCActivityStorage> {
+export class RemoveActivityRecordsNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:remove-activity-records";
     }
 
-    async prep(shared: TBCActivityStorage): Promise<{ rootDir: string; activityId: string }> {
+    async prep(shared: Shared): Promise<{ rootDir: string; activityId: string }> {
         const rootDir = shared.rootDirectory || process.cwd();
         const activityId = shared.activityId!;
         if (!activityId) {
@@ -43,7 +43,7 @@ export class RemoveActivityRecordsNode extends HAMINode<TBCActivityStorage> {
         }
     }
 
-    async post(_shared: TBCActivityStorage, _prepRes: { rootDir: string; activityId: string }, _execRes: void): Promise<string | undefined> {
+    async post(_shared: Shared, _prepRes: { rootDir: string; activityId: string }, _execRes: void): Promise<string | undefined> {
         return "default";
     }
 }

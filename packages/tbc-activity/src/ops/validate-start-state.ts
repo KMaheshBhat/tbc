@@ -1,13 +1,13 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class ValidateStartStateNode extends HAMINode<TBCActivityStorage> {
+export class ValidateStartStateNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:validate-start-state";
     }
 
-    async prep(shared: TBCActivityStorage): Promise<{ state: string | undefined; activityId: string }> {
+    async prep(shared: Shared): Promise<{ state: string | undefined; activityId: string }> {
         return { state: shared.activityState, activityId: shared.activityId! };
     }
 
@@ -20,7 +20,7 @@ export class ValidateStartStateNode extends HAMINode<TBCActivityStorage> {
         }
     }
 
-    async post(shared: TBCActivityStorage, _prepRes: string | undefined, _execRes: void): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: string | undefined, _execRes: void): Promise<string | undefined> {
         shared.opts!.targetState = 'current';
         return "default";
     }

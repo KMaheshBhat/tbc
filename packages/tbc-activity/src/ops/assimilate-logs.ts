@@ -1,13 +1,13 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class AssimilateLogsNode extends HAMINode<TBCActivityStorage> {
+export class AssimilateLogsNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:assimilate-logs";
     }
 
-    async prep(shared: TBCActivityStorage): Promise<{ activityId: string; rootDirectory: string }> {
+    async prep(shared: Shared): Promise<{ activityId: string; rootDirectory: string }> {
         if (!shared.activityId) {
             throw new Error("activityId is required");
         }
@@ -20,7 +20,7 @@ export class AssimilateLogsNode extends HAMINode<TBCActivityStorage> {
         // This node just prepares for the flow
     }
 
-    async post(shared: TBCActivityStorage, prepRes: { activityId: string; rootDirectory: string }, _execRes: void): Promise<string | undefined> {
+    async post(shared: Shared, prepRes: { activityId: string; rootDirectory: string }, _execRes: void): Promise<string | undefined> {
         // Set collection to fetch from activity directory
         shared.collection = `act/current/${prepRes.activityId}`;
         // IDs will be set by fetch-all-ids or similar

@@ -1,3 +1,7 @@
+import { HAMIRegistrationManager } from "@hami-frameworx/core";
+import { TBCSystemOperation } from "@tbc-frameworx/tbc-system";
+import { TBCRecordOperation } from "@tbc-frameworx/tbc-record";
+
 /**
  * Options for TBC activity operations.
  * Defines configuration flags that can be used across TBC activity operations.
@@ -13,12 +17,20 @@ type TBCActivityOpts = {
   targetState?: 'backlog' | 'current' | 'archive';
 }
 
+type SharedStage = Record<string, any>;
+
 /**
  * Shared storage interface for TBC activity operations.
  * Defines the structure of data that can be shared between TBC activity operation nodes.
  * Contains configuration options and results from various TBC activity operations.
  */
-type TBCActivityStorage = {
+type Shared = {
+  /** HAMI registration manager for node creation and management. */
+  registry: HAMIRegistrationManager;
+  stage: SharedStage;
+  system: TBCSystemOperation;
+  record: TBCRecordOperation;
+
   /** Optional configuration options for TBC activity operations. */
   opts?: TBCActivityOpts;
   /** Root directory for operations */
@@ -55,5 +67,5 @@ type TBCActivityStorage = {
 
 export {
   TBCActivityOpts,
-  TBCActivityStorage,
+  Shared,
 };

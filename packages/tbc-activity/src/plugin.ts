@@ -5,7 +5,6 @@ import { CheckActivityStateNode } from "./ops/check-activity-state.js";
 import { MoveActivityDirectoryNode } from "./ops/move-activity-directory.js";
 import { CreateActivityLogStubNode } from "./ops/create-activity-log-stub.js";
 import { AssimilateLogsNode } from "./ops/assimilate-logs.js";
-import { ActStartFlow } from "./ops/act-start-flow.js";
 import { ValidateStartStateNode } from "./ops/validate-start-state.js";
 import { ActBacklogFlow } from "./ops/act-backlog-flow.js";
 import { ValidateBacklogStateNode } from "./ops/validate-backlog-state.js";
@@ -15,6 +14,8 @@ import { PrepareCloseRecordsNode } from "./ops/prepare-close-records.js";
 import { RemoveActivityRecordsNode } from "./ops/remove-activity-records.js";
 import { ListActivityDirectoriesNode } from "./ops/list-activity-directories.js";
 import { ActShowFlow } from "./ops/act-show-flow.js";
+import { PrepareWorkspaceNode } from "./ops/prepare-workspace.js";
+import { ActStartFlow } from "./ops/act-start-flow.js";
 
 /**
  * TBC Activity Plugin for HAMI.
@@ -32,6 +33,8 @@ import { ActShowFlow } from "./ops/act-show-flow.js";
  * - `tbc-activity:remove-activity-records`: Removes record files from current activity directory
  * - `tbc-activity:list-activity-directories`: Lists activity directories in current and backlog
  * - Activity flows for start, backlog, close, and show operations
+ * - `tbc-activity:prepare-workspace`: Prepares workspace for activity
+ * - `tbc-activity:act-start-flow`: Flow for starting an activity
  */
 const TBCActivityPlugin = createPlugin(
     "@tbc-frameworx/tbc-activity",
@@ -43,7 +46,6 @@ const TBCActivityPlugin = createPlugin(
         CreateActivityLogStubNode as any,
         AssimilateLogsNode as any,
         ValidateStartStateNode as any,
-        ActStartFlow as any,
         ValidateBacklogStateNode as any,
         ActBacklogFlow as any,
         ValidateCloseStateNode as any,
@@ -52,6 +54,8 @@ const TBCActivityPlugin = createPlugin(
         RemoveActivityRecordsNode as any,
         ListActivityDirectoriesNode as any,
         ActShowFlow as any,
+        ActStartFlow as any,
+        PrepareWorkspaceNode as any,
     ],
     "TBC Activity Plugin - Activity operations for TBC",
 );

@@ -3,14 +3,14 @@ import { join } from 'path';
 
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class CheckActivityStateNode extends HAMINode<TBCActivityStorage> {
+export class CheckActivityStateNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:check-activity-state";
     }
 
-    async prep(shared: TBCActivityStorage): Promise<{ rootDir: string; activityId: string }> {
+    async prep(shared: Shared): Promise<{ rootDir: string; activityId: string }> {
         const rootDir = shared.rootDirectory || process.cwd();
         const activityId = shared.activityId!;
         if (!activityId) {
@@ -35,7 +35,7 @@ export class CheckActivityStateNode extends HAMINode<TBCActivityStorage> {
         return 'none';
     }
 
-    async post(shared: TBCActivityStorage, _prepRes: { rootDir: string; activityId: string }, execRes: 'backlog' | 'current' | 'archive' | 'none'): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: { rootDir: string; activityId: string }, execRes: 'backlog' | 'current' | 'archive' | 'none'): Promise<string | undefined> {
         shared.activityState = execRes === 'none' ? undefined : execRes;
         return "default";
     }

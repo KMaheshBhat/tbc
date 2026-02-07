@@ -8,4 +8,6 @@ import './20-sys.suite';
 import './30-mem-remember.suite';
 import './31-mem-recall.suite';
 
+import './40-act.suite';
+
 import './99-teardown.suite';

@@ -1,8 +1,8 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class PrepareCloseRecordsNode extends HAMINode<TBCActivityStorage> {
+export class PrepareCloseRecordsNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:prepare-close-records";
     }
@@ -13,7 +13,7 @@ export class PrepareCloseRecordsNode extends HAMINode<TBCActivityStorage> {
         return uuidV7Regex.test(id);
     }
 
-    async prep(shared: TBCActivityStorage): Promise<void> {
+    async prep(shared: Shared): Promise<void> {
         // No prep needed
     }
 
@@ -21,7 +21,7 @@ export class PrepareCloseRecordsNode extends HAMINode<TBCActivityStorage> {
         // No exec needed
     }
 
-    async post(shared: TBCActivityStorage, _prepRes: void, _execRes: void): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: void, _execRes: void): Promise<string | undefined> {
         const collectionResults = shared.fetchResults?.[shared.collection!];
         let records = collectionResults ? Object.values(collectionResults) : [];
 

@@ -1,13 +1,13 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class ValidateBacklogStateNode extends HAMINode<TBCActivityStorage> {
+export class ValidateBacklogStateNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:validate-backlog-state";
     }
 
-    async prep(shared: TBCActivityStorage): Promise<{ state: string | undefined; activityId: string }> {
+    async prep(shared: Shared): Promise<{ state: string | undefined; activityId: string }> {
         return { state: shared.activityState, activityId: shared.activityId! };
     }
 
@@ -17,7 +17,7 @@ export class ValidateBacklogStateNode extends HAMINode<TBCActivityStorage> {
         }
     }
 
-    async post(shared: TBCActivityStorage, _prepRes: string | undefined, _execRes: void): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: string | undefined, _execRes: void): Promise<string | undefined> {
         shared.opts!.targetState = 'backlog';
         return "default";
     }

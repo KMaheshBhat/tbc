@@ -1,15 +1,15 @@
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
 type CreateActivityLogStubNodeOutput = any[];
 
-export class CreateActivityLogStubNode extends HAMINode<TBCActivityStorage> {
+export class CreateActivityLogStubNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:create-activity-log-stub";
     }
 
-    async prep(shared: TBCActivityStorage): Promise<{ uuid: string; companionName: string; rootDirectory: string }> {
+    async prep(shared: Shared): Promise<{ uuid: string; companionName: string; rootDirectory: string }> {
         if (!shared.rootDirectory) {
             throw new Error("rootDirectory is required");
         }
@@ -60,7 +60,7 @@ This activity log captures the session for activity ${uuid}.
         return records;
     }
 
-    async post(shared: TBCActivityStorage, _prepRes: any, execRes: CreateActivityLogStubNodeOutput): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: any, execRes: CreateActivityLogStubNodeOutput): Promise<string | undefined> {
         shared.records = execRes;
         shared.collection = `act/current/${shared.activityId}`;
         if (execRes.length > 0) {

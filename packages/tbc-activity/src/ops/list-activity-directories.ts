@@ -3,14 +3,14 @@ import { join } from 'path';
 
 import { HAMINode } from "@hami-frameworx/core";
 
-import { TBCActivityStorage } from "../types.js";
+import { Shared } from "../types.js";
 
-export class ListActivityDirectoriesNode extends HAMINode<TBCActivityStorage> {
+export class ListActivityDirectoriesNode extends HAMINode<Shared> {
     kind(): string {
         return "tbc-activity:list-activity-directories";
     }
 
-    async prep(shared: TBCActivityStorage): Promise<{ rootDir: string }> {
+    async prep(shared: Shared): Promise<{ rootDir: string }> {
         const rootDir = shared.rootDirectory || process.cwd();
         return { rootDir };
     }
@@ -44,7 +44,7 @@ export class ListActivityDirectoriesNode extends HAMINode<TBCActivityStorage> {
         return result;
     }
 
-    async post(shared: TBCActivityStorage, _prepRes: { rootDir: string }, execRes: { current: string[]; backlog: string[] }): Promise<string | undefined> {
+    async post(shared: Shared, _prepRes: { rootDir: string }, execRes: { current: string[]; backlog: string[] }): Promise<string | undefined> {
         shared.currentActivities = execRes.current;
         shared.backlogActivities = execRes.backlog;
         return "default";
