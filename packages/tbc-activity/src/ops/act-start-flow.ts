@@ -231,4 +231,12 @@ export class ActStartFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         const result = validateAgainstSchema(config, FlowConfigSchema);
         return { valid: result.isValid, errors: result.errors || [] };
     }
+
+    async run(shared: Record<string, any>): Promise<string | undefined> {
+        shared.stage = shared.stage || {};
+        shared.stage.verbose = shared.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        shared.stage.activityId = shared.activityId || this.config?.activityId;
+        return super.run(shared);
+    }
 }

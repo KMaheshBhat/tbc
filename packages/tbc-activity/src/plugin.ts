@@ -13,9 +13,9 @@ import { ValidateCloseStateNode } from "./ops/validate-close-state.js";
 import { PrepareCloseRecordsNode } from "./ops/prepare-close-records.js";
 import { RemoveActivityRecordsNode } from "./ops/remove-activity-records.js";
 import { ListActivityDirectoriesNode } from "./ops/list-activity-directories.js";
+import { ActStartFlow } from "./ops/act-start-flow.js";
 import { ActShowFlow } from "./ops/act-show-flow.js";
 import { PrepareWorkspaceNode } from "./ops/prepare-workspace.js";
-import { ActStartFlow } from "./ops/act-start-flow.js";
 
 /**
  * TBC Activity Plugin for HAMI.
@@ -33,8 +33,9 @@ import { ActStartFlow } from "./ops/act-start-flow.js";
  * - `tbc-activity:remove-activity-records`: Removes record files from current activity directory
  * - `tbc-activity:list-activity-directories`: Lists activity directories in current and backlog
  * - Activity flows for start, backlog, close, and show operations
- * - `tbc-activity:prepare-workspace`: Prepares workspace for activity
  * - `tbc-activity:act-start-flow`: Flow for starting an activity
+ * - `tbc-activity:act-show-flow`: Flow for showing current and backlog activities
+ * - `tbc-activity:prepare-workspace`: Prepares workspace for activity
  */
 const TBCActivityPlugin = createPlugin(
     "@tbc-frameworx/tbc-activity",
@@ -53,9 +54,10 @@ const TBCActivityPlugin = createPlugin(
         PrepareCloseRecordsNode as any,
         RemoveActivityRecordsNode as any,
         ListActivityDirectoriesNode as any,
-        ActShowFlow as any,
-        ActStartFlow as any,
+        // refactored and new nodes and flows
         PrepareWorkspaceNode as any,
+        ActStartFlow as any,
+        ActShowFlow as any,
     ],
     "TBC Activity Plugin - Activity operations for TBC",
 );
