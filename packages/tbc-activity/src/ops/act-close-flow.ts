@@ -1,19 +1,48 @@
 import assert from "assert";
 import { Node } from "pocketflow";
 
-import { HAMIFlow } from "@hami-frameworx/core";
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { Shared } from "../types";
+import { existsSync } from "fs";
+import { join } from "path";
 
-interface ActCloseFlowConfig {
-    verbose: boolean;
+interface FlowConfig {
+    verbose?: boolean;
+    rootDirectory?: string;
     activityId: string;
 }
 
-export class ActCloseFlow extends HAMIFlow<Record<string, any>, ActCloseFlowConfig> {
-    startNode: Node;
-    config: ActCloseFlowConfig;
+const FlowConfigSchema: ValidationSchema = {
+    type: "object",
+    properties: {
+        verbose: { type: "boolean" },
+        rootDirectory: { type: "string" },
+        activityId: { type: "string" },
+    },
+    required: ["activityId"],
+};
 
-    constructor(config: ActCloseFlowConfig) {
-        const startNode = new Node();
+class ActCloseFlowStartNode extends HAMINode<Shared, FlowConfig> {
+    kind(): string {
+        return "tbc-activity:act-close-flow-start";
+    }
+
+    async post(shared: Shared): Promise<string> {
+        shared.stage = shared.stage || {};
+        shared.system = shared.system || {};
+        shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
+        shared.stage.activityId = shared.stage.activityId || this.config?.activityId;
+        return "default";
+    }
+}
+
+export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
+    startNode: Node;
+    config: FlowConfig;
+
+    constructor(config: FlowConfig) {
+        const startNode = new ActCloseFlowStartNode(config);
         super(startNode, config);
         this.startNode = startNode;
         this.config = config;
@@ -23,64 +52,91 @@ export class ActCloseFlow extends HAMIFlow<Record<string, any>, ActCloseFlowConf
         return "tbc-activity:act-close-flow";
     }
 
-    async prep(shared: Record<string, any>): Promise<void> {
+    async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
 
+        // --- ABORT SEQUENCE: System Guard ---
+        const abortSequence = new Node();
+        abortSequence
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'error',
+                        code: 'OVERWRITE-GUARD',
+                        source: 'act-close-flow',
+                        message: `has no existing companion (not a valid TBC Root)`,
+                        suggestion: 'Use "tbc sys init" instead.',
+                    });
+                }
+            }))
+            .next(n('tbc-system:log-and-clear-messages'));
+
+        const branchToAbort = n('core:branch', {
+            branch: (s: Shared) => s.stage.validationResult?.success ? 'default' : 'abort',
+        });
+        branchToAbort.on('abort', abortSequence);
+
+        const abortOnMissingActivity = new Node();
+        abortOnMissingActivity
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'error',
+                        source: 'act-close-flow',
+                        code: 'ACTIVITY-NOT-FOUND',
+                        message: `Activity ${s.stage.activityId} not found in current workspace.`,
+                        suggestion: 'Verify the ID with "tbc act show" or check if it is already in the backlog/archive.'
+                    });
+                }
+            }))
+            .next(n('tbc-system:log-and-clear-messages'));
+
+        const branchOnMissingActivity = n('core:branch', {
+            branch: (s: Shared) => {
+                const actPath = join(s.stage.rootDirectory, "act", "current", s.stage.activityId);
+                if (existsSync(actPath)) {
+                    return 'default';
+                }
+                return 'abort';
+            },
+        });
+        branchOnMissingActivity.on('abort', abortOnMissingActivity);
+
         this.startNode
-            .next(n('tbc-system:resolve'))
-            .next(n('tbc-system:validate', {
-                verbose: this.config.verbose,
+            .next(n('tbc-system:prepare-messages'))
+            .next(n('tbc-system:resolve-root-directory'))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'act-close-flow',
+                        message: 'Checking first ...',
+                    });
+                }
             }))
-            .next(n('tbc-activity:check-activity-state'))
-            .next(n('tbc-activity:validate-close-state'))
-            .next(n('tbc-activity:assimilate-logs'))
-            .next(n('core:assign', {
-                'record.rootDirectory': 'rootDirectory',
-                'record.collection': 'collection',
-                'record.query': 'queryAllIDs',
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:validate-flow', {
+                verbose: this.config?.verbose,
+                rootDirectory: this.config?.rootDirectory
             }))
-            .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-fs:query-records'],
-                verbose: this.config.verbose,
-             }))
-            .next(n('core:assign', {
-                'record.IDs': 'record.result.IDs'
-            }))
-            .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['tbc-record-fs:fetch-records'],
-                verbose: this.config.verbose,
-            }))
-            .next(n('tbc-activity:prepare-close-records'))
-            .next(n('core:assign', {
-                'record.rootDirectory': 'rootDirectory',
-                'record.collection': 'collection',
-                'record.records': 'records',
-            }))
-            .next(n('tbc-record:store-records-flow', {
-                recordProviders: ['tbc-record-fs:store-records'],
-                verbose: this.config.verbose,
-            }))
-            .next(n('tbc-activity:remove-activity-records'))
-            .next(n('tbc-activity:move-activity-directory'))
-            .next(n('core:log-result', {
-                resultKey: 'activityId',
-                format: 'text' as const,
-                prefix: 'Closed activity:',
-                verbose: this.config.verbose
-            }));
+            .next(branchToAbort)
+            .next(branchOnMissingActivity)
+            // TODO
+            .next(n('tbc-system:log-and-clear-messages'))
+            ;
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
-        shared.opts = {
-            verbose: this.config.verbose,
-            activityId: this.config.activityId,
-            targetState: 'archive',
-        };
-        shared.activityId = this.config.activityId;
-        shared.queryAllIDs = {
-            type: 'list-all-ids',
-        }
+    validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, FlowConfigSchema);
+        return { valid: result.isValid, errors: result.errors || [] };
+    }
+
+    async run(shared: Shared): Promise<string | undefined> {
+        shared.stage = shared.stage || {};
+        shared.stage.verbose = shared.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        shared.stage.activityId = shared.activityId || this.config?.activityId;
         return super.run(shared);
     }
 }

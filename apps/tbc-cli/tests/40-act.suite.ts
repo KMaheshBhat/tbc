@@ -173,28 +173,65 @@ describe("🐵 LETS-GO: tbc act", () => {
         ]);
 
         expect(success).toBe(true);
-        
+
         const currentPath = path.join(TBC_ROOT, "act", "current", activity1ID);
         expect(existsSync(currentPath)).toBe(true);
     });
 
-    /*
+    test("should report error when trying to close a non-existent activity", () => {
+        const ghostUUID = "019c3baf-dead-beef-8f39-c4d0e390c158";
+        
+        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            "act", "close", ghostUUID, "--root", TBC_ROOT
+        ]);
+        console.log(output);
+
+        // 1. Success should be true (the CLI flow completed its execution)
+        // but the output must contain the error logs.
+        expect(success).toBe(true);
+
+        // 2. Verify the Error Message and Code
+        expect(output).toContain(`Activity ${ghostUUID} not found in current workspace.`);
+        
+        // 3. Verify the Suggestion
+        expect(output).toContain('Verify the ID with "tbc act show"');
+
+        // 4. Physical verification: Ensure no archive folder was accidentally created
+        const archivePath = path.join(TBC_ROOT, "act", "archive", ghostUUID);
+        expect(existsSync(archivePath)).toBe(false);
+        
+        // 5. Ensure nothing was promoted to mem/
+        const memPath = path.join(TBC_ROOT, "mem", `${ghostUUID}.md`);
+        expect(existsSync(memPath)).toBe(false);
+    });
 
     test("should close and assimilate activity (move to archive and promote to mem/)", () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            "act", "close", activeUuid, "--root", TBC_ROOT
+            "act", "close", activity1ID, "--root", TBC_ROOT
         ]);
-
+        console.log(output);
         expect(success).toBe(true);
-        
-        // 1. Check folder moved to archive
-        const archivePath = path.join(TBC_ROOT, "act", "archive", activeUuid);
-        expect(existsSync(archivePath)).toBe(true);
-        
-        // 2. The 'Assimilator' check: Verify the record now exists in permanent memory
-        // This confirms the use of tbc-write:write-flow during closure
-        const memRecordPath = path.join(TBC_ROOT, "mem", `${activeUuid}.md`);
-        expect(existsSync(memRecordPath)).toBe(true);
+
+        // 1. Path Definitions
+        const currentPath = path.join(TBC_ROOT, "act", "current", activity1ID);
+        const archivePath = path.join(TBC_ROOT, "act", "archive", activity1ID);
+        const memRecordPath = path.join(TBC_ROOT, "mem", `${activity1ID}.md`);
+
+        // 2. Lifecycle Assertions
+        expect(existsSync(currentPath)).toBe(false); // Cleaned up
+        expect(existsSync(archivePath)).toBe(true);  // Archived
+        expect(existsSync(memRecordPath)).toBe(true); // Promoted to permanent memory
+
+        // 3. Selective Promotion Assertions (The "Noise" Check)
+        // Main record should be in BOTH archive (as part of the workspace history) and mem (as knowledge)
+        expect(existsSync(path.join(archivePath, `${activity1ID}.md`))).toBe(true);
+
+        // Secondary artifacts should ONLY be in archive
+        const researchNoteInArchive = path.join(archivePath, "research-notes.md");
+        const researchNoteInMem = path.join(TBC_ROOT, "mem", "research-notes.md");
+
+        expect(existsSync(researchNoteInArchive)).toBe(true);
+        expect(existsSync(researchNoteInMem)).toBe(false); // Only the primary ID record is promoted
     });
-    */
+
 });
