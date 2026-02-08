@@ -3,6 +3,7 @@ import { HAMINode } from "@hami-frameworx/core";
 import { TBCMessage, Shared } from "../types.js";
 
 type NodeInput = {
+    verbose?: boolean;
     rootDirectory?: string;
 };
 
@@ -17,6 +18,7 @@ export class ResolveRootDirectoryNode extends HAMINode<Shared> {
         shared: Shared,
     ): Promise<NodeInput> {
         return {
+            verbose: shared.stage.verbose,
             rootDirectory: shared.stage.rootDirectory,
         };
     }
@@ -29,13 +31,13 @@ export class ResolveRootDirectoryNode extends HAMINode<Shared> {
 
     async post(
         shared: Shared,
-        _input: NodeInput,
+        input: NodeInput,
         output: NodeOutput,
     ): Promise<string | undefined> {
         shared.stage = shared.stage || {};
         shared.stage.messages = shared.stage.messages || [];
         shared.stage.messages.push({
-            level: 'info',
+            level: input.verbose ? 'info' : 'debug',
             source: this.kind(),
             message: output,
         });

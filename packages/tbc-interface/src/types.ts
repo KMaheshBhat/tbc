@@ -1,3 +1,19 @@
+import { HAMIRegistrationManager } from "@hami-frameworx/core";
+import { TBCSystemOperation } from "@tbc-frameworx/tbc-system";
+import { TBCRecordOperation } from "@tbc-frameworx/tbc-record";
+
+type SharedStage = Record<string, any>;
+
+type Shared = {
+  /** HAMI registration manager for node creation and management. */
+  registry: HAMIRegistrationManager;
+  stage: SharedStage;
+  system: TBCSystemOperation;
+  record: TBCRecordOperation;
+  verbose?: boolean;
+  rootDirectory?: string;
+}
+
 /**
  * Options for TBC interface operations.
  * Defines configuration flags that can be used across TBC interface operations.
@@ -28,6 +44,7 @@ type TBCInterfaceStorage = {
 }
 
 export {
+  Shared,
   TBCInterfaceOpts,
   TBCInterfaceStorage,
 };

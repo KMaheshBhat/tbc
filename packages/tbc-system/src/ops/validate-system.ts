@@ -200,6 +200,7 @@ export class ValidateSystemNode extends HAMINode<Shared, Config> {
 
     async post(shared: Shared, _input: NodeInput, output: NodeOutput): Promise<string | undefined> {
         shared.stage.validationResult = output;
+        shared.system.isValidTBCRoot = output.success;
         shared.stage.messages = shared.stage.messages || [];
         const { success, messages } = output;
         const errorCount = messages.filter(m => m.level === 'error').length;

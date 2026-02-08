@@ -1,26 +1,43 @@
 import assert from "assert";
 import { Node } from "pocketflow";
 
-import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 
-interface IntProbeFlowConfig {
+import { Shared } from "../types";
+
+interface FlowConfig {
     verbose: boolean;
+    rootDirectory?: string;
 }
 
-const IntProbeFlowConfigSchema: ValidationSchema = {
+const FlowConfigSchema: ValidationSchema = {
     type: "object",
     properties: {
         verbose: { type: "boolean" },
+        rootDirectory: { type: "string" },
     },
-    required: ["verbose"],
 };
 
-export class IntProbeFlow extends HAMIFlow<Record<string, any>, IntProbeFlowConfig> {
-    startNode: Node;
-    config: IntProbeFlowConfig;
+class IntProbeFlowStartNode extends HAMINode<Shared, FlowConfig> {
+    kind(): string {
+        return "tbc-interface:int-probe-flow-start";
+    }
 
-    constructor(config: IntProbeFlowConfig) {
-        const startNode = new Node();
+    async post(shared: Shared): Promise<string> {
+        shared.stage = shared.stage || {};
+        shared.system = shared.system || {};
+        shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
+        return "default";
+    }
+}
+
+export class IntProbeFlow extends HAMIFlow<Shared, FlowConfig> {
+    startNode: Node;
+    config: FlowConfig;
+
+    constructor(config: FlowConfig) {
+        const startNode = new IntProbeFlowStartNode(config);
         super(startNode, config);
         this.startNode = startNode;
         this.config = config;
@@ -34,32 +51,23 @@ export class IntProbeFlow extends HAMIFlow<Record<string, any>, IntProbeFlowConf
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         this.startNode
-            .next(n('tbc-system:resolve'))
-            .next(n('tbc-system:validate', {
-                verbose: this.config.verbose,
-            }))
-            .next(n('tbc-system:probe'))
-            .next(n('core:log-result', {
-                resultKey: 'probeResults',
-                format: 'table',
-                prefix: 'Environment Probe Results:',
-                verbose: this.config.verbose
-            }))
+            .next(n('tbc-system:prepare-messages'))
+            .next(n('tbc-system:resolve-root-directory'))
+            .next(n('tbc-system:validate-flow', { verbose: this.config?.verbose }))
+            .next(n('tbc-system:probe')) // TODO replace this
+            .next(n('tbc-system:log-and-clear-messages'))
             ;
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
-        shared.opts = { 
-            verbose: this.config.verbose,
-        };
-        return super.run(shared);
+    validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, FlowConfigSchema);
+        return { valid: result.isValid, errors: result.errors || [] };
     }
 
-    validateConfig(config: IntProbeFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, IntProbeFlowConfigSchema)
-        return {
-            valid: result.isValid,
-            errors: result.errors || [],
-        };
+    async run(shared: Shared): Promise<string | undefined> {
+        shared.stage = shared.stage || {};
+        shared.stage.verbose = shared.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        return super.run(shared);
     }
 }
