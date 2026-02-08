@@ -3,7 +3,7 @@ import { Node } from "pocketflow";
 
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
 import { Shared } from "../types";
-import { existsSync } from "fs";
+import { existsSync, mkdirSync, renameSync } from "fs";
 import { join } from "path";
 
 interface FlowConfig {
@@ -33,6 +33,12 @@ class ActCloseFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
         shared.stage.activityId = shared.stage.activityId || this.config?.activityId;
+        shared.stage.currentActivityCollection = 'act/current';
+        shared.stage.backlogActivityCollection = 'act/backlog';
+        shared.stage.memCollection = 'mem';
+        shared.stage.query = {
+            type: 'list-all-ids',
+        };
         return "default";
     }
 }
@@ -55,7 +61,6 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
     async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-
         // --- ABORT SEQUENCE: System Guard ---
         const abortSequence = new Node();
         abortSequence
@@ -71,12 +76,10 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
                 }
             }))
             .next(n('tbc-system:log-and-clear-messages'));
-
         const branchToAbort = n('core:branch', {
             branch: (s: Shared) => s.stage.validationResult?.success ? 'default' : 'abort',
         });
         branchToAbort.on('abort', abortSequence);
-
         const abortOnMissingActivity = new Node();
         abortOnMissingActivity
             .next(n('core:mutate', {
@@ -91,7 +94,6 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
                 }
             }))
             .next(n('tbc-system:log-and-clear-messages'));
-
         const branchOnMissingActivity = n('core:branch', {
             branch: (s: Shared) => {
                 const actPath = join(s.stage.rootDirectory, "act", "current", s.stage.activityId);
@@ -102,7 +104,6 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
             },
         });
         branchOnMissingActivity.on('abort', abortOnMissingActivity);
-
         this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
@@ -122,7 +123,102 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
             }))
             .next(branchToAbort)
             .next(branchOnMissingActivity)
-            // TODO
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    // Clear previous results to avoid pollution
+                    s.record.result = undefined;
+                    s.stage.records = undefined;
+                    s.stage.currentActivityCollection = `${s.stage.currentActivityCollection}/${s.stage.activityId}`;
+                }
+            }))
+            .next(n('core:assign', {
+                'record.rootDirectory': 'system.rootDirectory',
+                'record.collection': 'stage.currentActivityCollection',
+                'record.query': 'stage.query',
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'debug',
+                        source: 'act-close-flow',
+                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
+                    });
+                }
+            }))
+            .next(n('tbc-record:query-records-flow', {
+                recordProviders: ['tbc-record-fs:query-records'],
+                verbose: shared.stage.verbose,
+            }))
+            .next(n('core:assign', {
+                'record.rootDirectory': 'system.rootDirectory',
+                'record.collection': 'stage.currentActivityCollection',
+                'record.IDs': 'record.result.IDs',
+            }))
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: ['tbc-record-fs:fetch-records'],
+                verbose: shared.stage.verbose,
+            }))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    const activityId = s.stage.activityId;
+                    const targetFile = `${activityId}.md`;
+                    const workspaceKey = Object.keys(s.record.result?.records || {})[0];
+                    const workspaceRecords = s.record.result?.records?.[workspaceKey] || {};
+                    const primaryRecord = workspaceRecords[targetFile];
+                    s.stage.activeDrafts = [];
+                    primaryRecord && s.stage.activeDrafts.push({
+                        ...primaryRecord,
+                        id: activityId,
+                        filename: join("mem", targetFile)
+                    });
+                }
+            }))
+            .next(n('tbc-system:prepare-records-manifest'))
+            .next(shared.verbose ? n('tbc-system:add-manifest-messages', {
+                source: 'act-close-flow',
+                level: 'info',
+            }) : new Node())
+            .next(n('tbc-write:write-records-flow', {
+                verbose: shared.stage.verbose,
+                recordStorers: ['tbc-record-fs:store-records'],
+                sourcePath: 'stage.activeDrafts',
+                collection: 'memCollection',
+                syncIndex: true,
+            }))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    const currentDir = join(s.stage.rootDirectory, "act", "current", s.stage.activityId);
+                    const archiveRoot = join(s.stage.rootDirectory, "act", "archive");
+                    const archiveDir = join(archiveRoot, s.stage.activityId);
+
+                    // Ensure archive root exists
+                    if (!existsSync(archiveRoot)) {
+                        mkdirSync(archiveRoot, { recursive: true });
+                    }
+
+                    // Raw move: move the entire workspace to archive
+                    if (existsSync(currentDir)) {
+                        renameSync(currentDir, archiveDir);
+                        s.stage.messages.push({
+                            level: 'raw',
+                            message: ' ┌┼───────────────────────────────────────────────────────────',
+                        });
+                        s.stage.messages.push({
+                            level: 'raw',
+                            message: `[✓] Activity closed: ${s.stage.activityId}`,
+                        });
+                        s.stage.messages.push({
+                            level: 'raw',
+                            message: ' └┼───────────────────────────────────────────────────────────',
+                        });
+                        s.stage.messages.push({
+                            level: 'info',
+                            source: 'act-close-flow',
+                            message: `Activity archived: act/archive/${s.stage.activityId}`,
+                        });
+                    }
+                }
+            }))
             .next(n('tbc-system:log-and-clear-messages'))
             ;
     }

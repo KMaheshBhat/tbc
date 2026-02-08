@@ -124,6 +124,18 @@ export class ActPauseFlow extends HAMIFlow<Shared, FlowConfig> {
                     try {
                         fs.renameSync(sourcePath, targetPath);
                         s.stage.messages.push({
+                            level: 'raw',
+                            message: ' ┌┼───────────────────────────────────────────────────────────',
+                        });
+                        s.stage.messages.push({
+                            level: 'raw',
+                            message: `[✓] Activity paused: ${id}`,
+                        });
+                        s.stage.messages.push({
+                            level: 'raw',
+                            message: ' └┼───────────────────────────────────────────────────────────',
+                        });
+                        s.stage.messages.push({
                             level: 'info',
                             source: 'act-pause-flow',
                             message: `Paused activity: ${id}`,
