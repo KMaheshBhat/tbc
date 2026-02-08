@@ -102,18 +102,12 @@ describe("🐵 LETS-GO: tbc act", () => {
         fs.writeFileSync(path.join(activity1Dir, "research-notes.md"), "# Research\nSome notes.");
         fs.writeFileSync(path.join(activity1Dir, "data-dump.json"), '{"key": "value"}');
 
-        // --- EXECUTION ---
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             "act", "show", "--root", TBC_ROOT
         ]);
 
-        console.log(output);
-
         expect(success).toBe(true);
 
-        // --- ASSERTIONS ---
-
-        // This should still pass
         expect(output).toContain("Active [current]");
 
         // We count occurrences of the UUIDs. 
@@ -129,33 +123,62 @@ describe("🐵 LETS-GO: tbc act", () => {
         expect(output).not.toContain("data-dump");
     });
 
-    /*
-
     test("should pause an activity (move from current to backlog)", () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            "act", "pause", activeUuid, "--root", TBC_ROOT
+            "act", "pause", activity1ID, "--root", TBC_ROOT
         ]);
 
         expect(success).toBe(true);
-        
-        const currentPath = path.join(TBC_ROOT, "act", "current", activeUuid);
-        const backlogPath = path.join(TBC_ROOT, "act", "backlog", activeUuid);
-        
+
+        // --- 1. Physical Verification ---
+        const currentPath = path.join(TBC_ROOT, "act", "current", activity1ID);
+        const backlogPath = path.join(TBC_ROOT, "act", "backlog", activity1ID);
+
         expect(existsSync(currentPath)).toBe(false);
         expect(existsSync(backlogPath)).toBe(true);
+
+        // --- 2. Feedback Verification ---
+        // Verify the primary action message
+        expect(output).toContain(`Paused activity: ${activity1ID}`);
+
+        // Verify the helpful suggestion for resumption
+        expect(output).toContain(`Use "tbc act start ${activity1ID}" to resume`);
+
+        // Verify it passed through the system guard
+        expect(output).toContain("STABLE");
     });
+
+    test("should report error when trying to pause a non-existent activity", () => {
+        const fakeUUID = "019c3b94-fake-uuid-not-real-4f9c9c52f482";
+        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            "act", "pause", fakeUUID, "--root", TBC_ROOT
+        ]);
+
+        // The flow should "succeed" in execution but report the error level message
+        expect(output).toContain(`Activity ${fakeUUID} not found in current workspace.`);
+
+        // Verifying your updated suggestion text
+        expect(output).toContain('Check "tbc act show" to verify the activity status or "tbc act start" to start a new activity.');
+
+        // Ensure the disk remains untouched
+        const backlogPath = path.join(TBC_ROOT, "act", "backlog", fakeUUID);
+        expect(existsSync(backlogPath)).toBe(false);
+    });
+
 
     test("should resume an activity (move from backlog to current)", () => {
         // 'start' with an existing UUID acts as resume
-        const { success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            "act", "start", activeUuid, "--root", TBC_ROOT
+        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            "act", "start", activity1ID, "--root", TBC_ROOT
         ]);
 
         expect(success).toBe(true);
         
-        const currentPath = path.join(TBC_ROOT, "act", "current", activeUuid);
+        const currentPath = path.join(TBC_ROOT, "act", "current", activity1ID);
         expect(existsSync(currentPath)).toBe(true);
     });
+
+    /*
 
     test("should close and assimilate activity (move to archive and promote to mem/)", () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [

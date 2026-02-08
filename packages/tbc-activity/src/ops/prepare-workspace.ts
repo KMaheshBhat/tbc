@@ -23,12 +23,12 @@ export class PrepareWorkspaceNode extends HAMINode<Shared> {
 
     async prep(shared: Shared): Promise<WorkspaceJob> {
         const { activityId, rootDirectory } = shared.stage;
-        
+
         assert(activityId, "activityId is required for workspace preparation");
         assert(rootDirectory, "rootDirectory is required for workspace preparation");
 
         const actRoot = join(rootDirectory, "act");
-        
+
         return {
             activityId,
             currentPath: join(actRoot, "current", activityId),
@@ -49,7 +49,7 @@ export class PrepareWorkspaceNode extends HAMINode<Shared> {
             // Ensure the 'current' parent dir exists before moving
             const currentParent = join(currentPath, '..');
             if (!existsSync(currentParent)) mkdirSync(currentParent, { recursive: true });
-            
+
             renameSync(backlogPath, currentPath);
             return { status: 'resumed', activityPath: currentPath };
         }
@@ -59,7 +59,7 @@ export class PrepareWorkspaceNode extends HAMINode<Shared> {
         return { status: 'created', activityPath: currentPath };
     }
 
-    async post(
+    async post_legacy_to_delete(
         shared: Shared,
         job: WorkspaceJob,
         result: WorkspaceResult
@@ -76,6 +76,28 @@ export class PrepareWorkspaceNode extends HAMINode<Shared> {
 
         shared.stage.messages.push({
             level: result.status === 'resumed' ? 'success' : 'info',
+            source: this.kind(),
+            message: messageMap[result.status],
+        });
+
+        return "default";
+    }
+
+    async post(
+        shared: Shared,
+        job: WorkspaceJob,
+        result: WorkspaceResult
+    ): Promise<string> {
+        shared.stage.activityPath = result.activityPath;
+
+        const messageMap = {
+            active: `Activity ${job.activityId} is already active.`,
+            resumed: `Resumed activity from backlog: ${job.activityId}`,
+            created: `Created new workspace for activity: ${job.activityId}`
+        };
+
+        shared.stage.messages.push({
+            level: 'info',
             source: this.kind(),
             message: messageMap[result.status],
         });

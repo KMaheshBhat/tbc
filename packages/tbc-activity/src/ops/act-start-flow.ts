@@ -36,7 +36,7 @@ class ActStartFlowStartNode extends HAMINode<Shared, FlowConfig> {
     }
 }
 
-export class ActStartFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
+export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
     startNode: Node;
     config: FlowConfig;
 
@@ -232,7 +232,7 @@ export class ActStartFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         return { valid: result.isValid, errors: result.errors || [] };
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async run(shared: Shared): Promise<string | undefined> {
         shared.stage = shared.stage || {};
         shared.stage.verbose = shared.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;

@@ -30,6 +30,7 @@ type Shared = {
   stage: SharedStage;
   system: TBCSystemOperation;
   record: TBCRecordOperation;
+  verbose?: boolean;
 
   /** Optional configuration options for TBC activity operations. */
   opts?: TBCActivityOpts;

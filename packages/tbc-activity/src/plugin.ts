@@ -15,6 +15,7 @@ import { RemoveActivityRecordsNode } from "./ops/remove-activity-records.js";
 import { ListActivityDirectoriesNode } from "./ops/list-activity-directories.js";
 import { ActStartFlow } from "./ops/act-start-flow.js";
 import { ActShowFlow } from "./ops/act-show-flow.js";
+import { ActPauseFlow } from "./ops/act-pause-flow.js";
 import { PrepareWorkspaceNode } from "./ops/prepare-workspace.js";
 
 /**
@@ -35,6 +36,7 @@ import { PrepareWorkspaceNode } from "./ops/prepare-workspace.js";
  * - Activity flows for start, backlog, close, and show operations
  * - `tbc-activity:act-start-flow`: Flow for starting an activity
  * - `tbc-activity:act-show-flow`: Flow for showing current and backlog activities
+ * - `tbc-activity:act-pause-flow`: Flow for pausing an activity
  * - `tbc-activity:prepare-workspace`: Prepares workspace for activity
  */
 const TBCActivityPlugin = createPlugin(
@@ -58,6 +60,7 @@ const TBCActivityPlugin = createPlugin(
         PrepareWorkspaceNode as any,
         ActStartFlow as any,
         ActShowFlow as any,
+        ActPauseFlow as any,
     ],
     "TBC Activity Plugin - Activity operations for TBC",
 );
