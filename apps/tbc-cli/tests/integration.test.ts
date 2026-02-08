@@ -11,5 +11,6 @@ import './31-mem-recall.suite';
 import './40-act.suite';
 
 import './50-int-probe.suite';
+import './51-int-generate.suite';
 
 import './99-teardown.suite';

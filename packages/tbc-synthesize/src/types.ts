@@ -5,7 +5,7 @@ import { TBCRecord, TBCRecordOperation } from "@tbc-frameworx/tbc-record";
  * A request to transform user input/intent into a structured TBC Record.
  */
 export type SynthesizeRequest = {
-  /** The record type to fulfill (e.g., 'note', 'goal', 'log') */
+  /** The record/value type to fulfill (e.g., 'note', 'goal', 'log' for records, or value type) */
   type: string;
   /** Node that provides the synthesize operation */
   provider: string;
@@ -20,7 +20,8 @@ export type SynthesizeRequest = {
  */
 export type Synthesized = {
   /** Array of hydrated TBCRecord objects ready for the write-flow */
-  records: TBCRecord[];
+  records?: TBCRecord[];
+  values?: any[];
 }
 
 /**
