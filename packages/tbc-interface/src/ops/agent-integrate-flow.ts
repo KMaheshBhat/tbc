@@ -53,6 +53,10 @@ const AGENT_PROTOCOLS: Record<string, {
         assetProvider: 'tbc-gemini:load-assets',
         synthesisProvider: 'tbc-gemini:synthesize-integration-records',
     },
+    'goose': {
+        assetProvider: 'tbc-goose:load-assets',
+        synthesisProvider: 'tbc-goose:synthesize-integration-records',
+    },
 };
 
 export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {

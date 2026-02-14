@@ -726,17 +726,18 @@ let cmdIntGoose = new Command('goose')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const generateGooseCoreInterfaceFlow = registry.createNode('tbc-interface:int-goose-flow', {
+            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
                 root: root,
                 verbose: isVerbose,
+                agentType: 'goose',
             });
-            await generateGooseCoreInterfaceFlow.run({
+            await agentIntegrateFlow.run({
                 registry: registry,
                 opts: { verbose: isVerbose },
                 root: root,
             });
         } catch (error) {
-            console.error('Error during int goose:', error);
+            console.error('Error during agent integration:', error);
             process.exit(1);
         }
         return;

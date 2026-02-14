@@ -13,5 +13,6 @@ import './40-act.suite';
 import './50-int-probe.suite';
 import './51-int-generate.suite';
 import './52-int-gemini.suite';
+import './53-int-goose.sutie';
 
 import './99-teardown.suite';
