@@ -47,11 +47,9 @@ type TBCShared = {
 
 export {
     TBCRecord,
-    TBCCollection,
     TBCStore,
     TBCResult,
     TBCRecordOperation,
     TBCShared,
-    TBCQueryType,
     TBCQueryParams,
 };
