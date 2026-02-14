@@ -8,6 +8,7 @@ import { Shared } from "../types";
 interface FlowConfig {
     verbose: boolean;
     rootDirectory?: string;
+    agentType: string;
 }
 
 const FlowConfigSchema: ValidationSchema = {
@@ -15,12 +16,14 @@ const FlowConfigSchema: ValidationSchema = {
     properties: {
         verbose: { type: "boolean" },
         rootDirectory: { type: "string" },
+        agentType: { type: "string" },
     },
+    required: ['agentType'],
 };
 
-class IntGenericFlowStartNode extends HAMINode<Shared, FlowConfig> {
+class AgentIntegrateFlowStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-interface:int-generic-flow-start";
+        return "tbc-interface:agent-integrate-flow-start";
     }
 
     async post(shared: Shared): Promise<string> {
@@ -28,31 +31,52 @@ class IntGenericFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.system = shared.system || {};
         shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
+        shared.stage.agentType = shared.stage.agentType || this.config?.agentType;
+        const targetType = shared.stage.agentType || "generic";
+        const protocol = AGENT_PROTOCOLS[targetType];
+        assert(protocol, `Protocol Error: No registered protocol for record type [${targetType}]`);
+        shared.stage.activeProtocol = protocol;
         shared.stage.rootCollection = '.';
         return "default";
     }
 }
 
+const AGENT_PROTOCOLS: Record<string, { assetProvider: string, synthesisProvider: string }> = {
+    generic: {assetProvider: 'tbc-interface:load-generic-assets', synthesisProvider: 'tbc-interface:synthesize-generic-records'},
+};
 
-export class IntGenericFlow extends HAMIFlow<Shared, FlowConfig> {
+export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
     startNode: Node;
     config: FlowConfig;
 
     constructor(config: FlowConfig) {
-        const startNode = new IntGenericFlowStartNode(config);
+        const startNode = new AgentIntegrateFlowStartNode(config);
         super(startNode, config);
         this.startNode = startNode;
         this.config = config;
     }
 
     kind(): string {
-        return "tbc-interface:int-generic-flow";
+        return "tbc-interface:agent-integrate-flow";
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-        const abortSequence = new Node().next(n('core:mutate', { /* ... */ })).next(n('tbc-system:log-and-clear-messages'));
+        const abortSequence = new Node();
+        abortSequence
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'error',
+                        code: 'OVERWRITE-GUARD',
+                        source: 'agent-integrate-flow',
+                        message: `has no existing companion (not a valid TBC Root)`,
+                        suggestion: 'Use "tbc sys init" instead.',
+                    });
+                }
+            }))
+            .next(n('tbc-system:log-and-clear-messages'));
         const branchToAbort = n('core:branch', { branch: (s: Shared) => s.stage.validationResult?.success ? 'default' : 'abort' });
         branchToAbort.on('abort', abortSequence);
 
@@ -79,12 +103,12 @@ export class IntGenericFlow extends HAMIFlow<Shared, FlowConfig> {
                     s.stage.records = undefined;
                 }
             }))
-            .next(n('tbc-interface:load-generic-assets'))
+            .next(n(AGENT_PROTOCOLS[shared.stage.agentType].assetProvider))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     s.stage.synthesizeRequests = [{
-                        type: 'generic',
-                        provider: 'tbc-interface:synthesize-generic-records',
+                        type: s.stage.agentType,
+                        provider: s.stage.activeProtocol.synthesisProvider,
                     }];
                 }
             }))
@@ -111,6 +135,7 @@ export class IntGenericFlow extends HAMIFlow<Shared, FlowConfig> {
         shared.stage = shared.stage || {};
         shared.stage.verbose = shared.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        shared.stage.agentType = this.config?.agentType;
         return super.run(shared);
     }
 }

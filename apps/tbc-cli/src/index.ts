@@ -676,17 +676,18 @@ let cmdIntGeneric = new Command('generic')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const generateGenericCoreInterfaceFlow = registry.createNode('tbc-interface:int-generic-flow', {
+            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
                 root: root,
                 verbose: isVerbose,
+                agentType: 'generic',
             });
-            await generateGenericCoreInterfaceFlow.run({
+            await agentIntegrateFlow.run({
                 registry: registry,
                 opts: { verbose: isVerbose },
                 root: root,
             });
         } catch (error) {
-            console.error('Error during int generic:', error);
+            console.error('Error during agent integration:', error);
             process.exit(1);
         }
         return;
