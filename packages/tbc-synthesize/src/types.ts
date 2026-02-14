@@ -63,11 +63,3 @@ export type Shared = {
   /** Catch-all for other namespaces (system, etc.) */
   [key: string]: any;
 }
-
-/**
- * Options for TBC synthesizer operations.
- */
-export type TBCSynthesizerOpts = {
-  /** Whether to enable verbose logging for operations. */
-  verbose?: boolean;
-}
