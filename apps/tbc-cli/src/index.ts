@@ -751,17 +751,18 @@ let cmdIntGitHubCopilot = new Command('github-copilot')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const generateGitHubCopilotCoreInterfaceFlow = registry.createNode('tbc-interface:int-github-copilot-flow', {
+            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
                 root: root,
                 verbose: isVerbose,
+                agentType: 'github-copilot',
             });
-            await generateGitHubCopilotCoreInterfaceFlow.run({
+            await agentIntegrateFlow.run({
                 registry: registry,
                 opts: { verbose: isVerbose },
                 root: root,
             });
         } catch (error) {
-            console.error('Error during int github-copilot:', error);
+            console.error('Error during agent integration:', error);
             process.exit(1);
         }
         return;

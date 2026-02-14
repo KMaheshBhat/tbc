@@ -57,6 +57,10 @@ const AGENT_PROTOCOLS: Record<string, {
         assetProvider: 'tbc-goose:load-assets',
         synthesisProvider: 'tbc-goose:synthesize-integration-records',
     },
+    'github-copilot': {
+        assetProvider: 'tbc-github-copilot:load-assets',
+        synthesisProvider: 'tbc-github-copilot:synthesize-integration-records',
+    },
 };
 
 export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {

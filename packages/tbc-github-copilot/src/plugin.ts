@@ -1,6 +1,8 @@
 import { createPlugin } from "@hami-frameworx/core";
 
 import { GenerateCoreNode } from "./ops/generate-core.js";
+import { LoadAssetsNode } from "./ops/load-assets.js";
+import { SynthesizeIntegrationRecordsNode } from "./ops/synthesize-integration-records.js";
 
 /**
  * TBC GitHub Copilot Plugin for HAMI.
@@ -8,12 +10,16 @@ import { GenerateCoreNode } from "./ops/generate-core.js";
  *
  * Included operations:
  * - `tbc-github-copilot:generate-core`: Generates GitHub Copilot instructions configuration
+ * - `tbc-github-copilot:load-assets`: Load templates
+ * - `tbc-github-copilot:synthesize-integration-records`: Synthetize agent records for GitHub Copilot interface
  */
 const TBCGitHubCopilotPlugin = createPlugin(
     "@tbc-frameworx/tbc-github-copilot",
     "0.1.0",
     [
         GenerateCoreNode as any,
+        LoadAssetsNode as any,
+        SynthesizeIntegrationRecordsNode as any,
     ],
     "TBC GitHub Copilot Plugin - Operations for GitHub Copilot integration",
 );
