@@ -8,9 +8,3 @@ export type Shared = {
   system: TBCSystemOperation;
   record: TBCRecordOperation;
 }
-
-export interface TBCKilocodeStorage {
-    companionName?: string;
-    roleDefinition?: string;
-    records?: Record<string, any>[];
-}

@@ -6,9 +6,3 @@ export type Shared = {
   stage: SharedStage;
   record: TBCRecordOperation;
 }
-
-export interface TBCGeminiStorage {
-    companionName?: string;
-    roleDefinition?: string;
-    records?: Record<string, any>[];
-}
