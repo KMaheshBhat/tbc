@@ -41,8 +41,18 @@ class AgentIntegrateFlowStartNode extends HAMINode<Shared, FlowConfig> {
     }
 }
 
-const AGENT_PROTOCOLS: Record<string, { assetProvider: string, synthesisProvider: string }> = {
-    generic: {assetProvider: 'tbc-interface:load-generic-assets', synthesisProvider: 'tbc-interface:synthesize-generic-records'},
+const AGENT_PROTOCOLS: Record<string, {
+    assetProvider: string,
+    synthesisProvider: string,
+}> = {
+    'generic': {
+        assetProvider: 'tbc-interface:load-generic-assets',
+        synthesisProvider: 'tbc-interface:synthesize-generic-records',
+    },
+    'gemini-cli': {
+        assetProvider: 'tbc-gemini:load-assets',
+        synthesisProvider: 'tbc-gemini:synthesize-integration-records',
+    },
 };
 
 export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {

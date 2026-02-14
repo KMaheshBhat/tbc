@@ -701,17 +701,18 @@ let cmdIntGeminiCli = new Command('gemini-cli')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const generateGeminiCliCoreInterfaceFlow = registry.createNode('tbc-interface:int-gemini-cli-flow', {
+            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
                 root: root,
                 verbose: isVerbose,
+                agentType: 'gemini-cli',
             });
-            await generateGeminiCliCoreInterfaceFlow.run({
+            await agentIntegrateFlow.run({
                 registry: registry,
                 opts: { verbose: isVerbose },
                 root: root,
             });
         } catch (error) {
-            console.error('Error during int gemini-cli:', error);
+            console.error('Error during agent integration:', error);
             process.exit(1);
         }
         return;
