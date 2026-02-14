@@ -122,6 +122,28 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
                 collection: 'rootCollection',
                 syncIndex: false
             }))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    shared.stage.messages.push({
+                        level: 'raw',
+                        message: ' ┌┼───────────────────────────────────────────────────────────',
+                    });
+                    s.stage.messages.push({
+                        level: 'raw',
+                        message: `[✓] Integration files created for Agent Type: ${s.stage.agentType}`,
+                    });
+                    shared.stage.messages.push({
+                        level: 'raw',
+                        message: ' └┼───────────────────────────────────────────────────────────',
+                    });
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'agent-integrate-flow',
+                        message: `Agent integration done.`,
+                        suggestion: `Highly recommended that the Prime User restarts the interface session for agent integration to take effect.`,
+                    });
+                }
+            }))
             .next(n('tbc-system:log-and-clear-messages'))
             ;
     }

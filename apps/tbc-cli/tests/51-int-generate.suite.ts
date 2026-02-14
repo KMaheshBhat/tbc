@@ -14,7 +14,6 @@ describe("🐵 LETS-GO: tbc int generate (Generic)", () => {
             "int", "generic",
             "--root", TBC_ROOT
         ]);
-        console.log(output);
         expect(success).toBe(true);
 
         const agentsPath = join(TBC_ROOT, "AGENTS.md");
@@ -25,5 +24,15 @@ describe("🐵 LETS-GO: tbc int generate (Generic)", () => {
         expect(content).toContain("Mojo"); // Assuming Mojo is the companion name
         expect(content).toContain("ALWAYS read @tbc/root.md");
         expect(content).toContain("@dex/core.md");
+    });
+
+    test("should be idempotent (running twice changes nothing)", () => {
+        runMonorepoCommand(TBC_ROOT, CLI_TARGET, ["int", "generic"]);
+        const firstRun = readFileSync(join(TBC_ROOT, "AGENTS.md"), "utf-8");
+
+        runMonorepoCommand(TBC_ROOT, CLI_TARGET, ["int", "generic"]);
+        const secondRun = readFileSync(join(TBC_ROOT, "AGENTS.md"), "utf-8");
+
+        expect(firstRun).toBe(secondRun);
     });
 });
