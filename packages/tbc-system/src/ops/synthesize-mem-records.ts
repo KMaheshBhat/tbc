@@ -1,5 +1,6 @@
-import { HAMINode } from "@hami-frameworx/core";
-import { Shared } from "../types.js";
+import { HAMINode } from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 type NodeInput = {
     companionName: string;
@@ -13,7 +14,7 @@ type NodeOutput = Record<string, any>;
 
 export class SynthesizeMemRecordsNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-system:synthesize-mem-records";
+        return 'tbc-system:synthesize-mem-records';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
@@ -42,8 +43,8 @@ export class SynthesizeMemRecordsNode extends HAMINode<Shared> {
             record_create_date: timestamp,
             record_title: companionName,
             party_type: 'agent',
-            contentType: "markdown",
-            content: `# ${companionName}\n\n${companionName} is the AI Assistant in the Third Brain Companion System, instantiated to assist Prime User ${primeName}. As an agent, ${companionName} engages in interactions, evolves motivations to align with the Prime User's, and operates within the Record System for memory persistence.`
+            contentType: 'markdown',
+            content: `# ${companionName}\n\n${companionName} is the AI Assistant in the Third Brain Companion System, instantiated to assist Prime User ${primeName}. As an agent, ${companionName} engages in interactions, evolves motivations to align with the Prime User's, and operates within the Record System for memory persistence.`,
         };
 
         // 2. Prime User Record
@@ -54,8 +55,8 @@ export class SynthesizeMemRecordsNode extends HAMINode<Shared> {
             record_create_date: timestamp,
             record_title: primeName,
             party_type: 'person',
-            contentType: "markdown",
-            content: `# ${primeName}\n\n${primeName} is the Prime User of the Third Brain Companion System, the primary human actor initiating and guiding ${companionName}. As the owner of the system, they directs motivations, confirms identities, and delegates memory persistence when needed.`
+            contentType: 'markdown',
+            content: `# ${primeName}\n\n${primeName} is the Prime User of the Third Brain Companion System, the primary human actor initiating and guiding ${companionName}. As the owner of the system, they directs motivations, confirms identities, and delegates memory persistence when needed.`,
         };
 
         // 3. Memory Map Record
@@ -74,6 +75,6 @@ export class SynthesizeMemRecordsNode extends HAMINode<Shared> {
     async post(shared: Shared, _input: NodeInput, output: NodeOutput): Promise<string | undefined> {
         shared.stage.records = shared.stage.records || {};
         shared.stage.records.mem = output; // Overwrites or initializes the mem virtual collection
-        return "default";
+        return 'default';
     }
 }

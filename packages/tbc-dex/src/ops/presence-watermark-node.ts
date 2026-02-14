@@ -1,6 +1,9 @@
-import { HAMINode } from "@hami-frameworx/core";
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-import type { Shared } from "../types.js";
+import { HAMINode } from '@hami-frameworx/core';
+
+import type { Shared } from '../types.js';
 
 type PresenceWatermarkNodeInput = {
     processedRecords: Array<{
@@ -36,18 +39,18 @@ export class PresenceWatermarkNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-dex:presence-watermark";
+        return 'tbc-dex:presence-watermark';
     }
 
     async prep(shared: Shared): Promise<PresenceWatermarkNodeInput> {
         if (!shared.processedRecords) {
-            throw new Error("processedRecords is required in shared state");
+            throw new Error('processedRecords is required in shared state');
         }
         if (!shared.rootDirectory) {
-            throw new Error("rootDirectory is required in shared state");
+            throw new Error('rootDirectory is required in shared state');
         }
         if (!shared.dexStore) {
-            throw new Error("dexStore is required in shared state");
+            throw new Error('dexStore is required in shared state');
         }
         return {
             processedRecords: shared.processedRecords,
@@ -76,8 +79,6 @@ export class PresenceWatermarkNode extends HAMINode<Shared> {
 
     private async checkPresence(node: PresenceWatermarkNodeInput['processedRecords'][0]['node'], rootDirectory: string): Promise<{ status: number; message?: string }> {
         try {
-            const fs = require('fs');
-            const path = require('path');
             const fullPath = path.join(rootDirectory, node.file_path);
             const exists = fs.existsSync(fullPath);
 
@@ -99,6 +100,6 @@ export class PresenceWatermarkNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _prepRes: PresenceWatermarkNodeInput, execRes: PresenceWatermarkNodeOutput): Promise<string | undefined> {
         shared.presenceResults = execRes.presenceResults;
-        return "default";
+        return 'default';
     }
 }

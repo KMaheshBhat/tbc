@@ -1,9 +1,10 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
 
-import { Shared } from "../types";
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types';
 
 interface FlowConfig {
     verbose: boolean;
@@ -11,16 +12,16 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        rootDirectory: { type: "string" },
+        verbose: { type: 'boolean' },
+        rootDirectory: { type: 'string' },
     },
 };
 
 class ActShowFlowStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-activity:act-show-flow-start";
+        return 'tbc-activity:act-show-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -34,7 +35,7 @@ class ActShowFlowStartNode extends HAMINode<Shared, FlowConfig> {
             type: 'list-all-ids',
             recursive: true,
         };
-        return "default";
+        return 'default';
     }
 }
 
@@ -43,14 +44,14 @@ export class ActShowFlow extends HAMIFlow<Shared, FlowConfig> {
     config: FlowConfig;
 
     constructor(config: FlowConfig) {
-        const startNode = new ActShowFlowStartNode(config)
+        const startNode = new ActShowFlowStartNode(config);
         super(startNode, config);
         this.startNode = startNode;
         this.config = config;
     }
 
     kind(): string {
-        return "tbc-activity:act-show-flow";
+        return 'tbc-activity:act-show-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -71,7 +72,7 @@ export class ActShowFlow extends HAMIFlow<Shared, FlowConfig> {
         // --- The Pattern: Loop through Collections ---
         const collections = [
             'stage.currentActivityCollection',
-            'stage.backlogActivityCollection'
+            'stage.backlogActivityCollection',
         ];
 
         for (const collectionPath of collections) {
@@ -81,7 +82,7 @@ export class ActShowFlow extends HAMIFlow<Shared, FlowConfig> {
                         // Clear previous results to avoid pollution
                         s.record.result = undefined;
                         s.stage.records = undefined;
-                    }
+                    },
                 }))
                 .next(n('core:assign', {
                     'record.rootDirectory': 'system.rootDirectory',
@@ -110,7 +111,7 @@ export class ActShowFlow extends HAMIFlow<Shared, FlowConfig> {
                         if (records) {
                             s.stage.loaded[resolvedCollection] = records;
                         }
-                    }
+                    },
                 }));
         }
 
@@ -121,7 +122,7 @@ export class ActShowFlow extends HAMIFlow<Shared, FlowConfig> {
                     const source = 'act-show-flow';
                     const groups = [
                         { path: s.stage.currentActivityCollection, label: 'Active [current]', empty: 'No active activities found.' },
-                        { path: s.stage.backlogActivityCollection, label: 'Paused [backlog]', empty: 'No paused activities found.' }
+                        { path: s.stage.backlogActivityCollection, label: 'Paused [backlog]', empty: 'No paused activities found.' },
                     ];
 
                     for (const group of groups) {
@@ -147,22 +148,21 @@ export class ActShowFlow extends HAMIFlow<Shared, FlowConfig> {
                                 // 2. THE FILTER: The identity file MUST match the folder name
                                 if (folderId !== fileName) continue;
 
-                                const title = r.record_title || r.title || "Untitled Activity";
+                                const title = r.record_title || r.title || 'Untitled Activity';
 
                                 s.stage.messages.push({
                                     level: 'info',
                                     source,
                                     message: title,
-                                    suggestion: `Found at ${group.path}:${folderId}/${fileNameWithExt}`
+                                    suggestion: `Found at ${group.path}:${folderId}/${fileNameWithExt}`,
                                 });
                             }
                         }
                         s.stage.messages.push({ level: 'raw', source, message: ' └────────────────────────────────────────────────────────────' });
                     }
-                }
+                },
             }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            ;
+            .next(n('tbc-system:log-and-clear-messages'));
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {

@@ -1,6 +1,6 @@
-import { HAMINode } from "@hami-frameworx/core";
+import { HAMINode } from '@hami-frameworx/core';
 
-import type { Shared } from "../types.js";
+import type { Shared } from '../types.js';
 
 type VectorWatermarkNodeInput = {
     processedRecords: Array<{
@@ -36,18 +36,18 @@ export class VectorWatermarkNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-dex:vector-watermark";
+        return 'tbc-dex:vector-watermark';
     }
 
     async prep(shared: Shared): Promise<VectorWatermarkNodeInput> {
         if (!shared.processedRecords) {
-            throw new Error("processedRecords is required in shared state");
+            throw new Error('processedRecords is required in shared state');
         }
         if (!shared.rootDirectory) {
-            throw new Error("rootDirectory is required in shared state");
+            throw new Error('rootDirectory is required in shared state');
         }
         if (!shared.dexStore) {
-            throw new Error("dexStore is required in shared state");
+            throw new Error('dexStore is required in shared state');
         }
         return {
             processedRecords: shared.processedRecords,
@@ -76,11 +76,11 @@ export class VectorWatermarkNode extends HAMINode<Shared> {
 
     private async checkVector(record: VectorWatermarkNodeInput['processedRecords'][0]): Promise<{ status: number; message?: string }> {
         // Placeholder for vector embedding checks
-        return { status: 2, message: "Not implemented" };
+        return { status: 2, message: 'Not implemented' };
     }
 
     async post(shared: Shared, _prepRes: VectorWatermarkNodeInput, execRes: VectorWatermarkNodeOutput): Promise<string | undefined> {
         shared.vectorResults = execRes.vectorResults;
-        return "default";
+        return 'default';
     }
 }

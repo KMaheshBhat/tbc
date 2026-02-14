@@ -1,8 +1,8 @@
-import { createPlugin } from "@hami-frameworx/core";
+import { createPlugin } from '@hami-frameworx/core';
 
-import { StoreRecordsNode } from "./ops/store-records.js";
-import { QueryRecordsNode } from "./ops/query-records.js";
-import { FetchRecordsNode } from "./ops/fetch-records.js";
+import { FetchRecordsNode } from './ops/fetch-records.js';
+import { QueryRecordsNode } from './ops/query-records.js';
+import { StoreRecordsNode } from './ops/store-records.js';
 
 /**
  * TBC Record File System Plugin for HAMI.
@@ -14,14 +14,14 @@ import { FetchRecordsNode } from "./ops/fetch-records.js";
  * - `tbc-record-fs:fetch-records`: Fetches records by IDs from a collection directory
  */
 const TBCRecordFSPlugin = createPlugin(
-    "@tbc-frameworx/tbc-record-fs",
-    "0.1.0",
+    '@tbc-frameworx/tbc-record-fs',
+    '0.1.0',
     [
         FetchRecordsNode as any,
         StoreRecordsNode as any,
         QueryRecordsNode as any,
     ],
-    "TBC Record File System Plugin - File system operations for TBC directories",
+    'TBC Record File System Plugin - File system operations for TBC directories',
 );
 
 export { TBCRecordFSPlugin };

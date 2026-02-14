@@ -1,6 +1,6 @@
-import { HAMINode } from "@hami-frameworx/core";
+import { HAMINode } from '@hami-frameworx/core';
 
-import { TBCMessage, Shared } from "../types.js";
+import { Shared, TBCMessage } from '../types.js';
 
 type NodeInput = {
     verbose?: boolean;
@@ -11,7 +11,7 @@ type NodeOutput = string;
 
 export class ResolveRootDirectoryNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-system:resolve-root-directory";
+        return 'tbc-system:resolve-root-directory';
     }
 
     async prep(
@@ -43,6 +43,6 @@ export class ResolveRootDirectoryNode extends HAMINode<Shared> {
         });
         shared.stage.rootDirectory = output;
         shared.system.rootDirectory = output;
-        return "default";
+        return 'default';
     }
 }

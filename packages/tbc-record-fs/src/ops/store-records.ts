@@ -1,13 +1,14 @@
-import assert from "assert";
-import { writeFile, mkdir } from "fs/promises";
-import { join, dirname } from "path";
-import matter from "gray-matter";
-import yaml from "js-yaml";
+import assert from 'node:assert';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 
-import { HAMINode } from "@hami-frameworx/core";
+import matter from 'gray-matter';
+import yaml from 'js-yaml';
 
-import { TBCRecordFSShared as Shared } from "../types.js";
-import { TBCStore } from "@tbc-frameworx/tbc-record";
+import { HAMINode } from '@hami-frameworx/core';
+import { TBCStore } from '@tbc-frameworx/tbc-record';
+
+import { TBCRecordFSShared as Shared } from '../types.js';
 
 export class StoreRecordsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
@@ -15,7 +16,7 @@ export class StoreRecordsNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-record-fs:store-records";
+        return 'tbc-record-fs:store-records';
     }
 
     async prep(shared: Shared): Promise<[string, string, Record<string, any>[]]> {
@@ -42,7 +43,7 @@ export class StoreRecordsNode extends HAMINode<Shared> {
 
         for (const record of records) {
             if (!record.id) {
-                console.error(`Record missing id:`, record);
+                console.error('Record missing id:', record);
                 continue;
             }
 
@@ -116,7 +117,7 @@ export class StoreRecordsNode extends HAMINode<Shared> {
                 fileName = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
                 break;
             case 'yaml':
-                fileName = record.filename? record.filename : fileName.endsWith('.yaml') ? fileName : `${fileName}.yaml`;
+                fileName = record.filename ? record.filename : fileName.endsWith('.yaml') ? fileName : `${fileName}.yaml`;
                 break;
         }
         return join(collectionPath, fileName);
@@ -149,6 +150,6 @@ export class StoreRecordsNode extends HAMINode<Shared> {
         if (!shared.record.result) shared.record.result = {};
         shared.record.result.records = execRes;
         shared.record.result.totalCount = Object.values(execRes).reduce((sum, collection) => sum + Object.keys(collection).length, 0);
-        return "default";
+        return 'default';
     }
 }

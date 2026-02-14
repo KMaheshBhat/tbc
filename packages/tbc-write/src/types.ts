@@ -1,7 +1,6 @@
-import { HAMIRegistrationManager } from "@hami-frameworx/core";
-import { TBCRecordOperation } from "@tbc-frameworx/tbc-record";
-import { TBCSystemOperation } from "@tbc-frameworx/tbc-system";
-
+import { HAMIRegistrationManager } from '@hami-frameworx/core';
+import { TBCRecordOperation } from '@tbc-frameworx/tbc-record';
+import { TBCSystemOperation } from '@tbc-frameworx/tbc-system';
 
 type SharedStage = Record<string, any>;
 
@@ -14,7 +13,7 @@ type Shared = {
   system: TBCSystemOperation;
   /** Current record operaton */
   record: TBCRecordOperation;
-}
+};
 
 export {
   Shared,

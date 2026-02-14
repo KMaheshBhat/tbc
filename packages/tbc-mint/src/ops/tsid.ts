@@ -1,6 +1,6 @@
-import { HAMINode } from "@hami-frameworx/core";
+import { HAMINode } from '@hami-frameworx/core';
 
-import { Minted, MintRequest, Shared } from "../types.js";
+import { Minted, MintRequest, Shared } from '../types.js';
 
 function generateTsid(): string {
     const now = new Date();
@@ -15,7 +15,7 @@ function generateTsid(): string {
 
 export class MintTsidNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-mint:tsid-mint";
+        return 'tbc-mint:tsid-mint';
     }
 
     async prep(shared: Shared): Promise<MintRequest> {
@@ -51,6 +51,6 @@ export class MintTsidNode extends HAMINode<Shared> {
             shared.stage.minted = { keys: {}, batch: [] };
         }
         shared.stage.minted = result;
-        return "default";
+        return 'default';
     }
 }

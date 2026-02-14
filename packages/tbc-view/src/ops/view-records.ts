@@ -1,7 +1,8 @@
-import assert from "assert";
-import { Node } from "pocketflow";
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { Shared } from "../types";
+import assert from 'node:assert';
+import { Node } from 'pocketflow';
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 interface FlowConfig {
     verbose: boolean;
@@ -12,32 +13,32 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        query: { type: "string" },
-        type: { type: "string" },
-        recordFetchers: { type: "array", items: { type: "string" } },
-        limit: { type: "number" }
+        verbose: { type: 'boolean' },
+        query: { type: 'string' },
+        type: { type: 'string' },
+        recordFetchers: { type: 'array', items: { type: 'string' } },
+        limit: { type: 'number' },
     },
     required: ['verbose', 'recordFetchers'],
 };
 
 class ViewRecordsStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-view:view-records-flow-start";
+        return 'tbc-view:view-records-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
-        assert(shared.system?.rootDirectory, "shared.system.rootDirectory is required for ViewRecordsFlow");
+        assert(shared.system?.rootDirectory, 'shared.system.rootDirectory is required for ViewRecordsFlow');
 
         // Initialize the view namespace
         shared.view = shared.view || {
             matches: [],
-            records: []
+            records: [],
         };
 
-        return "default";
+        return 'default';
     }
 }
 
@@ -51,7 +52,7 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-view:view-records-flow";
+        return 'tbc-view:view-records-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -68,14 +69,14 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                         type: 'list-all-ids',
                     };
                     s.record.collection = 'dex';
-                }
+                },
             }))
             .next(n('tbc-record:query-records-flow', {
                 recordProviders: ['tbc-record-fs:query-records'],
                 verbose: this.config.verbose,
             }))
             .next(n('core:assign', {
-                'record.IDs': 'record.result.IDs'
+                'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
                 recordProviders: ['tbc-record-fs:fetch-records'],
@@ -88,14 +89,14 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                     s.view = s.view || { query: '', matches: [], records: [] };
                     s.view.query = config.query;
                     s.view.type = config.type;
-                }
+                },
             }))
-            // 2. Query DEX 
+            // 2. Query DEX
             .next(n('tbc-dex:query-indices', {
                 query: config.query,
                 type: config.type,
                 limit: config.limit || 10,
-                outputKey: 'viewMatches' // Tell DEX where to put the results in shared.stage
+                outputKey: 'viewMatches', // Tell DEX where to put the results in shared.stage
             }))
             // 3. Map Stage to View
             .next(n('core:mutate', {
@@ -107,12 +108,12 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                     s.record.IDs = s.view.matches.map((m: any) => m.id);
                     s.record.collection = 'mem';
                     s.record.result = undefined;
-                }
+                },
             }))
             // 4. Execute Settled Fetch Logic
             .next(n('tbc-record:fetch-records-flow', {
                 recordProviders: config.recordFetchers, // Pass the fetcher kinds
-                verbose: config.verbose
+                verbose: config.verbose,
             }))
             // 5. Project Results & Reporting
             .next(n('core:mutate', {
@@ -131,7 +132,7 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                                 // Priority: specific field > generic field > fallback ID
                                 title: r.record_title || r.title || id,
                                 type: r.record_type || r.type || 'memory',
-                                id: r.id || id
+                                id: r.id || id,
                             };
 
                             flattened.push(normalizedRecord);
@@ -159,7 +160,7 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                             s.stage.messages.push({
                                 level: 'debug',
                                 source: 'view-records-flow',
-                                message: `Recalled: [${r.type}] ${r.title}`
+                                message: `Recalled: [${r.type}] ${r.title}`,
                             });
                         });
                     } else {
@@ -167,12 +168,11 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                             level: 'warn',
                             source: 'view-records-flow',
                             message: `No records found matching query: "${queryDisplay}"`,
-                            suggestion: 'Try a different keyword or check your index partitions.'
+                            suggestion: 'Try a different keyword or check your index partitions.',
                         });
                     }
-                }
-            }))
-            ;
+                },
+            }));
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {

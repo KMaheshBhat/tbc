@@ -1,7 +1,8 @@
-import assert from "assert";
-import { HAMINode } from "@hami-frameworx/core";
-import { TBCRecord } from "@tbc-frameworx/tbc-record";
-import { Shared, SynthesizeRequest } from "@tbc-frameworx/tbc-synthesize";
+import assert from 'node:assert';
+
+import { HAMINode } from '@hami-frameworx/core';
+import { TBCRecord } from '@tbc-frameworx/tbc-record';
+import { Shared, SynthesizeRequest } from '@tbc-frameworx/tbc-synthesize';
 
 type NodeInput = {
     request: SynthesizeRequest;
@@ -12,11 +13,11 @@ type NodeInput = {
 
 export class SynthesizeRecordNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-system:synthesize-record";
+        return 'tbc-system:synthesize-record';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
-        assert(shared.stage.synthesizeRequest, "SynthesizeRequest is missing from stage.");
+        assert(shared.stage.synthesizeRequest, 'SynthesizeRequest is missing from stage.');
         return {
             request: shared.stage.synthesizeRequest,
             templates: shared.stage.records?.templates || {},
@@ -78,10 +79,10 @@ export class SynthesizeRecordNode extends HAMINode<Shared> {
         let hydratedContent = template
             .replace(/{{id}}/g, recordId)
             .replace(/{{title}}/g, derivedTitle)
-            .replace(/{{content}}/g, meta?.content || "")
+            .replace(/{{content}}/g, meta?.content || '')
             .replace(/{{tags}}/g, tagsYaml)
             .replace(/{{date}}/g, timestamp)
-            .trim() + "\n";
+            .trim() + '\n';
 
         // 5. Construct Record
         const record: TBCRecord = {
@@ -91,7 +92,7 @@ export class SynthesizeRecordNode extends HAMINode<Shared> {
             record_title: derivedTitle,
             record_create_date: timestamp,
             content: hydratedContent,
-            contentType: "markdown",
+            contentType: 'markdown',
         };
 
         return [record];
@@ -99,8 +100,8 @@ export class SynthesizeRecordNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _input: NodeInput, output: TBCRecord[]): Promise<string> {
         shared.stage.synthesized = {
-            records: output
+            records: output,
         };
-        return "default";
+        return 'default';
     }
 }

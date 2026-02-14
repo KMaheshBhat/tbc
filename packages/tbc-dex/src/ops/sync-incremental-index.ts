@@ -1,13 +1,13 @@
+import assert from 'node:assert';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import {
     HAMINode,
-    HAMINodeConfigValidateResult,
     validateAgainstSchema,
-    ValidationSchema
-} from "@hami-frameworx/core";
-import { Shared } from "../types.js";
-import { join } from "path";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import assert from "assert";
+} from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 interface SyncPayload {
     root: string;
@@ -16,11 +16,11 @@ interface SyncPayload {
 
 // in packages/tbc-dex/src/ops/sync-incremental-index.ts
 export class SyncIncrementalIndexNode extends HAMINode<Shared, any> {
-    kind() { return "tbc-dex:sync-incremental-index"; }
+    kind() { return 'tbc-dex:sync-incremental-index'; }
     async prep(shared: Shared): Promise<SyncPayload> {
         // 1. Resolve Root (handle both config or shared stage)
         const root = this.config.rootDirectory || shared.stage?.rootDirectory;
-        assert(root, "rootDirectory must be provided in config or shared.stage");
+        assert(root, 'rootDirectory must be provided in config or shared.stage');
 
         // 2. Resolve Drafts using HAMI path logic
         const sourcePath = this.config.sourcePath;
@@ -37,7 +37,7 @@ export class SyncIncrementalIndexNode extends HAMINode<Shared, any> {
 
     async exec(payload: SyncPayload) {
         const { root, drafts } = payload;
-        if (drafts.length === 0) return "default";
+        if (drafts.length === 0) return 'default';
 
         const partitions: Record<string, any[]> = {};
 
@@ -46,7 +46,7 @@ export class SyncIncrementalIndexNode extends HAMINode<Shared, any> {
             const type = draft.record_type || 'unknown';
             if (!partitions[type]) partitions[type] = [];
 
-            // INDEX STRATEGY: 
+            // INDEX STRATEGY:
             // We strip 'content' if it's too large, or keep specific indexable fields.
             // If 'draft' is a record object from tbc-record, it might have 'id' and 'content'.
             // We want the metadata fields for the Dex.
@@ -60,7 +60,7 @@ export class SyncIncrementalIndexNode extends HAMINode<Shared, any> {
             const indexPath = join(dexDir, `${type}.memory.jsonl`);
             await this.updatePartition(indexPath, records);
         }
-        return "default";
+        return 'default';
     }
 
     private async updatePartition(path: string, newRecords: any[]) {

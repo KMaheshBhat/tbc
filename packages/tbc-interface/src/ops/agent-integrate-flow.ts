@@ -1,9 +1,10 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
 
-import { Shared } from "../types";
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, ValidationSchema, validateAgainstSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 interface FlowConfig {
     verbose: boolean;
@@ -12,18 +13,18 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        rootDirectory: { type: "string" },
-        agentType: { type: "string" },
+        verbose: { type: 'boolean' },
+        rootDirectory: { type: 'string' },
+        agentType: { type: 'string' },
     },
     required: ['agentType'],
 };
 
 class AgentIntegrateFlowStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-interface:agent-integrate-flow-start";
+        return 'tbc-interface:agent-integrate-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -32,18 +33,18 @@ class AgentIntegrateFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
         shared.stage.agentType = shared.stage.agentType || this.config?.agentType;
-        const targetType = shared.stage.agentType || "generic";
+        const targetType = shared.stage.agentType || 'generic';
         const protocol = AGENT_PROTOCOLS[targetType];
         assert(protocol, `Protocol Error: No registered protocol for record type [${targetType}]`);
         shared.stage.activeProtocol = protocol;
         shared.stage.rootCollection = '.';
-        return "default";
+        return 'default';
     }
 }
 
 const AGENT_PROTOCOLS: Record<string, {
-    assetProvider: string,
-    synthesisProvider: string,
+    assetProvider: string;
+    synthesisProvider: string;
 }> = {
     'generic': {
         assetProvider: 'tbc-interface:load-generic-assets',
@@ -79,7 +80,7 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-interface:agent-integrate-flow";
+        return 'tbc-interface:agent-integrate-flow';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -93,10 +94,10 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
                         source: 'agent-integrate-flow',
-                        message: `has no existing companion (not a valid TBC Root)`,
+                        message: 'has no existing companion (not a valid TBC Root)',
                         suggestion: 'Use "tbc sys init" instead.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'));
         const branchToAbort = n('core:branch', { branch: (s: Shared) => s.stage.validationResult?.success ? 'default' : 'abort' });
@@ -114,7 +115,7 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
                         type: 'role-definition',
                         provider: 'tbc-system:synthesize-value',
                     }];
-                }
+                },
             }))
             .next(n('tbc-synthesize:synthesize-value-flow', {
                 requestsKey: 'synthesizeRequests',
@@ -123,7 +124,7 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     s.stage.records = undefined;
-                }
+                },
             }))
             .next(n(AGENT_PROTOCOLS[shared.stage.agentType].assetProvider))
             .next(n('core:mutate', {
@@ -132,17 +133,17 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
                         type: s.stage.agentType,
                         provider: s.stage.activeProtocol.synthesisProvider,
                     }];
-                }
+                },
             }))
             .next(n('tbc-synthesize:synthesize-record-flow', {
-                requestsKey: 'synthesizeRequests'
+                requestsKey: 'synthesizeRequests',
             }))
             .next(n('tbc-write:write-records-flow', {
                 verbose: this.config?.verbose,
                 recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'record.records',
                 collection: 'rootCollection',
-                syncIndex: false
+                syncIndex: false,
             }))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
@@ -161,13 +162,12 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'agent-integrate-flow',
-                        message: `Agent integration done.`,
-                        suggestion: `Highly recommended that the Prime User restarts the interface session for agent integration to take effect.`,
+                        message: 'Agent integration done.',
+                        suggestion: 'Highly recommended that the Prime User restarts the interface session for agent integration to take effect.',
                     });
-                }
+                },
             }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            ;
+            .next(n('tbc-system:log-and-clear-messages'));
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {

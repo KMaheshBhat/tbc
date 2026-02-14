@@ -1,10 +1,10 @@
-import { createPlugin } from "@hami-frameworx/core";
+import { createPlugin } from '@hami-frameworx/core';
 
-import { ActStartFlow } from "./ops/act-start-flow.js";
-import { ActShowFlow } from "./ops/act-show-flow.js";
-import { ActPauseFlow } from "./ops/act-pause-flow.js";
-import { ActCloseFlow } from "./ops/act-close-flow.js";
-import { PrepareWorkspaceNode } from "./ops/prepare-workspace.js";
+import { ActStartFlow } from './ops/act-start-flow.js';
+import { ActShowFlow } from './ops/act-show-flow.js';
+import { ActPauseFlow } from './ops/act-pause-flow.js';
+import { ActCloseFlow } from './ops/act-close-flow.js';
+import { PrepareWorkspaceNode } from './ops/prepare-workspace.js';
 
 /**
  * TBC Activity Plugin for HAMI.
@@ -18,8 +18,8 @@ import { PrepareWorkspaceNode } from "./ops/prepare-workspace.js";
  * - `tbc-activity:prepare-workspace`: Prepares workspace for activity
  */
 const TBCActivityPlugin = createPlugin(
-    "@tbc-frameworx/tbc-activity",
-    "0.1.0",
+    '@tbc-frameworx/tbc-activity',
+    '0.1.0',
     [
         PrepareWorkspaceNode as any,
         ActStartFlow as any,
@@ -27,7 +27,7 @@ const TBCActivityPlugin = createPlugin(
         ActPauseFlow as any,
         ActCloseFlow as any,
     ],
-    "TBC Activity Plugin - Activity operations for TBC",
+    'TBC Activity Plugin - Activity operations for TBC',
 );
 
 export { TBCActivityPlugin };

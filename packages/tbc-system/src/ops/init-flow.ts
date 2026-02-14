@@ -1,11 +1,11 @@
-import assert from "assert";
+import assert from 'node:assert';
 
-import { Node } from "pocketflow";
+import { Node } from 'pocketflow';
 
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { Shared } from "../types";
 import packageJson from '../../package.json' with { type: 'json' };
+import { Shared } from '../types.js';
 
 interface FlowConfig {
     verbose?: boolean;
@@ -15,14 +15,14 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        rootDirectory: { type: "string" },
-        companionName: { type: "string" },
-        primeName: { type: "string" },
+        verbose: { type: 'boolean' },
+        rootDirectory: { type: 'string' },
+        companionName: { type: 'string' },
+        primeName: { type: 'string' },
     },
-    required: ["companionName", "primeName"],
+    required: ['companionName', 'primeName'],
 };
 
 class InitFlowStartNode extends HAMINode<Shared, FlowConfig> {
@@ -31,7 +31,7 @@ class InitFlowStartNode extends HAMINode<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-system:init-flow-start"
+        return 'tbc-system:init-flow-start';
     }
 
     async post(shared: Record<string, any>, prepRes: unknown, execRes: unknown): Promise<string> {
@@ -46,7 +46,7 @@ class InitFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.dexCollection = 'dex';
         shared.stage.memCollection = 'mem';
         shared.stage.actCollection = 'act';
-        return "default";
+        return 'default';
     }
 }
 
@@ -62,11 +62,11 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-system:init-flow";
+        return 'tbc-system:init-flow';
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema)
+        const result = validateAgainstSchema(config, FlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -83,7 +83,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         const stageRecords = (
             registry: any,
             sourceCollection: string | ((s: Shared) => string),
-            targetPath = 'stage.activeDrafts'
+            targetPath = 'stage.activeDrafts',
         ) => {
             return registry.createNode('core:mutate', {
                 mutate: (shared: Shared) => {
@@ -98,7 +98,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         // If it's a string (like sys/core or skills/core), wrap it
                         return {
                             id: id,
-                            content: data
+                            content: data,
                         };
                     });
                     // Set the drafts at the requested path (e.g., shared.stage.activeDrafts)
@@ -108,7 +108,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         current = current[pathParts[i]];
                     }
                     current[pathParts[pathParts.length - 1]] = drafts;
-                }
+                },
             });
         };
         const abortSequence = new Node();
@@ -122,9 +122,9 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         message: `has existing companion ${shared.system.companionID}`,
                         suggestion: 'Use "tbc sys upgrade" instead.',
                     });
-                }
+                },
             }))
-            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:log-and-clear-messages'));
         const branchToAbort = n('core:branch', {
             branch: (shared: Record<string, any>) => {
                 if (shared.stage.validationResult.success) {
@@ -133,7 +133,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 return 'default';
             },
         });
-        branchToAbort.on('abort', abortSequence)
+        branchToAbort.on('abort', abortSequence);
         this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
@@ -145,7 +145,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'init-flow',
                         message: 'Checking first ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
@@ -159,7 +159,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'init-flow',
                         message: 'no existing valid TBC root found, proceeding ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-mint:mint-ids-flow', {
                 requests: [
@@ -180,7 +180,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'init-flow',
                         message: 'Synthesized memory records.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:load-system-assets'))
             .next(n('core:mutate', {
@@ -190,7 +190,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'init-flow',
                         message: `Loaded TBC ${packageJson.version} core assets (specs and skills).`,
                     });
-                }
+                },
             }))
             .next(n('tbc-system:synthesize-sys-records'))
             .next(n('core:mutate', {
@@ -200,7 +200,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'init-flow',
                         message: 'Synthesized system records.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('tbc-system:prepare-records-manifest'))
@@ -263,7 +263,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'init-flow',
                         message: 'Validating again ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
@@ -301,18 +301,18 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: `Next Steps`,
+                        message: 'Next Steps',
                         suggestion: 'Refresh indexes (tbc dex) and prepare interface hooks (tbc int)',
                     });
 
-                }
+                },
             }))
             .next(n('tbc-dex:collate-digest', {
                 output: { collection: 'dex', id: 'sys.digest.txt' },
                 sources: [
-                    { collection: 'sys', idGlob: 'root.md', },
-                    { collection: 'sys/core', idGlob: '*.md', },
-                    { collection: 'sys/ext', idGlob: '*.md', },
+                    { collection: 'sys', idGlob: 'root.md' },
+                    { collection: 'sys/core', idGlob: '*.md' },
+                    { collection: 'sys/ext', idGlob: '*.md' },
                 ],
             }))
             .next(n('tbc-dex:collate-metadata-index', {
@@ -334,7 +334,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                             id: id,
                         });
                     }
-                }
+                },
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
@@ -350,19 +350,18 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: `Digest: dex/sys.digest.txt`,
-                        suggestion: `This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.`
+                        message: 'Digest: dex/sys.digest.txt',
+                        suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.',
                     });
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: `Digest: dex/skills.jsonl`,
-                        suggestion: `This file is index of all skill you can use for your goals.`
+                        message: 'Digest: dex/skills.jsonl',
+                        suggestion: 'This file is index of all skill you can use for your goals.',
                     });
-                }
+                },
             }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            ;
+            .next(n('tbc-system:log-and-clear-messages'));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {

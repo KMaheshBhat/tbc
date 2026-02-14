@@ -1,15 +1,16 @@
-import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import assert from 'node:assert';
 
-import { Shared, TBCLevel, TBCMessage } from "../types.js";
-import assert from "assert";
+import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Shared, TBCLevel, TBCMessage } from '../types.js';
 
 type Config = {
     source: string;
     level: TBCLevel;
-}
+};
 
 const ValidateNodeConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
         level: { type: 'string', enum: ['debug', 'info', 'warn', 'error', 'raw'], default: 'info' },
         source: { type: 'string' },
@@ -19,11 +20,11 @@ const ValidateNodeConfigSchema: ValidationSchema = {
 
 export class AddManifestMessagesNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return "tbc-system:add-manifest-messages";
+        return 'tbc-system:add-manifest-messages';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, ValidateNodeConfigSchema)
+        const result = validateAgainstSchema(config, ValidateNodeConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -36,7 +37,7 @@ export class AddManifestMessagesNode extends HAMINode<Shared, Config> {
     }
 
     async exec(manifest: Record<string, string[]>): Promise<TBCMessage[]> {
-        assert(this.config, "the add-manifest-messages must be configured");
+        assert(this.config, 'the add-manifest-messages must be configured');
         const messages: TBCMessage[] = [];
         const sortedEntries = Object.entries(manifest)
             .filter(([_, records]) => records.length > 0)
@@ -55,7 +56,7 @@ export class AddManifestMessagesNode extends HAMINode<Shared, Config> {
     }
 
     async post(shared: Shared, _input: any, messages: TBCMessage[]): Promise<string> {
-        assert(this.config, "the add-manifest-messages must be configured");
+        assert(this.config, 'the add-manifest-messages must be configured');
         shared.stage.messages = shared.stage.messages || [];
         shared.stage.messages.push({
             level: 'raw',
@@ -70,6 +71,6 @@ export class AddManifestMessagesNode extends HAMINode<Shared, Config> {
             source: this.config.source,
             code: 'MANIFEST',
         });
-        return "default";
+        return 'default';
     }
 }

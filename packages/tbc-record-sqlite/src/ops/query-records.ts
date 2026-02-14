@@ -1,10 +1,12 @@
-import assert from "assert";
-import { HAMINode } from "@hami-frameworx/core";
-import { Database } from "bun:sqlite";
+import assert from 'node:assert';
 
-import type { TBCRecordSQLiteShared as Shared } from "../types.js";
-import { TBCQueryParams, TBCResult } from "@tbc-frameworx/tbc-record";
-import { ensureTables } from "../store.js";
+import { HAMINode } from '@hami-frameworx/core';
+import { Database } from 'bun:sqlite';
+
+import { TBCQueryParams, TBCResult } from '@tbc-frameworx/tbc-record';
+
+import type { TBCRecordSQLiteShared as Shared } from '../types.js';
+import { ensureTables } from '../store.js';
 
 type NodeInput = {
     storePath: string;
@@ -20,7 +22,7 @@ export class QueryRecordsNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-record-sqlite:query-records";
+        return 'tbc-record-sqlite:query-records';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
@@ -56,9 +58,9 @@ export class QueryRecordsNode extends HAMINode<Shared> {
             // Ensure tables exist
             ensureTables(db);
 
-            const querySql = db.query("SELECT id FROM nodes WHERE collection = ? ORDER BY id");
+            const querySql = db.query('SELECT id FROM nodes WHERE collection = ? ORDER BY id');
             const rows = querySql.all(collection) as { id: string }[];
-            const IDs = rows.map(row => row.id);
+            const IDs = rows.map((row) => row.id);
 
             // Apply sorting if specified
             if (query.sortBy) {
@@ -93,19 +95,18 @@ export class QueryRecordsNode extends HAMINode<Shared> {
     private handleFilterByTags(storePath: string, query: TBCQueryParams, collection: string): TBCResult {
         // TODO: Implement tag filtering
         // This would require reading node_attributes for record_tags
-        throw new Error("filter-by-tags not yet implemented");
+        throw new Error('filter-by-tags not yet implemented');
     }
 
     private handleSearchByContent(storePath: string, query: TBCQueryParams, collection: string): TBCResult {
         // TODO: Implement content search
         // This would require reading node_attributes for content
-        throw new Error("search-by-content not yet implemented");
+        throw new Error('search-by-content not yet implemented');
     }
-
 
     async post(shared: Shared, _prepRes: NodeInput, execRes: NodeOutput): Promise<string | undefined> {
         if (!shared.record!.result) shared.record!.result = {};
         Object.assign(shared.record!.result, execRes);
-        return "default";
+        return 'default';
     }
 }

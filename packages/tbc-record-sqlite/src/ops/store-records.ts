@@ -1,10 +1,12 @@
-import assert from "assert";
-import { HAMINode } from "@hami-frameworx/core";
-import { Database } from "bun:sqlite";
+import assert from 'node:assert';
 
-import type { TBCRecordSQLiteShared as Shared, TBCRecordSQLite as Record } from "../types.js";
-import { TBCStore } from "@tbc-frameworx/tbc-record";
-import { ensureTables } from "../store.js";
+import { HAMINode } from '@hami-frameworx/core';
+import { Database } from 'bun:sqlite';
+
+import { TBCStore } from '@tbc-frameworx/tbc-record';
+
+import type { TBCRecordSQLiteShared as Shared, TBCRecordSQLite as Record } from '../types.js';
+import { ensureTables } from '../store.js';
 
 type NodeInput = {
     storePath: string;
@@ -20,7 +22,7 @@ export class StoreRecordsNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-record-sqlite:store-records";
+        return 'tbc-record-sqlite:store-records';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
@@ -47,7 +49,7 @@ export class StoreRecordsNode extends HAMINode<Shared> {
 
             for (const record of params.records) {
                 if (!record.id) {
-                    console.error(`Record missing id:`, record);
+                    console.error('Record missing id:', record);
                     continue;
                 }
 
@@ -63,7 +65,7 @@ export class StoreRecordsNode extends HAMINode<Shared> {
             return storedTBCStore;
         } catch (error: any) {
             console.error(`Error storing records to ${params.storePath}:`, error);
-            return {[params.collection]: {}};
+            return { [params.collection]: {} };
         } finally {
             db.close();
         }
@@ -95,7 +97,7 @@ export class StoreRecordsNode extends HAMINode<Shared> {
             nodeData.hash,
             nodeData.last_seen_at,
             nodeData.created_at,
-            nodeData.file_path
+            nodeData.file_path,
         );
 
         // Store attributes
@@ -143,12 +145,11 @@ export class StoreRecordsNode extends HAMINode<Shared> {
         return Math.abs(hash).toString(16);
     }
 
-
     async post(shared: Shared, _prepRes: NodeInput, execRes: NodeOutput): Promise<string | undefined> {
         assert(shared.record, 'shared.record is required');
         if (!shared.record.result) shared.record.result = {};
         shared.record.result.records = execRes;
         shared.record.result.totalCount = Object.values(execRes).reduce((sum, collection) => sum + Object.keys(collection).length, 0);
-        return "default";
+        return 'default';
     }
 }

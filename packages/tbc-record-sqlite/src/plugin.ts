@@ -1,10 +1,10 @@
-import { createPlugin } from "@hami-frameworx/core";
+import { createPlugin } from '@hami-frameworx/core';
 
-import { FetchRecordsNode } from "./ops/fetch-records.js";
-import { QueryRecordsNode } from "./ops/query-records.js";
-import { StoreRecordsNode } from "./ops/store-records.js";
-import { FetchRelationsNode } from "./ops/fetch-relations.js";
-import { StoreRelationsNode } from "./ops/store-relations.js";
+import { FetchRecordsNode } from './ops/fetch-records.js';
+import { QueryRecordsNode } from './ops/query-records.js';
+import { StoreRecordsNode } from './ops/store-records.js';
+import { FetchRelationsNode } from './ops/fetch-relations.js';
+import { StoreRelationsNode } from './ops/store-relations.js';
 
 /**
  * TBC Record SQLite Plugin for HAMI.
@@ -18,8 +18,8 @@ import { StoreRelationsNode } from "./ops/store-relations.js";
  * - `tbc-record-sqlite:store-relations`: Stores relationships between records
  */
 const TBCRecordSQLitePlugin = createPlugin(
-    "@tbc-frameworx/tbc-record-sqlite",
-    "0.1.0",
+    '@tbc-frameworx/tbc-record-sqlite',
+    '0.1.0',
     [
         FetchRecordsNode as any,
         QueryRecordsNode as any,
@@ -27,7 +27,7 @@ const TBCRecordSQLitePlugin = createPlugin(
         FetchRelationsNode as any,
         StoreRelationsNode as any,
     ],
-    "TBC Record SQLite Plugin - SQLite database operations for TBC records",
+    'TBC Record SQLite Plugin - SQLite database operations for TBC records',
 );
 
 export { TBCRecordSQLitePlugin };

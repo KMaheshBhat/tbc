@@ -1,19 +1,20 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
 
-import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
-import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, validateAgainstSchema } from '@hami-frameworx/core';
+import type { HAMINodeConfigValidateResult, ValidationSchema } from '@hami-frameworx/core';
 
 interface RefreshCoreFlowConfig {
     verbose: boolean;
 }
 
 const RefreshCoreFlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
+        verbose: { type: 'boolean' },
     },
-    required: ["verbose"],
+    required: ['verbose'],
 };
 
 export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFlowConfig> {
@@ -28,7 +29,7 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
     }
 
     kind(): string {
-        return "tbc-dex:refresh-core";
+        return 'tbc-dex:refresh-core';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -55,7 +56,7 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
                 verbose: this.config.verbose,
             }))
             .next(n('core:assign', {
-                'record.IDs': 'record.result.IDs'
+                'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
                 recordProviders: ['tbc-record-fs:fetch-records'],
@@ -73,9 +74,7 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
             .next(n('core:log-result', {
                 resultKey: 'storeResults',
                 format: 'table',
-            }))
-            ;
-
+            }));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -87,7 +86,7 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         shared.rootDirectory = rootDir;
         shared.record = {
             rootDirectory: rootDir,
-        }
+        };
 
         // Initialize fetchResults
         shared.fetchResults = {};
@@ -98,13 +97,13 @@ export class RefreshCoreFlow extends HAMIFlow<Record<string, any>, RefreshCoreFl
         shared.specsCollection = 'sys/core';
         shared.queryAllIDs = {
             type: 'list-all-ids',
-        }
+        };
 
         return super.run(shared);
     }
 
     validateConfig(config: RefreshCoreFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, RefreshCoreFlowConfigSchema)
+        const result = validateAgainstSchema(config, RefreshCoreFlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],

@@ -1,19 +1,20 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
 
-import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
-import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, validateAgainstSchema } from '@hami-frameworx/core';
+import type { HAMINodeConfigValidateResult, ValidationSchema } from '@hami-frameworx/core';
 
 interface RefreshSkillsFlowConfig {
     verbose: boolean;
 }
 
 const RefreshSkillsFlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
+        verbose: { type: 'boolean' },
     },
-    required: ["verbose"],
+    required: ['verbose'],
 };
 
 export class RefreshSkillsFlow extends HAMIFlow<Record<string, any>, RefreshSkillsFlowConfig> {
@@ -28,7 +29,7 @@ export class RefreshSkillsFlow extends HAMIFlow<Record<string, any>, RefreshSkil
     }
 
     kind(): string {
-        return "tbc-dex:refresh-skills";
+        return 'tbc-dex:refresh-skills';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -52,8 +53,7 @@ export class RefreshSkillsFlow extends HAMIFlow<Record<string, any>, RefreshSkil
             .next(n('core:log-result', {
                 resultKey: 'storeResults',
                 format: 'table',
-            }))
-            ;
+            }));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -65,7 +65,7 @@ export class RefreshSkillsFlow extends HAMIFlow<Record<string, any>, RefreshSkil
         shared.rootDirectory = rootDir;
         shared.record = {
             rootDirectory: rootDir,
-        }
+        };
 
         // Initialize fetchResults
         shared.fetchResults = {};
@@ -77,7 +77,7 @@ export class RefreshSkillsFlow extends HAMIFlow<Record<string, any>, RefreshSkil
     }
 
     validateConfig(config: RefreshSkillsFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, RefreshSkillsFlowConfigSchema)
+        const result = validateAgainstSchema(config, RefreshSkillsFlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],

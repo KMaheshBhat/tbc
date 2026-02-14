@@ -1,7 +1,9 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
+
+import { Node } from 'pocketflow';
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
-import { Shared } from "../types";
+
+import { Shared } from '../types';
 
 interface FlowConfig {
     verbose?: boolean;
@@ -13,16 +15,16 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        rootDirectory: { type: "string" },
-        content: { type: "string" },
-        type: { type: "string" },
-        title: { type: "string" },
-        tags: { type: "array", items: { type: "string" } },
+        verbose: { type: 'boolean' },
+        rootDirectory: { type: 'string' },
+        content: { type: 'string' },
+        type: { type: 'string' },
+        title: { type: 'string' },
+        tags: { type: 'array', items: { type: 'string' } },
     },
-    required: ["type"],
+    required: ['type'],
 };
 
 /**
@@ -38,7 +40,7 @@ const RECORD_PROTOCOLS: Record<string, { provider: string; idType: 'tbc-mint:uui
 
 class RememberFlowStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-memory:remember-flow-start";
+        return 'tbc-memory:remember-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -50,14 +52,14 @@ class RememberFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
 
         // 2. Resolve Protocol via Type
-        const targetType = shared.stage.type || this.config?.type || "note";
+        const targetType = shared.stage.type || this.config?.type || 'note';
         const protocol = RECORD_PROTOCOLS[targetType];
 
         assert(protocol, `Protocol Error: No registered protocol for record type [${targetType}]`);
 
         shared.stage.activeProtocol = protocol;
         shared.stage.memoryInput = {
-            content: shared.content || this.config?.content || "",
+            content: shared.content || this.config?.content || '',
             type: targetType,
             title: shared.title || this.config?.title,
             tags: shared.tags || this.config?.tags || [],
@@ -65,7 +67,7 @@ class RememberFlowStartNode extends HAMINode<Shared, FlowConfig> {
 
         shared.stage.memCollection = 'mem';
 
-        return "default";
+        return 'default';
     }
 }
 
@@ -79,7 +81,7 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-memory:remember-flow";
+        return 'tbc-memory:remember-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -95,10 +97,10 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
                         source: 'remember-flow',
-                        message: `has no existing companion (not a valid TBC Root)`,
+                        message: 'has no existing companion (not a valid TBC Root)',
                         suggestion: 'Use "tbc sys init" instead.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'));
 
@@ -118,12 +120,12 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
                         source: 'remember-flow',
                         message: 'Checking first ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('tbc-system:validate-flow', {
                 verbose: this.config?.verbose,
-                rootDirectory: this.config?.rootDirectory
+                rootDirectory: this.config?.rootDirectory,
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
@@ -133,7 +135,7 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
                         source: 'remember-flow',
                         message: 'existing valid TBC root found, proceeding ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
 
@@ -143,12 +145,12 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
                     // We populate the key we promised to point to
                     s.stage.mintRequests = [{
                         type: s.stage.activeProtocol.idType,
-                        count: 1
+                        count: 1,
                     }];
-                }
+                },
             }))
             .next(n('tbc-mint:mint-ids-flow', {
-                requestsKey: 'mintRequests' // Tell the flow where to look on s.stage
+                requestsKey: 'mintRequests', // Tell the flow where to look on s.stage
             }))
 
             // 2. RECORD REALIZATION (Synthesis)
@@ -157,20 +159,20 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
                 mutate: (s: Shared) => {
                     // Correcting the lookup to 'batch' to match MintIDsFlow output
                     const mintedId = s.stage.minted?.batch?.[0];
-                    assert(mintedId, "Identity Minting failed: No ID found in stage.minted.batch.");
+                    assert(mintedId, 'Identity Minting failed: No ID found in stage.minted.batch.');
 
                     s.stage.synthesizeRequests = [{
                         type: s.stage.memoryInput.type,
                         provider: s.stage.activeProtocol.provider,
                         meta: {
                             ...s.stage.memoryInput,
-                            id: mintedId
-                        }
+                            id: mintedId,
+                        },
                     }];
-                }
+                },
             }))
             .next(n('tbc-synthesize:synthesize-record-flow', {
-                requestsKey: 'synthesizeRequests'
+                requestsKey: 'synthesizeRequests',
             }))
 
             // 3. PERSISTENCE
@@ -179,7 +181,7 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
                 recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'record.records',
                 collection: 'memCollection',
-                syncIndex: true
+                syncIndex: true,
             }))
             // 4. FEEDBACK
             .next(n('core:mutate', {
@@ -201,9 +203,9 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
                         level: 'info',
                         source: 'remember-flow',
                         message: `Record: ${shared.stage.memCollection}/${finalId}.md`,
-                        suggestion: `This file now contains the memory.  Adjust and enhance it if required.`,
+                        suggestion: 'This file now contains the memory.  Adjust and enhance it if required.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'));
     }

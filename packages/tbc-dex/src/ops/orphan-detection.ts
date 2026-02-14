@@ -1,6 +1,6 @@
-import { HAMINode } from "@hami-frameworx/core";
+import { HAMINode } from '@hami-frameworx/core';
 
-import type { Shared } from "../types.js";
+import type { Shared } from '../types.js';
 
 type OrphanDetectionInput = {
     dexStore: any; // DexStore
@@ -21,12 +21,12 @@ export class OrphanDetectionNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-dex:orphan-detection";
+        return 'tbc-dex:orphan-detection';
     }
 
     async prep(shared: Shared): Promise<OrphanDetectionInput> {
         if (!shared.dexStore) {
-            throw new Error("dexStore is required in shared state");
+            throw new Error('dexStore is required in shared state');
         }
         return {
             dexStore: shared.dexStore,
@@ -40,6 +40,6 @@ export class OrphanDetectionNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _prepRes: OrphanDetectionInput, execRes: OrphanDetectionOutput): Promise<string | undefined> {
         shared.orphanRecords = execRes.orphanRecords;
-        return "default";
+        return 'default';
     }
 }

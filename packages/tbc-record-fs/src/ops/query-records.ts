@@ -1,11 +1,11 @@
-import assert from "assert";
-import { HAMINode } from "@hami-frameworx/core";
+import assert from 'node:assert';
+import { readdirSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
 
-import { readdirSync, statSync } from "fs";
-import { join, relative } from "path";
+import { HAMINode } from '@hami-frameworx/core';
+import { TBCQueryParams, TBCResult } from '@tbc-frameworx/tbc-record';
 
-import { TBCRecordFSShared as Shared } from "../types.js";
-import { TBCQueryParams, TBCResult } from "@tbc-frameworx/tbc-record";
+import { TBCRecordFSShared as Shared } from '../types.js';
 
 type NodeInput = {
     rootDirectory: string;
@@ -21,7 +21,7 @@ export class QueryRecordsNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-record-fs:query-records";
+        return 'tbc-record-fs:query-records';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
@@ -91,13 +91,13 @@ export class QueryRecordsNode extends HAMINode<Shared> {
     private handleFilterByTags(rootDirectory: string, query: TBCQueryParams, collection: string): TBCResult {
         // TODO: Implement tag filtering
         // This would require reading frontmatter from files and checking record_tags
-        throw new Error("filter-by-tags not yet implemented");
+        throw new Error('filter-by-tags not yet implemented');
     }
 
     private handleSearchByContent(rootDirectory: string, query: TBCQueryParams, collection: string): TBCResult {
         // TODO: Implement content search
         // This would require reading file contents and searching for the term
-        throw new Error("search-by-content not yet implemented");
+        throw new Error('search-by-content not yet implemented');
     }
 
     private sortIds(ids: string[], sortBy: 'id' | 'created' | 'modified', sortOrder: 'asc' | 'desc'): string[] {
@@ -144,6 +144,6 @@ export class QueryRecordsNode extends HAMINode<Shared> {
     ): Promise<string> {
         if (!shared.record!.result) shared.record!.result = {};
         Object.assign(shared.record!.result, execRes);
-        return "default";
+        return 'default';
     }
 }

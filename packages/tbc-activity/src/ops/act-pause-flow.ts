@@ -1,8 +1,12 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
+import { existsSync, mkdirSync, renameSync } from 'node:fs';
+import { join } from 'node:path';
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { Shared } from "../types";
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types';
 
 interface FlowConfig {
     verbose?: boolean;
@@ -11,18 +15,18 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        rootDirectory: { type: "string" },
-        activityId: { type: "string" },
+        verbose: { type: 'boolean' },
+        rootDirectory: { type: 'string' },
+        activityId: { type: 'string' },
     },
-    required: ["activityId"],
+    required: ['activityId'],
 };
 
 class ActPauseFlowStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-activity:act-pause-flow-start";
+        return 'tbc-activity:act-pause-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -31,7 +35,7 @@ class ActPauseFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
         shared.stage.activityId = shared.stage.activityId || this.config?.activityId;
-        return "default";
+        return 'default';
     }
 }
 
@@ -47,7 +51,7 @@ export class ActPauseFlow extends HAMIFlow<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-activity:act-pause-flow";
+        return 'tbc-activity:act-pause-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -66,7 +70,7 @@ export class ActPauseFlow extends HAMIFlow<Shared, FlowConfig> {
                         message: `has no existing companion (not a valid TBC Root)`,
                         suggestion: 'Use "tbc sys init" instead.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'));
 
@@ -85,44 +89,41 @@ export class ActPauseFlow extends HAMIFlow<Shared, FlowConfig> {
                         source: 'act-pause-flow',
                         message: 'Checking first ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('tbc-system:validate-flow', {
                 verbose: this.config?.verbose,
-                rootDirectory: this.config?.rootDirectory
+                rootDirectory: this.config?.rootDirectory,
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
-                    const path = require('path');
-                    const fs = require('fs');
-
                     const root = s.stage.rootDirectory;
                     const id = s.stage.activityId;
-                    const sourcePath = path.join(root, 'act', 'current', id);
-                    const targetDir = path.join(root, 'act', 'backlog');
-                    const targetPath = path.join(targetDir, id);
+                    const sourcePath = join(root, 'act', 'current', id);
+                    const targetDir = join(root, 'act', 'backlog');
+                    const targetPath = join(targetDir, id);
 
                     // 1. Check if it exists in current
-                    if (!fs.existsSync(sourcePath)) {
+                    if (!existsSync(sourcePath)) {
                         s.stage.messages.push({
                             level: 'error',
                             source: 'act-pause-flow',
                             message: `Activity ${id} not found in current workspace.`,
-                            suggestion: 'Check "tbc act show" to verify the activity status or "tbc act start" to start a new activity.'
+                            suggestion: 'Check "tbc act show" to verify the activity status or "tbc act start" to start a new activity.',
                         });
                         return;
                     }
 
                     // 2. Ensure backlog directory exists
-                    if (!fs.existsSync(targetDir)) {
-                        fs.mkdirSync(targetDir, { recursive: true });
+                    if (!existsSync(targetDir)) {
+                        mkdirSync(targetDir, { recursive: true });
                     }
 
                     // 3. Move the directory
                     try {
-                        fs.renameSync(sourcePath, targetPath);
+                        renameSync(sourcePath, targetPath);
                         s.stage.messages.push({
                             level: 'raw',
                             message: ' ┌┼───────────────────────────────────────────────────────────',
@@ -139,19 +140,18 @@ export class ActPauseFlow extends HAMIFlow<Shared, FlowConfig> {
                             level: 'info',
                             source: 'act-pause-flow',
                             message: `Paused activity: ${id}`,
-                            suggestion: `Use "tbc act start ${id}" to resume the activity.`
+                            suggestion: `Use "tbc act start ${id}" to resume the activity.`,
                         });
                     } catch (err: any) {
                         s.stage.messages.push({
                             level: 'error',
                             source: 'act-pause-flow',
-                            message: `Failed to move activity: ${err.message}`
+                            message: `Failed to move activity: ${err.message}`,
                         });
                     }
-                }
+                },
             }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            ;
+            .next(n('tbc-system:log-and-clear-messages'));
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {

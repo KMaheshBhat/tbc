@@ -1,6 +1,6 @@
-import { createPlugin } from "@hami-frameworx/core";
+import { createPlugin } from '@hami-frameworx/core';
 
-import { WriteRecordsFlow } from "./ops/write-records.js";
+import { WriteRecordsFlow } from './ops/write-records.js';
 
 /**
  * TBC Write Plugin for HAMI.
@@ -10,12 +10,12 @@ import { WriteRecordsFlow } from "./ops/write-records.js";
  * - `tbc-write:write-records-flow`: Writes records using configured providers and updates inDEXes
  */
 const TBCWritePlugin = createPlugin(
-    "@tbc-frameworx/tbc-write",
-    "0.1.0",
+    '@tbc-frameworx/tbc-write',
+    '0.1.0',
     [
         WriteRecordsFlow as any,
     ],
-    "TBC Write Plugin - Write facade operations for TBC",
+    'TBC Write Plugin - Write facade operations for TBC',
 );
 
 export { TBCWritePlugin };

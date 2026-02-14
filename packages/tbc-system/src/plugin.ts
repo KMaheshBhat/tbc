@@ -1,26 +1,26 @@
-import { createPlugin } from "@hami-frameworx/core";
+import { createPlugin } from '@hami-frameworx/core';
 
-import { PrepareMessagesNode } from "./ops/prepare-messages.js";
-import { ClearMessagesNode } from "./ops/clear-messages.js";
-import { LogAndClearMessagesNode } from "./ops/log-and-clear-messages.js";
-import { ResolveRootDirectoryNode } from "./ops/resolve-root-directory.js";
-import { AddMintedMessagesNode } from "./ops/add-minted-messages.js";
-import { AddManifestMessagesNode } from "./ops/add-manifest-messages.js";
-import { AddIdentityMessagesNode } from "./ops/add-identity-messages.js";
-import { LoadSystemAssetsNode } from "./ops/load-system-asset.js";
-import { PrepareRecordsManifestNode } from "./ops/prepare-records-manifest.js";
-import { SynthesizeMemRecordsNode } from "./ops/synthesize-mem-records.js";
-import { SynthesizeSysRecordsNode } from "./ops/synthesize-sys-records.js";
-import { SynthesizeRecordNode } from "./ops/synthesize-record.js";
-import { ProbeNode } from "./ops/probe.js";
-import { ValidateSystemNode } from "./ops/validate-system.js";
-import { InitFlow } from "./ops/init-flow.js";
-import { UpgradeFlow } from "./ops/upgrade-flow.js";
-import { SysValidateFlow } from "./ops/validate-flow.js";
-import { GenerateUUIDsFlow } from "./ops/generate-uuids-flow.js";
-import { GenerateTSIDsFlow } from "./ops/generate-tsids-flow.js";
-import { DexRebuildFlow } from "./ops/dex-rebuild-flow.js";
-import { SynthesizeValueNode } from "./ops/synthesize-value.js";
+import { PrepareMessagesNode } from './ops/prepare-messages.js';
+import { ClearMessagesNode } from './ops/clear-messages.js';
+import { LogAndClearMessagesNode } from './ops/log-and-clear-messages.js';
+import { ResolveRootDirectoryNode } from './ops/resolve-root-directory.js';
+import { AddMintedMessagesNode } from './ops/add-minted-messages.js';
+import { AddManifestMessagesNode } from './ops/add-manifest-messages.js';
+import { AddIdentityMessagesNode } from './ops/add-identity-messages.js';
+import { LoadSystemAssetsNode } from './ops/load-system-asset.js';
+import { PrepareRecordsManifestNode } from './ops/prepare-records-manifest.js';
+import { SynthesizeMemRecordsNode } from './ops/synthesize-mem-records.js';
+import { SynthesizeSysRecordsNode } from './ops/synthesize-sys-records.js';
+import { SynthesizeRecordNode } from './ops/synthesize-record.js';
+import { ProbeNode } from './ops/probe.js';
+import { ValidateSystemNode } from './ops/validate-system.js';
+import { InitFlow } from './ops/init-flow.js';
+import { UpgradeFlow } from './ops/upgrade-flow.js';
+import { SysValidateFlow } from './ops/validate-flow.js';
+import { GenerateUUIDsFlow } from './ops/generate-uuids-flow.js';
+import { GenerateTSIDsFlow } from './ops/generate-tsids-flow.js';
+import { DexRebuildFlow } from './ops/dex-rebuild-flow.js';
+import { SynthesizeValueNode } from './ops/synthesize-value.js';
 
 /**
  * TBC System Plugin for HAMI.
@@ -51,8 +51,8 @@ import { SynthesizeValueNode } from "./ops/synthesize-value.js";
  * - `tbc-system:synthesize-value`: Generic synthesis node for generating values based on system templates and input parameters
  */
 const TBCSystemPlugin = createPlugin(
-    "@tbc-frameworx/tbc-system",
-    "0.1.0",
+    '@tbc-frameworx/tbc-system',
+    '0.1.0',
     [
         PrepareMessagesNode as any,
         ClearMessagesNode as any,
@@ -76,7 +76,7 @@ const TBCSystemPlugin = createPlugin(
         DexRebuildFlow as any,
         SynthesizeValueNode as any,
     ],
-    "TBC System Plugin - Environment probing, initialization, validation, and core management operations",
+    'TBC System Plugin - Environment probing, initialization, validation, and core management operations',
 );
 
 export { TBCSystemPlugin };

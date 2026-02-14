@@ -1,5 +1,6 @@
-import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { TBCLevel, TBCMessage, Shared } from "../types.js";
+import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { TBCLevel, TBCMessage, Shared } from '../types.js';
 
 export interface TBCValidationResult {
     success: boolean;
@@ -42,7 +43,7 @@ class ManifestValidator {
      */
     check(path: string, rules: ValidationRule) {
         const data = this.manifest[path];
-        const purpose = rules.purpose ? ` (Context: ${rules.purpose})` : "";
+        const purpose = rules.purpose ? ` (Context: ${rules.purpose})` : '';
         const s = rules.suggestions || {};
 
         // 1. Check Section Existence
@@ -53,7 +54,7 @@ class ManifestValidator {
                     'COLLECTION_MISSING',
                     path,
                     `Mandatory collection [${path}] is missing.${purpose}`,
-                    s.onMissing
+                    s.onMissing,
                 );
             }
             return this;
@@ -68,7 +69,7 @@ class ManifestValidator {
                         'RECORD_MISSING',
                         path,
                         `Essential record "${file}" is missing from [${path}].${purpose}`,
-                        s.onRecordMissing
+                        s.onRecordMissing,
                     );
                 } else {
                     this.add('info', 'RECORD_VERIFIED', path, `Verified presence of "${file}".`);
@@ -83,7 +84,7 @@ class ManifestValidator {
                 'UNDERPOPULATED',
                 path,
                 `Collection [${path}] has only ${data.length} records. Expected at least ${rules.min}.`,
-                s.onUnderpopulated
+                s.onUnderpopulated,
             );
         }
 
@@ -105,7 +106,7 @@ class ManifestValidator {
                 'INTEGRITY_FAIL',
                 bucket,
                 `The ${descriptor} ID "${id}" is referenced in the Root Record but is missing from [${bucket}].`,
-                s.onIntegrityFail || "Integrity failure: referenced ID not found in target collection."
+                s.onIntegrityFail || 'Integrity failure: referenced ID not found in target collection.',
             );
         }
         return this;
@@ -115,7 +116,7 @@ class ManifestValidator {
         return {
             success: !this.messages.some(m => m.level === 'error'),
             timestamp: new Date().toISOString(),
-            messages: this.messages
+            messages: this.messages,
         };
     }
 }
@@ -125,10 +126,10 @@ class ManifestValidator {
  */
 type Config = {
     verbose: boolean;
-}
+};
 
 const ValidateNodeConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
         verbose: { type: 'boolean' },
     },
@@ -146,11 +147,11 @@ type NodeOutput = TBCValidationResult;
 
 export class ValidateSystemNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return "tbc-system:validate-system";
+        return 'tbc-system:validate-system';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, ValidateNodeConfigSchema)
+        const result = validateAgainstSchema(config, ValidateNodeConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -171,29 +172,29 @@ export class ValidateSystemNode extends HAMINode<Shared, Config> {
 
         return validator
             .check('sys', {
-                purpose: "The core anchor records for a Third Brain Companion System",
+                purpose: 'The core anchor records for a Third Brain Companion System',
                 min: 3,
                 required: ['root.md', 'companion.id', 'prime.id'],
                 suggestions: {
                     onMissing: "ACTION: Run 'tbc sys init'. REASON: System root is uninitialized.",
-                    onRecordMissing: "ACTION: Verify vault integrity. REASON: A core identity record has been deleted."
-                }
+                    onRecordMissing: 'ACTION: Verify vault integrity. REASON: A core identity record has been deleted.',
+                },
             })
             .check('skills', {
-                purpose: "Agent capabilities and toolsets",
+                purpose: 'Agent capabilities and toolsets',
                 min: 1,
                 suggestions: {
-                    onUnderpopulated: "ACTION: Sync skills from TBC Project assets. REASON: Local skill-guides are out of sync."
-                }
+                    onUnderpopulated: 'ACTION: Sync skills from TBC Project assets. REASON: Local skill-guides are out of sync.',
+                },
             })
             .crossReference(input.companionID, 'mem', 'Companion Identity', {
-                onIntegrityFail: "ACTION: Re-initialize Companion Record. REASON: The ID in companion.id does not exist in the /mem/ collection."
+                onIntegrityFail: 'ACTION: Re-initialize Companion Record. REASON: The ID in companion.id does not exist in the /mem/ collection.',
             })
             .crossReference(input.primeID, 'mem', 'Prime User Identity', {
-                onIntegrityFail: "ACTION: Search Git for missing Prime User record. REASON: Critical identity record lost from /mem/."
+                onIntegrityFail: 'ACTION: Search Git for missing Prime User record. REASON: Critical identity record lost from /mem/.',
             })
             .crossReference(input.memoryMapID, 'mem', 'Root Memory Map', {
-                onIntegrityFail: "ACTION: Re-index Root Record memory_map. REASON: The root memory pointer is orphaned."
+                onIntegrityFail: 'ACTION: Re-index Root Record memory_map. REASON: The root memory pointer is orphaned.',
             })
             .finalize();
     }
@@ -215,8 +216,8 @@ export class ValidateSystemNode extends HAMINode<Shared, Config> {
         });
         shared.stage.messages.push({
             level: 'raw',
-            message: `${success ? '[✓] STABLE  ' : '[✗] DEGRADED'} | ${errorCount} error(s) detected.`
+            message: `${success ? '[✓] STABLE  ' : '[✗] DEGRADED'} | ${errorCount} error(s) detected.`,
         });
-        return "default";
+        return 'default';
     }
 }

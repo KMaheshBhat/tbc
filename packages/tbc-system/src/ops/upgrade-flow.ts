@@ -1,13 +1,14 @@
-import assert from "assert";
-import { existsSync } from "node:fs";
-import { rm } from "node:fs/promises";
-import { join } from "node:path";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
+import { existsSync } from 'node:fs';
+import { rm } from 'node:fs/promises';
+import { join } from 'node:path';
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
 import packageJson from '../../package.json' with { type: 'json' };
-import { Shared } from "../types";
+import { Shared } from '../types.js';
 
 interface FlowConfig {
     rootDirectory?: string;
@@ -15,21 +16,21 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        root: { type: "string" },
-        verbose: { type: "boolean" },
+        root: { type: 'string' },
+        verbose: { type: 'boolean' },
     },
-    required: ["verbose"],
+    required: ['verbose'],
 };
 
-class UpgradeFlowStartNode extends HAMINode<Shared,FlowConfig> {
+class UpgradeFlowStartNode extends HAMINode<Shared, FlowConfig> {
     constructor(config?: FlowConfig, maxRetries?: number, wait?: number) {
         super(config, maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-system:upgrade-flow-start"
+        return 'tbc-system:upgrade-flow-start';
     }
 
     async post(shared: Record<string, any>, prepRes: unknown, execRes: unknown): Promise<string> {
@@ -48,7 +49,7 @@ class UpgradeFlowStartNode extends HAMINode<Shared,FlowConfig> {
         shared.stage.actCollection = 'act';
         const timestamp = (new Date()).toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
         shared.stage.backupCollection = `bak-${timestamp}`;
-        return "default";
+        return 'default';
     }
 }
 
@@ -64,11 +65,11 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-system:upgrade-flow";
+        return 'tbc-system:upgrade-flow';
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema)
+        const result = validateAgainstSchema(config, FlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -85,7 +86,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         const stageRecords = (
             registry: any,
             sourceCollection: string | ((s: Shared) => string),
-            targetPath = 'stage.activeDrafts'
+            targetPath = 'stage.activeDrafts',
         ) => {
             return registry.createNode('core:mutate', {
                 mutate: (shared: Shared) => {
@@ -100,7 +101,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         // If it's a string (like sys/core or skills/core), wrap it
                         return {
                             id: id,
-                            content: data
+                            content: data,
                         };
                     });
                     // Set the drafts at the requested path (e.g., shared.stage.activeDrafts)
@@ -110,7 +111,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         current = current[pathParts[i]];
                     }
                     current[pathParts[pathParts.length - 1]] = drafts;
-                }
+                },
             });
         };
         const abortSequence = new Node();
@@ -121,12 +122,12 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
                         source: 'upgrade-flow',
-                        message: `has no existing companion (not a valid TBC Root)`,
+                        message: 'has no existing companion (not a valid TBC Root)',
                         suggestion: 'Use "tbc sys init" instead.',
                     });
-                }
+                },
             }))
-            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:log-and-clear-messages'));
         const branchToAbort = n('core:branch', {
             branch: (shared: Record<string, any>) => {
                 if (!shared.stage.validationResult.success) {
@@ -135,7 +136,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 return 'default';
             },
         });
-        branchToAbort.on('abort', abortSequence)
+        branchToAbort.on('abort', abortSequence);
         this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
@@ -147,7 +148,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'upgrade-flow',
                         message: 'Checking first ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
@@ -161,7 +162,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'upgrade-flow',
                         message: 'existing valid TBC root found, proceeding ...',
                     });
-                }
+                },
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -171,7 +172,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     for (const [id, record] of Object.entries(shared.stage.records[shared.stage.sysCollection])) {
                         shared.record.records.push(record);
                     }
-                }
+                },
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
@@ -184,7 +185,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'upgrade-flow',
                         message: `Backed up ${shared.record.records.length} ${shared.stage.sysCollection} record(s) into ${shared.record.collection}.`,
                     });
-                }
+                },
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -194,7 +195,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     for (const [id, record] of Object.entries(shared.stage.records[`${shared.stage.sysCollection}/core`])) {
                         shared.record.records.push(record);
                     }
-                }
+                },
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
@@ -207,7 +208,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'upgrade-flow',
                         message: `Backed up ${shared.record.records.length} ${shared.stage.sysCollection}/core record(s) into ${shared.record.collection}.`,
                     });
-                }
+                },
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -217,7 +218,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     for (const [id, record] of Object.entries(shared.stage.records[`${shared.stage.sysCollection}/ext`])) {
                         shared.record.records.push(record);
                     }
-                }
+                },
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
@@ -230,7 +231,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'upgrade-flow',
                         message: `Backed up ${shared.record.records.length} ${shared.stage.sysCollection}/ext record(s) into ${shared.record.collection}.`,
                     });
-                }
+                },
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -242,7 +243,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                             ...Object(content),
                         });
                     }
-                }
+                },
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
@@ -255,18 +256,18 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'upgrade-flow',
                         message: `Backed up ${shared.record.records.length} ${shared.stage.skillsCollection} record(s) into ${shared.record.collection}.`,
                     });
-                }
+                },
             }))
-            .next(new DeleteDirectoryNode({specDirectoryKey: 'sysCollection', collection: 'core'}))
-            .next(new DeleteDirectoryNode({specDirectoryKey: 'skillsCollection', collection: 'core'}))
+            .next(new DeleteDirectoryNode({ specDirectoryKey: 'sysCollection', collection: 'core' }))
+            .next(new DeleteDirectoryNode({ specDirectoryKey: 'skillsCollection', collection: 'core' }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'upgrade-flow',
-                        message: `Removed old sys and skill specifications.`,
+                        message: 'Removed old sys and skill specifications.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:load-system-assets'))
             .next(n('core:mutate', {
@@ -276,7 +277,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'init-flow',
                         message: `Loaded TBC ${packageJson.version} core assets (specs and skills).`,
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('tbc-system:prepare-records-manifest'))
@@ -308,7 +309,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'upgrade-flow',
                         message: 'Validating again ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
@@ -346,17 +347,17 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'upgrade-flow',
-                        message: `Next Steps`,
+                        message: 'Next Steps',
                         suggestion: 'Refresh indexes (tbc dex)',
                     });
-                }
+                },
             }))
             .next(n('tbc-dex:collate-digest', {
                 output: { collection: 'dex', id: 'sys.digest.txt' },
                 sources: [
-                    { collection: 'sys', idGlob: 'root.md', },
-                    { collection: 'sys/core', idGlob: '*.md', },
-                    { collection: 'sys/ext', idGlob: '*.md', },
+                    { collection: 'sys', idGlob: 'root.md' },
+                    { collection: 'sys/core', idGlob: '*.md' },
+                    { collection: 'sys/ext', idGlob: '*.md' },
                 ],
             }))
             .next(n('tbc-dex:collate-metadata-index', {
@@ -378,7 +379,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                             id: id,
                         });
                     }
-                }
+                },
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
@@ -394,20 +395,19 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'upgrade-flow',
-                        message: `Digest: dex/sys.digest.txt`,
-                        suggestion: `This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.`
+                        message: 'Digest: dex/sys.digest.txt',
+                        suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.',
                     });
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'upgrade-flow',
-                        message: `Digest: dex/skills.jsonl`,
-                        suggestion: `This file is index of all skill you can use for your goals.`
+                        message: 'Digest: dex/skills.jsonl',
+                        suggestion: 'This file is index of all skill you can use for your goals.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:log-and-clear-messages'))
-            ;
+            .next(n('tbc-system:log-and-clear-messages'));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -423,13 +423,13 @@ interface RemoveSpecsConfig {
     collection: string;
 }
 
-class DeleteDirectoryNode extends HAMINode<Shared,RemoveSpecsConfig> {
+class DeleteDirectoryNode extends HAMINode<Shared, RemoveSpecsConfig> {
     constructor(config?: RemoveSpecsConfig, maxRetries?: number, wait?: number) {
         super(config, maxRetries, wait);
     }
 
     kind(): string {
-        return "tbc-system:delete-directory"
+        return 'tbc-system:delete-directory';
     }
 
     async prep(shared: Shared): Promise<[string, string]> {
@@ -441,8 +441,8 @@ class DeleteDirectoryNode extends HAMINode<Shared,RemoveSpecsConfig> {
         assert(this.config?.collection, 'must be configured with (sub)collection');
         const [rootDirectory, specDirectory] = paths;
         const path = join(rootDirectory, specDirectory, this.config.collection);
-        if(existsSync(path)) {
-            await rm(path, { recursive: true, force: true});
+        if (existsSync(path)) {
+            await rm(path, { recursive: true, force: true });
         }
     }
 

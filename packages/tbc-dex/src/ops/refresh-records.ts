@@ -1,19 +1,20 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
 
-import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
-import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, validateAgainstSchema } from '@hami-frameworx/core';
+import type { HAMINodeConfigValidateResult, ValidationSchema } from '@hami-frameworx/core';
 
 interface RefreshRecordsFlowConfig {
     verbose: boolean;
 }
 
 const RefreshRecordsFlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
+        verbose: { type: 'boolean' },
     },
-    required: ["verbose"],
+    required: ['verbose'],
 };
 
 export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRecordsFlowConfig> {
@@ -28,7 +29,7 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
     }
 
     kind(): string {
-        return "tbc-dex:refresh-records";
+        return 'tbc-dex:refresh-records';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -71,8 +72,7 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
             .next(n('core:log-result', {
                 resultKey: 'storeResults',
                 format: 'table',
-            }))
-            ;
+            }));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -84,7 +84,7 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
         shared.rootDirectory = rootDir;
         shared.record = {
             rootDirectory: rootDir,
-        }
+        };
 
         // Initialize fetchResults
         shared.fetchResults = {};
@@ -94,13 +94,13 @@ export class RefreshRecordsFlow extends HAMIFlow<Record<string, any>, RefreshRec
         shared.dexRecordsCollection = 'dex/records';
         shared.queryAllIDs = {
             type: 'list-all-ids',
-        }
+        };
 
         return super.run(shared);
     }
 
     validateConfig(config: RefreshRecordsFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, RefreshRecordsFlowConfigSchema)
+        const result = validateAgainstSchema(config, RefreshRecordsFlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],

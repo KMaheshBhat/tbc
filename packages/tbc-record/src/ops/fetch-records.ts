@@ -1,8 +1,9 @@
-import assert from "assert";
+import assert from 'node:assert';
 
-import { Node } from "pocketflow";
-import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { TBCShared as Shared, TBCResult, TBCStore } from "../types";
+import { Node } from 'pocketflow';
+import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { TBCShared as Shared, TBCResult, TBCStore } from '../types.js';
 
 interface FlowConfig {
     verbose: boolean;
@@ -11,13 +12,13 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        recordProviders: { type: "array", items: { type: "string" } },
-        root: { type: "string" },
+        verbose: { type: 'boolean' },
+        recordProviders: { type: 'array', items: { type: 'string' } },
+        root: { type: 'string' },
     },
-    required: ["verbose"],
+    required: ['verbose'],
 };
 
 export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
@@ -32,7 +33,7 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
     }
 
     kind(): string {
-        return "tbc-record:fetch-records-flow";
+        return 'tbc-record:fetch-records-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -43,13 +44,13 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
             const nodeKind = provider;
             assert(
                 shared.registry.hasNodeClass(nodeKind),
-                `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`
+                `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`,
             );
         }
         let finalNodeSequence = new Node();
         let tailNode = providers.length > 0 ? new Node() : finalNodeSequence;
         this.startNode
-            .next(n("core:assign", { "record.accumulate": "record.result" }))
+            .next(n('core:assign', { 'record.accumulate': 'record.result' }))
             .next(tailNode);
         for (const [i, provider] of providers.entries()) {
             const isLast = i === providers.length - 1;
@@ -58,7 +59,7 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                 .next(n('core:mutate', {
                     mutate: async (shared: Shared) => {
                         shared.record!.result = undefined;
-                    }
+                    },
                 }))
                 .next(n(provider))
                 .next(new AccumulateNode())
@@ -70,8 +71,8 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                 mutate: async (shared: Shared) => {
                     shared.record!.result = shared.record!.accumulate;
                     shared.record!.accumulate = undefined;
-                }
-            }))
+                },
+            }));
     }
 
     async run(shared: Shared): Promise<string | undefined> {
@@ -82,7 +83,7 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema)
+        const result = validateAgainstSchema(config, FlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -105,7 +106,7 @@ class AccumulateNode extends Node {
             for (const id in incoming.records[collection]) {
                 master.records[collection][id] = {
                     ...(master.records[collection][id] || {}),
-                    ...incoming.records[collection][id]
+                    ...incoming.records[collection][id],
                 };
             }
         }

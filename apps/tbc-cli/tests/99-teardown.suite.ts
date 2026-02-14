@@ -1,15 +1,15 @@
-import { afterAll, describe } from "bun:test";
+import { afterAll, describe } from 'bun:test';
 
-import { generateFileTree } from "../../../scripts/common";
+import { generateFileTree } from '../../../scripts/common';
 
-import { TBC_ROOT } from "./test-helper";
+import { TBC_ROOT } from './test-helper';
 
-describe("🐵 TBC-CLI Integration", () => {
+describe('🐵 TBC-CLI Integration', () => {
 
     afterAll(() => {
-        console.log("🐵 Mojo Jojo!")
+        console.log('🐵 Mojo Jojo!');
         console.log(generateFileTree(TBC_ROOT));
-        console.log("🐵 Suite Complete");
+        console.log('🐵 Suite Complete');
     });
 
 });

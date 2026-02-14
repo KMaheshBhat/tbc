@@ -1,9 +1,10 @@
-import { HAMINode } from "@hami-frameworx/core";
-import { join } from "node:path";
-import { existsSync, mkdirSync, renameSync } from "node:fs";
-import assert from "node:assert";
+import assert from 'node:assert';
+import { existsSync, mkdirSync, renameSync } from 'node:fs';
+import { join } from 'node:path';
 
-import { Shared } from "../types.js";
+import { HAMINode } from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 interface WorkspaceJob {
     activityId: string;
@@ -18,21 +19,21 @@ interface WorkspaceResult {
 
 export class PrepareWorkspaceNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-activity:prepare-workspace";
+        return 'tbc-activity:prepare-workspace';
     }
 
     async prep(shared: Shared): Promise<WorkspaceJob> {
         const { activityId, rootDirectory } = shared.stage;
 
-        assert(activityId, "activityId is required for workspace preparation");
-        assert(rootDirectory, "rootDirectory is required for workspace preparation");
+        assert(activityId, 'activityId is required for workspace preparation');
+        assert(rootDirectory, 'rootDirectory is required for workspace preparation');
 
-        const actRoot = join(rootDirectory, "act");
+        const actRoot = join(rootDirectory, 'act');
 
         return {
             activityId,
-            currentPath: join(actRoot, "current", activityId),
-            backlogPath: join(actRoot, "backlog", activityId),
+            currentPath: join(actRoot, 'current', activityId),
+            backlogPath: join(actRoot, 'backlog', activityId),
         };
     }
 
@@ -62,7 +63,7 @@ export class PrepareWorkspaceNode extends HAMINode<Shared> {
     async post_legacy_to_delete(
         shared: Shared,
         job: WorkspaceJob,
-        result: WorkspaceResult
+        result: WorkspaceResult,
     ): Promise<string> {
         // Update shared state for synthesis/writing nodes
         shared.stage.activityPath = result.activityPath;
@@ -71,7 +72,7 @@ export class PrepareWorkspaceNode extends HAMINode<Shared> {
         const messageMap = {
             active: `Activity ${job.activityId} is already active.`,
             resumed: `Resumed activity from backlog: ${job.activityId}`,
-            created: `Created new workspace for activity: ${job.activityId}`
+            created: `Created new workspace for activity: ${job.activityId}`,
         };
 
         shared.stage.messages.push({
@@ -80,20 +81,20 @@ export class PrepareWorkspaceNode extends HAMINode<Shared> {
             message: messageMap[result.status],
         });
 
-        return "default";
+        return 'default';
     }
 
     async post(
         shared: Shared,
         job: WorkspaceJob,
-        result: WorkspaceResult
+        result: WorkspaceResult,
     ): Promise<string> {
         shared.stage.activityPath = result.activityPath;
 
         const messageMap = {
             active: `Activity ${job.activityId} is already active.`,
             resumed: `Resumed activity from backlog: ${job.activityId}`,
-            created: `Created new workspace for activity: ${job.activityId}`
+            created: `Created new workspace for activity: ${job.activityId}`,
         };
 
         shared.stage.messages.push({
@@ -102,6 +103,6 @@ export class PrepareWorkspaceNode extends HAMINode<Shared> {
             message: messageMap[result.status],
         });
 
-        return "default";
+        return 'default';
     }
 }

@@ -1,7 +1,7 @@
-import assert from "assert";
-import { Node } from "pocketflow";
-import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { Synthesized, SynthesizeRequest, Shared } from "../types.js";
+import assert from 'node:assert';
+import { Node } from 'pocketflow';
+import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+import { Synthesized, SynthesizeRequest, Shared } from '../types.js';
 
 interface FlowConfig {
     requests?: SynthesizeRequest[];
@@ -20,11 +20,11 @@ const FlowConfigSchema: ValidationSchema = {
                     provider: { type: 'string' },
                     key: { type: 'string' },
                 },
-                required: ['type', 'provider']
+                required: ['type', 'provider'],
             },
         },
-        requestsKey: { type: 'string' } // NEW
-    }
+        requestsKey: { type: 'string' }, // NEW
+    },
 };
 
 export class SynthesizeRecordFlow extends HAMIFlow<Shared, FlowConfig> {
@@ -39,7 +39,7 @@ export class SynthesizeRecordFlow extends HAMIFlow<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-synthesize:synthesize-record-flow";
+        return 'tbc-synthesize:synthesize-record-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -60,7 +60,7 @@ export class SynthesizeRecordFlow extends HAMIFlow<Shared, FlowConfig> {
         for (const nodeKind of providerNodes) {
             assert(
                 shared.registry.hasNodeClass(nodeKind),
-                `Composition Error: Synthesis provider [${nodeKind}] is not registered.`
+                `Composition Error: Synthesis provider [${nodeKind}] is not registered.`,
             );
         }
 
@@ -68,10 +68,10 @@ export class SynthesizeRecordFlow extends HAMIFlow<Shared, FlowConfig> {
         let tailNode = activeRequests.length > 0 ? new Node() : finalNodeSequence;
 
         this.startNode
-            .next(n("core:mutate", {
+            .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     s.stage.synthesizedAccumulate = { records: [] };
-                }
+                },
             }))
             .next(tailNode);
 
@@ -85,7 +85,7 @@ export class SynthesizeRecordFlow extends HAMIFlow<Shared, FlowConfig> {
                     mutate: async (s: Shared) => {
                         s.stage.synthesizeRequest = request;
                         s.stage.synthesized = { records: [] };
-                    }
+                    },
                 }))
                 .next(n(nodeKind))
                 .next(new AccumulateNode())
@@ -106,14 +106,14 @@ export class SynthesizeRecordFlow extends HAMIFlow<Shared, FlowConfig> {
                     // Cleanup
                     s.stage.synthesizedAccumulate = { records: [] };
                     s.stage.synthesized = { records: [] };
-                }
+                },
             }));
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
         const result = validateAgainstSchema(config, FlowConfigSchema);
         const errors = result.errors || [];
-        
+
         if (!config.requests && !config.requestsKey) {
             errors.push("SynthesizeRecordFlow requires 'requests' or 'requestsKey'");
         }
@@ -134,7 +134,7 @@ class AccumulateNode extends Node {
         assert(shared.stage, 'shared.stage is required');
         return [
             shared.stage.synthesizedAccumulate || { records: [] },
-            shared.stage.synthesized || { records: [] }
+            shared.stage.synthesized || { records: [] },
         ];
     }
 

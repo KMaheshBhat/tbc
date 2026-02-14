@@ -1,7 +1,9 @@
-import assert from "assert";
-import { Node } from "pocketflow";
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { Shared } from "../types";
+import assert from 'node:assert';
+
+import { Node } from 'pocketflow';
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 interface FlowConfig {
     verbose: boolean;
@@ -12,25 +14,25 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        recordStorers: { type: "array", items: { type: "string" } },
-        sourcePath: { type: "string" },
-        collection: { type: "string" },
+        verbose: { type: 'boolean' },
+        recordStorers: { type: 'array', items: { type: 'string' } },
+        sourcePath: { type: 'string' },
+        collection: { type: 'string' },
     },
     required: ['verbose', 'recordStorers', 'sourcePath', 'collection'],
 };
 
 class WriteRecordsStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-write:write-records-flow-start";
+        return 'tbc-write:write-records-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
         // Ensure shared.system exists as we rely on it for rootDirectory indirection
-        assert(shared.system?.rootDirectory, "shared.system.rootDirectory is required for WriteRecordsFlow");
-        return "default";
+        assert(shared.system?.rootDirectory, 'shared.system.rootDirectory is required for WriteRecordsFlow');
+        return 'default';
     }
 }
 
@@ -44,7 +46,7 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
     }
 
     kind(): string {
-        return "tbc-write:write-records-flow";
+        return 'tbc-write:write-records-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -56,9 +58,9 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         const indexer = this.config.syncIndex ? n('tbc-dex:sync-incremental-index', {
             sourcePath: this.config.sourcePath,
             collection: collection,
-            rootDirectory: shared.system.rootDirectory
+            rootDirectory: shared.system.rootDirectory,
         }) : new Node();
-        const messageSuffix = `(Storage${this.config.syncIndex?' + Index':''})`;
+        const messageSuffix = `(Storage${this.config.syncIndex ? ' + Index' : ''})`;
 
         this.startNode
             // 1. Prepare shared.record for tbc-record:store-records-flow
@@ -75,7 +77,7 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                     shared.record.rootDirectory = shared.system.rootDirectory;
                     shared.record.collection = collection;
                     shared.record.records = records;
-                }
+                },
             }))
             // 2. Delegate Storage (The "Command" Side)
             // This node/flow is the authority on how to write 'raw', 'markdown', etc.
@@ -95,7 +97,7 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                         source: 'tbc-write',
                         message: `Processed ${count} record(s) in [${collection}] ${messageSuffix}.`,
                     });
-                }
+                },
             }));
     }
 

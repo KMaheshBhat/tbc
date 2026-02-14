@@ -1,4 +1,4 @@
-import { HAMIRegistrationManager } from "@hami-frameworx/core";
+import { HAMIRegistrationManager } from '@hami-frameworx/core';
 
 type MintRequest = {
   type: string;
@@ -9,7 +9,7 @@ type MintRequest = {
 type Minted = {
   keys: Record<string, string>;
   batch: string[];
-}
+};
 
 type SharedStage = {
   mintRequest: MintRequest;
@@ -28,7 +28,7 @@ type Shared = {
   /** HAMI registration manager for node creation and management. */
   registry: HAMIRegistrationManager;
   stage: SharedStage;
-}
+};
 
 export {
   MintRequest,

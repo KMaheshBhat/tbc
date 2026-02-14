@@ -1,4 +1,4 @@
-import { TBCShared } from "@tbc-frameworx/tbc-record";
+import { TBCShared } from '@tbc-frameworx/tbc-record';
 
 /**
  * Shared storage interface for TBC record file system operations.
@@ -8,5 +8,5 @@ import { TBCShared } from "@tbc-frameworx/tbc-record";
 type TBCRecordFSShared = TBCShared;
 
 export {
-  TBCRecordFSShared,
+    TBCRecordFSShared,
 };

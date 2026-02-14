@@ -1,15 +1,16 @@
-import { HAMINode } from "@hami-frameworx/core";
-import { Shared } from "../types.js";
+import { HAMINode } from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 type NodeInput = {
     records: Record<string, any>;
     companionID: string;
     companionName: string;
     primeID: string;
-    primeName: string,
+    primeName: string;
     memoryMapID: string;
     sysCollection: string;
-    skillsCollection: string,
+    skillsCollection: string;
     memCollection: string;
     dexCollection: string;
     actCollection: string;
@@ -17,7 +18,7 @@ type NodeInput = {
 
 export class SynthesizeSysRecordsNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-system:synthesize-sys-records";
+        return 'tbc-system:synthesize-sys-records';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
@@ -37,7 +38,7 @@ export class SynthesizeSysRecordsNode extends HAMINode<Shared> {
     }
 
     async exec(input: NodeInput) {
-        const { 
+        const {
             records,
             companionID,
             companionName,
@@ -69,7 +70,7 @@ export class SynthesizeSysRecordsNode extends HAMINode<Shared> {
 
         // 2. Hydrate root.md template
         // We assume root.md was loaded into the 'sys' collection from assets
-        const rootTemplate = templates["root.md"] || "";
+        const rootTemplate = templates['root.md'] || '';
         if (rootTemplate) {
             const companionTag = `c/agent/${toLowerKebabCase(companionName)}`;
             let hydratedRoot = rootTemplate
@@ -79,8 +80,8 @@ export class SynthesizeSysRecordsNode extends HAMINode<Shared> {
                 .replace(/{{primeID}}/g, primeID)
                 .replace(/{{memoryMapID}}/g, memoryMapID);
 
-            result["root.md"] = {
-                ...sys["root.md"],
+            result['root.md'] = {
+                ...sys['root.md'],
                 id: 'root',
                 record_type: 'root',
                 record_tags: [companionTag],
@@ -96,7 +97,7 @@ export class SynthesizeSysRecordsNode extends HAMINode<Shared> {
                 activity_path: `/${actCollection}/`,
                 memory_map: `/${memCollection}/${memoryMapID}.md`,
                 content: hydratedRoot,
-                contentType: `markdown`,
+                contentType: 'markdown',
             };
         }
 
@@ -105,6 +106,6 @@ export class SynthesizeSysRecordsNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _input: NodeInput, output: any) {
         shared.stage.records.sys = output;
-        return "default";
+        return 'default';
     }
 }

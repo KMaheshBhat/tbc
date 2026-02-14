@@ -1,6 +1,6 @@
-import { HAMIRegistrationManager } from "@hami-frameworx/core";
+import { HAMIRegistrationManager } from '@hami-frameworx/core';
 
-import { TBCShared as TBCRecordShared } from "@tbc-frameworx/tbc-record";
+import { TBCShared as TBCRecordShared } from '@tbc-frameworx/tbc-record';
 
 /**
  * Options for TBC record SQLite operations.
@@ -9,7 +9,7 @@ import { TBCShared as TBCRecordShared } from "@tbc-frameworx/tbc-record";
 type TBCRecordSQLiteOpts = {
   /** Whether to enable verbose logging for operations. */
   verbose?: boolean;
-}
+};
 
 /**
  * Record structure for TBC record SQLite operations.
@@ -26,7 +26,7 @@ type TBCRecordSQLite = {
   content?: string;
   /** Additional record data (used as frontmatter for markdown). */
   [key: string]: any;
-}
+};
 
 /**
  * Shared storage interface for TBC record SQLite operations.
@@ -50,7 +50,7 @@ type TBCRecordSQLiteShared = TBCRecordShared & {
   storeResults?: Record<string, string[]>;
   /** Database selection for operations. */
   database?: 'records' | 'meta';
-}
+};
 
 export {
   TBCRecordSQLite,

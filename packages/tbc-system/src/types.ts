@@ -1,5 +1,5 @@
-import { HAMIRegistrationManager } from "@hami-frameworx/core";
-import { TBCRecord, TBCRecordOperation } from "@tbc-frameworx/tbc-record";
+import { HAMIRegistrationManager } from '@hami-frameworx/core';
+import { TBCRecord, TBCRecordOperation } from '@tbc-frameworx/tbc-record';
 
 type TBCLevel = 'debug' | 'info' | 'warn' | 'error' | 'raw';
 
@@ -63,7 +63,7 @@ type Shared = {
   primeName?: string;
   /** Manifest of records by collection. */
   manifest?: Record<string, string[]>;
-}
+};
 
 export {
   Shared,

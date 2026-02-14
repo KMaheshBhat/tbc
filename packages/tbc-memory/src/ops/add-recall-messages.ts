@@ -1,6 +1,8 @@
-import assert from "assert";
+import assert from 'node:assert';
+
 import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
-import { Shared } from "../types";
+
+import { Shared } from '../types';
 
 interface NodeConfig {
     title?: string;
@@ -8,31 +10,31 @@ interface NodeConfig {
 }
 
 const NodeConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        title: { type: "string" },
-        source: { type: "string" },
-    }
+        title: { type: 'string' },
+        source: { type: 'string' },
+    },
 };
 
 export class AddRecallMessagesNode extends HAMINode<Shared, NodeConfig> {
     kind(): string {
-        return "tbc-memory:add-recall-messages";
+        return 'tbc-memory:add-recall-messages';
     }
 
     async post(shared: Shared): Promise<string> {
-        const title = this.config?.title || "Recalled Memories";
-        const source = this.config?.source || "recall-flow";
+        const title = this.config?.title || 'Recalled Memories';
+        const source = this.config?.source || 'recall-flow';
         const records = shared.view?.records || [];
 
         if (records.length === 0) {
-            return "default";
+            return 'default';
         }
 
         // Header
         shared.stage.messages.push(
-            { level: 'raw', message: `` },
-            { level: 'raw', message: `┌┤ ${title} ├────────────────────────────────────────` }
+            { level: 'raw', message: '' },
+            { level: 'raw', message: `┌┤ ${title} ├────────────────────────────────────────` },
         );
 
         // Record Rows
@@ -41,16 +43,16 @@ export class AddRecallMessagesNode extends HAMINode<Shared, NodeConfig> {
             const displayTitle = rec.title || rec.id;
             shared.stage.messages.push({
                 level: 'raw',
-                message: `[✓] ${rec.id} : [${typeLabel}] ${displayTitle}`
+                message: `[✓] ${rec.id} : [${typeLabel}] ${displayTitle}`,
             });
         });
 
         // Footer
         shared.stage.messages.push(
-            { level: 'raw', message: `└───────────────────────────────────────────────────────────` }
+            { level: 'raw', message: '└───────────────────────────────────────────────────────────' },
         );
 
-        return "default";
+        return 'default';
     }
 
     validateConfig(config: NodeConfig): HAMINodeConfigValidateResult {

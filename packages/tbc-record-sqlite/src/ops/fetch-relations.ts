@@ -1,9 +1,10 @@
-import assert from "assert";
-import { HAMINode } from "@hami-frameworx/core";
-import { Database } from "bun:sqlite";
+import assert from 'node:assert';
 
-import type { TBCRecordSQLiteShared as Shared } from "../types.js";
-import { ensureTables } from "../store.js";
+import { HAMINode } from '@hami-frameworx/core';
+import { Database } from 'bun:sqlite';
+
+import type { TBCRecordSQLiteShared as Shared } from '../types.js';
+import { ensureTables } from '../store.js';
 
 type NodeInput = {
     storePath: string;
@@ -22,7 +23,7 @@ export class FetchRelationsNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-record-sqlite:fetch-relations";
+        return 'tbc-record-sqlite:fetch-relations';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
@@ -57,7 +58,7 @@ export class FetchRelationsNode extends HAMINode<Shared> {
                 attrs: string | null;
             }>;
 
-            return rows.map(row => {
+            return rows.map((row) => {
                 const relation = {
                     source_id: row.source_id,
                     target_id: row.target_id,
@@ -86,11 +87,10 @@ export class FetchRelationsNode extends HAMINode<Shared> {
         }
     }
 
-
     async post(shared: Shared, _prepRes: NodeInput, execRes: NodeOutput): Promise<string | undefined> {
         assert(shared.record, 'shared.record is required');
         if (!shared.record.result) shared.record.result = {};
         (shared.record.result as any).relations = execRes;
-        return "default";
+        return 'default';
     }
 }

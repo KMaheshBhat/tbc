@@ -2,9 +2,10 @@ import {
     HAMINode,
     HAMINodeConfigValidateResult,
     validateAgainstSchema,
-    ValidationSchema
-} from "@hami-frameworx/core";
-import { Shared } from "../types.js";
+    ValidationSchema,
+} from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 interface Config {
     query?: string;
@@ -30,7 +31,7 @@ interface PrepResult {
 
 export class QueryIndicesNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return "tbc-dex:query-indices";
+        return 'tbc-dex:query-indices';
     }
 
     // packages/tbc-dex/src/ops/query-indices.ts
@@ -66,9 +67,9 @@ export class QueryIndicesNode extends HAMINode<Shared, Config> {
             .filter((c): c is string => !!c);
 
         return {
-            queryStr: (this.config?.query || "").toLowerCase(),
+            queryStr: (this.config?.query || '').toLowerCase(),
             limit: this.config?.limit || 10,
-            contents
+            contents,
         };
     }
 
@@ -78,10 +79,10 @@ export class QueryIndicesNode extends HAMINode<Shared, Config> {
 
         for (const content of contents) {
             // 1. Split and reverse to prioritize the 'bottom' of the file (newest)
-            const lines = content.split('\n').reverse(); 
-            
+            const lines = content.split('\n').reverse();
+
             for (const line of lines) {
-                // We don't break yet because we might need to sort 
+                // We don't break yet because we might need to sort
                 // across multiple files if 'type' wasn't specified
                 if (!line.trim()) continue;
 
@@ -101,7 +102,7 @@ export class QueryIndicesNode extends HAMINode<Shared, Config> {
                             title: entry.record_title || entry.title || entry.id,
                             tags: entry.record_tags || [],
                             type: entry.record_type || 'unknown',
-                            path: entry.path || ''
+                            path: entry.path || '',
                         });
                     }
                 } catch (e) {
@@ -126,22 +127,22 @@ export class QueryIndicesNode extends HAMINode<Shared, Config> {
         shared.stage.messages.push({
             level: 'debug',
             source: 'tbc-dex',
-            message: `DEX scan complete. Matches found: ${matches.length}`
+            message: `DEX scan complete. Matches found: ${matches.length}`,
         });
 
-        return "default";
+        return 'default';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {
         const schema: ValidationSchema = {
-            type: "object",
+            type: 'object',
             properties: {
-                query: { type: "string" },
-                type: { type: "string" },
-                limit: { type: "number" },
-                outputKey: { type: "string" }
+                query: { type: 'string' },
+                type: { type: 'string' },
+                limit: { type: 'number' },
+                outputKey: { type: 'string' },
             },
-            required: ["limit", "outputKey"],
+            required: ['limit', 'outputKey'],
         };
         const result = validateAgainstSchema(config, schema);
         return { valid: result.isValid, errors: result.errors || [] };

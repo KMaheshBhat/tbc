@@ -1,16 +1,17 @@
-import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import assert from 'node:assert';
 
-import { Minted } from "@tbc-frameworx/tbc-mint";
-import { Shared, TBCLevel, TBCMessage } from "../types.js";
-import assert from "assert";
+import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+import { Minted } from '@tbc-frameworx/tbc-mint';
+
+import { Shared, TBCLevel, TBCMessage } from '../types.js';
 
 type Config = {
     source: string;
     level: TBCLevel;
-}
+};
 
 const ValidateNodeConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
         level: { type: 'string', enum: ['debug', 'info', 'warn', 'error', 'raw'], default: 'info' },
         source: { type: 'string' },
@@ -20,11 +21,11 @@ const ValidateNodeConfigSchema: ValidationSchema = {
 
 export class AddMintedMessagesNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return "tbc-system:add-minted-messages";
+        return 'tbc-system:add-minted-messages';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, ValidateNodeConfigSchema)
+        const result = validateAgainstSchema(config, ValidateNodeConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -36,7 +37,7 @@ export class AddMintedMessagesNode extends HAMINode<Shared, Config> {
     }
 
     async exec(minted: Minted): Promise<[TBCMessage[], TBCMessage[]]> {
-        assert(this.config, "the add-minted-messages must be configured");
+        assert(this.config, 'the add-minted-messages must be configured');
         const kMessages: TBCMessage[] = [];
         const bMessages: TBCMessage[] = [];
         for (const [k, v] of Object.entries(minted.keys || {})) {
@@ -82,6 +83,6 @@ export class AddMintedMessagesNode extends HAMINode<Shared, Config> {
             level: 'raw',
             message: ' └┼───────────────────────────────────────────────────────────',
         });
-        return "default";
+        return 'default';
     }
 }

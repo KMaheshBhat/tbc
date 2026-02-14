@@ -1,6 +1,8 @@
-import { HAMINode } from "@hami-frameworx/core";
+import * as path from 'node:path';
 
-import type { Shared } from "../types.js";
+import { HAMINode } from '@hami-frameworx/core';
+
+import type { Shared } from '../types.js';
 
 type StructureWatermarkNodeInput = {
     processedRecords: Array<{
@@ -36,18 +38,18 @@ export class StructureWatermarkNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-dex:structure-watermark";
+        return 'tbc-dex:structure-watermark';
     }
 
     async prep(shared: Shared): Promise<StructureWatermarkNodeInput> {
         if (!shared.processedRecords) {
-            throw new Error("processedRecords is required in shared state");
+            throw new Error('processedRecords is required in shared state');
         }
         if (!shared.rootDirectory) {
-            throw new Error("rootDirectory is required in shared state");
+            throw new Error('rootDirectory is required in shared state');
         }
         if (!shared.dexStore) {
-            throw new Error("dexStore is required in shared state");
+            throw new Error('dexStore is required in shared state');
         }
         return {
             processedRecords: shared.processedRecords,
@@ -99,7 +101,7 @@ export class StructureWatermarkNode extends HAMINode<Shared> {
 
     private async getFileContent(filePath: string, rootDirectory: string): Promise<string | null> {
         try {
-            const fullPath = require('path').join(rootDirectory, filePath);
+            const fullPath = path.join(rootDirectory, filePath);
             return await Bun.file(fullPath).text();
         } catch {
             return null;
@@ -108,6 +110,6 @@ export class StructureWatermarkNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _prepRes: StructureWatermarkNodeInput, execRes: StructureWatermarkNodeOutput): Promise<string | undefined> {
         shared.structureResults = execRes.structureResults;
-        return "default";
+        return 'default';
     }
 }

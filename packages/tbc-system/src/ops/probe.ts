@@ -1,7 +1,8 @@
-import { platform, release, type, arch, uptime, hostname } from "os";
-import { HAMINode } from "@hami-frameworx/core";
+import { platform, release, type, arch, uptime, hostname } from 'node:os';
 
-import { Shared, TBCMessage } from "../types.js";
+import { HAMINode } from '@hami-frameworx/core';
+
+import { Shared, TBCMessage } from '../types.js';
 
 type NodeOutput = {
     appInfo?: TBCMessage[];
@@ -16,7 +17,7 @@ export class ProbeNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-system:probe";
+        return 'tbc-system:probe';
     }
 
     async prep(
@@ -120,7 +121,7 @@ export class ProbeNode extends HAMINode<Shared> {
             message: `Shell: ${process.env.SHELL || 'unknown'}`,
         });
 
-        return { 
+        return {
             appInfo,
             tbcRootInfo,
             systemInfo,
@@ -169,6 +170,6 @@ export class ProbeNode extends HAMINode<Shared> {
             level: 'raw',
             message: ' └┼───────────────────────────────────────────────────────────',
         });
-        return "default";
+        return 'default';
     }
 }

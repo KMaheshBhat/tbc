@@ -1,6 +1,6 @@
-import { Database } from "bun:sqlite";
-import * as fs from "fs";
-import * as path from "path";
+import { Database } from 'bun:sqlite';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 export interface NodeRecord {
   id: string;
@@ -178,7 +178,7 @@ export class DexStore {
   }
 
   getAttributes(nodeId: string): Record<string, any> {
-    const results = this.db.query(`SELECT key, value, value_type FROM node_attributes WHERE node_id = ?`).all(nodeId) as Array<{key: string, value: string | null, value_type: string}>;
+    const results = this.db.query(`SELECT key, value, value_type FROM node_attributes WHERE node_id = ?`).all(nodeId) as Array<{ key: string, value: string | null, value_type: string }>;
     const attrs: Record<string, any> = {};
 
     for (const row of results) {

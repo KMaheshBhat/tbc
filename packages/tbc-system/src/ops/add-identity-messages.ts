@@ -1,6 +1,8 @@
-import assert from "assert";
+import assert from 'node:assert';
+
 import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
-import { Shared } from "../types";
+
+import { Shared } from '../types.js';
 
 interface NodeConfig {
     title: string;
@@ -8,17 +10,17 @@ interface NodeConfig {
 }
 
 const NodeConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        title: { type: "string" },
-        target: { type: "string", enum: ['companionRecord', 'primeRecord'] },
+        title: { type: 'string' },
+        target: { type: 'string', enum: ['companionRecord', 'primeRecord'] },
     },
-    required: ["title", "target"],
+    required: ['title', 'target'],
 };
 
 export class AddIdentityMessagesNode extends HAMINode<Shared, NodeConfig> {
     kind(): string {
-        return "tbc-system:add-identity-messages";
+        return 'tbc-system:add-identity-messages';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -30,19 +32,19 @@ export class AddIdentityMessagesNode extends HAMINode<Shared, NodeConfig> {
                 level: 'error',
                 source: 'system-identity',
                 message: `Identity data for [${this.config.target}] not found.`,
-                suggestion: 'Ensure tbc-system:validate-flow has run successfully.'
+                suggestion: 'Ensure tbc-system:validate-flow has run successfully.',
             });
-            return "default";
+            return 'default';
         }
 
         shared.stage.messages.push(
-            { level: 'raw', message: `` },
+            { level: 'raw', message: '' },
             { level: 'raw', message: `┌┤ ${this.config.title} ├────────────────────────────────` },
             { level: 'raw', message: `[✓] ${record.id} : ${record.record_title || 'Unknown'}` },
-            { level: 'raw', message: `└───────────────────────────────────────────────────────────` }
+            { level: 'raw', message: '└───────────────────────────────────────────────────────────' },
         );
 
-        return "default";
+        return 'default';
     }
 
     validateConfig(config: NodeConfig): HAMINodeConfigValidateResult {

@@ -1,6 +1,6 @@
-import { createPlugin } from "@hami-frameworx/core";
+import { createPlugin } from '@hami-frameworx/core';
 
-import { ViewRecordsFlow } from "./ops/view-records.js";
+import { ViewRecordsFlow } from './ops/view-records.js';
 
 /**
  * TBC View Plugin for HAMI.
@@ -10,12 +10,12 @@ import { ViewRecordsFlow } from "./ops/view-records.js";
  * - `tbc-view:view-records-flow`: Views records using configured providers
  */
 const TBCViewPlugin = createPlugin(
-    "@tbc-frameworx/tbc-view",
-    "0.1.0",
+    '@tbc-frameworx/tbc-view',
+    '0.1.0',
     [
         ViewRecordsFlow as any,
     ],
-    "TBC View Plugin - View facade operations for TBC",
+    'TBC View Plugin - View facade operations for TBC',
 );
 
 export { TBCViewPlugin };

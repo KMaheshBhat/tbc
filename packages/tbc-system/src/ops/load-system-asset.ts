@@ -1,7 +1,7 @@
-import { HAMINode } from "@hami-frameworx/core";
-import { Shared } from "../types.js";
+import { HAMINode } from '@hami-frameworx/core';
 
-import { generateAssetsManifest } from "../assets-manifest.js" with { type: "macro" };
+import { generateAssetsManifest } from '../assets-manifest.js' with { type: 'macro' };
+import { Shared } from '../types.js';
 
 const ASSETS = await generateAssetsManifest();
 
@@ -13,7 +13,7 @@ type NodeOutput = Record<string, Record<string, string>>;
 
 export class LoadSystemAssetsNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-system:load-system-assets";
+        return 'tbc-system:load-system-assets';
     }
 
     async exec(input: NodeInput): Promise<NodeOutput> {
@@ -21,10 +21,10 @@ export class LoadSystemAssetsNode extends HAMINode<Shared> {
 
         const mappings = [
             { folder: 'templates', collection: 'templates' },
-            { folder: "sys/core", collection: "sys/core" },
-            { folder: "sys/ext", collection: "sys/ext" },
-            { folder: "skills/core", collection: "skills/core" },
-            { folder: "skills/ext", collection: "skills/ext" }
+            { folder: 'sys/core', collection: 'sys/core' },
+            { folder: 'sys/ext', collection: 'sys/ext' },
+            { folder: 'skills/core', collection: 'skills/core' },
+            { folder: 'skills/ext', collection: 'skills/ext' },
         ];
 
         // Get all relative paths from our "baked-in" manifest
@@ -34,12 +34,12 @@ export class LoadSystemAssetsNode extends HAMINode<Shared> {
 
             for (const path of assetPaths) {
                 // Check if file is inside the target directory
-                if (path.startsWith(directory + "/")) {
+                if (path.startsWith(directory + '/')) {
                     // Strip the directory prefix to get the relative ID
                     // e.g., "skills/core/tbc-act-ops/SKILL.md" -> "tbc-act-ops/SKILL.md"
                     const id = path.substring(directory.length + 1);
                     directoryRecords[id] = ASSETS[path];
-                } else if (path === directory && !path.includes("/")) {
+                } else if (path === directory && !path.includes('/')) {
                     // Handle cases like 'templates' if it's a flat folder with no sub-nesting
                     directoryRecords[path] = ASSETS[path];
                 }
@@ -62,10 +62,10 @@ export class LoadSystemAssetsNode extends HAMINode<Shared> {
         for (const [collection, records] of Object.entries(output)) {
             shared.stage.records[collection] = {
                 ...(shared.stage.records[collection] || {}),
-                ...records
+                ...records,
             };
         }
 
-        return "default";
+        return 'default';
     }
 }

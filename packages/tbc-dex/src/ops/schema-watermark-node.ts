@@ -1,6 +1,6 @@
-import { HAMINode } from "@hami-frameworx/core";
+import { HAMINode } from '@hami-frameworx/core';
 
-import type { Shared } from "../types.js";
+import type { Shared } from '../types.js';
 
 type SchemaWatermarkNodeInput = {
     processedRecords: Array<{
@@ -36,18 +36,18 @@ export class SchemaWatermarkNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-dex:schema-watermark";
+        return 'tbc-dex:schema-watermark';
     }
 
     async prep(shared: Shared): Promise<SchemaWatermarkNodeInput> {
         if (!shared.processedRecords) {
-            throw new Error("processedRecords is required in shared state");
+            throw new Error('processedRecords is required in shared state');
         }
         if (!shared.rootDirectory) {
-            throw new Error("rootDirectory is required in shared state");
+            throw new Error('rootDirectory is required in shared state');
         }
         if (!shared.dexStore) {
-            throw new Error("dexStore is required in shared state");
+            throw new Error('dexStore is required in shared state');
         }
         return {
             processedRecords: shared.processedRecords,
@@ -118,14 +118,14 @@ export class SchemaWatermarkNode extends HAMINode<Shared> {
     private getFieldTypes(recordType: string): Record<string, string> {
         // Basic type checking - could be expanded
         return {
-            'goal_status': 'string',
-            'party_type': 'string',
-            'log_type': 'string',
+            goal_status: 'string',
+            party_type: 'string',
+            log_type: 'string',
         };
     }
 
     async post(shared: Shared, _prepRes: SchemaWatermarkNodeInput, execRes: SchemaWatermarkNodeOutput): Promise<string | undefined> {
         shared.schemaResults = execRes.schemaResults;
-        return "default";
+        return 'default';
     }
 }

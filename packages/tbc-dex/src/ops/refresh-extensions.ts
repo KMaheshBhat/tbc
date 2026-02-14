@@ -1,12 +1,13 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
 
-import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
-import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, validateAgainstSchema } from '@hami-frameworx/core';
+import type { HAMINodeConfigValidateResult, ValidationSchema } from '@hami-frameworx/core';
 
 class GroupExtensionsByTypeNode extends Node {
     async prep(shared: Record<string, any>): Promise<any> {
-        return shared.fetchResults?.["sys/ext"] || {};
+        return shared.fetchResults?.['sys/ext'] || {};
     }
 
     async exec(prepRes: any): Promise<Record<string, any[]>> {
@@ -35,11 +36,11 @@ interface RefreshExtensionsFlowConfig {
 }
 
 const RefreshExtensionsFlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
+        verbose: { type: 'boolean' },
     },
-    required: ["verbose"],
+    required: ['verbose'],
 };
 
 export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, RefreshExtensionsFlowConfig> {
@@ -54,7 +55,7 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
     }
 
     kind(): string {
-        return "tbc-dex:refresh-extensions";
+        return 'tbc-dex:refresh-extensions';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -97,8 +98,7 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
             .next(n('core:log-result', {
                 resultKey: 'storeResults',
                 format: 'table',
-            }))
-            ;
+            }));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -110,7 +110,7 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
         shared.rootDirectory = rootDir;
         shared.record = {
             rootDirectory: rootDir,
-        }
+        };
 
         // Initialize fetchResults
         shared.fetchResults = {};
@@ -119,13 +119,13 @@ export class RefreshExtensionsFlow extends HAMIFlow<Record<string, any>, Refresh
         shared.extensionsCollection = 'sys/ext';
         shared.queryAllIDs = {
             type: 'list-all-ids',
-        }
+        };
 
         return super.run(shared);
     }
 
     validateConfig(config: RefreshExtensionsFlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, RefreshExtensionsFlowConfigSchema)
+        const result = validateAgainstSchema(config, RefreshExtensionsFlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],

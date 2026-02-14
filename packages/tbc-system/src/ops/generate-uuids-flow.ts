@@ -1,10 +1,10 @@
-import assert from "assert";
+import assert from 'node:assert';
 
-import { Node } from "pocketflow";
+import { Node } from 'pocketflow';
 
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { Shared } from "../types";
+import { Shared } from '../types.js';
 
 interface FlowConfig {
     verbose?: boolean;
@@ -12,10 +12,10 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        count: { type: "number" },
+        verbose: { type: 'boolean' },
+        count: { type: 'number' },
     },
 };
 
@@ -25,13 +25,13 @@ class GenerateUUIDsFlowStartNode extends HAMINode<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-system:generate-uuids-flow-start"
+        return 'tbc-system:generate-uuids-flow-start';
     }
 
     async post(shared: Record<string, any>, prepRes: unknown, execRes: unknown): Promise<string> {
         shared.stage = shared.stage || {};
         shared.stage.verbose = shared.verbose || this.config?.verbose;
-        return "default";
+        return 'default';
     }
 }
 
@@ -47,11 +47,11 @@ export class GenerateUUIDsFlow extends HAMIFlow<Record<string, any>, FlowConfig>
     }
 
     kind(): string {
-        return "tbc-system:generate-uuids-flow";
+        return 'tbc-system:generate-uuids-flow';
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema)
+        const result = validateAgainstSchema(config, FlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -72,8 +72,7 @@ export class GenerateUUIDsFlow extends HAMIFlow<Record<string, any>, FlowConfig>
                 source: 'generate-uuids-flow',
                 level: 'info',
             }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            ;
+            .next(n('tbc-system:log-and-clear-messages'));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -83,4 +82,3 @@ export class GenerateUUIDsFlow extends HAMIFlow<Record<string, any>, FlowConfig>
     }
 
 }
-

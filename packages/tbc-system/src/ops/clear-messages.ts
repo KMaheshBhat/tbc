@@ -1,13 +1,13 @@
-import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { Shared, TBCMessage } from "../types.js";
+import { Shared, TBCMessage } from '../types.js';
 
 type Config = {
     verbose: boolean;
-}
+};
 
 const ValidateNodeConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
         verbose: { type: 'boolean' },
     },
@@ -16,11 +16,11 @@ const ValidateNodeConfigSchema: ValidationSchema = {
 
 export class ClearMessagesNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return "tbc-system:clear-messages";
+        return 'tbc-system:clear-messages';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, ValidateNodeConfigSchema)
+        const result = validateAgainstSchema(config, ValidateNodeConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -39,6 +39,6 @@ export class ClearMessagesNode extends HAMINode<Shared, Config> {
         shared.stage.messages = [];
         shared.stage.allMessages = shared.stage.allMessages || [];
         shared.stage.allMessages.push(...messages);
-        return "default";
+        return 'default';
     }
 }

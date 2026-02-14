@@ -1,19 +1,21 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
+import * as path from 'node:path';
 
-import { HAMIFlow, validateAgainstSchema } from "@hami-frameworx/core";
-import type { HAMINodeConfigValidateResult, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, validateAgainstSchema } from '@hami-frameworx/core';
+import type { HAMINodeConfigValidateResult, ValidationSchema } from '@hami-frameworx/core';
 
 interface ViewStatusFlowConfig {
     verbose: boolean;
 }
 
 const ViewStatusFlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
+        verbose: { type: 'boolean' },
     },
-    required: ["verbose"],
+    required: ['verbose'],
 };
 
 export class ViewStatusFlow extends HAMIFlow<Record<string, any>, ViewStatusFlowConfig> {
@@ -28,7 +30,7 @@ export class ViewStatusFlow extends HAMIFlow<Record<string, any>, ViewStatusFlow
     }
 
     kind(): string {
-        return "tbc-dex:view-status-flow";
+        return 'tbc-dex:view-status-flow';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -41,9 +43,8 @@ export class ViewStatusFlow extends HAMIFlow<Record<string, any>, ViewStatusFlow
                 resultKey: 'healthSummary',
                 format: 'table' as const,
                 prefix: 'System Health Status:',
-                verbose: this.config.verbose
-            }))
-            ;
+                verbose: this.config.verbose,
+            }));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {
@@ -53,7 +54,6 @@ export class ViewStatusFlow extends HAMIFlow<Record<string, any>, ViewStatusFlow
         // Initialize DexStore if not present
         if (!shared.dexStore) {
             shared.rootDirectory = shared.rootDirectory || process.cwd();  // TODO below should be a node that uses `tbc-system:resolve`
-            const path = require('path');
             const dbPath = path.join(shared.rootDirectory, 'dex', 'tbc-view.db');
             const { DexStore } = await import('../store/dex-store.js');
             shared.dexStore = new DexStore(dbPath);

@@ -1,9 +1,10 @@
 import assert from 'assert';
 
 import { Node } from 'pocketflow';
+
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { Shared } from '../types';
+import { Shared } from '../types.js';
 
 interface FlowConfig {
     verbose?: boolean;
@@ -24,7 +25,7 @@ class SysValidateFlowStartNode extends HAMINode<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return 'tbc-system:validate-flow-start'
+        return 'tbc-system:validate-flow-start';
     }
 
     async post(shared: Shared, prepRes: unknown, execRes: unknown): Promise<string> {
@@ -47,7 +48,7 @@ class SysValidateFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.dexCollection = 'dex';
         shared.stage.memCollection = 'mem';
         shared.stage.actCollection = 'act';
-        return "default";
+        return 'default';
     }
 }
 
@@ -67,7 +68,7 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema)
+        const result = validateAgainstSchema(config, FlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -90,9 +91,9 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'debug',
                         source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
+                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
                     });
-                }
+                },
             }))
             .next(n('tbc-record:query-records-flow', {
                 recordProviders: ['tbc-record-fs:query-records'],
@@ -115,9 +116,9 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'debug',
                         source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
+                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
                     });
-                }
+                },
             }))
             .next(n('tbc-record:query-records-flow', {
                 recordProviders: ['tbc-record-fs:query-records'],
@@ -140,9 +141,9 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'debug',
                         source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
+                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
                     });
-                }
+                },
             }))
             .next(n('tbc-record:query-records-flow', {
                 recordProviders: ['tbc-record-fs:query-records'],
@@ -165,9 +166,9 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'debug',
                         source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
+                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
                     });
-                }
+                },
             }))
             .next(n('tbc-record:query-records-flow', {
                 recordProviders: ['tbc-record-fs:query-records'],
@@ -207,26 +208,26 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                             shared.record.IDs.push(...[companionID, primeID, memoryMapID]);
                         }
                     }
-                }
+                },
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
                         level: 'debug',
                         source: 'validate-flow',
-                        message: `Identifying companionID (${shared.system.companionID}) and load from ${shared.record.collection}`
+                        message: `Identifying companionID (${shared.system.companionID}) and load from ${shared.record.collection}`,
                     });
                     shared.stage.messages.push({
                         level: 'debug',
                         source: 'validate-flow',
-                        message: `Identifying primeID (${shared.system.primeID}) and load from ${shared.record.collection}`
+                        message: `Identifying primeID (${shared.system.primeID}) and load from ${shared.record.collection}`,
                     });
                     shared.stage.messages.push({
                         level: 'debug',
                         source: 'validate-flow',
-                        message: `Identifying memoryMapID (${shared.system.memoryMapID}) and load from ${shared.record.collection}`
+                        message: `Identifying memoryMapID (${shared.system.memoryMapID}) and load from ${shared.record.collection}`,
                     });
-                }
+                },
             }))
             .next(n('tbc-record:fetch-records-flow', {
                 recordProviders: ['tbc-record-fs:fetch-records'],
@@ -242,20 +243,19 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.system.memoryMapRecord = shared.record.result.records[shared.stage.memCollection][shared.system.memoryMapID];
                     shared.system.manifest = shared.stage.manifest;
                     shared.manifest = shared.stage.manifest;
-                }
+                },
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'validate-flow',
-                        message: `Validating system`
+                        message: 'Validating system',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:validate-system'))
-            .next(n('tbc-system:log-and-clear-messages'))
-            ;
+            .next(n('tbc-system:log-and-clear-messages'));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {

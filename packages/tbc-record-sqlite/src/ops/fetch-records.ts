@@ -1,11 +1,12 @@
-import assert from "assert";
-import { HAMINode } from "@hami-frameworx/core";
+import assert from 'node:assert';
 
-import { Database } from "bun:sqlite";
+import { HAMINode } from '@hami-frameworx/core';
+import { Database } from 'bun:sqlite';
 
-import type { TBCRecordSQLiteShared as Shared } from "../types.js";
-import { TBCStore } from "@tbc-frameworx/tbc-record";
-import { ensureTables } from "../store.js";
+import { TBCStore } from '@tbc-frameworx/tbc-record';
+
+import type { TBCRecordSQLiteShared as Shared } from '../types.js';
+import { ensureTables } from '../store.js';
 
 type NodeInput = {
     storePath: string;
@@ -21,7 +22,7 @@ export class FetchRecordsNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-record-sqlite:fetch-records";
+        return 'tbc-record-sqlite:fetch-records';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
@@ -51,10 +52,10 @@ export class FetchRecordsNode extends HAMINode<Shared> {
                 }
             }
 
-            return {[params.collection]: results};
+            return { [params.collection]: results };
         } catch (error: any) {
             console.error(`Error fetching records from ${params.storePath}:`, error);
-            return {[params.collection]: {}};
+            return { [params.collection]: {} };
         } finally {
             db.close();
         }
@@ -62,7 +63,7 @@ export class FetchRecordsNode extends HAMINode<Shared> {
 
     private async fetchRecord(db: Database, collection: string, id: string): Promise<Record<string, any> | null> {
         // Get node data
-        const nodeQuery = db.query("SELECT * FROM nodes WHERE id = ? AND collection = ?");
+        const nodeQuery = db.query('SELECT * FROM nodes WHERE id = ? AND collection = ?');
         const nodeRow = nodeQuery.get(id, collection) as any;
 
         if (!nodeRow) {
@@ -70,7 +71,7 @@ export class FetchRecordsNode extends HAMINode<Shared> {
         }
 
         // Get attributes
-        const attrQuery = db.query("SELECT key, value, value_type FROM node_attributes WHERE node_id = ?");
+        const attrQuery = db.query('SELECT key, value, value_type FROM node_attributes WHERE node_id = ?');
         const attrRows = attrQuery.all(id) as { key: string; value: string; value_type: string }[];
 
         // Reconstruct record
@@ -100,7 +101,6 @@ export class FetchRecordsNode extends HAMINode<Shared> {
         return record;
     }
 
-
     async post(
         shared: Shared,
         _prepRes: NodeInput,
@@ -110,6 +110,6 @@ export class FetchRecordsNode extends HAMINode<Shared> {
         if (!shared.record.result) shared.record.result = {};
         shared.record.result.records = execRes;
         shared.record.result.totalCount = Object.values(execRes).reduce((sum, collection) => sum + Object.keys(collection).length, 0);
-        return "default";
+        return 'default';
     }
 }

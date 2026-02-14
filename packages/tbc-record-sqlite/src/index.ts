@@ -1,1 +1,1 @@
-export { TBCRecordSQLitePlugin } from "./plugin.js";
+export { TBCRecordSQLitePlugin } from './plugin.js';

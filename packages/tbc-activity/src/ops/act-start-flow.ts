@@ -1,10 +1,12 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { Shared } from "../types";
-import { join } from "path";
-import { existsSync } from "fs";
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types';
 
 interface FlowConfig {
     verbose?: boolean;
@@ -13,17 +15,17 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        rootDirectory: { type: "string" },
-        activityId: { type: "string" },
+        verbose: { type: 'boolean' },
+        rootDirectory: { type: 'string' },
+        activityId: { type: 'string' },
     },
 };
 
 class ActStartFlowStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-activity:act-start-flow-start";
+        return 'tbc-activity:act-start-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -32,7 +34,7 @@ class ActStartFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
         shared.stage.activityId = shared.stage.activityId || this.config?.activityId;
-        return "default";
+        return 'default';
     }
 }
 
@@ -48,7 +50,7 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-activity:act-start-flow";
+        return 'tbc-activity:act-start-flow';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -67,7 +69,7 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                         message: `has no existing companion (not a valid TBC Root)`,
                         suggestion: 'Use "tbc sys init" instead.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'));
 
@@ -89,9 +91,9 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                     // We populate the key we promised to point to
                     s.stage.mintRequests = [{
                         type: 'tbc-mint:uuid-mint',
-                        count: 1
+                        count: 1,
                     }];
-                }
+                },
             }))
             .next(n('tbc-mint:mint-ids-flow', {
                 requestsKey: 'mintRequests',
@@ -103,9 +105,9 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     const mintedId = s.stage.minted?.batch?.[0];
-                    assert(mintedId, "Identity Minting failed: No ID found in stage.minted.batch.");
+                    assert(mintedId, 'Identity Minting failed: No ID found in stage.minted.batch.');
                     s.stage.activityId = mintedId;
-                }
+                },
             }))
             .next(startPrepareWorkspace);
 
@@ -119,7 +121,7 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
             branch: (s: Shared) => {
                 const logPath = join(s.stage.activityPath, `${s.stage.activityId}.md`);
                 return existsSync(logPath) ? 'exists' : 'default';
-            }
+            },
         });
         branchToSkipSynthesis.on('exists', startReport);
 
@@ -133,12 +135,12 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                         source: 'act-start-flow',
                         message: 'Checking first ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('tbc-system:validate-flow', {
                 verbose: this.config?.verbose,
-                rootDirectory: this.config?.rootDirectory
+                rootDirectory: this.config?.rootDirectory,
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
@@ -148,7 +150,7 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                         source: 'act-start-flow',
                         message: 'existing valid TBC root found, proceeding ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(branchToMint)
@@ -160,7 +162,7 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                         source: 'act-start-flow',
                         message: 'actual workspace preparation',
                     });
-                }
+                },
             }))
             .next(n('tbc-activity:prepare-workspace'))
             .next(branchToSkipSynthesis)
@@ -183,12 +185,12 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                         meta: {
                             id: activityId,
                             title: `Activity Log ${timestamp}`,
-                            content: `Activity session initialized. Replace this with actual activity details and logs as you work.`,
+                            content: 'Activity session initialized. Replace this with actual activity details and logs as you work.',
                             log_type: 'activity',
-                        }
+                        },
                     }];
                     s.stage.actCollection = `act/current/${activityId}`;
-                }
+                },
             }))
             .next(n('tbc-synthesize:synthesize-record-flow', { requestsKey: 'synthesizeRequests' }))
             .next(n('tbc-write:write-records-flow', {
@@ -196,14 +198,14 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                 recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'record.records',
                 collection: 'actCollection',
-                syncIndex: false
+                syncIndex: false,
             }))
             .next(startReport)
             // --- FEEDBACK SECTION ---
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     const activityId = s.stage.activityId;
-                    
+
                     s.stage.messages.push({
                         level: 'raw',
                         message: ' ┌┼───────────────────────────────────────────────────────────',
@@ -220,9 +222,9 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                         level: 'info',
                         source: 'act-start-flow',
                         message: `Log: ${s.stage.actCollection}/${activityId}.md`,
-                        suggestion: `This is your active workspace. Updates will be tracked here until the activity is closed.`,
+                        suggestion: 'This is your active workspace. Updates will be tracked here until the activity is closed.',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'));
     }

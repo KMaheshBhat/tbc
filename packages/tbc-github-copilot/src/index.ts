@@ -1,1 +1,1 @@
-export { TBCGitHubCopilotPlugin } from "./plugin.js";
+export { TBCGitHubCopilotPlugin } from './plugin.js';

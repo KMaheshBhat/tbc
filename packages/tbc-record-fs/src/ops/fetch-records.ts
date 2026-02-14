@@ -1,12 +1,13 @@
-import assert from "assert";
-import { readFileSync, existsSync, readdirSync } from "fs";
-import { join, extname, basename } from "path";
-import matter from "gray-matter";
+import assert from 'node:assert';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { basename, extname, join } from 'node:path';
 
-import { HAMINode } from "@hami-frameworx/core";
+import matter from 'gray-matter';
 
-import { TBCRecordFSShared as Shared } from "../types.js";
-import { TBCStore } from "@tbc-frameworx/tbc-record";
+import { HAMINode } from '@hami-frameworx/core';
+import { TBCStore } from '@tbc-frameworx/tbc-record';
+
+import { TBCRecordFSShared as Shared } from '../types.js';
 
 export class FetchRecordsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
@@ -14,7 +15,7 @@ export class FetchRecordsNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-record-fs:fetch-records";
+        return 'tbc-record-fs:fetch-records';
     }
 
     async prep(shared: Shared): Promise<[string, string, string[]]> {
@@ -39,7 +40,7 @@ export class FetchRecordsNode extends HAMINode<Shared> {
                 results[id] = record;
             }
         }
-        return {[collection]: results};
+        return { [collection]: results };
     }
 
     private findAndParseRecord(collectionPath: string, collection: string, id: string): Record<string, any> | null {
@@ -107,6 +108,6 @@ export class FetchRecordsNode extends HAMINode<Shared> {
         if (!shared.record.result) shared.record.result = {};
         shared.record.result.records = execRes;
         shared.record.result.totalCount = Object.values(execRes).reduce((sum, collection) => sum + Object.keys(collection).length, 0);
-        return "default";
+        return 'default';
     }
 }

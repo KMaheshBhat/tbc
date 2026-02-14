@@ -1,105 +1,105 @@
-import { HAMINode } from "@hami-frameworx/core";
+import { HAMINode } from '@hami-frameworx/core';
 
-import type { Shared } from "../types.js";
+import type { Shared } from '../types.js';
 
 interface GenerateDexExtensionsNodeConfig {
-    verbose: boolean;
+  verbose: boolean;
 }
 
 export class GenerateDexExtensionsNode extends HAMINode<Shared, GenerateDexExtensionsNodeConfig> {
-    kind(): string {
-        return "tbc-dex:generate-dex-extensions";
+  kind(): string {
+    return 'tbc-dex:generate-dex-extensions';
+  }
+
+  async prep(shared: Shared): Promise<any> {
+    return {
+      rootDirectory: shared.rootDirectory,
+      recordsByType: shared.recordsByType,
+      verbose: this.config?.verbose,
+    };
+  }
+
+  async exec(params: any): Promise<any[]> {
+    const { recordsByType } = params;
+    // Collect all extension records regardless of type (typically 'specification')
+    const extensionsRecords: any[] = [];
+    for (const typeRecords of Object.values(recordsByType as Record<string, any[]>)) {
+      extensionsRecords.push(...typeRecords);
     }
 
-    async prep(shared: Shared): Promise<any> {
-        return {
-            rootDirectory: shared.rootDirectory,
-            recordsByType: shared.recordsByType,
-            verbose: this.config?.verbose
-        };
+    const content = this.generateIndexContent(extensionsRecords);
+    const record = {
+      id: 'extensions',
+      filename: 'extensions.md',
+      contentType: 'markdown',
+      title: 'Extensions Index',
+      content: content,
+      record_type: 'dex',
+    };
+
+    return [record];
+  }
+
+  private generateIndexContent(records: Record<string, any>): string {
+    let content = '=== Extensions Index ===\n';
+
+    for (const id in records) {
+      const record = records[id];
+      // Generic field extraction - include all fields except record_type
+      const fields = this.extractSerializableFields(record);
+      const fieldString = fields.map(([key, value]) => `${key}: ${value}`).join(', ');
+      content += `- ${fieldString}\n`;
     }
 
-    async exec(params: any): Promise<any[]> {
-        const { recordsByType } = params;
-        // Collect all extension records regardless of type (typically 'specification')
-        const extensionsRecords: any[] = [];
-        for (const typeRecords of Object.values(recordsByType as Record<string, any[]>)) {
-            extensionsRecords.push(...typeRecords);
-        }
+    return content;
+  }
 
-        const content = this.generateIndexContent(extensionsRecords);
-        const record = {
-            id: 'extensions',
-            filename: 'extensions.md',
-            contentType: 'markdown',
-            title: 'Extensions Index',
-            content: content,
-            record_type: 'dex'
-        };
+  private extractSerializableFields(record: any): [string, string][] {
+    const fields: [string, string][] = [];
 
-        return [record];
+    for (const [key, value] of Object.entries(record)) {
+      // Skip record_type as it's redundant in index files
+      if (key === 'record_type') continue;
+
+      // Include only simple serializable values
+      if (this.isSerializableValue(key, value)) {
+        fields.push([key, String(value)]);
+      }
     }
 
-    private generateIndexContent(records: Record<string, any>): string {
-        let content = "=== Extensions Index ===\n";
+    return fields;
+  }
 
-        for (const id in records) {
-            const record = records[id];
-            // Generic field extraction - include all fields except record_type
-            const fields = this.extractSerializableFields(record);
-            const fieldString = fields.map(([key, value]) => `${key}: ${value}`).join(', ');
-            content += `- ${fieldString}\n`;
-        }
+  private isSerializableValue(key: string, value: any): boolean {
+    const type = typeof value;
 
-        return content;
+    // Exclude specific complex fields
+    if (key === 'content' || key === 'fullContent' || key === 'filename') {
+      return false;
     }
 
-    private extractSerializableFields(record: any): [string, string][] {
-        const fields: [string, string][] = [];
-
-        for (const [key, value] of Object.entries(record)) {
-            // Skip record_type as it's redundant in index files
-            if (key === 'record_type') continue;
-
-            // Include only simple serializable values
-            if (this.isSerializableValue(key, value)) {
-                fields.push([key, String(value)]);
-            }
-        }
-
-        return fields;
+    // Include simple types
+    if (type === 'string' || type === 'number' || type === 'boolean') {
+      return true;
     }
 
-    private isSerializableValue(key: string, value: any): boolean {
-        const type = typeof value;
-
-        // Exclude specific complex fields
-        if (key === 'content' || key === 'fullContent' || key === 'filename') {
-            return false;
-        }
-
-        // Include simple types
-        if (type === 'string' || type === 'number' || type === 'boolean') {
-            return true;
-        }
-
-        // Exclude complex types
-        if (value === null || value === undefined ||
-            type === 'object' || type === 'function') {
-            return false;
-        }
-
-        return true;
+    // Exclude complex types
+    if (value === null || value === undefined ||
+      type === 'object' || type === 'function') {
+      return false;
     }
 
-    async post(shared: Shared, prepRes: any, execRes: any[]): Promise<string | undefined> {
-        // Store the generated records for use by store-records node
-        shared.generatedDexExtensions = execRes;
+    return true;
+  }
 
-        // Set up records array for store operation
-        shared.records = execRes;
-        shared.collection = 'dex';
+  async post(shared: Shared, prepRes: any, execRes: any[]): Promise<string | undefined> {
+    // Store the generated records for use by store-records node
+    shared.generatedDexExtensions = execRes;
 
-        return 'default'; // Follow HAMI pattern
-    }
+    // Set up records array for store operation
+    shared.records = execRes;
+    shared.collection = 'dex';
+
+    return 'default'; // Follow HAMI pattern
+  }
 }

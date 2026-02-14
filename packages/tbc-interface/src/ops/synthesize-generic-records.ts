@@ -1,7 +1,8 @@
-import { HAMINode } from "@hami-frameworx/core";
-import { TBCRecord } from "@tbc-frameworx/tbc-record";
+import { HAMINode } from '@hami-frameworx/core';
 
-import { Shared } from "../types.js";
+import { TBCRecord } from '@tbc-frameworx/tbc-record';
+
+import { Shared } from '../types.js';
 
 type NodeInput = {
     records: Record<string, any>;
@@ -10,7 +11,7 @@ type NodeInput = {
 
 export class SynthesizeGenericRecordsNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-interface:synthesize-generic-records";
+        return 'tbc-interface:synthesize-generic-records';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
@@ -28,16 +29,15 @@ export class SynthesizeGenericRecordsNode extends HAMINode<Shared> {
         const templates = records.templates || {};
         const result: TBCRecord[] = [];
 
-        const agentsTemplate = templates["AGENTS.md"] || "";
+        const agentsTemplate = templates['AGENTS.md'] || '';
         if (agentsTemplate) {
             let hydratedAgentsContent = agentsTemplate
-                .replace(/{{roleDefinition}}/g, roleDefinition)
-                ;
+                .replace(/{{roleDefinition}}/g, roleDefinition);
             result.push({
                 id: 'AGENTS.md',
                 contentType: 'raw',
                 content: hydratedAgentsContent,
-            })
+            });
         }
 
         return result;
@@ -45,8 +45,8 @@ export class SynthesizeGenericRecordsNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _input: NodeInput, output: TBCRecord[]) {
         shared.stage.synthesized = {
-            records: output
+            records: output,
         };
-        return "default";
+        return 'default';
     }
 }

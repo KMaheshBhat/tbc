@@ -1,6 +1,6 @@
-import { HAMINode } from "@hami-frameworx/core";
+import { HAMINode } from '@hami-frameworx/core';
 
-import type { Shared } from "../types.js";
+import type { Shared } from '../types.js';
 
 type SchemaViolationCheckInput = {
     dexStore: any; // DexStore
@@ -21,12 +21,12 @@ export class SchemaViolationCheckNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-dex:schema-violation-check";
+        return 'tbc-dex:schema-violation-check';
     }
 
     async prep(shared: Shared): Promise<SchemaViolationCheckInput> {
         if (!shared.dexStore) {
-            throw new Error("dexStore is required in shared state");
+            throw new Error('dexStore is required in shared state');
         }
         return {
             dexStore: shared.dexStore,
@@ -40,6 +40,6 @@ export class SchemaViolationCheckNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _prepRes: SchemaViolationCheckInput, execRes: SchemaViolationCheckOutput): Promise<string | undefined> {
         shared.schemaViolations = execRes.schemaViolations;
-        return "default";
+        return 'default';
     }
 }

@@ -1,9 +1,10 @@
-import assert from "assert";
+import assert from 'node:assert';
 
-import { Node } from "pocketflow";
+import { Node } from 'pocketflow';
 
-import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
-import { Minted, MintRequest, Shared } from "../types";
+import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Minted, MintRequest, Shared } from '../types.js';
 
 
 interface FlowConfig {
@@ -28,9 +29,9 @@ const FlowConfigSchema: ValidationSchema = {
                     count: {
                         type: 'number',
                         minimum: 1,
-                    }
+                    },
                 },
-                required: ['type']
+                required: ['type'],
             },
         },
         requestsKey: { type: 'string' },
@@ -49,7 +50,7 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-mint:mint-ids-flow";
+        return 'tbc-mint:mint-ids-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -69,13 +70,13 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
             const nodeKind = provider;
             assert(
                 shared.registry.hasNodeClass(nodeKind),
-                `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`
+                `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`,
             );
         }
         let finalNodeSequence = new Node();
         let tailNode = providers.length > 0 ? new Node() : finalNodeSequence;
         this.startNode
-            .next(n("core:assign", { "stage.mintedAccumulate": "stage.minted" }))
+            .next(n('core:assign', { 'stage.mintedAccumulate': 'stage.minted' }))
             .next(tailNode)
             ;
         for (const [i, request] of activeRequests.entries()) {
@@ -90,7 +91,7 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
                             keys: {},
                             batch: [],
                         };
-                    }
+                    },
                 }))
                 .next(n(nodeKind))
                 .next(new AccumulateNode())
@@ -98,19 +99,19 @@ export class MintIDsFlow extends HAMIFlow<Shared, FlowConfig> {
             tailNode = targetNext;
         }
         finalNodeSequence
-            .next(n("core:assign", { "stage.minted": "stage.mintedAccumulate" }))
+            .next(n('core:assign', { 'stage.minted': 'stage.mintedAccumulate' }))
             .next(n('core:mutate', {
                 mutate: async (shared: Shared) => {
                     shared.stage.mintedAccumulate = {
                         keys: {},
                         batch: [],
                     };
-                }
-            }))
+                },
+            }));
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema)
+        const result = validateAgainstSchema(config, FlowConfigSchema);
         const errors = result.errors || [];
         if (!config.requests && !config.requestsKey) {
             errors.push("MintIDsFlow requires either 'requests' or 'requestsKey' to be configured.");

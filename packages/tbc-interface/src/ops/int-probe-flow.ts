@@ -1,9 +1,10 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
 
-import { Shared } from "../types";
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, ValidationSchema, validateAgainstSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 interface FlowConfig {
     verbose: boolean;
@@ -11,16 +12,16 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        verbose: { type: "boolean" },
-        rootDirectory: { type: "string" },
+        verbose: { type: 'boolean' },
+        rootDirectory: { type: 'string' },
     },
 };
 
 class IntProbeFlowStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return "tbc-interface:int-probe-flow-start";
+        return 'tbc-interface:int-probe-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -28,7 +29,7 @@ class IntProbeFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.system = shared.system || {};
         shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
-        return "default";
+        return 'default';
     }
 }
 
@@ -44,7 +45,7 @@ export class IntProbeFlow extends HAMIFlow<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-interface:int-probe-flow";
+        return 'tbc-interface:int-probe-flow';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -55,8 +56,7 @@ export class IntProbeFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('tbc-system:resolve-root-directory'))
             .next(n('tbc-system:validate-flow', { verbose: this.config?.verbose }))
             .next(n('tbc-system:probe')) // TODO replace this
-            .next(n('tbc-system:log-and-clear-messages'))
-            ;
+            .next(n('tbc-system:log-and-clear-messages'));
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {

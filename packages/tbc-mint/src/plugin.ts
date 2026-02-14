@@ -1,8 +1,8 @@
-import { createPlugin } from "@hami-frameworx/core";
+import { createPlugin } from '@hami-frameworx/core';
 
-import { MintIDsFlow } from "./ops/mint-ids-flow.js";
-import { MintTsidNode } from "./ops/tsid.js";
-import { MintUuidNode } from "./ops/uuid.js";
+import { MintIDsFlow } from './ops/mint-ids-flow.js';
+import { MintTsidNode } from './ops/tsid.js';
+import { MintUuidNode } from './ops/uuid.js';
 
 /**
  * TBC Mint Plugin for HAMI.
@@ -14,14 +14,14 @@ import { MintUuidNode } from "./ops/uuid.js";
  * - `tbc-mint:tsid-mint`: Mints UUID v7 IDs
  */
 const TBCMintPlugin = createPlugin(
-    "@tbc-frameworx/tbc-mint",
-    "0.1.0",
+    '@tbc-frameworx/tbc-mint',
+    '0.1.0',
     [
         MintIDsFlow as any,
         MintTsidNode as any,
         MintUuidNode as any,
     ],
-    "TBC Mint Plugin - ID minting operations for TBC",
+    'TBC Mint Plugin - ID minting operations for TBC',
 );
 
 export { TBCMintPlugin };

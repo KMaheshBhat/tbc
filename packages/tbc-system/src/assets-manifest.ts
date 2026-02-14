@@ -1,9 +1,9 @@
-import { Glob } from "bun";
-import { join } from "node:path";
+import { Glob } from 'bun';
+import { join } from 'node:path';
 
 export async function generateAssetsManifest() {
-  const glob = new Glob("**/*"); 
-  const assetsDir = join(import.meta.dir, "assets");
+  const glob = new Glob('**/*');
+  const assetsDir = join(import.meta.dir, 'assets');
   const manifest: Record<string, string> = {};
 
   for await (const file of glob.scan({ cwd: assetsDir, dot: true })) {

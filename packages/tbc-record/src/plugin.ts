@@ -1,8 +1,8 @@
-import { createPlugin } from "@hami-frameworx/core";
+import { createPlugin } from '@hami-frameworx/core';
 
-import { StoreRecordsFlow } from "./ops/store-records.js";
-import { QueryRecordsFlow } from "./ops/query-records.js";
-import { FetchRecordsFlow } from "./ops/fetch-records.js";
+import { StoreRecordsFlow } from './ops/store-records.js';
+import { QueryRecordsFlow } from './ops/query-records.js';
+import { FetchRecordsFlow } from './ops/fetch-records.js';
 
 /**
  * TBC Record Plugin for HAMI.
@@ -14,14 +14,14 @@ import { FetchRecordsFlow } from "./ops/fetch-records.js";
  * - `tbc-record:fetch-records-flow`: Fetches records from configured providers
  */
 const TBCRecordPlugin = createPlugin(
-    "@tbc-frameworx/tbc-record",
-    "0.1.0",
+    '@tbc-frameworx/tbc-record',
+    '0.1.0',
     [
         StoreRecordsFlow as any,
         QueryRecordsFlow as any,
         FetchRecordsFlow as any,
     ],
-    "TBC Record Plugin - Record facade operations for TBC",
+    'TBC Record Plugin - Record facade operations for TBC',
 );
 
 export { TBCRecordPlugin };

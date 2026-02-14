@@ -1,6 +1,6 @@
-import { HAMINode } from "@hami-frameworx/core";
+import { HAMINode } from '@hami-frameworx/core';
 
-import type { Shared } from "../types.js";
+import type { Shared } from '../types.js';
 
 type RepairRecommendationsInput = {
     healthSummary: {
@@ -45,21 +45,21 @@ export class RepairRecommendationsNode extends HAMINode<Shared> {
     }
 
     kind(): string {
-        return "tbc-dex:repair-recommendations";
+        return 'tbc-dex:repair-recommendations';
     }
 
     async prep(shared: Shared): Promise<RepairRecommendationsInput> {
         if (!shared.healthSummary) {
-            throw new Error("healthSummary is required in shared state");
+            throw new Error('healthSummary is required in shared state');
         }
         if (!shared.zombieLinks) {
-            throw new Error("zombieLinks is required in shared state");
+            throw new Error('zombieLinks is required in shared state');
         }
         if (!shared.orphanRecords) {
-            throw new Error("orphanRecords is required in shared state");
+            throw new Error('orphanRecords is required in shared state');
         }
         if (!shared.schemaViolations) {
-            throw new Error("schemaViolations is required in shared state");
+            throw new Error('schemaViolations is required in shared state');
         }
         return {
             healthSummary: shared.healthSummary,
@@ -121,6 +121,6 @@ export class RepairRecommendationsNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _prepRes: RepairRecommendationsInput, execRes: RepairRecommendationsOutput): Promise<string | undefined> {
         shared.repairRecommendations = execRes.repairRecommendations;
-        return "default";
+        return 'default';
     }
 }

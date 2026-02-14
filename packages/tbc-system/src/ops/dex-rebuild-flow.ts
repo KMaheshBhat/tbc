@@ -1,10 +1,11 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
 import packageJson from '../../package.json' with { type: 'json' };
-import { Shared } from "../types";
+import { Shared } from '../types.js';
 
 interface FlowConfig {
     rootDirectory?: string;
@@ -12,12 +13,12 @@ interface FlowConfig {
 }
 
 const FlowConfigSchema: ValidationSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-        root: { type: "string" },
-        verbose: { type: "boolean" },
+        root: { type: 'string' },
+        verbose: { type: 'boolean' },
     },
-    required: ["verbose"],
+    required: ['verbose'],
 };
 
 class DexRebuildStartNode extends HAMINode<Shared, FlowConfig> {
@@ -26,7 +27,7 @@ class DexRebuildStartNode extends HAMINode<Shared, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-system:dex-rebuild-flow-start"
+        return 'tbc-system:dex-rebuild-flow-start';
     }
 
     async post(shared: Record<string, any>, prepRes: unknown, execRes: unknown): Promise<string> {
@@ -44,7 +45,7 @@ class DexRebuildStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.actCollection = 'act';
         const timestamp = (new Date()).toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
         shared.stage.backupCollection = `bak-${timestamp}`;
-        return "default";
+        return 'default';
     }
 }
 
@@ -60,11 +61,11 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
     }
 
     kind(): string {
-        return "tbc-system:dex-rebuild-flow";
+        return 'tbc-system:dex-rebuild-flow';
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema)
+        const result = validateAgainstSchema(config, FlowConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -82,12 +83,12 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
                         source: 'dex-rebuild-flow',
-                        message: `has no existing companion (not a valid TBC Root)`,
+                        message: 'has no existing companion (not a valid TBC Root)',
                         suggestion: 'Can only be run on a valid TBC Root. (Use "tbc sys init" for new Companion).',
                     });
-                }
+                },
             }))
-            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:log-and-clear-messages'));
         const branchToAbort = n('core:branch', {
             branch: (shared: Record<string, any>) => {
                 if (!shared.stage.validationResult.success) {
@@ -96,7 +97,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 return 'default';
             },
         });
-        branchToAbort.on('abort', abortSequence)
+        branchToAbort.on('abort', abortSequence);
         this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
@@ -108,7 +109,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'dex-rebuild-flow',
                         message: 'Checking first ...',
                     });
-                }
+                },
             }))
             .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
@@ -123,7 +124,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         message: 'existing valid TBC root found, proceeding ...',
                     });
                     shared.stage.records['mem'] = undefined; // Clear memories from vaildation
-                }
+                },
             }))
             .next(n('core:assign', { // and reload all records
                 'record.rootDirectory': 'system.rootDirectory',
@@ -151,9 +152,9 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'debug',
                         source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`
+                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
                     });
-                }
+                },
             }))
             .next(n('tbc-record:query-records-flow', {
                 recordProviders: ['tbc-record-fs:query-records'],
@@ -168,9 +169,9 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-dex:collate-digest', {
                 output: { collection: 'dex', id: 'sys.digest.txt' },
                 sources: [
-                    { collection: 'sys', idGlob: 'root.md', },
-                    { collection: 'sys/core', idGlob: '*.md', },
-                    { collection: 'sys/ext', idGlob: '*.md', },
+                    { collection: 'sys', idGlob: 'root.md' },
+                    { collection: 'sys/core', idGlob: '*.md' },
+                    { collection: 'sys/ext', idGlob: '*.md' },
                 ],
             }))
             .next(n('tbc-dex:collate-metadata-index', {
@@ -182,7 +183,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-dex:collate-metadata-index', {
                 output: { collection: 'dex', id: 'memory.jsonl' },
                 sources: [
-                    { collection: 'mem', idGlob: '*', partitionKey: 'record_type' }
+                    { collection: 'mem', idGlob: '*', partitionKey: 'record_type' },
                 ],
             }))
             .next(n('core:mutate', {
@@ -198,7 +199,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                             id: id,
                         });
                     }
-                }
+                },
             }))
             .next(n('tbc-record:store-records-flow', {
                 verbose: shared.stage.verbose,
@@ -211,7 +212,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         source: 'dex-rebuild-flow',
                         message: `Stored ${shared.record.records?.length} ${shared.record.collection} record(s).`,
                     });
-                }
+                },
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
@@ -230,25 +231,24 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'dex-rebuild-flow',
-                        message: `Digest: dex/sys.digest.txt`,
-                        suggestion: `This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.`
+                        message: 'Digest: dex/sys.digest.txt',
+                        suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.',
                     });
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'dex-rebuild-flow',
-                        message: `Digest: dex/skills.jsonl`,
-                        suggestion: `This file is index of all skill you can use for your goals.`
+                        message: 'Digest: dex/skills.jsonl',
+                        suggestion: 'This file is index of all skill you can use for your goals.',
                     });
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'dex-rebuild-flow',
-                        message: `Digest: dex/*.memory.jsonl`,
-                        suggestion: `These files is index of all your memory records partitioined by record_type.`
+                        message: 'Digest: dex/*.memory.jsonl',
+                        suggestion: 'These files is index of all your memory records partitioined by record_type.',
                     });
-                }
+                },
             }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            ;
+            .next(n('tbc-system:log-and-clear-messages'));
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {

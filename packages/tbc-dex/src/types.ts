@@ -1,5 +1,6 @@
 import { TBCRecordOperation } from '@tbc-frameworx/tbc-record';
-import { DexStore } from "./store/dex-store.js";
+
+import { DexStore } from './store/dex-store.js';
 
 /**
  * Options for TBC dex operations.
@@ -8,7 +9,7 @@ import { DexStore } from "./store/dex-store.js";
 type TBCDexOpts = {
   /** Whether to enable verbose logging for operations. */
   verbose?: boolean;
-}
+};
 
 type SharedStage = Record<string, any>;
 
@@ -147,7 +148,7 @@ type Shared = {
   }>;
   /** Integrity report data. */
   integrityReport?: any;
-}
+};
 
 export type {
   TBCDexOpts,

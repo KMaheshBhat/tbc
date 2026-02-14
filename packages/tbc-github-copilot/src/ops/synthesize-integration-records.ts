@@ -1,7 +1,7 @@
-import { HAMINode } from "@hami-frameworx/core";
-import { TBCRecord } from "@tbc-frameworx/tbc-record";
+import { HAMINode } from '@hami-frameworx/core';
+import { TBCRecord } from '@tbc-frameworx/tbc-record';
 
-import { Shared } from "../types.js";
+import { Shared } from '../types.js';
 
 type NodeInput = {
     records: Record<string, any>;
@@ -11,7 +11,7 @@ type NodeInput = {
 
 export class SynthesizeIntegrationRecordsNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-github-copilot:synthesize-integration-records";
+        return 'tbc-github-copilot:synthesize-integration-records';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
@@ -32,17 +32,16 @@ export class SynthesizeIntegrationRecordsNode extends HAMINode<Shared> {
         const result: TBCRecord[] = [];
         const toLowerKebabCase = (str: string) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
-        const agentsTemplate = templates["agent.md"] || "";
+        const agentsTemplate = templates['agent.md'] || '';
         if (agentsTemplate) {
             let hydratedAgentsContent = agentsTemplate
                 .replace(/{{roleDefinition}}/g, roleDefinition)
-                .replace(/{{companionName}}/g, companionName)
-                ;
+                .replace(/{{companionName}}/g, companionName);
             result.push({
                 id: `.github/agents/${toLowerKebabCase(companionName)}.agent.md`,
                 contentType: 'raw',
                 content: hydratedAgentsContent,
-            })
+            });
         }
 
         return result;
@@ -50,8 +49,8 @@ export class SynthesizeIntegrationRecordsNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _input: NodeInput, output: TBCRecord[]) {
         shared.stage.synthesized = {
-            records: output
+            records: output,
         };
-        return "default";
+        return 'default';
     }
 }

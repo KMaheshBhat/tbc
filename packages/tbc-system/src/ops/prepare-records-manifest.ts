@@ -1,5 +1,6 @@
-import { HAMINode } from "@hami-frameworx/core";
-import { Shared } from "../types.js";
+import { HAMINode } from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
 
 type NodeInput = {
     records: Record<string, any>;
@@ -9,12 +10,12 @@ type NodeOutput = Record<string, string[]>;
 
 export class PrepareRecordsManifestNode extends HAMINode<Shared> {
     kind(): string {
-        return "tbc-system:prepare-records-manifest";
+        return 'tbc-system:prepare-records-manifest';
     }
 
     async prep(shared: Shared): Promise<NodeInput> {
         return {
-            records: shared.stage?.records || {}
+            records: shared.stage?.records || {},
         };
     }
 
@@ -35,6 +36,6 @@ export class PrepareRecordsManifestNode extends HAMINode<Shared> {
     ): Promise<string | undefined> {
         shared.stage = shared.stage || {};
         shared.stage.manifest = output;
-        return "default";
+        return 'default';
     }
 }

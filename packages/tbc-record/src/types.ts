@@ -1,4 +1,4 @@
-import { HAMIRegistrationManager } from "@hami-frameworx/core";
+import { HAMIRegistrationManager } from '@hami-frameworx/core';
 
 type TBCRecord = Record<string, any>;
 type TBCCollection = Record<string, TBCRecord>;
@@ -6,15 +6,15 @@ type TBCStore = Record<string, TBCCollection>;
 type TBCQueryType = 'list-all-ids' | 'filter-by-tags' | 'search-by-content';
 
 type TBCQueryParams = {
-   type: TBCQueryType;
-   recursive?: boolean;
-   // TODO: Add future query parameters as implementations are added:
-   // tags?: string[];
-   // searchTerm?: string;
-   // limit?: number;
-   // offset?: number;
-   sortBy?: 'id' | 'created' | 'modified';
-   sortOrder?: 'asc' | 'desc';
+    type: TBCQueryType;
+    recursive?: boolean;
+    // TODO: Add future query parameters as implementations are added:
+    // tags?: string[];
+    // searchTerm?: string;
+    // limit?: number;
+    // offset?: number;
+    sortBy?: 'id' | 'created' | 'modified';
+    sortOrder?: 'asc' | 'desc';
 };
 
 type TBCResult = {
@@ -31,7 +31,7 @@ type TBCRecordOperation = {
     query?: TBCQueryParams;
     result?: TBCResult;
     accumulate?: TBCResult;
-}
+};
 
 /**
  * Shared storage interface for TBC record operations.
@@ -43,7 +43,7 @@ type TBCShared = {
     registry: HAMIRegistrationManager;
     /** Current record operaton */
     record: TBCRecordOperation;
-}
+};
 
 export {
     TBCRecord,
