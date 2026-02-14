@@ -116,7 +116,7 @@ export class StoreRecordsNode extends HAMINode<Shared> {
                 fileName = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
                 break;
             case 'yaml':
-                fileName = fileName.endsWith('.yaml') ? fileName : `${fileName}.yaml`;
+                fileName = record.filename? record.filename : fileName.endsWith('.yaml') ? fileName : `${fileName}.yaml`;
                 break;
         }
         return join(collectionPath, fileName);

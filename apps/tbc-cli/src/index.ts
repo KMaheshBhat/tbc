@@ -776,17 +776,18 @@ let cmdIntKilocode = new Command('kilocode')
             const cliOpts = program.opts();
             const isVerbose = !!cliOpts.verbose;
             const root = cliOpts.root;
-            const generateKilocodeCoreInterfaceFlow = registry.createNode('tbc-interface:int-kilocode-flow', {
+            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
                 root: root,
                 verbose: isVerbose,
+                agentType: 'kilocode',
             });
-            await generateKilocodeCoreInterfaceFlow.run({
+            await agentIntegrateFlow.run({
                 registry: registry,
                 opts: { verbose: isVerbose },
                 root: root,
             });
         } catch (error) {
-            console.error('Error during int kilocode:', error);
+            console.error('Error during agent integration:', error);
             process.exit(1);
         }
         return;

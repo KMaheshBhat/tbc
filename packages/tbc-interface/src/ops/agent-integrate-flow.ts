@@ -61,6 +61,10 @@ const AGENT_PROTOCOLS: Record<string, {
         assetProvider: 'tbc-github-copilot:load-assets',
         synthesisProvider: 'tbc-github-copilot:synthesize-integration-records',
     },
+    'kilocode': {
+        assetProvider: 'tbc-kilocode:load-assets',
+        synthesisProvider: 'tbc-kilocode:synthesize-integration-records',
+    },
 };
 
 export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {

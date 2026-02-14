@@ -15,5 +15,6 @@ import './51-int-generate.suite';
 import './52-int-gemini.suite';
 import './53-int-goose.sutie';
 import './54-int-github-copilot.suite';
+import './55-int-kilocode.suite';
 
 import './99-teardown.suite';
