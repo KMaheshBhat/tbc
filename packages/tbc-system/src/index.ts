@@ -3,7 +3,6 @@ export * from './ops/add-minted-messages.js';
 export * from './ops/add-identity-messages.js';
 export * from './ops/clear-messages.js';
 export * from './ops/dex-rebuild-flow.js';
-export * from './ops/generate-role-definition.js';
 export * from './ops/generate-tsids-flow.js';
 export * from './ops/generate-uuids-flow.js';
 export * from './ops/init-flow.js';

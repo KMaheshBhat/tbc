@@ -14,7 +14,6 @@ import { SynthesizeSysRecordsNode } from "./ops/synthesize-sys-records.js";
 import { SynthesizeRecordNode } from "./ops/synthesize-record.js";
 import { ProbeNode } from "./ops/probe.js";
 import { ValidateSystemNode } from "./ops/validate-system.js";
-import { GenerateRoleDefinitionNode } from "./ops/generate-role-definition.js";
 import { InitFlow } from "./ops/init-flow.js";
 import { UpgradeFlow } from "./ops/upgrade-flow.js";
 import { SysValidateFlow } from "./ops/validate-flow.js";
@@ -69,7 +68,6 @@ const TBCSystemPlugin = createPlugin(
         SynthesizeRecordNode as any,
         ProbeNode as any,
         ValidateSystemNode as any,
-        GenerateRoleDefinitionNode as any,
         InitFlow as any,
         UpgradeFlow as any,
         SysValidateFlow as any,
