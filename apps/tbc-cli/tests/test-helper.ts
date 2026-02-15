@@ -1,17 +1,67 @@
 import { expect } from 'bun:test';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { Database } from 'bun:sqlite';
 
 import { TSID_REGEX, UUID_REGEX } from '../../../scripts/common';
 
+// Path Constants
 export const PROJECT_ROOT = join(import.meta.dir, '../../..');
 export const CLI_ENTRY = join(PROJECT_ROOT, 'apps/tbc-cli/src/index.ts');
-export const SANDBOX = join(PROJECT_ROOT, '_test');
-export const TBC_ROOT = join(SANDBOX, 'mojo');
 export const TEST_BINARY = process.env.TBC_TEST_BINARY;
 export const CLI_TARGET = TEST_BINARY ? join(PROJECT_ROOT, TEST_BINARY) : CLI_ENTRY;
+
+// Mojo Baseline (Standard FS-only 0.3/0.4 fallback)
+// - companion: mojo
+// - prime: jojo
+export const SANDBOX = join(PROJECT_ROOT, '_test');
+export const TBC_ROOT = join(SANDBOX, 'mojo');
+
+// Kong "Next" (Dual FS + SQLite 0.4 standard)
+// - companion: kong
+// - prime: zilla
+export const SANDBOX_NEXT = join(PROJECT_ROOT, '_test');
+export const TBC_ROOT_NEXT = join(SANDBOX_NEXT, 'kong');
+export const TBC_DB_NEXT = join(TBC_ROOT_NEXT, 'records.db');
+
+// Regex Utilities
 export const UUID_SEARCH_REGEX = new RegExp(UUID_REGEX.source.replace('^', '').replace('$', ''), 'gi');
 export const TSID_SEARCH_REGEX = new RegExp(TSID_REGEX.source.replace('^', '').replace('$', ''), 'g');
+
+/**
+ * Validates the SQLite state in SANDBOX_NEXT.
+ * Returns results of a raw SQL query for deep assertion.
+ */
+export function querySqliteNext(sql: string, params: any[] = []) {
+    if (!existsSync(TBC_DB_NEXT)) {
+        throw new Error(`SQLite database not found at: ${TBC_DB_NEXT}`);
+    }
+    const db = new Database(TBC_DB_NEXT);
+    try {
+        return db.query(sql).all(...params);
+    } finally {
+        db.close();
+    }
+}
+
+/**
+ * Asserts a record exists in the SQLite data table.
+ */
+export function expectSQLiteRecord(id: string) {
+    const results = querySqliteNext('SELECT id FROM records WHERE id = ?', [id]);
+    expect(results.length).toBeGreaterThan(0);
+}
+
+/**
+ * Utility to check the 'data' JSON column for a specific key/value pair.
+ */
+export function expectSQLiteData(id: string, key: string, expectedValue: any) {
+    const results = querySqliteNext('SELECT data FROM records WHERE id = ?', [id]) as any[];
+    if (results.length === 0) throw new Error(`Record ${id} not found in SQLite`);
+    
+    const data = JSON.parse(results[0].data);
+    expect(data[key]).toEqual(expectedValue);
+}
 
 export function expectUUID(content: string) {
     expect(content).toMatch(UUID_REGEX);
@@ -23,7 +73,7 @@ export function expectTSID(content: string) {
 
 /**
  * Reads a TBC record from disk and parses its frontmatter and content.
- * Uses a hardened regex-based parser to avoid external dependencies.
+ * Used to verify the FS "Authority" source.
  */
 export function getRecordFromDisk(absolutePath: string) {
     if (!existsSync(absolutePath)) {
@@ -56,10 +106,9 @@ export function getRecordFromDisk(absolutePath: string) {
                 const value = line.slice(colonIndex + 1).trim();
 
                 if (key) {
-                    // Clean up quotes and YAML list dashes
                     frontmatter[key] = value
-                        .replace(/^['"]|['"]$/g, '') // Remove surrounding quotes
-                        .replace(/^- /, '');         // Remove list dashes if present
+                        .replace(/^['"]|['"]$/g, '') 
+                        .replace(/^- /, '');         
                 }
             }
         } else {

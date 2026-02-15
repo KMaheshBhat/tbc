@@ -1,20 +1,27 @@
-import './00-setup.suite';
+// -- Infrastructure & Shared Setup ---
+import './000-setup.suite';
 
-import './10-gen.suite';
-import './11-preflight.suite';
+// -- Mojo & Jojo (Baseline Profile) --
+import './010-gen.suite';
+import './011-preflight.suite';
 
-import './20-sys.suite';
+import './020-sys.suite';
 
-import './30-mem-remember.suite';
-import './31-mem-recall.suite';
+import './030-mem-remember.suite';
+import './031-mem-recall.suite';
 
-import './40-act.suite';
+import './040-act.suite';
 
-import './50-int-probe.suite';
-import './51-int-generate.suite';
-import './52-int-gemini.suite';
-import './53-int-goose.sutie';
-import './54-int-github-copilot.suite';
-import './55-int-kilocode.suite';
+import './050-int-probe.suite';
+import './051-int-generate.suite';
+import './052-int-gemini.suite';
+import './053-int-goose.sutie';
+import './054-int-github-copilot.suite';
+import './055-int-kilocode.suite';
 
-import './99-teardown.suite';
+// -- Kong & Zilla (Next Profile) --
+// import './120-sys.suite';
+// import './130-mem-remember.suite';
+// ...
+
+import './999-teardown.suite';
