@@ -20,11 +20,6 @@ describe('🐵 LETS-GO: tbc sys', () => {
             '--prime',
             'Jojo',
         ]);
-        if (!success) {
-            console.log(output);
-            console.log('Tree on failure:');
-            console.log(generateFileTree(TBC_ROOT));
-        }
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         const companionIdPath = join(TBC_ROOT, 'sys', 'companion.id');

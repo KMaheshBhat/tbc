@@ -1,6 +1,29 @@
 import { HAMIRegistrationManager } from '@hami-frameworx/core';
 import { TBCRecord, TBCRecordOperation } from '@tbc-frameworx/tbc-record';
 
+type TBCProtocol = {
+    sys: {
+        collection: string;
+        recordStorers: string[];
+    };
+    skills: {
+        collection: string;
+        recordStorers: string[];
+    };
+    mem: {
+        collection: string;
+        recordStorers: string[];
+    };
+    dex: {
+        collection: string;
+        recordStorers: string[];
+    };
+    act: {
+        collection: string;
+        recordStorers: string[];
+    };
+}
+
 type TBCLevel = 'debug' | 'info' | 'warn' | 'error' | 'raw';
 
 const TBC_LEVEL_ICON_MAP = {
@@ -22,53 +45,55 @@ interface TBCMessage {
 type SharedStage = Record<string, any>;
 
 type TBCSystemOperation = {
-  rootDirectory: string;
-  isValidTBCRoot: boolean;
-  manifest: Record<string, string[]>;
-  rootRecord: TBCRecord;
-  companionID: string;
-  companionRecord: TBCRecord;
-  primeID: string;
-  primeRecord: TBCRecord;
-  memoryMapID: string;
-  memoryMapRecord: TBCRecord;
+    rootDirectory: string;
+    isValidTBCRoot: boolean;
+    protocol: TBCProtocol;
+    manifest: Record<string, string[]>;
+    rootRecord: TBCRecord;
+    companionID: string;
+    companionRecord: TBCRecord;
+    primeID: string;
+    primeRecord: TBCRecord;
+    memoryMapID: string;
+    memoryMapRecord: TBCRecord;
 };
 
 /**
  * Shared state interface for TBC System operations.
  */
 type Shared = {
-  /** HAMI registration manager for node creation and management. */
-  registry: HAMIRegistrationManager;
-  stage: SharedStage;
-  system: TBCSystemOperation;
-  record: TBCRecordOperation;
-  /** Optional configuration options for TBC core operations. */
-  opts?: { verbose?: boolean };
-  /** Application name (injected from CLI). */
-  app?: string;
-  /** Application version (injected from CLI). */
-  appVersion?: string;
-  /** Explicit root directory path (optional, defaults to CWD). */
-  root?: string;
-  /** Resolved root directory for TBC operations. */
-  rootDirectory?: string;
-  /** Whether the directory is a valid TBC root. */
-  isValidTBCRoot?: boolean;
-  /** Fetched records by collection and ID (from record-fs operations). */
-  fetchResults?: Record<string, Record<string, Record<string, any>>>;
-  /** Companion name for enhanced initialization. */
-  companionName?: string;
-  /** Prime user name for enhanced initialization. */
-  primeName?: string;
-  /** Manifest of records by collection. */
-  manifest?: Record<string, string[]>;
+    /** HAMI registration manager for node creation and management. */
+    registry: HAMIRegistrationManager;
+    stage: SharedStage;
+    system: TBCSystemOperation;
+    record: TBCRecordOperation;
+    /** Optional configuration options for TBC core operations. */
+    opts?: { verbose?: boolean };
+    /** Application name (injected from CLI). */
+    app?: string;
+    /** Application version (injected from CLI). */
+    appVersion?: string;
+    /** Explicit root directory path (optional, defaults to CWD). */
+    root?: string;
+    /** Resolved root directory for TBC operations. */
+    rootDirectory?: string;
+    /** Whether the directory is a valid TBC root. */
+    isValidTBCRoot?: boolean;
+    /** Fetched records by collection and ID (from record-fs operations). */
+    fetchResults?: Record<string, Record<string, Record<string, any>>>;
+    /** Companion name for enhanced initialization. */
+    companionName?: string;
+    /** Prime user name for enhanced initialization. */
+    primeName?: string;
+    /** Manifest of records by collection. */
+    manifest?: Record<string, string[]>;
 };
 
 export {
-  Shared,
-  TBCLevel,
-  TBC_LEVEL_ICON_MAP,
-  TBCMessage,
-  TBCSystemOperation,
+    Shared,
+    TBCProtocol,
+    TBCLevel,
+    TBC_LEVEL_ICON_MAP,
+    TBCMessage,
+    TBCSystemOperation,
 };

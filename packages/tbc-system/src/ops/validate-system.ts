@@ -141,6 +141,9 @@ type NodeInput = {
     companionID: string;
     primeID: string;
     memoryMapID: string;
+    sysCollection: string;
+    skillsCollection: string;
+    memCollection: string;
 };
 
 type NodeOutput = TBCValidationResult;
@@ -164,6 +167,9 @@ export class ValidateSystemNode extends HAMINode<Shared, Config> {
             companionID: shared.system.companionID,
             primeID: shared.system.primeID,
             memoryMapID: shared.system.memoryMapID,
+            sysCollection: shared.system.protocol.sys.collection || 'sys',
+            skillsCollection: shared.system.protocol.skills.collection || 'skills',
+            memCollection: shared.system.protocol.mem.collection || 'mem',
         };
     }
 
@@ -171,31 +177,51 @@ export class ValidateSystemNode extends HAMINode<Shared, Config> {
         const validator = new ManifestValidator(input.manifest);
 
         return validator
-            .check('sys', {
-                purpose: 'The core anchor records for a Third Brain Companion System',
-                min: 3,
-                required: ['root.md', 'companion.id', 'prime.id'],
-                suggestions: {
-                    onMissing: "ACTION: Run 'tbc sys init'. REASON: System root is uninitialized.",
-                    onRecordMissing: 'ACTION: Verify vault integrity. REASON: A core identity record has been deleted.',
+            .check(
+                input.sysCollection,
+                {
+                    purpose: 'The core anchor records for a Third Brain Companion System',
+                    min: 3,
+                    required: ['root.md', 'companion.id', 'prime.id'],
+                    suggestions: {
+                        onMissing: "ACTION: Run 'tbc sys init'. REASON: System root is uninitialized.",
+                        onRecordMissing: 'ACTION: Verify vault integrity. REASON: A core identity record has been deleted.',
+                    },
                 },
-            })
-            .check('skills', {
-                purpose: 'Agent capabilities and toolsets',
-                min: 1,
-                suggestions: {
-                    onUnderpopulated: 'ACTION: Sync skills from TBC Project assets. REASON: Local skill-guides are out of sync.',
+            )
+            .check(
+                input.skillsCollection,
+                {
+                    purpose: 'Agent capabilities and toolsets',
+                    min: 1,
+                    suggestions: {
+                        onUnderpopulated: 'ACTION: Sync skills from TBC Project assets. REASON: Local skill-guides are out of sync.',
+                    },
                 },
-            })
-            .crossReference(input.companionID, 'mem', 'Companion Identity', {
-                onIntegrityFail: 'ACTION: Re-initialize Companion Record. REASON: The ID in companion.id does not exist in the /mem/ collection.',
-            })
-            .crossReference(input.primeID, 'mem', 'Prime User Identity', {
-                onIntegrityFail: 'ACTION: Search Git for missing Prime User record. REASON: Critical identity record lost from /mem/.',
-            })
-            .crossReference(input.memoryMapID, 'mem', 'Root Memory Map', {
-                onIntegrityFail: 'ACTION: Re-index Root Record memory_map. REASON: The root memory pointer is orphaned.',
-            })
+            )
+            .crossReference(input.companionID,
+                input.memCollection,
+                'Companion Identity',
+                {
+                    onIntegrityFail: 'ACTION: Re-initialize Companion Record. REASON: The ID in companion.id does not exist in the /mem/ collection.',
+                },
+            )
+            .crossReference(
+                input.primeID,
+                input.memCollection,
+                'Prime User Identity',
+                {
+                    onIntegrityFail: 'ACTION: Search Git for missing Prime User record. REASON: Critical identity record lost from /mem/.',
+                },
+            )
+            .crossReference(
+                input.memoryMapID,
+                input.memCollection,
+                'Root Memory Map',
+                {
+                    onIntegrityFail: 'ACTION: Re-index Root Record memory_map. REASON: The root memory pointer is orphaned.',
+                },
+            )
             .finalize();
     }
 

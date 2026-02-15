@@ -105,7 +105,9 @@ export class SynthesizeSysRecordsNode extends HAMINode<Shared> {
     }
 
     async post(shared: Shared, _input: NodeInput, output: any) {
-        shared.stage.records.sys = output;
+        shared.stage.records = shared.stage.records || {};
+        const sysCollection = shared.system.protocol.sys.collection || shared.stage.sysCollection || 'sys';
+        shared.stage.records[sysCollection] = output;
         return 'default';
     }
 }

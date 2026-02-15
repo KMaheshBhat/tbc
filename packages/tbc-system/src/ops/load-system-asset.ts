@@ -6,7 +6,8 @@ import { Shared } from '../types.js';
 const ASSETS = await generateAssetsManifest();
 
 type NodeInput = {
-    assetsBase: string;
+    sysCollection: string;
+    skillsCollection: string;
 };
 
 type NodeOutput = Record<string, Record<string, string>>;
@@ -16,15 +17,23 @@ export class LoadSystemAssetsNode extends HAMINode<Shared> {
         return 'tbc-system:load-system-assets';
     }
 
+    async prep(shared: Shared): Promise<NodeInput> {
+        return {
+            sysCollection: shared.system.protocol?.sys.collection || shared.stage.sysCollection || 'sys',
+            skillsCollection: shared.system.protocol?.skills.collection || shared.stage.skillsCollection || 'skills',
+        }
+    }
+
     async exec(input: NodeInput): Promise<NodeOutput> {
+        const { sysCollection, skillsCollection } = input;
         const result: NodeOutput = {};
 
         const mappings = [
             { folder: 'templates', collection: 'templates' },
-            { folder: 'sys/core', collection: 'sys/core' },
-            { folder: 'sys/ext', collection: 'sys/ext' },
-            { folder: 'skills/core', collection: 'skills/core' },
-            { folder: 'skills/ext', collection: 'skills/ext' },
+            { folder: 'sys/core', collection: `${sysCollection}/core` },
+            { folder: 'sys/ext', collection: `${sysCollection}/ext` },
+            { folder: 'skills/core', collection: `${skillsCollection}/core` },
+            { folder: 'skills/ext', collection: `${skillsCollection}/ext` },
         ];
 
         // Get all relative paths from our "baked-in" manifest

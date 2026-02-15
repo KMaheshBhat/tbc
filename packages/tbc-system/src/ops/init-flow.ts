@@ -6,10 +6,12 @@ import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema
 
 import packageJson from '../../package.json' with { type: 'json' };
 import { Shared } from '../types.js';
+import { PROTOCOLS } from '../protocols';
 
 interface FlowConfig {
     verbose?: boolean;
     rootDirectory?: string;
+    profile?: string;
     companionName: string;
     primeName: string;
 }
@@ -19,11 +21,13 @@ const FlowConfigSchema: ValidationSchema = {
     properties: {
         verbose: { type: 'boolean' },
         rootDirectory: { type: 'string' },
+        profile: { type: 'string' },
         companionName: { type: 'string' },
         primeName: { type: 'string' },
     },
     required: ['companionName', 'primeName'],
 };
+
 
 class InitFlowStartNode extends HAMINode<Shared, FlowConfig> {
     constructor(config?: FlowConfig, maxRetries?: number, wait?: number) {
@@ -34,18 +38,21 @@ class InitFlowStartNode extends HAMINode<Shared, FlowConfig> {
         return 'tbc-system:init-flow-start';
     }
 
-    async post(shared: Record<string, any>, prepRes: unknown, execRes: unknown): Promise<string> {
+    async post(shared: Shared, prepRes: unknown, execRes: unknown): Promise<string> {
         shared.stage = shared.stage || {};
-        shared.stage.verbose = shared.verbose || this.config?.verbose;
+        shared.stage.verbose = this.config?.verbose;
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        shared.stage.requestedProfile = this.config?.profile || 'baseline';
         shared.stage.companionName = shared.companionName || this.config?.companionName;
         shared.stage.primeName = shared.primeName || this.config?.primeName;
         shared.system = shared.system || {};
-        shared.stage.sysCollection = 'sys';
-        shared.stage.skillsCollection = 'skills';
-        shared.stage.dexCollection = 'dex';
-        shared.stage.memCollection = 'mem';
-        shared.stage.actCollection = 'act';
+        shared.system.protocol = PROTOCOLS[shared.stage.requestedProfile];
+        assert(shared.system.protocol, `unknown profile requested: ${shared.stage.requestedProfile}`);
+        shared.stage.sysCollection = shared.system.protocol.sys.collection;
+        shared.stage.skillsCollection = shared.system.protocol.skills.collection;
+        shared.stage.memCollection = shared.system.protocol.mem.collection;
+        shared.stage.dexCollection = shared.system.protocol.dex.collection;
+        shared.stage.actCollection = shared.system.protocol.act.collection;
         return 'default';
     }
 }
@@ -111,8 +118,8 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 },
             });
         };
-        const abortSequence = new Node();
-        abortSequence
+        const abortOverwriteGuardSequence = new Node();
+        abortOverwriteGuardSequence
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
@@ -125,7 +132,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 },
             }))
             .next(n('tbc-system:log-and-clear-messages'));
-        const branchToAbort = n('core:branch', {
+        const branchToAbortForOverwriteGuard = n('core:branch', {
             branch: (shared: Record<string, any>) => {
                 if (shared.stage.validationResult.success) {
                     return 'abort';
@@ -133,7 +140,30 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 return 'default';
             },
         });
-        branchToAbort.on('abort', abortSequence);
+        branchToAbortForOverwriteGuard.on('abort', abortOverwriteGuardSequence);
+        const abortFailedInitializeSequence = new Node();
+        abortFailedInitializeSequence
+            .next(n('core:mutate', {
+                mutate: (shared: Record<string, any>) => {
+                    shared.stage.messages.push({
+                        level: 'error',
+                        code: 'FAILED-INITIALIZE',
+                        source: 'init-flow',
+                        message: `failed to initalize`,
+                        suggestion: 'This indicates failure of the TBC tool.  Requires Developer intervention.',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'));
+        const branchToAbortForFailedInitizalize = n('core:branch', {
+            branch: (shared: Record<string, any>) => {
+                if (!shared.stage.validationResult.success) {
+                    return 'abort';
+                }
+                return 'default';
+            },
+        });
+        branchToAbortForFailedInitizalize.on('abort', abortFailedInitializeSequence);
         this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
@@ -151,13 +181,13 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))
-            .next(branchToAbort)
+            .next(branchToAbortForOverwriteGuard)
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: 'no existing valid TBC root found, proceeding ...',
+                        message: `no existing valid TBC root found, proceeding (profile: ${shared.stage.requestedProfile}) ...`,
                     });
                 },
             }))
@@ -269,6 +299,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))
+            .next(branchToAbortForFailedInitizalize)
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
                     shared.stage.messages.push({
@@ -292,7 +323,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     });
                     shared.stage.messages.push({
                         level: 'raw',
-                        message: `[✓] Third Brain Companion ${packageJson.version} initialized.`,
+                        message: `[✓] Third Brain Companion ${packageJson.version} initialized. (profile: ${shared.stage.requestedProfile})`,
                     });
                     shared.stage.messages.push({
                         level: 'raw',
@@ -304,7 +335,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         message: 'Next Steps',
                         suggestion: 'Refresh indexes (tbc dex) and prepare interface hooks (tbc int)',
                     });
-
                 },
             }))
             .next(n('tbc-dex:collate-digest', {
@@ -364,10 +394,11 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-system:log-and-clear-messages'));
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async run(shared: Shared): Promise<string | undefined> {
         shared.stage = shared.stage || {};
-        shared.stage.verbose = shared.verbose || this.config?.verbose;
+        shared.stage.verbose = this.config?.verbose;
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        shared.stage.requestedProfile = this.config?.profile || 'baseline';
         shared.stage.companionName = shared.companionName || this.config?.companionName;
         shared.stage.primeName = shared.primeName || this.config?.primeName;
         return super.run(shared);

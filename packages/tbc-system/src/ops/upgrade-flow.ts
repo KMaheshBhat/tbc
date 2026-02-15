@@ -5,10 +5,11 @@ import { join } from 'node:path';
 
 import { Node } from 'pocketflow';
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
 import packageJson from '../../package.json' with { type: 'json' };
 import { Shared } from '../types.js';
+import { PROTOCOLS } from '../protocols';
 
 interface FlowConfig {
     rootDirectory?: string;
@@ -38,15 +39,21 @@ class UpgradeFlowStartNode extends HAMINode<Shared, FlowConfig> {
         shared.stage.verbose = shared.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
         shared.system = shared.system || {};
+        shared.system.protocol = shared.system.protocol || PROTOCOLS['baseline'];
+        const sysCollection = shared.system.protocol.sys.collection || 'sys';
+        const skillsCollection =shared.system.protocol.skills.collection || 'skills';
+        const memCollection = shared.system.protocol.mem.collection || 'mem';
+        const dexCollection = shared.system.protocol.dex.collection || 'dex';
+        const actCollection = shared.system.protocol.dex.collection || 'act';
+        shared.stage.sysCollection =  sysCollection;
+        shared.stage.skillsCollection = skillsCollection;
+        shared.stage.memCollection = memCollection;
+        shared.stage.dexCollection = dexCollection;
+        shared.stage.actCollection = actCollection;
         shared.stage.queryRecursive = {
             type: 'list-all-ids',
             recursive: true,
         };
-        shared.stage.sysCollection = 'sys';
-        shared.stage.skillsCollection = 'skills';
-        shared.stage.dexCollection = 'dex';
-        shared.stage.memCollection = 'mem';
-        shared.stage.actCollection = 'act';
         const timestamp = (new Date()).toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
         shared.stage.backupCollection = `bak-${timestamp}`;
         return 'default';

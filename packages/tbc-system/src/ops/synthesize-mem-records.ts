@@ -74,7 +74,8 @@ export class SynthesizeMemRecordsNode extends HAMINode<Shared> {
 
     async post(shared: Shared, _input: NodeInput, output: NodeOutput): Promise<string | undefined> {
         shared.stage.records = shared.stage.records || {};
-        shared.stage.records.mem = output; // Overwrites or initializes the mem virtual collection
+        const memCollection = shared.system.protocol.mem.collection || shared.stage.memCollection || 'mem';
+        shared.stage.records[memCollection] = output;
         return 'default';
     }
 }

@@ -5,6 +5,7 @@ import { Node } from 'pocketflow';
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
 import { Shared } from '../types.js';
+import { PROTOCOLS } from '../protocols.js';
 
 interface FlowConfig {
     verbose?: boolean;
@@ -41,13 +42,19 @@ class SysValidateFlowStartNode extends HAMINode<Shared, FlowConfig> {
             type: 'list-all-ids',
             recursive: true,
         };
-        shared.stage.sysCollection = 'sys';
-        shared.stage.sysCoreCollection = 'sys/core';
-        shared.stage.sysExtCollection = 'sys/ext';
-        shared.stage.skillsCollection = 'skills';
-        shared.stage.dexCollection = 'dex';
-        shared.stage.memCollection = 'mem';
-        shared.stage.actCollection = 'act';
+        shared.system.protocol = shared.system.protocol || PROTOCOLS['baseline'];
+        const sysCollection = shared.system.protocol.sys.collection || 'sys';
+        const skillsCollection =shared.system.protocol.skills.collection || 'skills';
+        const memCollection = shared.system.protocol.mem.collection || 'mem';
+        const dexCollection = shared.system.protocol.dex.collection || 'dex';
+        const actCollection = shared.system.protocol.dex.collection || 'act';
+        shared.stage.sysCollection =  sysCollection;
+        shared.stage.sysCoreCollection = `${sysCollection}/core`;
+        shared.stage.sysExtCollection = `${sysCollection}/ext`;
+        shared.stage.skillsCollection = skillsCollection;
+        shared.stage.memCollection = memCollection;
+        shared.stage.dexCollection = dexCollection;
+        shared.stage.actCollection = actCollection;
         return 'default';
     }
 }
