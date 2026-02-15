@@ -22,6 +22,7 @@ let cmdSysInit = new Command('init')
     .description('Initialize a new Third Brain Companion directory')
     .option('--companion <name>', 'Name of the AI companion')
     .option('--prime <name>', 'Name of the prime user (group)')
+    .option('--profile <type>', 'System profile (baseline|next)', 'baseline')
     .action(async (opts) => {
         try {
             const cliOpts = program.opts();
@@ -29,6 +30,7 @@ let cmdSysInit = new Command('init')
             const root = cliOpts.root;
             const companion = opts.companion;
             const prime = opts.prime;
+            const profile = opts.profile;
             if (!companion || !prime) {
                 console.error('Error: Both --companion and --prime flags are required');
                 process.exit(1);
@@ -38,6 +40,7 @@ let cmdSysInit = new Command('init')
                 rootDirectory: root,
                 companionName: companion,
                 primeName: prime,
+                profile: profile,
             });
             await initFlow.run({
                 registry: registry,
