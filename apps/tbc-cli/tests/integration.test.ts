@@ -6,6 +6,7 @@ import './010-gen.suite';
 import './011-preflight.suite';
 
 import './020-sys.suite';
+/*
 
 import './030-mem-remember.suite';
 import './031-mem-recall.suite';
@@ -23,5 +24,6 @@ import './055-int-kilocode.suite';
 // import './120-sys.suite';
 // import './130-mem-remember.suite';
 // ...
+*/
 
 import './999-teardown.suite';

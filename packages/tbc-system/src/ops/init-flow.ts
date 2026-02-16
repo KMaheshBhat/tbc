@@ -340,18 +340,30 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
                     shared.record.records = undefined;
-                    shared.stage.synthesizeRequests = [{
-                        type: 'digest',
-                        provider: 'tbc-system:synthesize-collation-digest',
-                        meta: {
-                            sources: [
-                                { collection: 'sys', idGlob: 'root.md'},
-                                { collection: 'sys/core', idGlob: '*.md' },
-                                { collection: 'sys/ext', idGlob: '*.md' },
-                            ],
-                            id: 'sys.digest.txt',
-                        }
-                    }];
+                    shared.stage.synthesizeRequests = [
+                        {
+                            type: 'digest',
+                            provider: 'tbc-system:synthesize-collation-digest',
+                            meta: {
+                                sources: [
+                                    { collection: 'sys', idGlob: 'root.md' },
+                                    { collection: 'sys/core', idGlob: '*.md' },
+                                    { collection: 'sys/ext', idGlob: '*.md' },
+                                ],
+                                id: 'sys.digest.txt',
+                            }
+                        },
+                        {
+                            type: 'metadata-index',
+                            provider: 'tbc-system:synthesize-collation-metadata',
+                            meta: {
+                                sources: [
+                                    { collection: 'skills', 'idGlob': '*/SKILL.md' },
+                                ],
+                                id: 'skills.jsonl',
+                            },
+                        },
+                    ];
                 },
             }))
             .next(n('tbc-synthesize:synthesize-record-flow', {
@@ -363,36 +375,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 sourcePath: 'record.records',
                 collection: 'dexCollection',
                 syncIndex: false,
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.record.records = undefined;
-                },
-            }))
-            .next(n('tbc-dex:collate-metadata-index', {
-                output: { collection: 'dex', id: 'skills.jsonl' },
-                sources: [
-                    { collection: 'skills', idGlob: '*/SKILL.md' },
-                ],
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.record = shared.record || {};
-                    shared.record.rootDirectory = shared.stage.rootDirectory;
-                    shared.record.collection = shared.stage.dexCollection;
-                    shared.record.records = [];
-                    const dexRecords = shared.stage.dex?.records || {};
-                    for (const [id, record] of Object.entries(dexRecords)) {
-                        shared.record.records.push({
-                            ...(record as any),
-                            id: id,
-                        });
-                    }
-                },
-            }))
-            .next(n('tbc-record:store-records-flow', {
-                verbose: shared.stage.verbose,
-                recordProviders: ['tbc-record-fs:store-records'],
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {

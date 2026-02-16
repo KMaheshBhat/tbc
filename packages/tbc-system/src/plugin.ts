@@ -13,6 +13,7 @@ import { SynthesizeMemRecordsNode } from './ops/synthesize-mem-records.js';
 import { SynthesizeSysRecordsNode } from './ops/synthesize-sys-records.js';
 import { SynthesizeRecordNode } from './ops/synthesize-record.js';
 import { SynthesizeCollationDigestNode } from './ops/synthesize-collation-digest.js';
+import { SynthesizeCollationMetadataNode } from './ops/synthesize-collation-metadata.js';
 import { ProbeNode } from './ops/probe.js';
 import { ValidateSystemNode } from './ops/validate-system.js';
 import { InitFlow } from './ops/init-flow.js';
@@ -41,6 +42,7 @@ import { SynthesizeValueNode } from './ops/synthesize-value.js';
  * - `tbc-system:synthesize-sys-records`: Generates system specification and connection records records
  * - `tbc-system:synthesize-record`: Generates a single record for a given type using core templates
  * - `tbc-system:synthesize-collation-digest`: Collates content from multiple sources into a synthesized record
+ * - `tbc-system:synthesize-collation-metadata`: Extracts metadata from multiple sources into JSONL-formatted records
  * - `tbc-system:probe`: Probes the environment for TBC CLI version and OS/shell information
  * - `tbc-system:validate-system`: Validates the loaded system manifest
  * - `tbc-system:generate-role-definition`: Generates standard TBC role definition for AI integrations
@@ -69,6 +71,7 @@ const TBCSystemPlugin = createPlugin(
         SynthesizeSysRecordsNode as any,
         SynthesizeRecordNode as any,
         SynthesizeCollationDigestNode as any,
+        SynthesizeCollationMetadataNode as any,
         ProbeNode as any,
         ValidateSystemNode as any,
         InitFlow as any,

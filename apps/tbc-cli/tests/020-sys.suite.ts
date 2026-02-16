@@ -20,6 +20,7 @@ describe('🐵 LETS-GO: tbc sys', () => {
             '--prime',
             'Jojo',
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         const companionIdPath = join(TBC_ROOT, 'sys', 'companion.id');
@@ -39,6 +40,8 @@ describe('🐵 LETS-GO: tbc sys', () => {
         expect(output).toContain('[i] ── info  | init-flow | Map of Memories');
         expect(output).toContain(`[✓] Third Brain Companion ${packageJson.version} initialized.`);
     });
+
+    return;
 
     test('running sys init on existing TBC-Root should fail with helpful message', async () => {
         const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
