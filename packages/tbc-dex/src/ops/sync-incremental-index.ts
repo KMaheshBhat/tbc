@@ -12,6 +12,7 @@ import { Shared } from '../types.js';
 interface SyncPayload {
     root: string;
     drafts: any[];
+    dexCollection: string;
 }
 
 // in packages/tbc-dex/src/ops/sync-incremental-index.ts
@@ -26,17 +27,19 @@ export class SyncIncrementalIndexNode extends HAMINode<Shared, any> {
         const sourcePath = this.config.sourcePath;
         const rawDrafts = this.resolvePath(shared, sourcePath);
 
+        const dexCollection = shared.system.protocol.dex.collection || 'dex';
+
         if (!rawDrafts) {
-            return { root, drafts: [] };
+            return { root, drafts: [], dexCollection };
         }
 
         const drafts = Array.isArray(rawDrafts) ? rawDrafts : [rawDrafts];
 
-        return { root, drafts };
+        return { root, drafts, dexCollection };
     }
 
     async exec(payload: SyncPayload) {
-        const { root, drafts } = payload;
+        const { root, drafts, dexCollection } = payload;
         if (drafts.length === 0) return 'default';
 
         const partitions: Record<string, any[]> = {};
@@ -54,7 +57,7 @@ export class SyncIncrementalIndexNode extends HAMINode<Shared, any> {
         }
 
         for (const [type, records] of Object.entries(partitions)) {
-            const dexDir = join(root, 'dex');
+            const dexDir = join(root, dexCollection );
             if (!existsSync(dexDir)) mkdirSync(dexDir, { recursive: true });
 
             const indexPath = join(dexDir, `${type}.memory.jsonl`);

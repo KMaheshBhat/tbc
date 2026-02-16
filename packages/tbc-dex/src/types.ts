@@ -1,4 +1,5 @@
 import { TBCRecordOperation } from '@tbc-frameworx/tbc-record';
+import { TBCSystemOperation } from '@tbc-frameworx/tbc-system';
 
 import { DexStore } from './store/dex-store.js';
 
@@ -20,6 +21,7 @@ type SharedStage = Record<string, any>;
  */
 type Shared = {
   stage: SharedStage;
+  system: TBCSystemOperation;
   /** Optional configuration options for TBC dex operations. */
   opts?: TBCDexOpts;
   /** Current record operation */

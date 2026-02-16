@@ -93,12 +93,12 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             targetPath = 'stage.activeDrafts',
         ) => {
             return registry.createNode('core:mutate', {
-                mutate: (shared: Shared) => {
+                mutate: (s: Shared) => {
                     const collectionName = typeof sourceCollection === 'function'
-                        ? sourceCollection(shared)
+                        ? sourceCollection(s)
                         : sourceCollection;
-                    shared.stage.currentCollectionName = collectionName;
-                    const rawRecords = shared.stage.records[collectionName] || {};
+                    s.stage.currentCollectionName = collectionName;
+                    const rawRecords = s.stage.records[collectionName] || {};
                     const drafts = Object.entries(rawRecords).map(([id, data]) => {
                         // If it's already an object (like memDrafts), pass it through
                         if (typeof data === 'object' && data !== null) return data;
@@ -110,7 +110,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     });
                     // Set the drafts at the requested path (e.g., shared.stage.activeDrafts)
                     const pathParts = targetPath.split('.');
-                    let current: any = shared;
+                    let current: any = s;
                     for (let i = 0; i < pathParts.length - 1; i++) {
                         current = current[pathParts[i]];
                     }
@@ -121,20 +121,20 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         const abortOverwriteGuardSequence = new Node();
         abortOverwriteGuardSequence
             .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
+                mutate: (s: Record<string, any>) => {
+                    s.stage.messages.push({
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
                         source: 'init-flow',
-                        message: `has existing companion ${shared.system.companionID}`,
+                        message: `has existing companion ${s.system.companionID}`,
                         suggestion: 'Use "tbc sys upgrade" instead.',
                     });
                 },
             }))
             .next(n('tbc-system:log-and-clear-messages'));
         const branchToAbortForOverwriteGuard = n('core:branch', {
-            branch: (shared: Record<string, any>) => {
-                if (shared.stage.validationResult.success) {
+            branch: (s: Record<string, any>) => {
+                if (s.stage.validationResult.success) {
                     return 'abort';
                 }
                 return 'default';
@@ -144,8 +144,8 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         const abortFailedInitializeSequence = new Node();
         abortFailedInitializeSequence
             .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
+                mutate: (s: Record<string, any>) => {
+                    s.stage.messages.push({
                         level: 'error',
                         code: 'FAILED-INITIALIZE',
                         source: 'init-flow',
@@ -156,8 +156,8 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-system:log-and-clear-messages'));
         const branchToAbortForFailedInitizalize = n('core:branch', {
-            branch: (shared: Record<string, any>) => {
-                if (!shared.stage.validationResult.success) {
+            branch: (s: Record<string, any>) => {
+                if (!s.stage.validationResult.success) {
                     return 'abort';
                 }
                 return 'default';
@@ -169,8 +169,8 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-system:resolve-root-directory'))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
+                mutate: (s: Record<string, any>) => {
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
                         message: 'Checking first ...',
@@ -183,11 +183,11 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(branchToAbortForOverwriteGuard)
             .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
+                mutate: (s: Record<string, any>) => {
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: `no existing valid TBC root found, proceeding (profile: ${shared.stage.requestedProfile}) ...`,
+                        message: `no existing valid TBC root found, proceeding (profile: ${s.stage.requestedProfile}) ...`,
                     });
                 },
             }))
@@ -204,8 +204,8 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-system:synthesize-mem-records'))
             .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
+                mutate: (s: Record<string, any>) => {
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
                         message: 'Synthesized memory records.',
@@ -214,8 +214,8 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-system:load-system-assets'))
             .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
+                mutate: (s: Record<string, any>) => {
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
                         message: `Loaded TBC ${packageJson.version} core assets (specs and skills).`,
@@ -224,8 +224,8 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-system:synthesize-sys-records'))
             .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
+                mutate: (s: Record<string, any>) => {
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
                         message: 'Synthesized system records.',
@@ -301,35 +301,35 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(branchToAbortForFailedInitizalize)
             .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.stage.messages.push({
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: `Companion: ${shared.system.companionRecord.record_title} [${shared.system.companionID}]`,
+                        message: `Companion: ${s.system.companionRecord.record_title} [${s.system.companionID}]`,
                     });
-                    shared.stage.messages.push({
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: `Prime: ${shared.system.primeRecord.record_title} [${shared.system.primeID}]`,
+                        message: `Prime: ${s.system.primeRecord.record_title} [${s.system.primeID}]`,
                     });
-                    shared.stage.messages.push({
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: `Map of Memories [${shared.system.memoryMapID}] initialized.`,
+                        message: `Map of Memories [${s.system.memoryMapID}] initialized.`,
                     });
-                    shared.stage.messages.push({
+                    s.stage.messages.push({
                         level: 'raw',
                         message: ' ┌┼───────────────────────────────────────────────────────────',
                     });
-                    shared.stage.messages.push({
+                    s.stage.messages.push({
                         level: 'raw',
-                        message: `[✓] Third Brain Companion ${packageJson.version} initialized. (PROFILE: ${shared.stage.requestedProfile})`,
+                        message: `[✓] Third Brain Companion ${packageJson.version} initialized. (PROFILE: ${s.stage.requestedProfile})`,
                     });
-                    shared.stage.messages.push({
+                    s.stage.messages.push({
                         level: 'raw',
                         message: ' └┼───────────────────────────────────────────────────────────',
                     });
-                    shared.stage.messages.push({
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
                         message: 'Next Steps',
@@ -338,17 +338,17 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 },
             }))
             .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.record.records = undefined;
-                    shared.stage.synthesizeRequests = [
+                mutate: (s: Shared) => {
+                    s.record.records = undefined;
+                    s.stage.synthesizeRequests = [
                         {
                             type: 'digest',
                             provider: 'tbc-system:synthesize-collation-digest',
                             meta: {
                                 sources: [
-                                    { collection: 'sys', idGlob: 'root.md' },
-                                    { collection: 'sys/core', idGlob: '*.md' },
-                                    { collection: 'sys/ext', idGlob: '*.md' },
+                                    { collection: `${s.stage.sysCollection}`, idGlob: 'root.md' },
+                                    { collection: `${s.stage.sysCollection}/core`, idGlob: '*.md' },
+                                    { collection: `${s.stage.sysCollection}/ext`, idGlob: '*.md' },
                                 ],
                                 id: 'sys.digest.txt',
                             }
@@ -358,7 +358,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                             provider: 'tbc-system:synthesize-collation-metadata',
                             meta: {
                                 sources: [
-                                    { collection: 'skills', 'idGlob': '*/SKILL.md' },
+                                    { collection: `${s.stage.skillsCollection}`, 'idGlob': '*/SKILL.md' },
                                 ],
                                 id: 'skills.jsonl',
                             },
@@ -377,22 +377,22 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 syncIndex: false,
             }))
             .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.stage.messages.push({
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: `Stored ${shared.record.records?.length} ${shared.record.collection} record(s).`,
+                        message: `Stored ${s.record.records?.length} ${s.record.collection} record(s).`,
                     });
-                    shared.stage.messages.push({
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: 'Digest: dex/sys.digest.txt',
+                        message: `Digest: ${s.stage.dexCollection}/sys.digest.txt`,
                         suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.',
                     });
-                    shared.stage.messages.push({
+                    s.stage.messages.push({
                         level: 'info',
                         source: 'init-flow',
-                        message: 'Digest: dex/skills.jsonl',
+                        message: `Digest: ${s.stage.dexCollection}/skills.jsonl`,
                         suggestion: 'This file is index of all skill you can use for your goals.',
                     });
                 },
