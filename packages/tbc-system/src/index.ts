@@ -14,6 +14,7 @@ export * from './ops/probe.js';
 export * from './ops/resolve-root-directory.js';
 export * from './ops/synthesize-mem-records.js';
 export * from './ops/synthesize-sys-records.js';
+export * from './ops/synthesize-collation-digest.js';
 export * from './ops/upgrade-flow.js';
 export * from './ops/validate-flow.js';
 export * from './ops/validate-system.js';

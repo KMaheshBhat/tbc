@@ -323,7 +323,7 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     });
                     shared.stage.messages.push({
                         level: 'raw',
-                        message: `[✓] Third Brain Companion ${packageJson.version} initialized. (profile: ${shared.stage.requestedProfile})`,
+                        message: `[✓] Third Brain Companion ${packageJson.version} initialized. (PROFILE: ${shared.stage.requestedProfile})`,
                     });
                     shared.stage.messages.push({
                         level: 'raw',
@@ -337,13 +337,37 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     });
                 },
             }))
-            .next(n('tbc-dex:collate-digest', {
-                output: { collection: 'dex', id: 'sys.digest.txt' },
-                sources: [
-                    { collection: 'sys', idGlob: 'root.md' },
-                    { collection: 'sys/core', idGlob: '*.md' },
-                    { collection: 'sys/ext', idGlob: '*.md' },
-                ],
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    shared.record.records = undefined;
+                    shared.stage.synthesizeRequests = [{
+                        type: 'digest',
+                        provider: 'tbc-system:synthesize-collation-digest',
+                        meta: {
+                            sources: [
+                                { collection: 'sys', idGlob: 'root.md'},
+                                { collection: 'sys/core', idGlob: '*.md' },
+                                { collection: 'sys/ext', idGlob: '*.md' },
+                            ],
+                            id: 'sys.digest.txt',
+                        }
+                    }];
+                },
+            }))
+            .next(n('tbc-synthesize:synthesize-record-flow', {
+                requestsKey: 'synthesizeRequests',
+            }))
+            .next(n('tbc-write:write-records-flow', {
+                verbose: this.config?.verbose,
+                recordStorers: ['tbc-record-fs:store-records'],
+                sourcePath: 'record.records',
+                collection: 'dexCollection',
+                syncIndex: false,
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    shared.record.records = undefined;
+                },
             }))
             .next(n('tbc-dex:collate-metadata-index', {
                 output: { collection: 'dex', id: 'skills.jsonl' },
