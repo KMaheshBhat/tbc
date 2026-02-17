@@ -25,26 +25,26 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
     },
     next: {
         sys: {
-            collection: 'sys_shiggles',
+            collection: 'sys_next',
             recordStorers: ['tbc-record-fs:store-records'],
         },
         skills: {
-            collection: 'skills_shiggles',
+            collection: 'skills_next',
             recordStorers: ['tbc-record-fs:store-records'],
         },
         mem: {
-            collection: 'mem_shiggles',
+            collection: 'mem_next',
             recordStorers: [
                 'tbc-record-fs:store-records',
-                // 'tbc-record-sqlite:store-records',
+                'tbc-record-sqlite:store-records',
             ],
         },
         dex: {
-            collection: 'dex_shiggles',
+            collection: 'dex_next',
             recordStorers: ['tbc-record-fs:store-records'],
         },
         act: {
-            collection: 'act_shiggles',
+            collection: 'act_next',
             recordStorers: ['tbc-record-fs:store-records'],
         },
     },

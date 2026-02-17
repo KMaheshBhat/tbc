@@ -241,49 +241,49 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(stageRecords(shared.registry, s => s.stage.sysCollection))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
+                recordStorers: ['tbc-record-fs:store-records'],
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.sysCollection}/core`))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
+                recordStorers: ['tbc-record-fs:store-records'],
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.sysCollection}/ext`))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
+                recordStorers: ['tbc-record-fs:store-records'],
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/core`))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
+                recordStorers: ['tbc-record-fs:store-records'],
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/ext`))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
+                recordStorers: ['tbc-record-fs:store-records'],
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => s.stage.memCollection, 'stage.memDrafts'))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.memDrafts',
                 collection: 'memCollection',
+                protocolKey: 'mem',
                 syncIndex: true,
             }))
             .next(n('core:mutate', {

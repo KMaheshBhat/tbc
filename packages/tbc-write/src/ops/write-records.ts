@@ -3,13 +3,16 @@ import assert from 'node:assert';
 import { Node } from 'pocketflow';
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
+import { TBCProtocol } from '@tbc-frameworx/tbc-system';
+
 import { Shared } from '../types.js';
 
 interface FlowConfig {
     verbose: boolean;
-    recordStorers: string[];
     sourcePath: string;
-    collection: string; // name of collection key in stage
+    collection: string;
+    recordStorers: string[];
+    protocolKey: 'sys' | 'skills' | 'mem' | 'dex' | 'act' | undefined;
     syncIndex: boolean;
 }
 
@@ -17,11 +20,12 @@ const FlowConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         verbose: { type: 'boolean' },
-        recordStorers: { type: 'array', items: { type: 'string' } },
         sourcePath: { type: 'string' },
         collection: { type: 'string' },
+        recordStorers: { type: 'array', items: { type: 'string' } },
+        protocolKey: { type: 'string', enum: ['sys', 'skills', 'mem', 'dex', 'act']},
     },
-    required: ['verbose', 'recordStorers', 'sourcePath', 'collection'],
+    required: ['verbose', 'sourcePath', 'collection'],
 };
 
 class WriteRecordsStartNode extends HAMINode<Shared, FlowConfig> {
@@ -54,7 +58,8 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         const sourcePath = this.config.sourcePath;
-        const collection = shared.stage[this.config.collection];
+        const collection : string = shared.stage[this.config.collection];
+        const recordStorers = shared.system.protocol?.[this.config.protocolKey!]?.recordStorers ?? this.config.recordStorers; 
         const indexer = this.config.syncIndex ? n('tbc-dex:sync-incremental-index', {
             sourcePath: this.config.sourcePath,
             collection: collection,
@@ -82,7 +87,7 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
             // 2. Delegate Storage (The "Command" Side)
             // This node/flow is the authority on how to write 'raw', 'markdown', etc.
             .next(n('tbc-record:store-records-flow', {
-                recordProviders: this.config.recordStorers,
+                recordProviders: recordStorers,
                 verbose: this.config.verbose,
             }))
             // 3. Delegate Indexing (The "Query" Side)
