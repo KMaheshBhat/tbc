@@ -85,17 +85,22 @@ export class CollateMetadataIndexNode extends HAMINode<Shared, Config> {
 
         // Create a clean metadata object by filtering keys
         const filteredData = Object.keys(rawRecord)
-          .filter(key => !allExcludes.includes(key))
-          .reduce((obj, key) => {
-            obj[key] = rawRecord[key];
-            return obj;
-          }, {} as Record<string, any>);
+          .filter((key) => !allExcludes.includes(key))
+          .reduce(
+            (obj, key) => {
+              obj[key] = rawRecord[key];
+              return obj;
+            },
+            {} as Record<string, any>,
+          );
 
         extracted.push({
           id,
           collection: source.collection,
           // Use the rawRecord for partitioning logic
-          partitionValue: source.partitionKey ? String(rawRecord[source.partitionKey] || 'unknown') : null,
+          partitionValue: source.partitionKey
+            ? String(rawRecord[source.partitionKey] || 'unknown')
+            : null,
           data: filteredData,
         });
       }
@@ -109,9 +114,7 @@ export class CollateMetadataIndexNode extends HAMINode<Shared, Config> {
 
     for (const meta of metadataList) {
       // Determine filename: e.g., "party.memory.jsonl" or "skills.jsonl"
-      const fileName = meta.partitionValue
-        ? `${meta.partitionValue}.${baseId}`
-        : baseId;
+      const fileName = meta.partitionValue ? `${meta.partitionValue}.${baseId}` : baseId;
 
       if (!fileGroups[fileName]) fileGroups[fileName] = [];
 
@@ -164,9 +167,7 @@ export class CollateMetadataIndexNode extends HAMINode<Shared, Config> {
     // 1. Escape dots
     // 2. Replace '*' with '.*' (non-greedy)
     // 3. Anchor start and end
-    const pattern = glob
-      .replace(/\./g, '\\.')
-      .replace(/\*/g, '.*');
+    const pattern = glob.replace(/\./g, '\\.').replace(/\*/g, '.*');
 
     const regex = new RegExp(`^${pattern}$`);
     return regex.test(id);

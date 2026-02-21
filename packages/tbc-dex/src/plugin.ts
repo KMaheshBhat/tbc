@@ -2,8 +2,8 @@ import { createPlugin } from '@hami-frameworx/core';
 
 import { CollateDigestNode } from './ops/collate-digest.js';
 import { CollateMetadataIndexNode } from './ops/collate-metadata-index.js';
-import { SyncIncrementalIndexNode } from './ops/sync-incremental-index.js';
 import { QueryIndicesNode } from './ops/query-indices.js';
+import { SyncIncrementalIndexNode } from './ops/sync-incremental-index.js';
 
 /**
  * TBC Dex Plugin for HAMI.

@@ -77,7 +77,7 @@ export class CollateDigestNode extends HAMINode<Shared, CollateConfig> {
 
       // Simple ID or Glob matching
       const ids = Object.keys(bucket);
-      const matches = ids.filter(id => {
+      const matches = ids.filter((id) => {
         if (source.idGlob === '*') return true;
         if (source.idGlob.startsWith('*.')) {
           return id.endsWith(source.idGlob.slice(1));
@@ -87,7 +87,7 @@ export class CollateDigestNode extends HAMINode<Shared, CollateConfig> {
 
       for (const id of matches) {
         const record = bucket[id];
-        const content = typeof record === 'string' ? record : (record.content || '');
+        const content = typeof record === 'string' ? record : record.content || '';
         selectedRecords.push({ collection: source.collection, id, content });
       }
     }
@@ -96,14 +96,14 @@ export class CollateDigestNode extends HAMINode<Shared, CollateConfig> {
   }
 
   async exec(input: NodeInput): Promise<NodeOutput> {
-    const collatedParts = input.selectedRecords.map(rec =>
-      `<<< SOURCE: ${rec.collection}/${rec.id} >>>\n${rec.content}`
+    const collatedParts = input.selectedRecords.map(
+      (rec) => `<<< SOURCE: ${rec.collection}/${rec.id} >>>\n${rec.content}`,
     );
 
     return {
       destination: this.config!.output,
       collatedContent: collatedParts.join('\n\n'),
-      sourceSummary: input.selectedRecords.map(r => `${r.collection}/${r.id}`),
+      sourceSummary: input.selectedRecords.map((r) => `${r.collection}/${r.id}`),
     };
   }
 
@@ -111,7 +111,8 @@ export class CollateDigestNode extends HAMINode<Shared, CollateConfig> {
     shared.stage = shared.stage || {};
     // Dynamically use the collection from output config
     shared.stage[output.destination.collection] = shared.stage[output.destination.collection] || {};
-    shared.stage[output.destination.collection].records = shared.stage[output.destination.collection].records || {};
+    shared.stage[output.destination.collection].records =
+      shared.stage[output.destination.collection].records || {};
 
     shared.stage[output.destination.collection].records[output.destination.id] = {
       content: output.collatedContent,

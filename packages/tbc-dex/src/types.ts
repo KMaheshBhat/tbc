@@ -1,8 +1,6 @@
 import { TBCRecordOperation } from '@tbc-frameworx/tbc-record';
 import { TBCSystemOperation } from '@tbc-frameworx/tbc-system';
 
-import { DexStore } from './store/dex-store.js';
-
 /**
  * Options for TBC dex operations.
  * Defines configuration flags that can be used across TBC dex operations.
@@ -46,8 +44,6 @@ type Shared = {
   records?: Record<string, any>[];
   /** Collection directory to store records in (for record-fs operations). */
   collection?: string;
-  /** DexStore instance for TKG database operations. */
-  dexStore?: DexStore;
   /** Files discovered by FS walker. */
   discoveredFiles?: Array<{
     id: string;
