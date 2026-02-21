@@ -36,7 +36,7 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
             collection: 'mem_next',
             recordStorers: [
                 'tbc-record-fs:store-records',
-                'tbc-record-sqlite:store-records',
+                // 'tbc-record-sqlite:store-records',
             ],
         },
         dex: {
