@@ -11,6 +11,7 @@
   "scripts": {
     "record:build": "bun run --filter='@tbc-frameworx/tbc-record' build",
     "record-fs:build": "bun run --filter='@tbc-frameworx/tbc-record-fs' build",
+    "record-sqlite:test": "bun run --filter='@tbc-frameworx/tbc-record-sqlite' --concurrency=1 test",
     "record-sqlite:build": "bun run --filter='@tbc-frameworx/tbc-record-sqlite' build",
     "mint:build": "bun run --filter='@tbc-frameworx/tbc-mint' build",
     "synthesize:build": "bun run --filter='@tbc-frameworx/tbc-synthesize' build",
@@ -25,7 +26,7 @@
     "kilocode:build": "bun run --filter='@tbc-frameworx/tbc-kilocode' build",
     "goose:build": "bun run --filter='@tbc-frameworx/tbc-goose' build",
     "github-copilot:build": "bun run --filter='@tbc-frameworx/tbc-github-copilot' build",
-    "cli:test": "bun test --filter='@tbc-frameworx/tbc-cli' --concurrency=1",
+    "cli:test": "bun run --filter='@tbc-frameworx/tbc-cli' --concurrency=1 test",
     "cli:build": "bun run --filter='@tbc-frameworx/tbc-cli' build",
     "cli:install": "bun run cli:build && cd apps/tbc-cli && bun link",
     "all:build": "bun run scripts/build-all.ts",
