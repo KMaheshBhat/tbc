@@ -1,14 +1,5 @@
 import { createPlugin } from '@hami-frameworx/core';
 
-import { GraphMinerFlow } from './ops/graph-miner-flow.js';
-import { FSWalkerNode } from './ops/fs-walker.js';
-import { ChangeDetectorNode } from './ops/change-detector.js';
-import { MetadataExtractorNode } from './ops/metadata-extractor.js';
-import { PresenceWatermarkNode } from './ops/presence-watermark-node.js';
-import { SchemaWatermarkNode } from './ops/schema-watermark-node.js';
-import { StructureWatermarkNode } from './ops/structure-watermark-node.js';
-import { LinksWatermarkNode } from './ops/links-watermark-node.js';
-import { VectorWatermarkNode } from './ops/vector-watermark-node.js';
 import { IntegrityReportFlow } from './ops/integrity-report-flow.js';
 import { HealthSummaryQueryNode } from './ops/health-summary-query.js';
 import { ZombieDetectionNode } from './ops/zombie-detection.js';
@@ -28,10 +19,6 @@ import { QueryIndicesNode } from './ops/query-indices.js';
  * Provides essential TBC dex operations for generating and refreshing indexes.
  *
  * Included operations:
- * - `tbc-dex:graph-miner-flow`: Indexes filesystem records into TKG database with watermark checks
- * - `tbc-dex:fs-walker`: Discovers files in TBC collections
- * - `tbc-dex:change-detector`: Detects changed files since last indexing
- * - `tbc-dex:metadata-extractor`: Parses YAML frontmatter and extracts links
  * - `tbc-dex:integrity-report-flow`: Generates comprehensive SRE integrity reports
  * - `tbc-dex:health-summary-query`: Queries system health summary
  * - `tbc-dex:zombie-detection`: Detects broken links (zombies)
@@ -48,15 +35,6 @@ const TBCDexPlugin = createPlugin(
   '@tbc-frameworx/tbc-dex',
   '0.1.0',
   [
-    GraphMinerFlow as any,
-    FSWalkerNode as any,
-    ChangeDetectorNode as any,
-    MetadataExtractorNode as any,
-    PresenceWatermarkNode as any,
-    SchemaWatermarkNode as any,
-    StructureWatermarkNode as any,
-    LinksWatermarkNode as any,
-    VectorWatermarkNode as any,
     IntegrityReportFlow as any,
     HealthSummaryQueryNode as any,
     ZombieDetectionNode as any,
