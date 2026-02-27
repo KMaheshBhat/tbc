@@ -29,9 +29,9 @@
     "cli:test": "bun run --filter='@tbc-frameworx/tbc-cli' --concurrency=1 test",
     "cli:build": "bun run --filter='@tbc-frameworx/tbc-cli' build",
     "cli:install": "bun run cli:build && cd apps/tbc-cli && bun link",
-    "all:build": "bun run scripts/build-all.ts",
-    "all:build-fresh": "bun run scripts/build-all.ts --clean",
-    "all:build-dist": "bun run scripts/build-all.ts --clean --dist",
+    "all:build": "bun run scripts/build-all.ts --test",
+    "all:build-fresh": "bun run scripts/build-all.ts --clean --test",
+    "all:build-dist": "bun run scripts/build-all.ts --clean --dist --test",
     "node_modules:clean": "shx rm -rf node_modules apps/*/node_modules packages/*/node_modules"
   },
   "devDependencies": {

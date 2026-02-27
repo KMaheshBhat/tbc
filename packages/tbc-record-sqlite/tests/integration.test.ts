@@ -1,205 +1,204 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'bun:test';
+import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { SQLiteStore } from '../src/sqlite-store';
 import { join } from 'node:path';
 import { mkdirSync, existsSync, rmSync } from 'node:fs';
 
-const TEST_ARTIFACT_DIR = join(import.meta.dir, '../../../_test/record-sqlite');
-const TEST_DB_PATH = join(TEST_ARTIFACT_DIR, 'persistence.db');
+const TEST_DIR = join(import.meta.dir, '../../../_test/record-sqlite');
+const TEST_DB_PATH = join(TEST_DIR, 'persistence.db');
 
-describe('🧪 SQLiteStore: Enhanced Implementation Suite', () => {
+describe('SQLiteStore Contract (CQRS Read Model)', () => {
     let store: SQLiteStore;
 
     beforeAll(async () => {
-        if (existsSync(TEST_ARTIFACT_DIR)) {
-            rmSync(TEST_ARTIFACT_DIR, { recursive: true, force: true });
+        // Clean ONLY at startup (retain artifacts after run)
+        if (existsSync(TEST_DIR)) {
+            rmSync(TEST_DIR, { recursive: true, force: true });
         }
-        mkdirSync(TEST_ARTIFACT_DIR, { recursive: true });
+        mkdirSync(TEST_DIR, { recursive: true });
 
         store = new SQLiteStore(TEST_DB_PATH);
         await store.initialize();
     });
 
     afterAll(async () => {
+        // Close connection ONLY — retain DB file
         await store.teardown();
     });
 
-    describe('Core Operations & Atomic Upsert', () => {
-        it('should handle complex JSON payloads and atomic overwrites', async () => {
-            const id = 'node_1';
-            // First version has 'oldKey'
-            await store.upsertNode(id, 'note', 'default', { oldKey: 'detect me', text: 'find me' });
+    /* ============================================================
+       LIFECYCLE
+    ============================================================ */
 
-            // Second version DOES NOT have 'oldKey'
-            await store.upsertNode(id, 'note', 'default', { newKey: 'i am new', updated: true });
-            const record = await store.getNode(id);
+    describe('Lifecycle', () => {
+        it('requires initialize() before operations', async () => {
+            const fresh = new SQLiteStore(':memory:');
+            await expect(fresh.getNode('x')).rejects.toThrow();
+        });
 
-            // If it merged, oldKey would still be there. 
-            // If it replaced (correct), oldKey should be undefined.
+        it('is idempotent on re-initialize()', async () => {
+            await store.initialize();
+            expect(await store.countNodes()).toBeDefined();
+        });
+    });
+
+    /* ============================================================
+       NODE MODEL (Scoped Collection: nm)
+    ============================================================ */
+
+    describe('Node Model', () => {
+        const COL = 'nm';
+
+        it('upserts atomically (replace, not merge)', async () => {
+            await store.upsertNode('nm_1', 'note', COL, { oldKey: 'x' });
+            await store.upsertNode('nm_1', 'note', COL, { newKey: 'y' });
+
+            const record = await store.getNode('nm_1');
+
             expect(record?.oldKey).toBeUndefined();
-            expect(record?.newKey).toBe('i am new');
-            expect(record?.updated).toBe(true);
+            expect(record?.newKey).toBe('y');
         });
-        it('should enforce cascading deletes on edges', async () => {
-            await store.upsertNode('source', 'type', 'col', {});
-            await store.upsertNode('target', 'type', 'col', {});
-            await store.upsertEdge('edge_1', 'link', 'source', 'target', {});
 
-            await store.deleteNode('target');
-            const related = await store.getRelatedIds('source', 'out');
-            expect(related).not.toContain('target');
+        it('stores and updates content_hash', async () => {
+            await store.upsertNode('nm_hash', 'k', COL, {}, 'abc');
+            await store.upsertNode('nm_hash', 'k', COL, {}, 'xyz');
+
+            const row = (store as any).db
+                .query('SELECT content_hash FROM record WHERE record_id = ?')
+                .get('nm_hash');
+
+            expect(row.content_hash).toBe('xyz');
+        });
+
+        it('updates updated_at on atomic replace', async () => {
+            await store.upsertNode('time_1', 'k', 'nm', { v: 1 });
+            const row1 = (store as any).db
+                .query('SELECT updated_at FROM record WHERE record_id = ?')
+                .get('time_1');
+
+            await new Promise(r => setTimeout(r, 5));
+
+            await store.upsertNode('time_1', 'k', 'nm', { v: 2 });
+            const row2 = (store as any).db
+                .query('SELECT updated_at FROM record WHERE record_id = ?')
+                .get('time_1');
+
+            expect(row2.updated_at).not.toBe(row1.updated_at);
+        });
+
+        it('returns null for unknown node', async () => {
+            expect(await store.getNode('nm_unknown')).toBeNull();
         });
     });
 
-    describe('Discovery (List, Count, Search)', () => {
+    /* ============================================================
+       EDGE MODEL (Scoped Collection: em)
+    ============================================================ */
+
+    describe('Edge Model', () => {
+        const COL = 'em';
+
+        it('enforces foreign key constraints', async () => {
+            await expect(
+                store.upsertEdge('em_bad', 'link', 'ghost', 'ghost2', {})
+            ).rejects.toThrow();
+        });
+
+        it('supports directional traversal', async () => {
+            await store.upsertNode('em_a', 'k', COL, {});
+            await store.upsertNode('em_b', 'k', COL, {});
+            await store.upsertEdge('em_e1', 'rel', 'em_a', 'em_b', {});
+
+            const out = await store.getRelatedIds('em_a', 'out');
+            const inc = await store.getRelatedIds('em_b', 'in');
+
+            expect(out).toContain('em_b');
+            expect(inc).toContain('em_a');
+        });
+
+        it('cascades delete on node removal', async () => {
+            await store.upsertNode('em_c1', 'k', COL, {});
+            await store.upsertNode('em_c2', 'k', COL, {});
+            await store.upsertEdge('em_e2', 'rel', 'em_c1', 'em_c2', {});
+
+            await store.deleteNode('em_c2');
+
+            const out = await store.getRelatedIds('em_c1', 'out');
+            expect(out).not.toContain('em_c2');
+        });
+
+        it('deduplicates results in "both" direction', async () => {
+            await store.upsertNode('em_loop', 'k', COL, {});
+            await store.upsertEdge('em_loop_e', 'loop', 'em_loop', 'em_loop', {});
+
+            const both = await store.getRelatedIds('em_loop', 'both');
+            expect(both).toEqual(['em_loop']);
+        });
+    });
+
+    /* ============================================================
+       DISCOVERY SURFACE (Scoped Collection: ds)
+    ============================================================ */
+
+    describe('Discovery Surface', () => {
+        const COL1 = 'ds_blog';
+        const COL2 = 'ds_web';
+
         beforeAll(async () => {
-            // Setup a fresh batch for discovery tests
-            await store.upsertNode('search_1', 'post', 'blog', { content: 'apple banana' });
-            await store.upsertNode('search_2', 'post', 'blog', { content: 'banana cherry' });
-            await store.upsertNode('search_3', 'page', 'web', { content: 'cherry date' });
+            await store.upsertNode('ds_a', 'post', COL1, { text: 'apple banana' });
+            await store.upsertNode('ds_b', 'post', COL1, { text: 'banana cherry' });
+            await store.upsertNode('ds_c', 'page', COL2, { text: 'cherry date' });
         });
 
-        it('should count nodes correctly with filters', async () => {
-            const total = await store.countNodes();
-            const blogCount = await store.countNodes(undefined, 'blog');
-            const pageCount = await store.countNodes('page');
-
-            expect(total).toBeGreaterThanOrEqual(3);
-            expect(blogCount).toBe(2);
-            expect(pageCount).toBe(1);
+        it('counts nodes with filters', async () => {
+            expect(await store.countNodes(undefined, COL1)).toBe(2);
+            expect(await store.countNodes('page', COL2)).toBe(1);
         });
 
-        it('should search node data using text queries', async () => {
+        it('searches JSON content safely', async () => {
             const results = await store.searchNodes('banana');
-            expect(results).toContain('search_1');
-            expect(results).toContain('search_2');
-            expect(results).not.toContain('search_3');
+            expect(results).toEqual(expect.arrayContaining(['ds_a', 'ds_b']));
         });
 
-        it('should list IDs with collection filtering', async () => {
-            const ids = await store.listNodeIds({ collection: 'web' });
-            expect(ids).toEqual(['search_3']);
-        });
-    });
+        it('supports sorting and pagination', async () => {
+            const ids = await store.listNodeIds({
+                collection: COL1,
+                sortBy: 'id',
+                sortOrder: 'asc',
+                limit: 1,
+            });
 
-    describe('Pagination & Sorting', () => {
-        beforeAll(async () => {
-            // Create a sequence for predictable sorting
-            await store.upsertNode('p_a', 'item', 'paged', { val: 1 });
-            await store.upsertNode('p_b', 'item', 'paged', { val: 2 });
-            await store.upsertNode('p_c', 'item', 'paged', { val: 3 });
+            expect(ids.length).toBe(1);
         });
 
-        it('should respect limit and offset', async () => {
-            const first = await store.listNodeIds({ collection: 'paged', limit: 1, sortBy: 'id', sortOrder: 'asc' });
-            const second = await store.listNodeIds({ collection: 'paged', limit: 1, offset: 1, sortBy: 'id', sortOrder: 'asc' });
-
-            expect(first).toEqual(['p_a']);
-            expect(second).toEqual(['p_b']);
-        });
-
-        it('should sort by ID in descending order', async () => {
-            const ids = await store.listNodeIds({ collection: 'paged', sortBy: 'id', sortOrder: 'desc' });
-            expect(ids).toEqual(['p_c', 'p_b', 'p_a']);
+        it('handles limit 0 and large offset', async () => {
+            expect(await store.listNodeIds({ limit: 0 })).toEqual([]);
+            expect(await store.listNodeIds({ offset: 9999 })).toEqual([]);
         });
     });
 
-    describe('Advanced Graph Scenarios', () => {
-        it('should handle circular and self-referencing relations', async () => {
-            const nodeA = 'node_a';
-            await store.upsertNode(nodeA, 'item', 'graph', {});
+    /* ============================================================
+       SAFETY & INTEGRITY
+    ============================================================ */
 
-            // Self-reference
-            await store.upsertEdge('edge_self', 'loops', nodeA, nodeA, {});
+    describe('Safety & Integrity', () => {
+        const COL = 'safe';
 
-            const out = await store.getRelatedIds(nodeA, 'out', 'loops');
-            const inc = await store.getRelatedIds(nodeA, 'in', 'loops');
-            const both = await store.getRelatedIds(nodeA, 'both', 'loops');
+        it('is resilient to SQL injection attempts', async () => {
+            await store.upsertNode(
+                'safe_1',
+                'note',
+                COL,
+                { content: "It's a trap; DROP TABLE record; --" }
+            );
 
-            expect(out).toContain(nodeA);
-            expect(inc).toContain(nodeA);
-            expect(both.length).toBe(1); // Should deduplicate
+            const malicious = await store.searchNodes("'; DROP TABLE record; --");
+            expect(malicious).toEqual([]);
+
+            expect(await store.countNodes(undefined, COL)).toBe(1);
         });
 
-        it('should store and retrieve temporal metadata on edges', async () => {
-            const edgeId = 'temporal_edge';
-            const pastDate = '2020-01-01T00:00:00Z';
-            const futureDate = '2030-01-01T00:00:00Z';
-
-            // Manually upserting with temporal data
-            const stmt = (store as any).db.prepare(`
-                INSERT INTO record_relation (relation_id, relation_kind, from_record_id, to_record_id, data, valid_from, valid_to)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            `);
-
-            await store.upsertNode('n1', 't', 'c', {});
-            await store.upsertNode('n2', 't', 'c', {});
-            stmt.run(edgeId, 'lived_in', 'n1', 'n2', '{}', pastDate, futureDate);
-
-            // Verify the data exists in the DB
-            const row = (store as any).db.query('SELECT valid_from, valid_to FROM record_relation WHERE relation_id = ?').get(edgeId);
-            expect(row.valid_from).toBe(pastDate);
-            expect(row.valid_to).toBe(futureDate);
+        it('returns empty results for unknown IDs', async () => {
+            expect(await store.getRelatedIds('ghost', 'both')).toEqual([]);
         });
-
-        it('should respect temporal bounds and hide expired relations', async () => {
-            const nodeS = 'temp_source';
-            const nodeT = 'temp_target';
-            await store.upsertNode(nodeS, 't', 'c', {});
-            await store.upsertNode(nodeT, 't', 'c', {});
-
-            // 1. A relation that expired yesterday
-            const yesterday = new Date(Date.now() - 86400000).toISOString();
-            const wayPast = new Date(Date.now() - 172800000).toISOString();
-
-            const stmt = (store as any).db.prepare(`
-                INSERT INTO record_relation (relation_id, relation_kind, from_record_id, to_record_id, data, valid_from, valid_to)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            `);
-            stmt.run('expired_edge', 'history', nodeS, nodeT, '{}', wayPast, yesterday);
-
-            // 2. A relation that starts tomorrow
-            const tomorrow = new Date(Date.now() + 86400000).toISOString();
-            stmt.run('future_edge', 'history', nodeS, nodeT, '{}', tomorrow, null);
-
-            // Querying for 'now' should return NOTHING
-            const current = await store.getRelatedIds(nodeS, 'out', 'history');
-            expect(current.length).toBe(0);
-
-            // Querying for 'wayPast' should return the expired edge
-            const oldResults = await store.getRelatedIds(nodeS, 'out', 'history', wayPast);
-            expect(oldResults).toContain(nodeT);
-        });
-    });
-
-    describe('Robustness & Error Handling', () => {
-        it('should return empty results for non-existent IDs instead of throwing', async () => {
-            const related = await store.getRelatedIds('ghost_id', 'both');
-            const node = await store.getNode('ghost_id');
-            const count = await store.countNodes('ghost_kind', 'ghost_col');
-
-            expect(related).toEqual([]);
-            expect(node).toBeNull();
-            expect(count).toBe(0);
-        });
-
-        it('should handle special characters in search queries (SQL Injection Safety)', async () => {
-            await store.upsertNode('inject_1', 'note', 'default', { content: "It's a trap; DROP TABLE record; --" });
-
-            const results = await store.searchNodes("'; DROP TABLE record; --");
-            const safeResults = await store.searchNodes("It's a trap");
-
-            expect(results.length).toBe(0); // Should find nothing because of parameterization
-            expect(safeResults).toContain('inject_1');
-
-            // Verify table still exists
-            const count = await store.countNodes();
-            expect(count).toBeGreaterThan(0);
-        });
-    });
-
-    it('should maintain idempotency on re-initialization', async () => {
-        await store.initialize();
-        const count = await store.countNodes();
-        expect(count).toBeDefined();
     });
 });

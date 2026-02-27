@@ -173,8 +173,18 @@ class SQLiteStore implements RDBMSStore {
         const order = options.sortOrder?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
         query += ` ORDER BY ${sortCol} ${order}`;
 
-        if (options.limit !== undefined) { query += ' LIMIT ?'; params.push(options.limit); }
-        if (options.offset !== undefined) { query += ' OFFSET ?'; params.push(options.offset); }
+        if (options.limit !== undefined) {
+            query += ' LIMIT ?';
+            params.push(options.limit);
+        } else if (options.offset !== undefined) {
+            // SQLite requires LIMIT when OFFSET is used
+            query += ' LIMIT -1';
+        }
+
+        if (options.offset !== undefined) {
+            query += ' OFFSET ?';
+            params.push(options.offset);
+        }
 
         const rows = this.db.query(query).all(...params) as { record_id: string }[];
         return rows.map(r => r.record_id);
