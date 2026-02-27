@@ -22,6 +22,7 @@
     "@hami-frameworx/core": "0.1.4",
     "@tbc-frameworx/tbc-record": "^0.1.0",
     "@tbc-frameworx/tbc-record-fs": "^0.1.0",
+    "@tbc-frameworx/tbc-record-sqlite": "^0.1.0",
     "@tbc-frameworx/tbc-mint": "^0.1.0",
     "@tbc-frameworx/tbc-synthesize": "^0.1.0",
     "@tbc-frameworx/tbc-dex": "^0.1.0",
