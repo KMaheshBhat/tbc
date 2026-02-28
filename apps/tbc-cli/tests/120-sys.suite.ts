@@ -89,8 +89,6 @@ describe('🦍 LETS-GO: tbc sys (Kong/Next)', () => {
         expect(countBefore).toBe(countAfter);
     });
 
-    // Next to work
-    /*
     test('sys validate should confirm stability for Kong profile', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'sys', 'validate',
@@ -102,6 +100,5 @@ describe('🦍 LETS-GO: tbc sys (Kong/Next)', () => {
         expect(output).toContain('Verified presence of "root.md"');
         expect(output).toContain('[✓] STABLE');
     });
-    */
 
 });
