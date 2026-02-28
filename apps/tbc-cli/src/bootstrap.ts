@@ -21,6 +21,7 @@ export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }
     await registry.registerPlugin(CorePlugin);
     await registry.registerPlugin(TBCRecordPlugin);
     await registry.registerPlugin(TBCRecordFSPlugin);
+    await registry.registerPlugin(TBCRecordSQLitePlugin);
     await registry.registerPlugin(TBCMintPlugin);
     await registry.registerPlugin(TBCSynthesizePlugin);
     await registry.registerPlugin(TBCDexPlugin);

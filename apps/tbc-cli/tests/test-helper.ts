@@ -48,7 +48,7 @@ export function querySqliteNext(sql: string, params: any[] = []) {
  * Asserts a record exists in the SQLite data table.
  */
 export function expectSQLiteRecord(id: string) {
-    const results = querySqliteNext('SELECT id FROM records WHERE id = ?', [id]);
+    const results = querySqliteNext('SELECT record_id FROM record WHERE record_id = ?', [id]);
     expect(results.length).toBeGreaterThan(0);
 }
 
@@ -56,7 +56,7 @@ export function expectSQLiteRecord(id: string) {
  * Utility to check the 'data' JSON column for a specific key/value pair.
  */
 export function expectSQLiteData(id: string, key: string, expectedValue: any) {
-    const results = querySqliteNext('SELECT data FROM records WHERE id = ?', [id]) as any[];
+    const results = querySqliteNext('SELECT data FROM record WHERE record_id = ?', [id]) as any[];
     if (results.length === 0) throw new Error(`Record ${id} not found in SQLite`);
     
     const data = JSON.parse(results[0].data);

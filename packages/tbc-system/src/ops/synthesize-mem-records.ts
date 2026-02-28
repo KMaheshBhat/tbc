@@ -64,7 +64,8 @@ export class SynthesizeMemRecordsNode extends HAMINode<Shared> {
             id: memoryMapID,
             record_type: 'structure',
             record_tags: [companionTag],
-            title: 'Map of Memories',
+            record_create_date: timestamp,
+            record_title: 'Map of Memories',
             contentType: 'markdown',
             content: `# Map of Memories\n\nThese are memories of the Companion - ${companionName}.  The Companion Agent to list the other records here - any type, with any number of sections.`,
         };
