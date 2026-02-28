@@ -86,6 +86,7 @@ let cmdSysValidate = new Command('validate')
             const validateFlow = registry.createNode('tbc-system:validate-flow', {
                 verbose: isVerbose,
                 rootDirectory: root,
+                resolveProtocol: true,
             });
             await validateFlow.run({
                 registry: registry,

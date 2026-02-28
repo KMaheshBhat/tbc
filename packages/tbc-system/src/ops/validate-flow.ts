@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert from 'node:assert';
 
 import { Node } from 'pocketflow';
 
@@ -10,6 +10,7 @@ import { PROTOCOLS } from '../protocols.js';
 interface FlowConfig {
     verbose?: boolean;
     rootDirectory?: string;
+    resolveProtocol?: boolean;
 }
 
 const FlowConfigSchema: ValidationSchema = {
@@ -17,6 +18,7 @@ const FlowConfigSchema: ValidationSchema = {
     properties: {
         verbose: { type: 'boolean' },
         rootDirectory: { type: 'string' },
+        resolveProtocol: { type: 'boolean' },
     },
 };
 
@@ -85,9 +87,13 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
     async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
+        const resolveProtocolOrSkip = this.config.resolveProtocol ?
+            n('tbc-system:resolve-protocol') :
+            new Node();
         this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
+            .next(resolveProtocolOrSkip)
             .next(n('core:assign', {
                 'record.rootDirectory': 'system.rootDirectory',
                 'record.collection': 'stage.sysCollection',

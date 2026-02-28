@@ -4,6 +4,7 @@ import { PrepareMessagesNode } from './ops/prepare-messages.js';
 import { ClearMessagesNode } from './ops/clear-messages.js';
 import { LogAndClearMessagesNode } from './ops/log-and-clear-messages.js';
 import { ResolveRootDirectoryNode } from './ops/resolve-root-directory.js';
+import { ResolveProtocolNode } from './ops/resolve-protocol.js';
 import { AddMintedMessagesNode } from './ops/add-minted-messages.js';
 import { AddManifestMessagesNode } from './ops/add-manifest-messages.js';
 import { AddIdentityMessagesNode } from './ops/add-identity-messages.js';
@@ -33,6 +34,7 @@ import { SynthesizeValueNode } from './ops/synthesize-value.js';
  * - `tbc-system:clear-messages`: Clear staged messages but add to allMessages
  * - `tbc-system:log-and-clear-messages`: Log staged messages but add to allMessages
  * - `tbc-system:resolve-root-directory`: Resolves working directory for TBC operations
+ * - `tbc-system:resolve-protocol`: Resolves the protocols by sniffing out artifacts
  * - `tbc-system:add-minted-messages`: Stage messages based on minted IDs
  * - `tbc-system:add-manifest-messages`: Stage messages based on records manifest
  * - `tbc-system:add-identity-messages`: Stage messages based on given target (companionRecord or primeRecord)
@@ -62,6 +64,7 @@ const TBCSystemPlugin = createPlugin(
         ClearMessagesNode as any,
         LogAndClearMessagesNode as any,
         ResolveRootDirectoryNode as any,
+        ResolveProtocolNode as any,
         AddMintedMessagesNode as any,
         AddManifestMessagesNode as any,
         AddIdentityMessagesNode as any,

@@ -12,6 +12,7 @@ export * from './ops/prepare-messages.js';
 export * from './ops/prepare-records-manifest.js';
 export * from './ops/probe.js';
 export * from './ops/resolve-root-directory.js';
+export * from './ops/resolve-protocol.js';
 export * from './ops/synthesize-mem-records.js';
 export * from './ops/synthesize-sys-records.js';
 export * from './ops/synthesize-collation-digest.js';
