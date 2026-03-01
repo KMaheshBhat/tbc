@@ -7,8 +7,9 @@ describe('🦍 LETS-GO: tbc mem recall (Kong/Next)', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'mem', 'recall', 
             '--root', TBC_ROOT_NEXT,
-            '--verbose'
+            // '--verbose'
         ]);
+        console.log(output)
 
         expect(success).toBe(true);
         

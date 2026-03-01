@@ -39,7 +39,8 @@ export class QueryIndicesNode extends HAMINode<Shared, Config> {
   async prep(shared: Shared): Promise<PrepResult> {
     // 1. Correct the path based on PrepareRecordsManifestNode
     // shared.stage.records['dex'] is the map of filename -> { content }
-    const dexCollection = shared.stage?.records?.['dex'] || {};
+    const dexCollectionName = shared.system.protocol.dex.collection ?? 'dex';
+    const dexCollection = shared.stage?.records?.[dexCollectionName] || {};
 
     const queryType = this.config?.type;
 

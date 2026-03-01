@@ -9,6 +9,7 @@ interface FlowConfig {
     query: string;
     type?: string;
     recordFetchers: string[];
+    protocolKey: 'sys' | 'skills' | 'mem' | 'dex' | 'act' | undefined;
     limit?: number;
 }
 
@@ -19,6 +20,7 @@ const FlowConfigSchema: ValidationSchema = {
         query: { type: 'string' },
         type: { type: 'string' },
         recordFetchers: { type: 'array', items: { type: 'string' } },
+        protocolKey: { type: 'string', enum: ['sys', 'skills', 'mem', 'dex', 'act'] },
         limit: { type: 'number' },
     },
     required: ['verbose', 'recordFetchers'],
@@ -60,6 +62,8 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
         assert(shared.registry, 'registry is required');
         const config = this.config;
         const n = shared.registry.createNode.bind(shared.registry);
+        const dexCollection= shared.system.protocol.dex.collection ?? 'dex';
+        const collection= shared.system.protocol[this.config.protocolKey!].collection ?? 'mem';
 
         this.startNode
             // 0. Load DEX
@@ -68,7 +72,7 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                     s.record.query = {
                         type: 'list-all-ids',
                     };
-                    s.record.collection = 'dex';
+                    s.record.collection = dexCollection;
                 },
             }))
             .next(n('tbc-record:query-records-flow', {
@@ -83,6 +87,10 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-system:prepare-records-manifest'))
+            .next(this.config.verbose ? n('tbc-system:add-manifest-messages', {
+                source: 'view-records-flow',
+                level: 'debug',
+            }): new Node())
             // 1. Setup Query
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
@@ -106,7 +114,7 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                     s.view.matches = s.stage.viewMatches || [];
                     // Only fetch the IDs found by the DEX search
                     s.record.IDs = s.view.matches.map((m: any) => m.id);
-                    s.record.collection = 'mem';
+                    s.record.collection = collection;
                     s.record.result = undefined;
                 },
             }))

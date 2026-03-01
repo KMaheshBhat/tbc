@@ -117,7 +117,7 @@ export class RecallFlow extends HAMIFlow<Shared, FlowConfig> {
 
                     // Log for the dev/verbose mode
                     if (s.stage.verbose) {
-                        console.log(`[RecallFlow] Searching DEX for: ${s.view.query} (Type: ${s.view.type || 'all'})`);
+                        console.log(`[»] ── debug | recall-flow | Searching DEX for: ${s.view.query} (Type: ${s.view.type || 'all'})`);
                     }
                 },
             }))
@@ -127,6 +127,7 @@ export class RecallFlow extends HAMIFlow<Shared, FlowConfig> {
                 type: this.config?.type,
                 limit: this.config?.limit,
                 recordFetchers: ['tbc-record-fs:fetch-records'],
+                protocolKey: 'mem',
                 verbose: this.config?.verbose,
             }))
             .next(n('tbc-memory:add-recall-messages', {
@@ -185,6 +186,8 @@ export class RecallFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('tbc-system:resolve-root-directory'))
             .next(n('tbc-system:validate-flow', {
                 verbose: this.config?.verbose,
+                rootDirectory: this.config?.rootDirectory,
+                resolveProtocol: true,
             }))
             .next(branchToAbort)
             .next(router);

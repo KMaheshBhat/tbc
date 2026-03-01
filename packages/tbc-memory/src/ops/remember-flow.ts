@@ -126,6 +126,7 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('tbc-system:validate-flow', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
+                resolveProtocol: true,
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
@@ -178,9 +179,9 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
             // 3. PERSISTENCE
             .next(n('tbc-write:write-records-flow', {
                 verbose: this.config?.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'record.records',
                 collection: 'memCollection',
+                protocolKey: 'mem',
                 syncIndex: true,
             }))
             // 4. FEEDBACK

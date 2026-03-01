@@ -1,28 +1,19 @@
 import { HAMIRegistrationManager } from '@hami-frameworx/core';
 import { TBCRecord, TBCRecordOperation } from '@tbc-frameworx/tbc-record';
 
+type TBCCollectionProtocol = {
+    collection: string;
+    recordStorers: string[];
+    // ...?
+};
+
 type TBCProtocol = {
-    sys: {
-        collection: string;
-        recordStorers: string[];
-    };
-    skills: {
-        collection: string;
-        recordStorers: string[];
-    };
-    mem: {
-        collection: string;
-        recordStorers: string[];
-    };
-    dex: {
-        collection: string;
-        recordStorers: string[];
-    };
-    act: {
-        collection: string;
-        recordStorers: string[];
-    };
-}
+    sys: TBCCollectionProtocol;
+    skills: TBCCollectionProtocol;
+    mem: TBCCollectionProtocol;
+    dex: TBCCollectionProtocol;
+    act: TBCCollectionProtocol;
+};
 
 type TBCLevel = 'debug' | 'info' | 'warn' | 'error' | 'raw';
 

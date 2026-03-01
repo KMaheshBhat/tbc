@@ -54,14 +54,26 @@ export function expectSQLiteRecord(id: string) {
 
 /**
  * Utility to check the 'data' JSON column for a specific key/value pair.
+ * Supports direct values or a predicate function for complex checks (like tags).
  */
-export function expectSQLiteData(id: string|undefined, key: string, expectedValue: any) {
+export function expectSQLiteData(id: string | undefined, key: string, expectedValue: any) {
     expect(id).toBeDefined();
     const results = querySqliteNext('SELECT data FROM record WHERE record_id = ?', [id]) as any[];
     if (results.length === 0) throw new Error(`Record ${id} not found in SQLite`);
     
     const data = JSON.parse(results[0].data);
-    expect(data[key]).toEqual(expectedValue);
+    const actualValue = data[key];
+
+    if (typeof expectedValue === 'function') {
+        // If it's a function, run the predicate and expect a truthy return
+        const result = expectedValue(actualValue);
+        if (!result) {
+            throw new Error(`Predicate failed for key "${key}". Received: ${JSON.stringify(actualValue)}`);
+        }
+    } else {
+        // Otherwise, standard equality
+        expect(actualValue).toEqual(expectedValue);
+    }
 }
 
 export function expectUUID(content: string) {
