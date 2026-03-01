@@ -16,15 +16,26 @@ describe('🦍 LETS-GO: tbc act (Kong/Next)', () => {
     test('should manage activity lifecycle on FS (Mojo-parity)', () => {
         // 1. Start
         const start = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, ['act', 'start', '--root', TBC_ROOT_NEXT]);
-        activityID = start.output.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0] || '';
-        
-        expect(existsSync(path.join(TBC_ROOT_NEXT, 'act', 'current', activityID))).toBe(true);
+
+        // FIX: Extract ID from the specific "Activity started" line to avoid picking up system IDs
+        const lines = start.output.split('\n');
+        const successLine = lines.find(l => l.includes('Activity started'));
+        activityID = successLine?.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0] || '';
+
+        expect(activityID).not.toBe('');
+
+        // FIX: Use 'act_next' to match the Kong profile's filesystem structure
+        const currentPath = path.join(TBC_ROOT_NEXT, 'act_next', 'current', activityID);
+        expect(existsSync(currentPath)).toBe(true);
 
         // 2. Pause
         runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, ['act', 'pause', activityID, '--root', TBC_ROOT_NEXT]);
-        expect(existsSync(path.join(TBC_ROOT_NEXT, 'act', 'backlog', activityID))).toBe(true);
 
-        // 3. SQLite Boundary Check: Activity should NOT be in DB yet
+        // FIX: Check in 'act_next'
+        const backlogPath = path.join(TBC_ROOT_NEXT, 'act_next', 'backlog', activityID);
+        expect(existsSync(backlogPath)).toBe(true);
+
+        // 3. SQLite Boundary Check
         const rows = querySqliteNext('SELECT count(*) as count FROM record WHERE record_id = ?', [activityID]) as any[];
         expect(rows[0].count).toBe(0);
     });
@@ -33,7 +44,7 @@ describe('🦍 LETS-GO: tbc act (Kong/Next)', () => {
         // Resume first to move to current
         runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, ['act', 'start', activityID, '--root', TBC_ROOT_NEXT]);
 
-        const { success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { success, output } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'act', 'close', activityID, '--root', TBC_ROOT_NEXT,
         ]);
 

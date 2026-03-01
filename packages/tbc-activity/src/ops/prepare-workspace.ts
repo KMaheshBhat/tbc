@@ -28,7 +28,8 @@ export class PrepareWorkspaceNode extends HAMINode<Shared> {
         assert(activityId, 'activityId is required for workspace preparation');
         assert(rootDirectory, 'rootDirectory is required for workspace preparation');
 
-        const actRoot = join(rootDirectory, 'act');
+        const actCollectionRoot = shared.system.protocol.act.collection ?? 'act';
+        const actRoot = join(rootDirectory, actCollectionRoot);
 
         return {
             activityId,

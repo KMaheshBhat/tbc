@@ -141,6 +141,7 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('tbc-system:validate-flow', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
+                resolveProtocol: true,
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
@@ -173,6 +174,7 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                     const activityId = s.stage.activityId;
                     const companionName = s.system.companionRecord?.record_title || 'companion';
                     const timestamp = new Date().toISOString();
+                    const actCollectionRoot = s.system.protocol.act.collection ?? 'act';
                     s.stage.messages.push({
                         level: 'info',
                         source: 'act-start-flow',
@@ -189,7 +191,7 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                             log_type: 'activity',
                         },
                     }];
-                    s.stage.actCollection = `act/current/${activityId}`;
+                    s.stage.actCollection = `${actCollectionRoot}/current/${activityId}`;
                 },
             }))
             .next(n('tbc-synthesize:synthesize-record-flow', { requestsKey: 'synthesizeRequests' }))

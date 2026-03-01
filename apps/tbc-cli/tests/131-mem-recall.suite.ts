@@ -9,7 +9,6 @@ describe('🦍 LETS-GO: tbc mem recall (Kong/Next)', () => {
             '--root', TBC_ROOT_NEXT,
             // '--verbose'
         ]);
-        console.log(output)
 
         expect(success).toBe(true);
         

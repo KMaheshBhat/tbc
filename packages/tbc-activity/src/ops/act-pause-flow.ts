@@ -95,14 +95,16 @@ export class ActPauseFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('tbc-system:validate-flow', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
+                resolveProtocol: true,
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     const root = s.stage.rootDirectory;
                     const id = s.stage.activityId;
-                    const sourcePath = join(root, 'act', 'current', id);
-                    const targetDir = join(root, 'act', 'backlog');
+                    const actCollectionRoot = s.system.protocol.act.collection ?? 'act';
+                    const sourcePath = join(root, actCollectionRoot, 'current', id);
+                    const targetDir = join(root, actCollectionRoot, 'backlog');
                     const targetPath = join(targetDir, id);
 
                     // 1. Check if it exists in current

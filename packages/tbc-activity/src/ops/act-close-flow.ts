@@ -98,7 +98,8 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('tbc-system:log-and-clear-messages'));
         const branchOnMissingActivity = n('core:branch', {
             branch: (s: Shared) => {
-                const actPath = join(s.stage.rootDirectory, 'act', 'current', s.stage.activityId);
+                const actCollectionRoot = s.system.protocol.act.collection ?? 'act';
+                const actPath = join(s.stage.rootDirectory, actCollectionRoot, 'current', s.stage.activityId);
                 if (existsSync(actPath)) {
                     return 'default';
                 }
@@ -122,8 +123,17 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('tbc-system:validate-flow', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
+                resolveProtocol: true,
             }))
             .next(branchToAbort)
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    const actCollectionRoot = s.system.protocol.act.collection ?? 'act';
+                    s.stage.currentActivityCollection = `${actCollectionRoot}/current`;
+                    s.stage.backlogActivityCollection = `${actCollectionRoot}/backlog`;
+                    s.stage.memCollection = s.system.protocol.mem.collection ?? 'mem';
+                },
+            }))
             .next(branchOnMissingActivity)
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
@@ -171,7 +181,7 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
                     primaryRecord && s.stage.activeDrafts.push({
                         ...primaryRecord,
                         id: activityId,
-                        filename: join('mem', targetFile),
+                        filename: join(s.stage.memCollection, targetFile),
                     });
                 },
             }))
@@ -182,15 +192,16 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
             }) : new Node())
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'memCollection',
+                protocolKey: 'mem',
                 syncIndex: true,
             }))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
-                    const currentDir = join(s.stage.rootDirectory, 'act', 'current', s.stage.activityId);
-                    const archiveRoot = join(s.stage.rootDirectory, 'act', 'archive');
+                    const actCollectionRoot = s.system.protocol.act.collection ?? 'act';
+                    const currentDir = join(s.stage.rootDirectory, actCollectionRoot, 'current', s.stage.activityId);
+                    const archiveRoot = join(s.stage.rootDirectory, actCollectionRoot, 'archive');
                     const archiveDir = join(archiveRoot, s.stage.activityId);
 
                     // Ensure archive root exists
@@ -216,7 +227,7 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
                         s.stage.messages.push({
                             level: 'info',
                             source: 'act-close-flow',
-                            message: `Activity archived: act/archive/${s.stage.activityId}`,
+                            message: `Activity archived: ${actCollectionRoot}/archive/${s.stage.activityId}`,
                         });
                     }
                 },

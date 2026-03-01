@@ -58,11 +58,14 @@ export function expectSQLiteRecord(id: string) {
  */
 export function expectSQLiteData(id: string | undefined, key: string, expectedValue: any) {
     expect(id).toBeDefined();
-    const results = querySqliteNext('SELECT data FROM record WHERE record_id = ?', [id]) as any[];
-    if (results.length === 0) throw new Error(`Record ${id} not found in SQLite`);
+    const results = querySqliteNext('SELECT * FROM record WHERE record_id = ?', [id]) as any[];
+    if (results.length === 0) throw new Error(`Record ${id} not found`);
     
-    const data = JSON.parse(results[0].data);
-    const actualValue = data[key];
+    const row = results[0];
+    const data = JSON.parse(row.data);
+    
+    // Check top-level columns first, then fall back to the JSON data
+    const actualValue = row[key] !== undefined ? row[key] : data[key];
 
     if (typeof expectedValue === 'function') {
         // If it's a function, run the predicate and expect a truthy return

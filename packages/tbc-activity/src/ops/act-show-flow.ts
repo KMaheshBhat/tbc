@@ -66,7 +66,18 @@ export class ActShowFlow extends HAMIFlow<Shared, FlowConfig> {
         let tail = this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
-            .next(n('tbc-system:validate-flow', { verbose: this.config?.verbose }))
+            .next(n('tbc-system:validate-flow', {
+                verbose: this.config?.verbose,
+                rootDirectory: this.config?.rootDirectory,
+                resolveProtocol: true,
+            }))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    const actCollectionRoot = s.system.protocol.act.collection ?? 'act';
+                    shared.stage.currentActivityCollection = `${actCollectionRoot}/current`;
+                    shared.stage.backlogActivityCollection = `${actCollectionRoot}/backlog`;
+                },
+            }))
             .next(branchToAbort);
 
         // --- The Pattern: Loop through Collections ---

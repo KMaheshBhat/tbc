@@ -32,7 +32,6 @@ describe('🦍 LETS-GO: tbc mem remember (Kong/Next)', () => {
             '--tags', 'growth,zilla',
             '--root', TBC_ROOT_NEXT,
         ]);
-        console.log(output)
 
         const matches = output.match(UUID_SEARCH_REGEX);
         const mintedId = matches![matches!.length - 1];
