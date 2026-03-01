@@ -92,9 +92,9 @@ describe('🦍 LETS-GO: tbc sys (Kong/Next)', () => {
     test('sys validate should confirm stability for Kong profile', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'sys', 'validate',
+            '--verbose',
             '--root', TBC_ROOT_NEXT
         ]);
-        console.log(output);
 
         expect(success).toBe(true);
         expect(output).toContain('Verified presence of "root.md"');

@@ -102,7 +102,6 @@ describe('🐵 LETS-GO: tbc sys', () => {
             TBC_ROOT,
             '--verbose',
         ]);
-        console.log(output);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         // Verify AX/DX Debug lines are present

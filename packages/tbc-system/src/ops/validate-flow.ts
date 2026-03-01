@@ -46,11 +46,11 @@ class SysValidateFlowStartNode extends HAMINode<Shared, FlowConfig> {
         };
         shared.system.protocol = shared.system.protocol || PROTOCOLS['baseline'];
         const sysCollection = shared.system.protocol.sys.collection || 'sys';
-        const skillsCollection =shared.system.protocol.skills.collection || 'skills';
+        const skillsCollection = shared.system.protocol.skills.collection || 'skills';
         const memCollection = shared.system.protocol.mem.collection || 'mem';
         const dexCollection = shared.system.protocol.dex.collection || 'dex';
         const actCollection = shared.system.protocol.dex.collection || 'act';
-        shared.stage.sysCollection =  sysCollection;
+        shared.stage.sysCollection = sysCollection;
         shared.stage.sysCoreCollection = `${sysCollection}/core`;
         shared.stage.sysExtCollection = `${sysCollection}/ext`;
         shared.stage.skillsCollection = skillsCollection;
@@ -94,6 +94,18 @@ export class SysValidateFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
             .next(resolveProtocolOrSkip)
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    const proto = shared.system.protocol;
+                    shared.stage.sysCollection = proto.sys.collection;
+                    shared.stage.sysCoreCollection = `${proto.sys.collection}/core`;
+                    shared.stage.sysExtCollection = `${proto.sys.collection}/ext`;
+                    shared.stage.skillsCollection = proto.skills.collection;
+                    shared.stage.memCollection = proto.mem.collection;
+                    shared.stage.dexCollection = proto.dex.collection;
+                    shared.stage.actCollection = proto.act.collection;
+                },
+            }))
             .next(n('core:assign', {
                 'record.rootDirectory': 'system.rootDirectory',
                 'record.collection': 'stage.sysCollection',
