@@ -107,7 +107,6 @@ describe('🦍 LETS-GO: tbc sys (Kong/Next)', () => {
             'sys', 'upgrade',
             '--root', TBC_ROOT_NEXT,
         ]);
-        console.log(output);
 
         expect(success).toBe(true);
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { existsSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 import { Node } from 'pocketflow';
 
@@ -160,6 +160,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
+                resolveProtocol: true,
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
