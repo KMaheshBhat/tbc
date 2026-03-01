@@ -9,7 +9,7 @@ import {
     expectSQLiteRecord,
     expectSQLiteData,
     runMonorepoCommand,
-    querySqliteNext
+    querySqliteNext,
 } from './test-helper';
 
 // Define types for SQLite results to satisfy TypeScript strict mode
@@ -36,7 +36,7 @@ describe('🦍 LETS-GO: tbc sys (Kong/Next)', () => {
             '--root', TBC_ROOT_NEXT,
             '--companion', 'Kong',
             '--prime', 'Zilla',
-            '--profile', 'next'
+            '--profile', 'next',
         ]);
 
         // Basic execution health
@@ -93,11 +93,30 @@ describe('🦍 LETS-GO: tbc sys (Kong/Next)', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'sys', 'validate',
             '--verbose',
-            '--root', TBC_ROOT_NEXT
+            '--root', TBC_ROOT_NEXT,
         ]);
 
         expect(success).toBe(true);
         expect(output).toContain('Verified presence of "root.md"');
+        expect(output).toContain('[✓] STABLE');
+    });
+
+    test('sys upgrade should refresh system specs and maintain stability', async () => {
+        // 1. Execution: Upgrade the system (specs, skills, etc.)
+        const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+            'sys', 'upgrade',
+            '--root', TBC_ROOT_NEXT,
+        ]);
+        console.log(output);
+
+        expect(success).toBe(true);
+
+        // 2. Spec Integrity: Verify that the core system files exist (Dynamic Discovery)
+        // We check the output to see if the system validated the new state
+        expect(output).toContain('Resolved protocol collections from sys_next/root.md');
+
+        // 3. Stability: The final word is always the Validation Audit
+        expect(output).toContain('┌┤ Validation Audit ├');
         expect(output).toContain('[✓] STABLE');
     });
 

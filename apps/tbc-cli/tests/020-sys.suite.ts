@@ -111,5 +111,4 @@ describe('🐵 LETS-GO: tbc sys', () => {
         expect(output).toContain('┌┤ Validation Audit ├');
         expect(output).toContain('[✓] STABLE');
     });
-
 });

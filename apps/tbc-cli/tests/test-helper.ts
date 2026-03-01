@@ -55,7 +55,8 @@ export function expectSQLiteRecord(id: string) {
 /**
  * Utility to check the 'data' JSON column for a specific key/value pair.
  */
-export function expectSQLiteData(id: string, key: string, expectedValue: any) {
+export function expectSQLiteData(id: string|undefined, key: string, expectedValue: any) {
+    expect(id).toBeDefined();
     const results = querySqliteNext('SELECT data FROM record WHERE record_id = ?', [id]) as any[];
     if (results.length === 0) throw new Error(`Record ${id} not found in SQLite`);
     
