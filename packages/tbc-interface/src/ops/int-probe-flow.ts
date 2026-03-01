@@ -54,7 +54,11 @@ export class IntProbeFlow extends HAMIFlow<Shared, FlowConfig> {
         this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
-            .next(n('tbc-system:validate-flow', { verbose: this.config?.verbose }))
+            .next(n('tbc-system:validate-flow', { 
+                verbose: this.config?.verbose,
+                rootDirectory: this.config?.rootDirectory,
+                resolveProtocol: true,
+            }))
             .next(n('tbc-system:probe')) // TODO replace this
             .next(n('tbc-system:log-and-clear-messages'));
     }

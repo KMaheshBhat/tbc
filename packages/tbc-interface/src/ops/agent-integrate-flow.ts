@@ -106,7 +106,11 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
         this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(n('tbc-system:resolve-root-directory'))
-            .next(n('tbc-system:validate-flow', { verbose: this.config?.verbose }))
+            .next(n('tbc-system:validate-flow', { 
+                verbose: this.config?.verbose,
+                rootDirectory: this.config?.rootDirectory,
+                resolveProtocol: true,
+            }))
             .next(branchToAbort)
             .next(n('tbc-system:load-system-assets'))
             .next(n('core:mutate', {

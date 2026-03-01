@@ -24,5 +24,6 @@ import './120-sys.suite';
 import './130-mem-remember.suite';
 import './131-mem-recall.suite';
 import './140-act.suite';
+import './150-int.suite';
 
 import './999-teardown.suite';
