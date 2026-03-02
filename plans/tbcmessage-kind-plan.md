@@ -20,7 +20,7 @@ type TBCMessageKind = 'structured' | 'raw';
 
 interface TBCMessage {
     level: TBCLevel;           // 'debug' | 'info' | 'warn' | 'error'
-    kind?: TBCMessageKind;     // 'structured' (default) | 'raw'
+    kind?: TBCMessageKind;    // 'structured' (default) | 'raw'
     source: string;
     code: string;
     message: string;
@@ -102,9 +102,9 @@ The `level` would then only contain actual log levels, and `kind: 'raw'` would i
 
 ---
 
-## Phase 5: Validation
+## Phase 5: Validation with Output Display
 
-### 5.1 Run Full Build and Test Suite
+### 5.1 Build and Test Command
 
 Execute the validation command specified by the user:
 
@@ -112,14 +112,58 @@ Execute the validation command specified by the user:
 bun all:build-dist
 ```
 
-This runs the full build, test, and packaging suite as defined in [`package.json`](package.json:34).
+### 5.2 Running Tests with Visible Output
 
-### 5.2 Expected Outcomes
+The integration tests require proper setup/teardown, so individual test files cannot be run in isolation. Instead, add `console.log(output)` to the specific test you want to verify, then run the full integration test suite.
 
-- [ ] All TypeScript compilation succeeds
-- [ ] All tests pass
-- [ ] All packages build and package correctly
-- [ ] No type errors related to TBCMessage
+#### Step 1: Add console.log to the Test
+
+Temporarily add `console.log(output)` to the specific test in the integration test file:
+
+```typescript
+// In apps/tbc-cli/tests/020-sys.suite.ts
+test('running sys init with companion and prime flags is successful', async () => {
+    const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        'sys', 'init', '--root', TBC_ROOT, '--companion', 'Mojo', '--prime', 'Jojo',
+    ]);
+    
+    // TEMP: Add this line to see output
+    console.log(output);
+    
+    expect(success).toBe(true);
+    // ... rest of assertions
+});
+```
+
+#### Step 2: Run Full Integration Test Suite
+
+Run the complete integration test to see the non-elided output:
+
+```bash
+bun test ./apps/tbc-cli/tests/integration.test.ts
+```
+
+This will show all command output including raw message headers/footers for the test you modified.
+
+#### Step 3: Remove console.log After Verification
+
+Once you've verified the output, remove the `console.log(output)` line.
+
+### 5.3 Verification Workflow
+
+1. **Make code changes** (e.g., update Phase 3.1 files in tbc-system)
+2. **Build affected packages**:
+   ```bash
+   bun run system:build
+   ```
+3. **Add console.log(output)** to the relevant test in the integration test file
+4. **Run full integration suite** to see output:
+   ```bash
+   bun test ./apps/tbc-cli/tests/integration.test.ts
+   ```
+5. **Remove console.log** after verification
+6. **Repeat** for each phase
+7. **Final validation** with `bun all:build-dist`
 
 ---
 
@@ -153,6 +197,7 @@ Once all producers are updated, you can:
 | Message producer files to update | 15 |
 | Total raw message occurrences | ~50 |
 | Packages affected | 5 (tbc-system, tbc-activity, tbc-memory, tbc-interface, tbc-write) |
+| Integration test suites to verify | 17+ |
 
 ---
 
@@ -205,3 +250,16 @@ flowchart TD
 
 ### All Files Using level: 'raw'
 See Phase 3 above for the complete list of 15 files that need updating.
+
+### Test Files
+- [`apps/tbc-cli/tests/010-gen.suite.ts`](apps/tbc-cli/tests/010-gen.suite.ts) - Generator tests
+- [`apps/tbc-cli/tests/020-sys.suite.ts`](apps/tbc-cli/tests/020-sys.suite.ts) - System tests
+- [`apps/tbc-cli/tests/030-mem-remember.suite.ts`](apps/tbc-cli/tests/030-mem-remember.suite.ts) - Memory remember tests
+- [`apps/tbc-cli/tests/031-mem-recall.suite.ts`](apps/tbc-cli/tests/031-mem-recall.suite.ts) - Memory recall tests
+- [`apps/tbc-cli/tests/040-act.suite.ts`](apps/tbc-cli/tests/040-act.suite.ts) - Activity tests
+- [`apps/tbc-cli/tests/050-int-probe.suite.ts`](apps/tbc-cli/tests/050-int-probe.suite.ts) - Interface probe tests
+- [`apps/tbc-cli/tests/051-int-generate.suite.ts`](apps/tbc-cli/tests/051-int-generate.suite.ts) - Generic integration tests
+- [`apps/tbc-cli/tests/052-int-gemini.suite.ts`](apps/tbc-cli/tests/052-int-gemini.suite.ts) - Gemini integration tests
+- [`apps/tbc-cli/tests/053-int-goose.sutie.ts`](apps/tbc-cli/tests/053-int-goose.sutie.ts) - Goose integration tests
+- [`apps/tbc-cli/tests/054-int-github-copilot.suite.ts`](apps/tbc-cli/tests/054-int-github-copilot.suite.ts) - GitHub Copilot tests
+- [`apps/tbc-cli/tests/055-int-kilocode.suite.ts`](apps/tbc-cli/tests/055-int-kilocode.suite.ts) - Kilocode integration tests
