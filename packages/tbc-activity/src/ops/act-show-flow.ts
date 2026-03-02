@@ -140,7 +140,7 @@ export class ActShowFlow extends HAMIFlow<Shared, FlowConfig> {
                         const records = s.stage.loaded?.[group.path] || {};
                         const entries = Object.entries(records);
 
-                        s.stage.messages.push({ level: 'raw', source, message: ` ┌┤ ${group.label} ├────────────────────────────────────────` });
+                        s.stage.messages.push({ level: 'info', kind: 'raw', source, message: ` ┌┤ ${group.label} ├────────────────────────────────────────` });
 
                         if (entries.length === 0) {
                             s.stage.messages.push({ level: 'info', source, message: `(${group.empty})` });
@@ -169,7 +169,7 @@ export class ActShowFlow extends HAMIFlow<Shared, FlowConfig> {
                                 });
                             }
                         }
-                        s.stage.messages.push({ level: 'raw', source, message: ' └────────────────────────────────────────────────────────────' });
+                        s.stage.messages.push({ level: 'info', kind: 'raw', source, message: ' └────────────────────────────────────────────────────────────' });
                     }
                 },
             }))

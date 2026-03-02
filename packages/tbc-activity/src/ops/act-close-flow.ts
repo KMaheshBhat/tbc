@@ -213,15 +213,18 @@ export class ActCloseFlow extends HAMIFlow<Shared, FlowConfig> {
                     if (existsSync(currentDir)) {
                         renameSync(currentDir, archiveDir);
                         s.stage.messages.push({
-                            level: 'raw',
+                            level: 'info',
+                            kind: 'raw',
                             message: ' ┌┼───────────────────────────────────────────────────────────',
                         });
                         s.stage.messages.push({
-                            level: 'raw',
+                            level: 'info',
+                            kind: 'raw',
                             message: `[✓] Activity closed: ${s.stage.activityId}`,
                         });
                         s.stage.messages.push({
-                            level: 'raw',
+                            level: 'info',
+                            kind: 'raw',
                             message: ' └┼───────────────────────────────────────────────────────────',
                         });
                         s.stage.messages.push({

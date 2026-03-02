@@ -232,16 +232,19 @@ export class ValidateSystemNode extends HAMINode<Shared, Config> {
         const { success, messages } = output;
         const errorCount = messages.filter(m => m.level === 'error').length;
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' ┌┤ Validation Audit ├────────────────────────────────────────',
         });
         shared.stage.messages.push(...messages);
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' └┼───────────────────────────────────────────────────────────',
         });
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: `${success ? '[✓] STABLE  ' : '[✗] DEGRADED'} | ${errorCount} error(s) detected.`,
         });
         return 'default';

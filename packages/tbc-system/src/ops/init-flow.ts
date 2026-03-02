@@ -318,15 +318,18 @@ export class InitFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         message: `Map of Memories [${s.system.memoryMapID}] initialized.`,
                     });
                     s.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' ┌┼───────────────────────────────────────────────────────────',
                     });
                     s.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: `[✓] Third Brain Companion ${packageJson.version} initialized. (PROFILE: ${s.stage.requestedProfile})`,
                     });
                     s.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' └┼───────────────────────────────────────────────────────────',
                     });
                     s.stage.messages.push({

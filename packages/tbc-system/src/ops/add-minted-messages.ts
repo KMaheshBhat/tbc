@@ -13,7 +13,7 @@ type Config = {
 const ValidateNodeConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
-        level: { type: 'string', enum: ['debug', 'info', 'warn', 'error', 'raw'], default: 'info' },
+        level: { type: 'string', enum: ['debug', 'info', 'warn', 'error'], default: 'info' },
         source: { type: 'string' },
     },
     required: ['source'],
@@ -66,21 +66,25 @@ export class AddMintedMessagesNode extends HAMINode<Shared, Config> {
     ): Promise<string> {
         shared.stage.messages = shared.stage.messages || [];
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' ┌┤ Minted IDs ├──────────────────────────────────────────────',
         });
         kMessages.length > 0 && shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' ├┤ Keyed ├───────────────────────────────────────────────────',
         });
         shared.stage.messages.push(...kMessages);
         bMessages.length > 0 && shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' ├┤ Batch ├───────────────────────────────────────────────────',
         });
         shared.stage.messages.push(...bMessages);
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' └┼───────────────────────────────────────────────────────────',
         });
         return 'default';

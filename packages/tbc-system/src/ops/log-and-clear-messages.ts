@@ -15,7 +15,8 @@ export function composeMessage(m: TBCMessage, verbose: boolean): string[] {
     if (!verbose && m.level === 'debug') {
         return lines;
     }
-    if (m.level === 'raw') {
+    // Check for raw message: prefer 'kind' field
+    if (m.kind === 'raw') {
         lines.push(m.message);
         return lines;
     }

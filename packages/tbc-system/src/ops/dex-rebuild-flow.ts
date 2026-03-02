@@ -217,15 +217,18 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' ┌┼───────────────────────────────────────────────────────────',
                     });
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: `[✓] System Index (Dex) Rebuilt: ${packageJson.version}`,
                     });
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' └┼───────────────────────────────────────────────────────────',
                     });
                     shared.stage.messages.push({

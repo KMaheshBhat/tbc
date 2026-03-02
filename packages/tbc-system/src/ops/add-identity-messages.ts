@@ -38,10 +38,10 @@ export class AddIdentityMessagesNode extends HAMINode<Shared, NodeConfig> {
         }
 
         shared.stage.messages.push(
-            { level: 'raw', message: '' },
-            { level: 'raw', message: `┌┤ ${this.config.title} ├────────────────────────────────` },
-            { level: 'raw', message: `[✓] ${record.id} : ${record.record_title || 'Unknown'}` },
-            { level: 'raw', message: '└───────────────────────────────────────────────────────────' },
+            { level: 'info', kind: 'raw', message: '' },
+            { level: 'info', kind: 'raw', message: `┌┤ ${this.config.title} ├────────────────────────────────` },
+            { level: 'info', kind: 'raw', message: `[✓] ${record.id} : ${record.record_title || 'Unknown'}` },
+            { level: 'info', kind: 'raw', message: '└───────────────────────────────────────────────────────────' },
         );
 
         return 'default';

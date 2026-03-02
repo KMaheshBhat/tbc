@@ -189,15 +189,18 @@ export class RememberFlow extends HAMIFlow<Shared, FlowConfig> {
                 mutate: (s: Shared) => {
                     const finalId = s.stage.minted?.batch?.[0];
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' ┌┼───────────────────────────────────────────────────────────',
                     });
                     s.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: `[✓] Memory persisted (${s.stage.memoryInput.type}): ${finalId}`,
                     });
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' └┼───────────────────────────────────────────────────────────',
                     });
                     shared.stage.messages.push({

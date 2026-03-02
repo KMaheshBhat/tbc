@@ -209,15 +209,18 @@ export class ActStartFlow extends HAMIFlow<Shared, FlowConfig> {
                     const activityId = s.stage.activityId;
 
                     s.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' ┌┼───────────────────────────────────────────────────────────',
                     });
                     s.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: `[✓] Activity started: ${activityId}`,
                     });
                     s.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' └┼───────────────────────────────────────────────────────────',
                     });
                     s.stage.messages.push({

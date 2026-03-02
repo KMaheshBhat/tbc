@@ -33,8 +33,8 @@ export class AddRecallMessagesNode extends HAMINode<Shared, NodeConfig> {
 
         // Header
         shared.stage.messages.push(
-            { level: 'raw', message: '' },
-            { level: 'raw', message: `┌┤ ${title} ├────────────────────────────────────────` },
+            { level: 'info', kind: 'raw', message: '' },
+            { level: 'info', kind: 'raw', message: `┌┤ ${title} ├────────────────────────────────────────` },
         );
 
         // Record Rows
@@ -42,14 +42,15 @@ export class AddRecallMessagesNode extends HAMINode<Shared, NodeConfig> {
             const typeLabel = (rec.type || 'memory').padEnd(10);
             const displayTitle = rec.title || rec.id;
             shared.stage.messages.push({
-                level: 'raw',
+                level: 'info',
+                kind: 'raw',
                 message: `[✓] ${rec.id} : [${typeLabel}] ${displayTitle}`,
             });
         });
 
         // Footer
         shared.stage.messages.push(
-            { level: 'raw', message: '└───────────────────────────────────────────────────────────' },
+            { level: 'info', kind: 'raw', message: '└───────────────────────────────────────────────────────────' },
         );
 
         return 'default';

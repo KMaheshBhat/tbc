@@ -15,18 +15,20 @@ type TBCProtocol = {
     act: TBCCollectionProtocol;
 };
 
-type TBCLevel = 'debug' | 'info' | 'warn' | 'error' | 'raw';
+type TBCMessageKind = 'structured' | 'raw';
+
+type TBCLevel = 'debug' | 'info' | 'warn' | 'error';
 
 const TBC_LEVEL_ICON_MAP = {
     debug: '»',
     info: 'i',
     warn: '!',
     error: '✗',
-    raw: '',
 } as const;
 
 interface TBCMessage {
     level: TBCLevel;
+    kind?: TBCMessageKind;  // 'structured' (default) | 'raw'
     source: string;      // The node or specific check that generated this
     code: string;        // Machine-readable error code for logic branching
     message: string;     // Descriptive message for the LLM
@@ -84,6 +86,7 @@ export {
     Shared,
     TBCProtocol,
     TBCLevel,
+    TBCMessageKind,
     TBC_LEVEL_ICON_MAP,
     TBCMessage,
     TBCSystemOperation,

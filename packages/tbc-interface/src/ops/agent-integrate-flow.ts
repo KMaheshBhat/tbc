@@ -152,15 +152,18 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, FlowConfig> {
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' ┌┼───────────────────────────────────────────────────────────',
                     });
                     s.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: `[✓] Integration files created for Agent Type: ${s.stage.agentType}`,
                     });
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' └┼───────────────────────────────────────────────────────────',
                     });
                     shared.stage.messages.push({

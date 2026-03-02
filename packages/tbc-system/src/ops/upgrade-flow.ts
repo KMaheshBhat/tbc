@@ -341,15 +341,18 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                         message: `Map of Memories: [${shared.system.memoryMapID}]`,
                     });
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' ┌┼───────────────────────────────────────────────────────────',
                     });
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: `[✓] Third Brain Companion upgraded to ${packageJson.version}.`,
                     });
                     shared.stage.messages.push({
-                        level: 'raw',
+                        level: 'info',
+                        kind: 'raw',
                         message: ' └┼───────────────────────────────────────────────────────────',
                     });
                     shared.stage.messages.push({

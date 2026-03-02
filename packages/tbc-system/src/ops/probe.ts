@@ -135,39 +135,47 @@ export class ProbeNode extends HAMINode<Shared> {
         execRes: NodeOutput,
     ): Promise<string | undefined> {
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' ┌┤ Application Info ├────────────────────────────────────────',
         });
         shared.stage.messages.push(...execRes.appInfo || []);
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' └┼───────────────────────────────────────────────────────────',
         });
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' ┌┤ TBC Info ├────────────────────────────────────────────────',
         });
         shared.stage.messages.push(...execRes.tbcRootInfo || []);
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' └┼───────────────────────────────────────────────────────────',
         });
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' ┌┤ System Info ├─────────────────────────────────────────────',
         });
         shared.stage.messages.push(...execRes.systemInfo || []);
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' └┼───────────────────────────────────────────────────────────',
         });
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' ┌┤ OS and Shell Info ├───────────────────────────────────────',
         });
         shared.stage.messages.push(...execRes.osAndShellInfo || []);
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             message: ' └┼───────────────────────────────────────────────────────────',
         });
         return 'default';

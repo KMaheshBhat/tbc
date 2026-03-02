@@ -138,13 +138,15 @@ export class ResolveProtocolNode extends HAMINode<Shared> {
 
         shared.stage.messages = shared.stage.messages || [];
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             code: 'UI-HEADER',
             message: ' ┌┤ Protocol Discovery (Dynamic) ├──────────────────────────────',
         });
         shared.stage.messages.push(...execRes.messages);
         shared.stage.messages.push({
-            level: 'raw',
+            level: 'info',
+            kind: 'raw',
             code: 'UI-FOOTER',
             message: ' └───────────────────────────────────────────────────────────',
         });
