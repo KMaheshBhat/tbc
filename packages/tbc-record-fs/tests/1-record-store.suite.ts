@@ -1,7 +1,13 @@
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { FSStore } from '../src/fs-store';
 import { join } from 'node:path';
-import { mkdirSync, existsSync, rmSync, readFileSync } from 'node:fs';
+import {
+    mkdirSync,
+    existsSync,
+    rmSync,
+    readFileSync,
+    writeFileSync
+} from 'node:fs';
 
 const TEST_DIR = join(import.meta.dir, '../../../_test/fs-record-store');
 
@@ -14,13 +20,14 @@ describe('FSStore Contract (RecordStore)', () => {
         }
         mkdirSync(TEST_DIR, { recursive: true });
 
-        // Configuration includes the mandatory dex collection name
         store = new FSStore();
-        await store.initialize({ 
+        const caps = await store.initialize({
             rootDirectory: TEST_DIR,
-            dexCollection: 'dex',
-            shardKey: 'kind' 
+            dexCollection: 'dex'
         });
+
+        // Exact capability assertion (no silent expansion)
+        expect(caps.sort()).toEqual(['fetch', 'index', 'query', 'store']);
     });
 
     afterAll(async () => {
@@ -28,119 +35,214 @@ describe('FSStore Contract (RecordStore)', () => {
     });
 
     /* ============================================================
-       CAPABILITIES & INITIALIZATION
+       MARKDOWN + JSON PERSISTENCE
     ============================================================ */
-    describe('Handshake', () => {
-        it('reports capabilities including index and store', async () => {
-            const caps = await store.initialize({ rootDirectory: TEST_DIR });
-            expect(caps).toContain('store');
-            expect(caps).toContain('fetch');
-            expect(caps).toContain('index');
-            expect(caps).toContain('query');
-            // FS usually doesn't do native graph traversal efficiently
-            expect(caps).not.toContain('graph');
+
+    describe('Persistence', () => {
+        it('persists markdown with frontmatter', async () => {
+            await store.store('notes', [{
+                id: 'md1',
+                record_type: 'note',
+                record_title: 'Meta Title',
+                content: '# Header\nBody',
+                contentType: 'markdown'
+            }]);
+
+            const file = join(TEST_DIR, 'notes', 'md1.md');
+            expect(existsSync(file)).toBe(true);
+
+            const raw = readFileSync(file, 'utf-8');
+            expect(raw).toContain('record_title: Meta Title');
+            expect(raw).toContain('# Header');
         });
-    });
 
-    /* ============================================================
-       PERSISTENCE & DEX PROJECTION
-    ============================================================ */
-    describe('Persistence (store)', () => {
-        it('persists full record to disk and projects metadata to dex', async () => {
-            const records = [
-                { id: 'task_1', kind: 'memory', data: { title: 'Buy Milk', secret: 'abc' } }
-            ];
+        it('extracts H1 if record_title missing', async () => {
+            await store.store('notes', [{
+                id: 'md2',
+                record_type: 'note',
+                content: '# Extracted Title\nSome content.'
+            }]);
 
-            await store.store!('goals', records);
+            const dexPath = join(TEST_DIR, 'dex', 'notes.note.jsonl');
+            const line = readFileSync(dexPath, 'utf-8')
+                .split('\n')
+                .find(l => l.includes('md2'))!;
 
-            // 1. Check Source of Truth (The JSON file)
-            const fullPath = join(TEST_DIR, 'goals', 'task_1.json');
-            expect(existsSync(fullPath)).toBe(true);
-            const saved = JSON.parse(readFileSync(fullPath, 'utf-8'));
-            expect(saved.data.secret).toBe('abc');
+            const entry = JSON.parse(line);
+            expect(entry.record_title).toBe('Extracted Title');
+        });
 
-            // 2. Check Dex Shard (The Metadata projection)
+        it('persists JSON and strips sensitive fields from dex', async () => {
+            await store.store('goals', [{
+                id: 'json1',
+                record_type: 'memory',
+                data: { title: 'Buy Milk', secret: 'abc' }
+            }]);
+
             const dexPath = join(TEST_DIR, 'dex', 'goals.memory.jsonl');
-            expect(existsSync(dexPath)).toBe(true);
-            
-            const dexLine = readFileSync(dexPath, 'utf-8').trim();
-            const entry = JSON.parse(dexLine);
-            expect(entry.id).toBe('task_1');
-            // IMPORTANT: Metadata projection should strip heavy 'data' or specific fields
-            expect(entry.data?.secret).toBeUndefined();
+            const entry = JSON.parse(readFileSync(dexPath, 'utf-8').trim());
+
+            expect(entry.id).toBe('json1');
+            expect(entry.record_title).toBe('Buy Milk');
+            expect(entry.data).toBeUndefined();
         });
 
-        it('replaces records in both full-store and dex (no duplicates)', async () => {
-            const COL = 'updates';
-            const rec = { id: 'u1', kind: 'info', data: { v: 1 } };
-            
-            await store.store!(COL, [rec]);
-            await store.store!(COL, [{ ...rec, data: { v: 2 } }]);
+        it('replaces dex entries without duplication', async () => {
+            await store.store('updates', [{
+                id: 'u1',
+                record_type: 'info',
+                data: { v: 1 }
+            }]);
 
-            const dexPath = join(TEST_DIR, 'dex', `${COL}.info.jsonl`);
-            const lines = readFileSync(dexPath, 'utf-8').trim().split('\n');
-            
-            expect(lines).toHaveLength(1); // Ensure old entry was removed from .jsonl
+            await store.store('updates', [{
+                id: 'u1',
+                record_type: 'info',
+                data: { v: 2 }
+            }]);
+
+            const dexPath = join(TEST_DIR, 'dex', 'updates.info.jsonl');
+            const lines = readFileSync(dexPath, 'utf-8')
+                .trim()
+                .split('\n');
+
+            expect(lines).toHaveLength(1);
         });
     });
 
     /* ============================================================
-       DISCOVERY (query)
+       DISCOVERY
     ============================================================ */
-    describe('Discovery (query)', () => {
-        it('supports list-all-ids via the dex shards', async () => {
-            const ids = await store.query!('goals', { type: 'list-all-ids' });
-            expect(ids).toContain('task_1');
-        });
 
-        it('supports search-by-content using dex text scan', async () => {
-            // This tests the FS's ability to scan the small .jsonl files for matches
-            const ids = await store.query!('goals', { 
-                type: 'search-by-content', 
-                searchTerm: 'Buy Milk' 
+    describe('Query', () => {
+        it('supports list-all-ids', async () => {
+            const ids = await store.query('notes', {
+                type: 'list-all-ids'
             });
-            expect(ids).toContain('task_1');
+
+            expect(ids).toEqual(expect.arrayContaining(['md1', 'md2']));
+        });
+
+        it('isolates collections', async () => {
+            const noteIds = await store.query('notes', { type: 'list-all-ids' });
+            const goalIds = await store.query('goals', { type: 'list-all-ids' });
+
+            expect(noteIds).not.toContain('json1');
+            expect(goalIds).toContain('json1');
+        });
+
+        it('supports search-by-content via dex projection', async () => {
+            const ids = await store.query('goals', {
+                type: 'search-by-content',
+                searchTerm: 'Buy Milk'
+            });
+
+            expect(ids).toContain('json1');
+        });
+
+        it('supports sorting by id asc/desc', async () => {
+            await store.store('notes', [{
+                id: 'a1',
+                record_type: 'note',
+                content: '# A1'
+            }]);
+
+            const asc = await store.query('notes', {
+                type: 'list-all-ids',
+                sortBy: 'id',
+                sortOrder: 'asc'
+            });
+
+            const desc = await store.query('notes', {
+                type: 'list-all-ids',
+                sortBy: 'id',
+                sortOrder: 'desc'
+            });
+
+            expect(asc[0]).not.toBe(desc[0]);
+        });
+
+        it('supports offset + limit', async () => {
+            const ids = await store.query('notes', {
+                type: 'list-all-ids',
+                sortBy: 'id',
+                sortOrder: 'asc',
+                offset: 1,
+                limit: 1
+            });
+
+            expect(ids.length).toBe(1);
+        });
+
+        it('throws for unsupported filter-by-tags', async () => {
+            await expect(
+                store.query('notes', {
+                    type: 'filter-by-tags'
+                } as any)
+            ).rejects.toThrow(/not implemented/i);
         });
     });
 
     /* ============================================================
-       RECONCILIATION (index)
+       INDEX REBUILD
     ============================================================ */
-    describe('Indexing (index)', () => {
-        it('can rebuild the dex shards from raw JSON files', async () => {
-            // 1. Wipe the dex
-            const dexDir = join(TEST_DIR, 'dex');
-            rmSync(dexDir, { recursive: true, force: true });
-            
-            // 2. Rebuild for 'goals' collection
-            await store.index!('rebuild', 'goals');
 
-            expect(existsSync(join(dexDir, 'goals.memory.jsonl'))).toBe(true);
+    describe('Index', () => {
+        it('rebuilds from raw files and deduplicates', async () => {
+            const manual = join(TEST_DIR, 'notes', 'manual.md');
+            writeFileSync(manual, '---\nrecord_type: note\n---\n# Manual');
+
+            await store.index('rebuild', 'notes');
+
+            const dexPath = join(TEST_DIR, 'dex', 'notes.note.jsonl');
+            const lines = readFileSync(dexPath, 'utf-8')
+                .trim()
+                .split('\n');
+
+            const manualLines = lines.filter(l => l.includes('manual'));
+            expect(manualLines.length).toBe(1);
+        });
+
+        it('survives corrupt JSON file during rebuild', async () => {
+            const bad = join(TEST_DIR, 'notes', 'bad.json');
+            writeFileSync(bad, '{ invalid json');
+
+            await store.index('rebuild', 'notes');
+            // Should not throw
         });
     });
 
     /* ============================================================
-       HYDRATION (fetch)
+       HYDRATION
     ============================================================ */
-    describe('Hydration (fetch)', () => {
-        it('hydrates multiple records into a TBCStore structure', async () => {
-            const result = await store.fetch!('goals', ['task_1']);
-            expect(result.goals?.['task_1']?.data.title).toBe('Buy Milk');
+
+    describe('Fetch', () => {
+        it('hydrates mixed-format records', async () => {
+            const result = await store.fetch('notes', ['md1', 'md2']);
+            expect(result.notes?.['md1']).toBeDefined();
+            expect(result.notes?.['md2']?.content).toContain('Some content.');
         });
 
-        it('gracefully handles non-existent files', async () => {
-            const result = await store.fetch!('goals', ['ghost']);
-            expect(result.goals?.['ghost']).toBeUndefined();
+        it('prevents directory traversal', async () => {
+            await expect(
+                store.fetch('notes', ['../../../etc/passwd'])
+            ).rejects.toThrow(/Security/);
         });
     });
 
     /* ============================================================
-       SAFETY
+       TEARDOWN ENFORCEMENT
     ============================================================ */
-    describe('Integrity', () => {
-        it('prevents directory traversal attacks via ID', async () => {
-            const maliciousId = '../../../etc/passwd';
-            await expect(store.fetch!('sys', [maliciousId])).rejects.toThrow();
+
+    describe('Lifecycle', () => {
+        it('rejects operations after teardown', async () => {
+            await store.teardown();
+
+            await expect(
+                store.query('notes', { type: 'list-all-ids' })
+            ).rejects.toThrow();
+
+            // reinitialize for other tests
+            await store.initialize({ rootDirectory: TEST_DIR });
         });
     });
 });

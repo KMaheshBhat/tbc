@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "record:build": "bun run --filter='@tbc-frameworx/tbc-record' build",
+    "record-fs:test": "bun run --filter='@tbc-frameworx/tbc-record-fs' --concurrency=1 test",
     "record-fs:build": "bun run --filter='@tbc-frameworx/tbc-record-fs' build",
     "record-sqlite:test": "bun run --filter='@tbc-frameworx/tbc-record-sqlite' --concurrency=1 test",
     "record-sqlite:build": "bun run --filter='@tbc-frameworx/tbc-record-sqlite' build",
