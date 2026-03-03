@@ -3,8 +3,12 @@ import { TBCRecord, TBCRecordOperation } from '@tbc-frameworx/tbc-record';
 
 type TBCCollectionProtocol = {
     collection: string;
-    recordStorers: string[];
-    // ...?
+    /** The Write-side: Every storer in this list gets the data (Multicast) */
+    recordStorers: string[]; 
+    /** The Discovery-side: Try these in order, stop at the first hit (Fallthrough) */
+    recordQueriers: string[]; 
+    /** The Hydration-side: Fetch from all, merging subsequent data onto the first (Overlay) */
+    recordFetchers: string[]; 
 };
 
 type TBCProtocol = {

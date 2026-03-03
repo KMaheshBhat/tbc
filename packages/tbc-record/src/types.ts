@@ -54,9 +54,9 @@ interface RDBMSStore {
 type TBCQueryParams = {
     type: TBCQueryType;
     recursive?: boolean;
+    searchTerm?: string;
     // TODO: Add future query parameters as implementations are added:
     // tags?: string[];
-    // searchTerm?: string;
     // limit?: number;
     // offset?: number;
     sortBy?: 'id' | 'created' | 'modified';

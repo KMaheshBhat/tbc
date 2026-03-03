@@ -34,8 +34,6 @@ export class QueryIndicesNode extends HAMINode<Shared, Config> {
     return 'tbc-dex:query-indices';
   }
 
-  // packages/tbc-dex/src/ops/query-indices.ts
-
   async prep(shared: Shared): Promise<PrepResult> {
     // 1. Correct the path based on PrepareRecordsManifestNode
     // shared.stage.records['dex'] is the map of filename -> { content }

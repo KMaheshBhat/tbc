@@ -4,6 +4,7 @@ import { HAMINode } from '@hami-frameworx/core';
 import { Glob } from 'bun';
 import yaml from 'js-yaml';
 import { Shared, TBCMessage, TBCProtocol } from '../types.js';
+import { PROTOCOLS } from '../protocols.js';
 
 type NodeOutput = {
     protocol: TBCProtocol;
@@ -37,25 +38,18 @@ export class ResolveProtocolNode extends HAMINode<Shared> {
     async exec(rootDirectory: string): Promise<NodeOutput> {
         const messages: TBCMessage[] = [];
         let rootMdPath = 'not found';
-        
-        // 1. Safe Defaults
-        const protocol: TBCProtocol = {
-            sys: { collection: 'sys', recordStorers: ['tbc-record-fs:store-records'] },
-            skills: { collection: 'skills', recordStorers: ['tbc-record-fs:store-records'] },
-            mem: { collection: 'mem', recordStorers: ['tbc-record-fs:store-records'] },
-            dex: { collection: 'dex', recordStorers: ['tbc-record-fs:store-records'] },
-            act: { collection: 'act', recordStorers: ['tbc-record-fs:store-records'] },
-        };
 
+        // 1. Safe Defaults
+        const protocol: TBCProtocol = PROTOCOLS['baseline'];
         // 2. Discover root.md (Max depth 2 to find sys/root.md or sys_next/root.md)
-        const glob = new Glob('**/root.md'); 
+        const glob = new Glob('**/root.md');
         const scanner = glob.scan({ cwd: rootDirectory, onlyFiles: true });
-        
+
         let foundPath: string | null = null;
         for await (const file of scanner) {
             if (file.startsWith('bak-')) continue;
             foundPath = file;
-            break; 
+            break;
         }
 
         if (foundPath) {
@@ -64,29 +58,29 @@ export class ResolveProtocolNode extends HAMINode<Shared> {
                 const fullPath = join(rootDirectory, foundPath);
                 const content = readFileSync(fullPath, 'utf8');
                 const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
-                
+
                 if (match) {
                     const fm = yaml.load(match[1]) as any;
 
                     // 3. Dynamic Collection Derivation
                     // sys: system_path -> extension_path -> 'sys'
-                    protocol.sys.collection = 
-                        this.extractCollection(fm.system_path) || 
-                        this.extractCollection(fm.extension_path) || 
+                    protocol.sys.collection =
+                        this.extractCollection(fm.system_path) ||
+                        this.extractCollection(fm.extension_path) ||
                         'sys';
 
                     // skills: skills_path -> skills_extension_path -> 'skills'
-                    protocol.skills.collection = 
-                        this.extractCollection(fm.skills_path) || 
-                        this.extractCollection(fm.skills_extension_path) || 
+                    protocol.skills.collection =
+                        this.extractCollection(fm.skills_path) ||
+                        this.extractCollection(fm.skills_extension_path) ||
                         'skills';
 
                     // mem: memory_path -> companion/prime/map first parts -> 'mem'
-                    protocol.mem.collection = 
-                        this.extractCollection(fm.memory_path) || 
-                        this.extractCollection(fm.companion) || 
-                        this.extractCollection(fm.prime) || 
-                        this.extractCollection(fm.memory_map) || 
+                    protocol.mem.collection =
+                        this.extractCollection(fm.memory_path) ||
+                        this.extractCollection(fm.companion) ||
+                        this.extractCollection(fm.prime) ||
+                        this.extractCollection(fm.memory_map) ||
                         'mem';
 
                     // dex: view_path -> 'dex'
@@ -120,12 +114,22 @@ export class ResolveProtocolNode extends HAMINode<Shared> {
         ];
 
         if (possibleDbPaths.some(p => existsSync(p))) {
-            protocol.mem.recordStorers.push('tbc-record-sqlite:store-records');
+            // Write-side
+            if (!protocol.mem.recordStorers.includes('tbc-record-sqlite:store-records')) {
+                protocol.mem.recordStorers.push('tbc-record-sqlite:store-records');
+            }
+            /*
+            // Discovery-side (Fallthrough Priority)
+            protocol.mem.recordQueriers = [
+                'tbc-record-sqlite:query-records',
+                ...protocol.mem.recordQueriers.filter(q => q !== 'tbc-record-sqlite:query-records')
+            ];
+            */
             messages.push({
                 level: 'info',
                 code: 'SQLITE-ENABLED',
                 source: this.kind(),
-                message: `Sniffed records.db. Hybrid SQLite storer active for ${protocol.mem.collection}.`
+                message: `Sniffed records.db. Hybrid SQLite [storer,querier] active for ${protocol.mem.collection}.`
             });
         }
 

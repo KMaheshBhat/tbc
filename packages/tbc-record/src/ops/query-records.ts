@@ -55,39 +55,36 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         const providers = this.config.recordProviders || [];
+
+        const endNode = new Node();
+        let currentAnchor = this.startNode;
+
         for (const provider of providers) {
-            const nodeKind = provider;
-            assert(
-                shared.registry.hasNodeClass(nodeKind),
-                `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`,
-            );
+            const providerNode = n(provider);
+
+            // The branch logic: check shared.record.result for hits
+            const hitBranch = n('core:branch', {
+                branch: (s: Shared) => {
+                    const hasIds = s.record?.result?.IDs && s.record.result.IDs.length > 0;
+                    console.log(`${hasIds ? 'hit' : 'miss'} on ${providerNode.kind()}`) // TODO:REMOVE - DEVELOPMENT ONLY
+                    return hasIds ? 'hit' : 'default';
+                }
+            });
+
+            // Anchor -> Provider -> Branch
+            currentAnchor.next(providerNode).next(hitBranch);
+
+            // If 'hit', short-circuit straight to endNode
+            hitBranch.on('hit', endNode);
+
+            // If 'default', we set up a new anchor for the next loop iteration
+            const nextAnchor = new Node();
+            hitBranch.next(nextAnchor);
+            currentAnchor = nextAnchor;
         }
-        let finalNode = new Node();
-        let tailNode = providers.length > 0 ? new Node() : finalNode;
-        this.startNode
-            .next(n('core:assign', { 'record.accumulate': 'record.result' }))
-            .next(tailNode);
-        for (const [i, provider] of providers.entries()) {
-            const isLast = i === providers.length - 1;
-            const targetNext = isLast ? finalNode : new Node();
-            tailNode
-                .next(n('core:mutate', {
-                    mutate: async (shared: Shared) => {
-                        shared.record!.result = undefined;
-                    },
-                }))
-                .next(n(provider))
-                .next(new AccumulateQueryNode())
-                .next(targetNext);
-            tailNode = targetNext;
-        }
-        finalNode
-            .next(n('core:assign', { 'record.result': 'record.accumulate' }))
-            .next(n('core:mutate', {
-                mutate: async (shared: Shared) => {
-                    shared.record!.accumulate = undefined;
-                },
-            }));
+
+        // Connect the very last anchor to endNode (exhausted all providers with no hit)
+        currentAnchor.next(endNode);
     }
 
     async run(shared: Shared): Promise<string | undefined> {
@@ -102,40 +99,5 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
             valid: result.isValid,
             errors: result.errors || [],
         };
-    }
-}
-
-class AccumulateQueryNode extends Node {
-    async prep(shared: Shared): Promise<[TBCResult, TBCResult]> {
-        return [shared.record!.accumulate || { IDs: [] }, shared.record?.result || { IDs: [] }];
-    }
-
-    async exec(prepRes: [TBCResult, TBCResult]): Promise<TBCResult> {
-        const [accumulated, incoming] = prepRes;
-        const master: TBCResult = {
-            IDs: [...(accumulated.IDs || []), ...(incoming.IDs || [])],
-            totalCount: (accumulated.totalCount || 0) + (incoming.totalCount || 0),
-            records: accumulated.records,
-        };
-        for (const collection in incoming.records) {
-            if (!master.records) master.records = {};
-            master.records[collection] = master.records[collection] || {};
-            for (const id in incoming.records[collection]) {
-                master.records[collection][id] = {
-                    ...(master.records[collection][id] || {}),
-                    ...incoming.records[collection][id],
-                };
-            }
-        }
-        return master;
-    }
-
-    async post(
-        shared: Shared,
-        _prepRes: [TBCResult, TBCResult],
-        execRes: TBCResult,
-    ): Promise<string | undefined> {
-        shared.record!.accumulate = execRes;
-        return undefined;
     }
 }

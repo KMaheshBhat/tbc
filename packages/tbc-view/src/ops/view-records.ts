@@ -66,64 +66,24 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
         const collection= shared.system.protocol[this.config.protocolKey!].collection ?? 'mem';
 
         this.startNode
-            // 0. Load DEX
+            .next(n('tbc-dex:discover-records-flow', {
+                ...config,
+                outputKey: 'dexMatches',
+            }))
+            // Map Stage to View
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
-                    s.record.query = {
-                        type: 'list-all-ids',
-                    };
-                    s.record.collection = dexCollection;
-                },
-            }))
-            .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-fs:query-records'],
-                verbose: this.config.verbose,
-            }))
-            .next(n('core:assign', {
-                'record.IDs': 'record.result.IDs',
-            }))
-            .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['tbc-record-fs:fetch-records'],
-                verbose: this.config.verbose,
-            }))
-            .next(n('tbc-system:prepare-records-manifest'))
-            .next(this.config.verbose ? n('tbc-system:add-manifest-messages', {
-                source: 'view-records-flow',
-                level: 'debug',
-            }): new Node())
-            // 1. Setup Query
-            .next(n('core:mutate', {
-                mutate: (s: Shared) => {
-                    s.view = s.view || { query: '', matches: [], records: [] };
-                    s.view.query = config.query;
-                    s.view.type = config.type;
-                },
-            }))
-            // 2. Query DEX
-            .next(n('tbc-dex:query-indices', {
-                query: config.query,
-                type: config.type,
-                limit: config.limit || 10,
-                outputKey: 'viewMatches', // Tell DEX where to put the results in shared.stage
-            }))
-            // 3. Map Stage to View
-            .next(n('core:mutate', {
-                mutate: (s: Shared) => {
-                    // Clear previous pollution from Step 0
-                    s.record.IDs = [];
-                    s.view.matches = s.stage.viewMatches || [];
-                    // Only fetch the IDs found by the DEX search
-                    s.record.IDs = s.view.matches.map((m: any) => m.id);
+                    s.record.IDs = s.stage.dexMatches || [];
                     s.record.collection = collection;
                     s.record.result = undefined;
                 },
             }))
-            // 4. Execute Settled Fetch Logic
+            // Execute Settled Fetch Logic
             .next(n('tbc-record:fetch-records-flow', {
                 recordProviders: config.recordFetchers, // Pass the fetcher kinds
                 verbose: config.verbose,
             }))
-            // 5. Project Results & Reporting
+            // Project Results & Reporting
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     // 1. Extract and Flatten Records from the fetch-records-flow result
