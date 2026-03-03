@@ -13,7 +13,7 @@ describe('🦍 LETS-GO: tbc mem recall (Kong/Next)', () => {
         expect(success).toBe(true);
         
         // CRITICAL: Verify the system actually used the SQLite storer
-        expect(output).toContain('Hybrid SQLite storer active for mem_next');
+        expect(output).toContain('Hybrid SQLite [storer,querier] active for mem_next');
         
         // Verify we found the identities minted in the 120 suite
         expect(output).toContain('Kong');

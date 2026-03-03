@@ -1,4 +1,4 @@
-import { RDBMSStore } from '@tbc-frameworx/tbc-record';
+import { SQLiteStore } from "./sqlite-store";
 
 /**
  * Configuration options for SQLiteStore.
@@ -13,7 +13,7 @@ type SQLiteStoreConfig = {
  */
 type TBCRecordSQLiteShared = {
     /** The SQLite store instance for RDBMS operations. */
-    store: RDBMSStore;
+    store: SQLiteStore;
 };
 
 export {
