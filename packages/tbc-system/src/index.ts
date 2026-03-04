@@ -25,6 +25,9 @@ export * from './ops/prepare-messages-nx.js';
 export * from './ops/add-minted-messages-nx.js';
 export * from './ops/generate-uuids-flow-nx.js';
 export * from './ops/generate-tsids-flow-nx.js';
+export * from './ops/init-flow-nx.js';
+export * from './ops/upgrade-flow-nx.js';
+export * from './ops/validate-flow-nx.js';
 
 export * from './plugin.js';
 export * from './types.js';

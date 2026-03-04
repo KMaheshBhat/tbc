@@ -29,6 +29,9 @@ import { PrepareMessagesNodeNx } from './ops/prepare-messages-nx.js';
 import { AddMintedMessagesNodeNx } from './ops/add-minted-messages-nx.js';
 import { GenerateUUIDsFlowNx } from './ops/generate-uuids-flow-nx.js';
 import { GenerateTSIDsFlowNx } from './ops/generate-tsids-flow-nx.js';
+import { InitFlowNx } from './ops/init-flow-nx.js';
+import { UpgradeFlowNx } from './ops/upgrade-flow-nx.js';
+import { ValidateFlowNx } from './ops/validate-flow-nx.js';
 
 /**
  * TBC System Plugin for HAMI.
@@ -65,6 +68,9 @@ import { GenerateTSIDsFlowNx } from './ops/generate-tsids-flow-nx.js';
  * - `tbc-system:add-minted-messages:nx`: Stage messages based on minted IDs
  * - `tbc-system:generate-uuids-flow:nx`: Generation flow for UUID minting (batch only)
  * - `tbc-system:generate-uuids-flow:nx`: Generation flow for TSID minting (batch only)
+ * - `tbc-system:init-flow-nx`: Comprehensive flow for initializing a TBC environment
+ * - `tbc-system:upgrade-flow-nx`: Comprehensive flow for upgrading a TBC environment
+ * - `tbc-system:validate-flow-nx`: Comprehensive flow for validating a TBC environment
  */
 const TBCSystemPlugin = createPlugin(
     '@tbc-frameworx/tbc-system',
@@ -99,6 +105,9 @@ const TBCSystemPlugin = createPlugin(
         AddMintedMessagesNodeNx,
         GenerateUUIDsFlowNx,
         GenerateTSIDsFlowNx,
+        InitFlowNx,
+        UpgradeFlowNx,
+        ValidateFlowNx,
     ],
     'TBC System Plugin - Environment probing, initialization, validation, and core management operations',
 );

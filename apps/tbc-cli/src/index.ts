@@ -35,82 +35,88 @@ let cmdSysInit = new Command('init')
     .option('--prime <name>', 'Name of the prime user (group)')
     .option('--profile <type>', 'System profile (baseline|next)', 'baseline')
     .action(async (opts) => {
+        const flowName = 'tbc-system:init-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const { companion, prime, profile } = opts;
+        if (!companion || !prime) {
+            console.error('Error: Both --companion and --prime flags are required');
+            process.exit(1);
+        }
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+            companionName: companion,
+            primeName: prime,
+            profile: profile,
+        };
+        const flowParams = {
+            registry: registry,
+        };
         try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const companion = opts.companion;
-            const prime = opts.prime;
-            const profile = opts.profile;
-            if (!companion || !prime) {
-                console.error('Error: Both --companion and --prime flags are required');
-                process.exit(1);
-            }
-            const initFlow = registry.createNode('tbc-system:init-flow', {
-                verbose: isVerbose,
-                rootDirectory: root,
-                companionName: companion,
-                primeName: prime,
-                profile: profile,
-            });
-            await initFlow.run({
-                registry: registry,
-            });
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
         } catch (error) {
-            console.error('Error during initialization:', error);
+            handleError(`Error running ${flowName}`, error, isVerbose);
             process.exit(1);
         }
         return;
     });
+cmdSys.addCommand(cmdSysInit);
 
 let cmdSysUpgrade = new Command('upgrade')
     .description('Upgrade an existing Third Brain Companion directory')
     .action(async () => {
+        const flowName = 'tbc-system:upgrade-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            root: root,
+            verbose: isVerbose,
+        };
+        const flowParams = {
+            registry: registry,
+            opts: { verbose: isVerbose },
+            app: 'TBC CLI',
+            appVersion: packageJson.version,
+        };
         try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const upgradeFlow = registry.createNode('tbc-system:upgrade-flow', {
-                root: root,
-                verbose: isVerbose,
-            });
-            await upgradeFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                app: 'TBC CLI',
-                appVersion: packageJson.version,
-            });
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
         } catch (error) {
-            console.error('Error during upgrade:', error);
+            handleError(`Error running ${flowName}`, error, isVerbose);
             process.exit(1);
         }
         return;
     });
+cmdSys.addCommand(cmdSysUpgrade);
 
 let cmdSysValidate = new Command('validate')
     .description('Validate current directory to check if it is a valid Third Brain Companion directory')
     .action(async () => {
+        const flowName = 'tbc-system:upgrade-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+            resolveProtocol: true,
+        };
+        const flowParams = {
+            registry: registry,
+        };
         try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const validateFlow = registry.createNode('tbc-system:validate-flow', {
-                verbose: isVerbose,
-                rootDirectory: root,
-                resolveProtocol: true,
-            });
-            await validateFlow.run({
-                registry: registry,
-            });
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
         } catch (error) {
-            console.error('Error during validation:', error);
+            handleError(`Error running ${flowName}`, error, isVerbose);
             process.exit(1);
         }
         return;
     });
-
-cmdSys.addCommand(cmdSysInit);
-cmdSys.addCommand(cmdSysUpgrade);
 cmdSys.addCommand(cmdSysValidate);
 
 program.addCommand(cmdSys);
@@ -128,11 +134,12 @@ let cmdGenUuid = new Command('uuid')
         const flowConfig = {
             count: parseInt(cmd.parent.opts().count, 10),
         };
+        const flowParams = {
+            registry: registry,
+        };
         try {
             const flow = registry.createNode(flowName, flowConfig);
-            await flow.run({
-                registry: registry,
-            });
+            await flow.run(flowParams);
         } catch (error) {
             handleError(`Error running ${flowName}`, error, isVerbose);
             process.exit(1);
@@ -150,11 +157,12 @@ let cmdGenTsid = new Command('tsid')
         const flowConfig = {
             count: parseInt(cmd.parent.opts().count, 10),
         };
+        const flowParams = {
+            registry: registry,
+        };
         try {
             const flow = registry.createNode(flowName, flowConfig);
-            await flow.run({
-                registry: registry,
-            });
+            await flow.run(flowParams);
         } catch (error) {
             handleError(`Error running ${flowName}`, error, isVerbose);
             process.exit(1);
