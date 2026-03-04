@@ -2,10 +2,18 @@ import assert from 'node:assert';
 
 import { Node } from 'pocketflow';
 
-import { HAMIFlow, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+import { 
+    HAMIFlow,
+    HAMINodeConfigValidateResult,
+    validateAgainstSchema,
+    ValidationSchema,
+} from '@hami-frameworx/core';
 
-import { Minted, MintRequest, Shared } from '../types.js';
-
+import { 
+    Minted,
+    MintRequest,
+    Shared,
+} from '../types.js';
 
 interface FlowConfig {
     requests: MintRequest[];

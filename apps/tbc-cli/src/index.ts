@@ -8,6 +8,17 @@ const { registry } = await bootstrap();
 
 const program = new Command();
 
+const handleError = (message: string, error: unknown, verbose: boolean) => {
+    if (error instanceof Error) {
+        console.error(`${message}: ${error.message}`);
+        error.cause && console.error(error.cause);
+        verbose && console.error(error);
+    } else {
+        console.error(message);
+        console.error(error);
+    }
+};
+
 program
     .name('tbc')
     .description('Third Brain Companion CLI')
@@ -110,21 +121,20 @@ let cmdGen = new Command('gen')
 
 let cmdGenUuid = new Command('uuid')
     .description('Generate/mint IDs of UUID v7')
-    .action(async (opts, cmd) => {
+    .action(async (_opts, cmd) => {
+        const flowName = 'tbc-system:generate-uuids-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const flowConfig = {
+            count: parseInt(cmd.parent.opts().count, 10),
+        };
         try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const count = parseInt(cmd.parent.opts().count, 10);
-            const genUuidFlow = registry.createNode('tbc-system:generate-uuids-flow', {
-                verbose: isVerbose,
-                count: count,
-            });
-            await genUuidFlow.run({
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run({
                 registry: registry,
-                verbose: isVerbose,
             });
         } catch (error) {
-            console.error('Error during gen uuid:', error);
+            handleError(`Error running ${flowName}`, error, isVerbose);
             process.exit(1);
         }
         return;
@@ -133,21 +143,20 @@ cmdGen.addCommand(cmdGenUuid);
 
 let cmdGenTsid = new Command('tsid')
     .description('Generate/mint IDs of timestamp')
-    .action(async (opts, cmd) => {
+    .action(async (_opts, cmd) => {
+        const flowName = 'tbc-system:generate-tsids-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const flowConfig = {
+            count: parseInt(cmd.parent.opts().count, 10),
+        };
         try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const count = parseInt(cmd.parent.opts().count, 10);
-            const genUuidFlow = registry.createNode('tbc-system:generate-tsids-flow', {
-                verbose: isVerbose,
-                count: count,
-            });
-            await genUuidFlow.run({
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run({
                 registry: registry,
-                verbose: isVerbose,
             });
         } catch (error) {
-            console.error('Error during gen tsid:', error);
+            handleError(`Error running ${flowName}`, error, isVerbose);
             process.exit(1);
         }
         return;

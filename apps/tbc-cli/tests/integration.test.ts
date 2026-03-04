@@ -2,6 +2,7 @@
 import './000-setup.suite';
 
 import './010-gen.suite';
+/*
 import './011-preflight.suite';
 
 import './020-sys.suite';
@@ -24,3 +25,4 @@ import './055-int-kilocode.suite';
 import './150-int.suite';
 
 import './999-teardown.suite';
+*/

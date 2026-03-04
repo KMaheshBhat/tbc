@@ -20,5 +20,11 @@ export * from './ops/synthesize-collation-metadata.js';
 export * from './ops/upgrade-flow.js';
 export * from './ops/validate-flow.js';
 export * from './ops/validate-system.js';
+
+export * from './ops/prepare-messages-nx.js';
+export * from './ops/add-minted-messages-nx.js';
+export * from './ops/generate-uuids-flow-nx.js';
+export * from './ops/generate-tsids-flow-nx.js';
+
 export * from './plugin.js';
 export * from './types.js';

@@ -25,6 +25,11 @@ import { GenerateTSIDsFlow } from './ops/generate-tsids-flow.js';
 import { DexRebuildFlow } from './ops/dex-rebuild-flow.js';
 import { SynthesizeValueNode } from './ops/synthesize-value.js';
 
+import { PrepareMessagesNodeNx } from './ops/prepare-messages-nx.js';
+import { AddMintedMessagesNodeNx } from './ops/add-minted-messages-nx.js';
+import { GenerateUUIDsFlowNx } from './ops/generate-uuids-flow-nx.js';
+import { GenerateTSIDsFlowNx } from './ops/generate-tsids-flow-nx.js';
+
 /**
  * TBC System Plugin for HAMI.
  * Provides essential TBC system operations for probing environment information, initialization, validation, and core management.
@@ -55,6 +60,11 @@ import { SynthesizeValueNode } from './ops/synthesize-value.js';
  * - `tbc-system:generate-tsids-flow`: Generation flow for TSID minting (batch only)
  * - `tbc-system:dex-rebuild-flow`: Rebuild all indexes
  * - `tbc-system:synthesize-value`: Generic synthesis node for generating values based on system templates and input parameters
+ *
+ * - `tbc-system:prepare-messages:nx`: Setup staged messages and verbosity
+ * - `tbc-system:add-minted-messages:nx`: Stage messages based on minted IDs
+ * - `tbc-system:generate-uuids-flow:nx`: Generation flow for UUID minting (batch only)
+ * - `tbc-system:generate-uuids-flow:nx`: Generation flow for TSID minting (batch only)
  */
 const TBCSystemPlugin = createPlugin(
     '@tbc-frameworx/tbc-system',
@@ -84,6 +94,11 @@ const TBCSystemPlugin = createPlugin(
         GenerateTSIDsFlow as any,
         DexRebuildFlow as any,
         SynthesizeValueNode as any,
+
+        PrepareMessagesNodeNx,
+        AddMintedMessagesNodeNx,
+        GenerateUUIDsFlowNx,
+        GenerateTSIDsFlowNx,
     ],
     'TBC System Plugin - Environment probing, initialization, validation, and core management operations',
 );
