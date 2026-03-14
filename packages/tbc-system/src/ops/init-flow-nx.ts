@@ -14,7 +14,7 @@ interface Config {
     profile?: string;
     companionName: string;
     primeName: string;
-}
+};
 
 const ConfigSchema: ValidationSchema = {
     type: 'object',
@@ -165,8 +165,13 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
         });
         branchToAbortForFailedInitizalize.on('abort', abortFailedInitializeSequence);
         this.startNode
-            .next(n('tbc-system:prepare-messages'))
-            .next(n('tbc-system:resolve-root-directory'))
+            .next(n('tbc-system:resolve-flow:nx', { 
+                verbose: this.config.verbose,
+                rootDirectory: this.config.rootDirectory,
+                resolveRootDirectory: true,
+                resolveProtocol: false,
+                resolveCollections: true,
+            }))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {
                 mutate: (s: Record<string, any>) => {
@@ -354,7 +359,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
                                     { collection: `${s.stage.sysCollection}/ext`, idGlob: '*.md' },
                                 ],
                                 id: 'sys.digest.txt',
-                            }
+                            },
                         },
                         {
                             type: 'metadata-index',

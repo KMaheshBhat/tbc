@@ -10,15 +10,26 @@ import { PROTOCOLS } from '../protocols.js';
 interface Config {
     verbose?: boolean;
     rootDirectory?: string;
-    resolveProtocol?: boolean;
-}
+    resolve?: {
+        resolveRootDirectory?: boolean;
+        resolveProtocol?: boolean;
+        resolveCollections?: boolean;
+    };
+};
 
 const ConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         verbose: { type: 'boolean' },
         rootDirectory: { type: 'string' },
-        resolveProtocol: { type: 'boolean' },
+        resolve: {
+            type: 'object',
+            properties: {
+                resolveRootDirectory: { type: 'boolean' },
+                resolveProtocol: { type: 'boolean' },
+                resolveCollections: { type: 'boolean' },
+            },
+        },
     },
 };
 
@@ -87,25 +98,29 @@ export class ValidateFlowNx extends HAMIFlow<Record<string, any>, Config> {
     async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
-        const resolveProtocolOrSkip = this.config.resolveProtocol ?
-            n('tbc-system:resolve-protocol') :
-            new Node();
+
+        // When resolve.resolveRootDirectory is true, invoke resolve-flow at start (for direct CLI invocation)
+        // When false (default), skip resolve-flow as root/protocol already resolved by caller
+        const shouldResolve = this.config.resolve?.resolveRootDirectory ?? false;
+        const resolveFlowOrSkip = shouldResolve
+            ? n('tbc-system:resolve-flow:nx', { 
+                verbose: this.config.verbose,
+                rootDirectory: this.config.rootDirectory,
+                resolveRootDirectory: this.config.resolve?.resolveRootDirectory ?? true,
+                resolveProtocol: this.config.resolve?.resolveProtocol ?? true,
+                resolveCollections: this.config.resolve?.resolveCollections ?? true,
+              })
+            : new Node();
+
+        // If not using resolve-flow, we still need to set up protocol collections
+        const resolveCollectionsOrSkip = !shouldResolve && (this.config.resolve?.resolveCollections ?? true)
+            ? n('tbc-system:resolve-collections')
+            : new Node();
+
         this.startNode
             .next(n('tbc-system:prepare-messages'))
-            .next(n('tbc-system:resolve-root-directory'))
-            .next(resolveProtocolOrSkip)
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    const proto = shared.system.protocol;
-                    shared.stage.sysCollection = proto.sys.collection;
-                    shared.stage.sysCoreCollection = `${proto.sys.collection}/core`;
-                    shared.stage.sysExtCollection = `${proto.sys.collection}/ext`;
-                    shared.stage.skillsCollection = proto.skills.collection;
-                    shared.stage.memCollection = proto.mem.collection;
-                    shared.stage.dexCollection = proto.dex.collection;
-                    shared.stage.actCollection = proto.act.collection;
-                },
-            }))
+            .next(resolveFlowOrSkip)
+            .next(resolveCollectionsOrSkip)
             .next(n('core:assign', {
                 'record.rootDirectory': 'system.rootDirectory',
                 'record.collection': 'stage.sysCollection',

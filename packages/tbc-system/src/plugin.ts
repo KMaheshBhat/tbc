@@ -5,6 +5,7 @@ import { ClearMessagesNode } from './ops/clear-messages.js';
 import { LogAndClearMessagesNode } from './ops/log-and-clear-messages.js';
 import { ResolveRootDirectoryNode } from './ops/resolve-root-directory.js';
 import { ResolveProtocolNode } from './ops/resolve-protocol.js';
+import { ResolveCollectionsNode } from './ops/resolve-collections.js';
 import { AddMintedMessagesNode } from './ops/add-minted-messages.js';
 import { AddManifestMessagesNode } from './ops/add-manifest-messages.js';
 import { AddIdentityMessagesNode } from './ops/add-identity-messages.js';
@@ -32,6 +33,7 @@ import { GenerateTSIDsFlowNx } from './ops/generate-tsids-flow-nx.js';
 import { InitFlowNx } from './ops/init-flow-nx.js';
 import { UpgradeFlowNx } from './ops/upgrade-flow-nx.js';
 import { ValidateFlowNx } from './ops/validate-flow-nx.js';
+import { ResolveFlowNx } from './ops/resolve-flow.js';
 
 /**
  * TBC System Plugin for HAMI.
@@ -43,6 +45,7 @@ import { ValidateFlowNx } from './ops/validate-flow-nx.js';
  * - `tbc-system:log-and-clear-messages`: Log staged messages but add to allMessages
  * - `tbc-system:resolve-root-directory`: Resolves working directory for TBC operations
  * - `tbc-system:resolve-protocol`: Resolves the protocols by sniffing out artifacts
+ * - `tbc-system:resolve-collections`: Resolves collection names from protocol
  * - `tbc-system:add-minted-messages`: Stage messages based on minted IDs
  * - `tbc-system:add-manifest-messages`: Stage messages based on records manifest
  * - `tbc-system:add-identity-messages`: Stage messages based on given target (companionRecord or primeRecord)
@@ -71,6 +74,7 @@ import { ValidateFlowNx } from './ops/validate-flow-nx.js';
  * - `tbc-system:init-flow-nx`: Comprehensive flow for initializing a TBC environment
  * - `tbc-system:upgrade-flow-nx`: Comprehensive flow for upgrading a TBC environment
  * - `tbc-system:validate-flow-nx`: Comprehensive flow for validating a TBC environment
+ * - `tbc-system:resolve-flow:nx`: Flow for resolving root directory and protocol (used by other :nx flows)
  */
 const TBCSystemPlugin = createPlugin(
     '@tbc-frameworx/tbc-system',
@@ -80,6 +84,7 @@ const TBCSystemPlugin = createPlugin(
         ClearMessagesNode as any,
         LogAndClearMessagesNode as any,
         ResolveRootDirectoryNode as any,
+        ResolveCollectionsNode as any,
         ResolveProtocolNode as any,
         AddMintedMessagesNode as any,
         AddManifestMessagesNode as any,
@@ -108,6 +113,7 @@ const TBCSystemPlugin = createPlugin(
         InitFlowNx,
         UpgradeFlowNx,
         ValidateFlowNx,
+        ResolveFlowNx,
     ],
     'TBC System Plugin - Environment probing, initialization, validation, and core management operations',
 );

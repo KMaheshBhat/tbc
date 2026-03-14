@@ -14,7 +14,7 @@ import { PROTOCOLS } from '../protocols.js';
 interface Config {
     rootDirectory?: string;
     verbose: boolean;
-}
+};
 
 const ConfigSchema: ValidationSchema = {
     type: 'object',
@@ -145,8 +145,13 @@ export class UpgradeFlowNx extends HAMIFlow<Record<string, any>, Config> {
         });
         branchToAbort.on('abort', abortSequence);
         this.startNode
-            .next(n('tbc-system:prepare-messages'))
-            .next(n('tbc-system:resolve-root-directory'))
+            .next(n('tbc-system:resolve-flow:nx', { 
+                verbose: this.config.verbose,
+                rootDirectory: this.config.rootDirectory,
+                resolveRootDirectory: true,
+                resolveProtocol: true,
+                resolveCollections: true,
+            }))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -160,7 +165,11 @@ export class UpgradeFlowNx extends HAMIFlow<Record<string, any>, Config> {
             .next(n('tbc-system:validate-flow:nx', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
-                resolveProtocol: true,
+                resolve: {
+                    resolveRootDirectory: true,
+                    resolveProtocol: true,
+                    resolveCollections: true,
+                },
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
@@ -322,6 +331,11 @@ export class UpgradeFlowNx extends HAMIFlow<Record<string, any>, Config> {
             .next(n('tbc-system:validate-flow:nx', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
+                resolve: {
+                    resolveRootDirectory: false,
+                    resolveProtocol: false,
+                    resolveCollections: false,
+                },
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
@@ -432,7 +446,7 @@ export class UpgradeFlowNx extends HAMIFlow<Record<string, any>, Config> {
 interface RemoveSpecsConfig {
     specDirectoryKey: string;
     collection: string;
-}
+};
 
 class DeleteDirectoryNode extends HAMINode<Shared, RemoveSpecsConfig> {
     constructor(config?: RemoveSpecsConfig, maxRetries?: number, wait?: number) {

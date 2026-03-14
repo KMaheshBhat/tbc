@@ -13,6 +13,7 @@ export * from './ops/prepare-records-manifest.js';
 export * from './ops/probe.js';
 export * from './ops/resolve-root-directory.js';
 export * from './ops/resolve-protocol.js';
+export * from './ops/resolve-collections.js';
 export * from './ops/synthesize-mem-records.js';
 export * from './ops/synthesize-sys-records.js';
 export * from './ops/synthesize-collation-digest.js';
@@ -28,6 +29,7 @@ export * from './ops/generate-tsids-flow-nx.js';
 export * from './ops/init-flow-nx.js';
 export * from './ops/upgrade-flow-nx.js';
 export * from './ops/validate-flow-nx.js';
+export * from './ops/resolve-flow.js';
 
 export * from './plugin.js';
 export * from './types.js';

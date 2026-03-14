@@ -12,7 +12,7 @@ const handleError = (message: string, error: unknown, verbose: boolean) => {
     if (error instanceof Error) {
         console.error(`${message}: ${error.message}`);
         error.cause && console.error(error.cause);
-        verbose && console.error(error);
+        verbose && console.error(error);;
     } else {
         console.error(message);
         console.error(error);
@@ -35,6 +35,7 @@ let cmdSysInit = new Command('init')
     .option('--prime <name>', 'Name of the prime user (group)')
     .option('--profile <type>', 'System profile (baseline|next)', 'baseline')
     .action(async (opts) => {
+        // Use nx flows
         const flowName = 'tbc-system:init-flow:nx';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
@@ -68,6 +69,7 @@ cmdSys.addCommand(cmdSysInit);
 let cmdSysUpgrade = new Command('upgrade')
     .description('Upgrade an existing Third Brain Companion directory')
     .action(async () => {
+        // Use nx flows
         const flowName = 'tbc-system:upgrade-flow:nx';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
@@ -96,14 +98,18 @@ cmdSys.addCommand(cmdSysUpgrade);
 let cmdSysValidate = new Command('validate')
     .description('Validate current directory to check if it is a valid Third Brain Companion directory')
     .action(async () => {
-        const flowName = 'tbc-system:upgrade-flow:nx';
+        // Use nx flows
+        const flowName = 'tbc-system:validate-flow:nx';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
         const flowConfig = {
             verbose: isVerbose,
             rootDirectory: root,
-            resolveProtocol: true,
+            resolve: {
+                resolveRootDirectory: true,
+                resolveProtocol: true,
+            },
         };
         const flowParams = {
             registry: registry,
