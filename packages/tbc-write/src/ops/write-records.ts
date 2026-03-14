@@ -3,8 +3,6 @@ import assert from 'node:assert';
 import { Node } from 'pocketflow';
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { TBCProtocol } from '@tbc-frameworx/tbc-system';
-
 import { Shared } from '../types.js';
 
 interface FlowConfig {

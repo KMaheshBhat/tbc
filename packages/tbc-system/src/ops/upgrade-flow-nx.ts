@@ -40,16 +40,6 @@ class StartNode extends HAMINode<Shared, Config> {
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
         shared.system = shared.system || {};
         shared.system.protocol = shared.system.protocol || PROTOCOLS['baseline'];
-        const sysCollection = shared.system.protocol.sys.collection || 'sys';
-        const skillsCollection =shared.system.protocol.skills.collection || 'skills';
-        const memCollection = shared.system.protocol.mem.collection || 'mem';
-        const dexCollection = shared.system.protocol.dex.collection || 'dex';
-        const actCollection = shared.system.protocol.dex.collection || 'act';
-        shared.stage.sysCollection =  sysCollection;
-        shared.stage.skillsCollection = skillsCollection;
-        shared.stage.memCollection = memCollection;
-        shared.stage.dexCollection = dexCollection;
-        shared.stage.actCollection = actCollection;
         shared.stage.queryRecursive = {
             type: 'list-all-ids',
             recursive: true,
@@ -305,17 +295,17 @@ export class UpgradeFlowNx extends HAMIFlow<Record<string, any>, Config> {
             .next(stageRecords(shared.registry, s => `${s.stage.sysCollection}/core`))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
+                protocolKey: 'sys',
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/core`))
             .next(n('tbc-write:write-records-flow', {
                 verbose: shared.stage.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
+                protocolKey: 'skills',
                 syncIndex: false,
             }))
             .next(n('tbc-system:log-and-clear-messages'))
@@ -377,38 +367,44 @@ export class UpgradeFlowNx extends HAMIFlow<Record<string, any>, Config> {
                     });
                 },
             }))
-            .next(n('tbc-dex:collate-digest', {
-                output: { collection: 'dex', id: 'sys.digest.txt' },
-                sources: [
-                    { collection: 'sys', idGlob: 'root.md' },
-                    { collection: 'sys/core', idGlob: '*.md' },
-                    { collection: 'sys/ext', idGlob: '*.md' },
-                ],
-            }))
-            .next(n('tbc-dex:collate-metadata-index', {
-                output: { collection: 'dex', id: 'skills.jsonl' },
-                sources: [
-                    { collection: 'skills', idGlob: '*/SKILL.md' },
-                ],
-            }))
             .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.record = shared.record || {};
-                    shared.record.rootDirectory = shared.stage.rootDirectory;
-                    shared.record.collection = shared.stage.dexCollection;
-                    shared.record.records = [];
-                    const dexRecords = shared.stage.dex?.records || {};
-                    for (const [id, record] of Object.entries(dexRecords)) {
-                        shared.record.records.push({
-                            ...(record as any),
-                            id: id,
-                        });
-                    }
+                mutate: (s: Shared) => {
+                    s.record.records = undefined;
+                    s.stage.synthesizeRequests = [
+                        {
+                            type: 'digest',
+                            provider: 'tbc-system:synthesize-collation-digest',
+                            meta: {
+                                sources: [
+                                    { collection: `${s.stage.sysCollection}`, idGlob: 'root.md' },
+                                    { collection: `${s.stage.sysCollection}/core`, idGlob: '*.md' },
+                                    { collection: `${s.stage.sysCollection}/ext`, idGlob: '*.md' },
+                                ],
+                                id: 'sys.digest.txt',
+                            },
+                        },
+                        {
+                            type: 'metadata-index',
+                            provider: 'tbc-system:synthesize-collation-metadata',
+                            meta: {
+                                sources: [
+                                    { collection: `${s.stage.skillsCollection}`, 'idGlob': '*/SKILL.md' },
+                                ],
+                                id: 'skills.jsonl',
+                            },
+                        },
+                    ];
                 },
             }))
-            .next(n('tbc-record:store-records-flow', {
-                verbose: shared.stage.verbose,
-                recordProviders: ['tbc-record-fs:store-records'],
+            .next(n('tbc-synthesize:synthesize-record-flow', {
+                requestsKey: 'synthesizeRequests',
+            }))
+            .next(n('tbc-write:write-records-flow', {
+                verbose: this.config?.verbose,
+                sourcePath: 'record.records',
+                collection: 'dexCollection',
+                protocolKey: 'dex',
+                syncIndex: false,
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {

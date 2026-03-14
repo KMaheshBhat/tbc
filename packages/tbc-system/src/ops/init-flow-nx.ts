@@ -48,11 +48,6 @@ class StartNode extends HAMINode<Shared, Config> {
         shared.system = shared.system || {};
         shared.system.protocol = PROTOCOLS[shared.stage.requestedProfile];
         assert(shared.system.protocol, `unknown profile requested: ${shared.stage.requestedProfile}`);
-        shared.stage.sysCollection = shared.system.protocol.sys.collection;
-        shared.stage.skillsCollection = shared.system.protocol.skills.collection;
-        shared.stage.memCollection = shared.system.protocol.mem.collection;
-        shared.stage.dexCollection = shared.system.protocol.dex.collection;
-        shared.stage.actCollection = shared.system.protocol.act.collection;
         return 'default';
     }
 }
@@ -248,7 +243,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
-                recordStorers: ['tbc-record-fs:store-records'],
+                protocolKey: 'sys',
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.sysCollection}/core`))
@@ -256,7 +251,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
-                recordStorers: ['tbc-record-fs:store-records'],
+                protocolKey: 'sys',
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.sysCollection}/ext`))
@@ -264,7 +259,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
-                recordStorers: ['tbc-record-fs:store-records'],
+                protocolKey: 'sys',
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/core`))
@@ -272,7 +267,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
-                recordStorers: ['tbc-record-fs:store-records'],
+                protocolKey: 'skills',
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/ext`))
@@ -280,7 +275,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
-                recordStorers: ['tbc-record-fs:store-records'],
+                protocolKey: 'skills',
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => s.stage.memCollection, 'stage.memDrafts'))
@@ -379,9 +374,9 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
             }))
             .next(n('tbc-write:write-records-flow', {
                 verbose: this.config?.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'record.records',
                 collection: 'dexCollection',
+                protocolKey: 'dex',
                 syncIndex: false,
             }))
             .next(n('core:mutate', {

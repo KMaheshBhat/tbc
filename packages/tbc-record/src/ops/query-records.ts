@@ -66,7 +66,6 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
             const hitBranch = n('core:branch', {
                 branch: (s: Shared) => {
                     const hasIds = s.record?.result?.IDs && s.record.result.IDs.length > 0;
-                    console.log(`${hasIds ? 'hit' : 'miss'} on ${providerNode.kind()}`) // TODO:REMOVE - DEVELOPMENT ONLY
                     return hasIds ? 'hit' : 'default';
                 }
             });
