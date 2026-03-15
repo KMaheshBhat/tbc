@@ -1,0 +1,156 @@
+import assert from 'node:assert';
+import { Node } from 'pocketflow';
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types.js';
+
+interface Config {
+    verbose: boolean;
+    query: string;
+    type?: string;
+    protocolKey: 'sys' | 'skills' | 'mem' | 'dex' | 'act' | undefined;
+    limit?: number;
+}
+
+const ConfigSchema: ValidationSchema = {
+    type: 'object',
+    properties: {
+        verbose: { type: 'boolean' },
+        query: { type: 'string' },
+        type: { type: 'string' },
+        protocolKey: { type: 'string', enum: ['sys', 'skills', 'mem', 'dex', 'act'] },
+        limit: { type: 'number' },
+    },
+    required: ['verbose'],
+};
+
+class StartNode extends HAMINode<Shared, Config> {
+    kind(): string {
+        return 'tbc-view:view-records-flow-start:nx';
+    }
+
+    async post(shared: Shared): Promise<string> {
+        assert(shared.system?.rootDirectory, 'shared.system.rootDirectory is required for ViewRecordsFlowNx');
+        assert(shared.system?.protocol, 'protocol must be resolved before view-records-flow:nx');
+
+        // Initialize the view namespace
+        shared.view = shared.view || {
+            matches: [],
+            records: [],
+        };
+
+        return 'default';
+    }
+}
+
+export class ViewRecordsFlowNx extends HAMIFlow<Shared, Config> {
+    startNode: Node;
+
+    constructor(config: Config) {
+        const startNode = new StartNode(config);
+        super(startNode, config);
+        this.startNode = startNode;
+    }
+
+    kind(): string {
+        return 'tbc-view:view-records-flow:nx';
+    }
+
+    async prep(shared: Shared): Promise<void> {
+        assert(this.config, 'flow must be configured');
+        assert(shared.registry, 'registry is required');
+        assert(shared.system?.protocol, 'protocol must be resolved before view-records-flow:nx');
+        const config = this.config;
+        const n = shared.registry.createNode.bind(shared.registry);
+        const protocol = shared.system.protocol;
+        const collection = protocol[config.protocolKey!]?.collection ?? 'mem';
+
+        // Get record fetchers from protocol
+        const recordFetchers = protocol[config.protocolKey!]?.recordFetchers ?? ['tbc-record-fs:fetch-records'];
+
+        this.startNode
+            .next(n('tbc-dex:discover-records-flow:nx', {
+                ...config,
+                outputKey: 'dexMatches',
+            }))
+            // Map Stage to View
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.record.IDs = s.stage.dexMatches || [];
+                    s.record.collection = collection;
+                    s.record.result = undefined;
+                },
+            }))
+            // Execute Settled Fetch Logic - use protocol-derived fetchers
+            .next(n('tbc-record:fetch-records-flow', {
+                recordProviders: recordFetchers,
+                verbose: config.verbose,
+            }))
+            // Project Results & Reporting
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    // 1. Extract and Flatten Records from the fetch-records-flow result
+                    const incoming = s.record.result?.records || {};
+                    const flattened: any[] = [];
+
+                    for (const col in incoming) {
+                        for (const id in incoming[col]) {
+                            const r = incoming[col][id];
+
+                            // Normalize the record structure for the View layer
+                            const normalizedRecord = {
+                                ...r,
+                                // Priority: specific field > generic field > fallback ID
+                                title: r.record_title || r.title || id,
+                                type: r.record_type || r.type || 'memory',
+                                id: r.id || id,
+                            };
+
+                            flattened.push(normalizedRecord);
+                        }
+                    }
+
+                    // 2. Finalize the view state
+                    s.view.records = flattened;
+
+                    // 3. Reporting and CLI Output Generation
+                    const count = flattened.length;
+                    const queryDisplay = s.view.query || '*';
+
+                    if (count > 0) {
+                        // Standard summary message
+                        s.stage.messages.push({
+                            level: 'debug',
+                            source: 'view-records-flow:nx',
+                            message: `Found ${count} record(s) matching "${queryDisplay}".`,
+                        });
+
+                        // Detailed recall messages for the CLI capture
+                        // This generates the "Recalled: [type] title" strings the test expects
+                        flattened.forEach(r => {
+                            s.stage.messages.push({
+                                level: 'debug',
+                                source: 'view-records-flow:nx',
+                                message: `Recalled: [${r.type}] ${r.title}`,
+                            });
+                        });
+                    } else {
+                        s.stage.messages.push({
+                            level: 'warn',
+                            source: 'view-records-flow:nx',
+                            message: `No records found matching query: "${queryDisplay}"`,
+                            suggestion: 'Try a different keyword or check your index partitions.',
+                        });
+                    }
+                },
+            }));
+    }
+
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, ConfigSchema);
+        return {
+            valid: result.isValid,
+            errors: result.errors || [],
+        };
+    }
+}

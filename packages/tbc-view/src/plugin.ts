@@ -1,6 +1,7 @@
 import { createPlugin } from '@hami-frameworx/core';
 
 import { ViewRecordsFlow } from './ops/view-records.js';
+import { ViewRecordsFlowNx } from './ops/view-records-nx.js';
 
 /**
  * TBC View Plugin for HAMI.
@@ -14,6 +15,7 @@ const TBCViewPlugin = createPlugin(
     '0.1.0',
     [
         ViewRecordsFlow as any,
+        ViewRecordsFlowNx as any,
     ],
     'TBC View Plugin - View facade operations for TBC',
 );

@@ -5,3 +5,4 @@ export * from './ops/collate-metadata-index.js';
 export * from './ops/query-indices.js';
 export * from './ops/sync-incremental-index.js';
 export * from './ops/discover-records-flow.js';
+export * from './ops/discover-records-flow-nx.js';

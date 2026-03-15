@@ -5,6 +5,7 @@ import { CollateMetadataIndexNode } from './ops/collate-metadata-index.js';
 import { QueryIndicesNode } from './ops/query-indices.js';
 import { SyncIncrementalIndexNode } from './ops/sync-incremental-index.js';
 import { DiscoverRecordsFlow } from './ops/discover-records-flow.js';
+import { DiscoverRecordsFlowNx } from './ops/discover-records-flow-nx.js';
 
 /**
  * TBC Dex Plugin for HAMI.
@@ -26,6 +27,7 @@ const TBCDexPlugin = createPlugin(
     SyncIncrementalIndexNode as any,
     QueryIndicesNode as any,
     DiscoverRecordsFlow as any,
+    DiscoverRecordsFlowNx as any,
   ],
   'TBC Dex Plugin - Index generation and refresh operations',
 );

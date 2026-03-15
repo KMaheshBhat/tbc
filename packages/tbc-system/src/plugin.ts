@@ -34,6 +34,8 @@ import { InitFlowNx } from './ops/init-flow-nx.js';
 import { UpgradeFlowNx } from './ops/upgrade-flow-nx.js';
 import { ValidateFlowNx } from './ops/validate-flow-nx.js';
 import { ResolveFlowNx } from './ops/resolve-flow.js';
+import { LoadSpecificationsFlowNx } from './ops/load-specifications-flow.js';
+import { LoadCoreMemoriesFlow } from './ops/load-core-memories-flow.js';
 
 /**
  * TBC System Plugin for HAMI.
@@ -75,6 +77,7 @@ import { ResolveFlowNx } from './ops/resolve-flow.js';
  * - `tbc-system:upgrade-flow-nx`: Comprehensive flow for upgrading a TBC environment
  * - `tbc-system:validate-flow-nx`: Comprehensive flow for validating a TBC environment
  * - `tbc-system:resolve-flow:nx`: Flow for resolving root directory and protocol (used by other :nx flows)
+ * - `tbc-system:load-core-memories`: Flow for loading core memories (companion, prime, memoryMap) - protocol-aware
  */
 const TBCSystemPlugin = createPlugin(
     '@tbc-frameworx/tbc-system',
@@ -114,6 +117,8 @@ const TBCSystemPlugin = createPlugin(
         UpgradeFlowNx,
         ValidateFlowNx,
         ResolveFlowNx,
+        LoadSpecificationsFlowNx,
+        LoadCoreMemoriesFlow,
     ],
     'TBC System Plugin - Environment probing, initialization, validation, and core management operations',
 );

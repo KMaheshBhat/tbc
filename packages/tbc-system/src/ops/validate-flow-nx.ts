@@ -55,19 +55,6 @@ class StartNode extends HAMINode<Shared, Config> {
             type: 'list-all-ids',
             recursive: true,
         };
-        shared.system.protocol = shared.system.protocol || PROTOCOLS['baseline'];
-        const sysCollection = shared.system.protocol.sys.collection || 'sys';
-        const skillsCollection = shared.system.protocol.skills.collection || 'skills';
-        const memCollection = shared.system.protocol.mem.collection || 'mem';
-        const dexCollection = shared.system.protocol.dex.collection || 'dex';
-        const actCollection = shared.system.protocol.dex.collection || 'act';
-        shared.stage.sysCollection = sysCollection;
-        shared.stage.sysCoreCollection = `${sysCollection}/core`;
-        shared.stage.sysExtCollection = `${sysCollection}/ext`;
-        shared.stage.skillsCollection = skillsCollection;
-        shared.stage.memCollection = memCollection;
-        shared.stage.dexCollection = dexCollection;
-        shared.stage.actCollection = actCollection;
         return 'default';
     }
 }
@@ -112,178 +99,16 @@ export class ValidateFlowNx extends HAMIFlow<Record<string, any>, Config> {
               })
             : new Node();
 
-        // If not using resolve-flow, we still need to set up protocol collections
-        const resolveCollectionsOrSkip = !shouldResolve && (this.config.resolve?.resolveCollections ?? true)
-            ? n('tbc-system:resolve-collections')
-            : new Node();
-
         this.startNode
             .next(n('tbc-system:prepare-messages'))
             .next(resolveFlowOrSkip)
-            .next(resolveCollectionsOrSkip)
-            .next(n('core:assign', {
-                'record.rootDirectory': 'system.rootDirectory',
-                'record.collection': 'stage.sysCollection',
-                'record.query': 'stage.query',
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
-                    });
-                },
-            }))
-            .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-fs:query-records'],
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:load-specifications-flow:nx', {
                 verbose: shared.stage.verbose,
             }))
-            .next(n('core:assign', {
-                'record.IDs': 'record.result.IDs',
-            }))
-            .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['tbc-record-fs:fetch-records'],
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:load-core-memories', {
                 verbose: shared.stage.verbose,
-            }))
-            .next(n('core:assign', {
-                'record.rootDirectory': 'system.rootDirectory',
-                'record.collection': 'stage.sysCoreCollection',
-                'record.query': 'stage.query',
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
-                    });
-                },
-            }))
-            .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-fs:query-records'],
-                verbose: shared.stage.verbose,
-            }))
-            .next(n('core:assign', {
-                'record.IDs': 'record.result.IDs',
-            }))
-            .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['tbc-record-fs:fetch-records'],
-                verbose: shared.stage.verbose,
-            }))
-            .next(n('core:assign', {
-                'record.rootDirectory': 'system.rootDirectory',
-                'record.collection': 'stage.sysExtCollection',
-                'record.query': 'stage.query',
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
-                    });
-                },
-            }))
-            .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-fs:query-records'],
-                verbose: shared.stage.verbose,
-            }))
-            .next(n('core:assign', {
-                'record.IDs': 'record.result.IDs',
-            }))
-            .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['tbc-record-fs:fetch-records'],
-                verbose: shared.stage.verbose,
-            }))
-            .next(n('core:assign', {
-                'record.rootDirectory': 'system.rootDirectory',
-                'record.collection': 'stage.skillsCollection',
-                'record.query': 'stage.queryRecursive',
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
-                    });
-                },
-            }))
-            .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-fs:query-records'],
-                verbose: shared.stage.verbose,
-            }))
-            .next(n('core:assign', {
-                'record.IDs': 'record.result.IDs',
-            }))
-            .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['tbc-record-fs:fetch-records'],
-                verbose: shared.stage.verbose,
-            }))
-            .next(n('core:assign', {
-                'record.collection': 'stage.memCollection',
-            }))
-            .next(n('core:assign', {
-                'stage.records': 'record.result.records',
-            }))
-            .next(n('tbc-system:prepare-records-manifest'))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.record.IDs = [];
-                    for (const id of shared.stage.manifest[shared.stage.sysCollection]) {
-                        if (id === 'root.md') {
-                            const rootRecord = shared.record.result.records[shared.stage.sysCollection][id];
-                            shared.system.rootRecord = rootRecord;
-                            const memoryPath = rootRecord['memory_path'];
-                            const memoryMap = rootRecord['memory_map'];
-                            const companionPath = rootRecord['companion'];
-                            const primePath = rootRecord['prime'];
-                            const companionID = companionPath.replace(memoryPath, '').replace(/\.md$/, '');
-                            shared.system.companionID = companionID;
-                            const primeID = primePath.replace(memoryPath, '').replace(/\.md$/, '');
-                            shared.system.primeID = primeID;
-                            const memoryMapID = memoryMap.replace(memoryPath, '').replace(/\.md$/, '');
-                            shared.system.memoryMapID = memoryMapID;
-                            shared.record.IDs.push(...[companionID, primeID, memoryMapID]);
-                        }
-                    }
-                },
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'validate-flow',
-                        message: `Identifying companionID (${shared.system.companionID}) and load from ${shared.record.collection}`,
-                    });
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'validate-flow',
-                        message: `Identifying primeID (${shared.system.primeID}) and load from ${shared.record.collection}`,
-                    });
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'validate-flow',
-                        message: `Identifying memoryMapID (${shared.system.memoryMapID}) and load from ${shared.record.collection}`,
-                    });
-                },
-            }))
-            .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['tbc-record-fs:fetch-records'],
-                verbose: shared.stage.verbose,
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
-                    for (const [collection, entries] of Object.entries(shared.record.result.records)) {
-                        shared.stage.manifest[collection] = Object.keys(entries as Record<string, any>);
-                    }
-                    shared.system.companionRecord = shared.record.result.records[shared.stage.memCollection][shared.system.companionID];
-                    shared.system.primeRecord = shared.record.result.records[shared.stage.memCollection][shared.system.primeID];
-                    shared.system.memoryMapRecord = shared.record.result.records[shared.stage.memCollection][shared.system.memoryMapID];
-                    shared.system.manifest = shared.stage.manifest;
-                    shared.manifest = shared.stage.manifest;
-                },
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -295,7 +120,8 @@ export class ValidateFlowNx extends HAMIFlow<Record<string, any>, Config> {
                 },
             }))
             .next(n('tbc-system:validate-system'))
-            .next(n('tbc-system:log-and-clear-messages'));
+            .next(n('tbc-system:log-and-clear-messages'))
+            ;
     }
 
     async run(shared: Record<string, any>): Promise<string | undefined> {

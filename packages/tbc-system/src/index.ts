@@ -29,7 +29,9 @@ export * from './ops/generate-tsids-flow-nx.js';
 export * from './ops/init-flow-nx.js';
 export * from './ops/upgrade-flow-nx.js';
 export * from './ops/validate-flow-nx.js';
+export * from './ops/load-core-memories-flow.js';
 export * from './ops/resolve-flow.js';
+export * from './ops/load-specifications-flow.js';
 
 export * from './plugin.js';
 export * from './types.js';

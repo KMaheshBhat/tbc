@@ -105,8 +105,8 @@ describe('🐵 LETS-GO: tbc sys', () => {
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         // Verify AX/DX Debug lines are present
-        expect(output).toContain('[»] ── debug | validate-flow | Identifying companionID');
-        expect(output).toContain('[»] ── debug | validate-flow | Query');
+        expect(output).toContain('[»] ── debug | load-core-memories | Identifying companionID');
+        expect(output).toContain('[»] ── debug | load-specifications-flow | Query');
         // Verify the core audit is still there
         expect(output).toContain('┌┤ Validation Audit ├');
         expect(output).toContain('[✓] STABLE');
