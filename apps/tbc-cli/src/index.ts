@@ -26,6 +26,58 @@ program
     .option('--root <path>', 'Specify root directory for operations (defaults to current working directory)')
     .version(packageJson.version);
 
+let cmdGen = new Command('gen')
+    .description('Generate IDs')
+    .option('-c, --count <number>', 'Number of IDs to generate', '1');
+
+let cmdGenUuid = new Command('uuid')
+    .description('Generate/mint IDs of UUID v7')
+    .action(async (_opts, cmd) => {
+        const flowName = 'tbc-system:generate-uuids-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const flowConfig = {
+            count: parseInt(cmd.parent.opts().count, 10),
+        };
+        const flowParams = {
+            registry: registry,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdGen.addCommand(cmdGenUuid);
+
+let cmdGenTsid = new Command('tsid')
+    .description('Generate/mint IDs of timestamp')
+    .action(async (_opts, cmd) => {
+        const flowName = 'tbc-system:generate-tsids-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const flowConfig = {
+            count: parseInt(cmd.parent.opts().count, 10),
+        };
+        const flowParams = {
+            registry: registry,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdGen.addCommand(cmdGenTsid);
+
+program.addCommand(cmdGen);
+
 let cmdSys = new Command('sys')
     .description('System management commands');
 
@@ -127,18 +179,28 @@ cmdSys.addCommand(cmdSysValidate);
 
 program.addCommand(cmdSys);
 
-let cmdGen = new Command('gen')
-    .description('Generate IDs')
-    .option('-c, --count <number>', 'Number of IDs to generate', '1');
+let cmdMem = new Command('mem')
+    .description('Memory operations');
 
-let cmdGenUuid = new Command('uuid')
-    .description('Generate/mint IDs of UUID v7')
-    .action(async (_opts, cmd) => {
-        const flowName = 'tbc-system:generate-uuids-flow:nx';
+let cmdMemRemember = new Command('remember')
+    .description('Persist a thought, fact, or stub to memory')
+    .argument('[content]', 'The content of the memory')
+    .option('-t, --type <type>', 'Record type: note (default), goal, log, party, structure', 'note')
+    .option('--title <title>', 'Explicit title for the record')
+    .option('--tags <tags>', 'Comma-separated tags')
+    .action(async (content, opts) => {
+        const flowName = 'tbc-memory:remember-flow:nx';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const { type, title, tags } = opts;
         const flowConfig = {
-            count: parseInt(cmd.parent.opts().count, 10),
+            verbose: isVerbose,
+            rootDirectory: root,
+            content: content,
+            type: type,
+            title: title,
+            tags: tags ? tags.split(',').map((t: string) => t.trim()) : [],
         };
         const flowParams = {
             registry: registry,
@@ -152,16 +214,26 @@ let cmdGenUuid = new Command('uuid')
         }
         return;
     });
-cmdGen.addCommand(cmdGenUuid);
 
-let cmdGenTsid = new Command('tsid')
-    .description('Generate/mint IDs of timestamp')
-    .action(async (_opts, cmd) => {
-        const flowName = 'tbc-system:generate-tsids-flow:nx';
+cmdMem.addCommand(cmdMemRemember);
+
+let cmdMemRecall = new Command('recall')
+    .description('Recall memories or identity information')
+    .argument('[query]', 'Search query (e.g., "companion", "prime", or a keyword)')
+    .option('-t, --type <type>', 'Filter by record type (note, goal, log, party, structure)')
+    .option('-l, --limit <number>', 'Limit the number of results', parseInt, 10)
+    .action(async (query, opts) => {
+        const flowName = 'tbc-memory:recall-flow:nx';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const { type, limit } = opts;
         const flowConfig = {
-            count: parseInt(cmd.parent.opts().count, 10),
+            verbose: isVerbose,
+            rootDirectory: root,
+            query: query,
+            type: type,
+            limit: limit,
         };
         const flowParams = {
             registry: registry,
@@ -175,9 +247,11 @@ let cmdGenTsid = new Command('tsid')
         }
         return;
     });
-cmdGen.addCommand(cmdGenTsid);
 
-program.addCommand(cmdGen);
+cmdMem.addCommand(cmdMemRecall);
+
+program.addCommand(cmdMem);
+
 
 let cmdDex = new Command('dex')
     .description('Manage inDEXes')
@@ -207,73 +281,6 @@ let cmdDexRebuild = new Command('rebuild')
 cmdDex.addCommand(cmdDexRebuild);
 
 program.addCommand(cmdDex);
-
-let cmdMem = new Command('mem')
-    .description('Memory operations');
-
-let cmdMemRemember = new Command('remember')
-    .description('Persist a thought, fact, or stub to memory')
-    .argument('[content]', 'The content of the memory')
-    .option('-t, --type <type>', 'Record type: note (default), goal, log, party, structure', 'note')
-    .option('--title <title>', 'Explicit title for the record')
-    .option('--tags <tags>', 'Comma-separated tags')
-    .action(async (content, opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-
-            const rememberFlow = registry.createNode('tbc-memory:remember-flow', {
-                verbose: isVerbose,
-                rootDirectory: root,
-                content: content,
-                type: opts.type,
-                title: opts.title,
-                tags: opts.tags ? opts.tags.split(',').map((t: string) => t.trim()) : [],
-            });
-
-            await rememberFlow.run({
-                registry: registry,
-            });
-        } catch (error) {
-            console.error('Error during memory synthesis:', error);
-            process.exit(1);
-        }
-    });
-
-cmdMem.addCommand(cmdMemRemember);
-
-let cmdMemRecall = new Command('recall')
-    .description('Recall memories or identity information')
-    .argument('[query]', 'Search query (e.g., "companion", "prime", or a keyword)')
-    .option('-t, --type <type>', 'Filter by record type (note, goal, log, party, structure)')
-    .option('-l, --limit <number>', 'Limit the number of results', parseInt, 10)
-    .action(async (query, opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-
-            const recallFlow = registry.createNode('tbc-memory:recall-flow', {
-                verbose: isVerbose,
-                rootDirectory: root,
-                query: query,
-                type: opts.type,
-                limit: opts.limit,
-            });
-
-            await recallFlow.run({
-                registry: registry,
-            });
-        } catch (error) {
-            console.error('Error during memory recall:', error);
-            process.exit(1);
-        }
-    });
-
-cmdMem.addCommand(cmdMemRecall);
-
-program.addCommand(cmdMem);
 
 let cmdAct = new Command('act')
     .description('Activity operations');

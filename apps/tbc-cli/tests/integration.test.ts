@@ -6,13 +6,13 @@ import './011-preflight.suite';
 
 import './020-sys.suite';
 import './120-sys.suite';
-/*
 
 import './030-mem-remember.suite';
 import './130-mem-remember.suite';
 import './031-mem-recall.suite';
 import './131-mem-recall.suite';
 
+/*
 import './040-act.suite';
 import './140-act.suite';
 
