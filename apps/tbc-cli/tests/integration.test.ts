@@ -12,10 +12,10 @@ import './130-mem-remember.suite';
 import './031-mem-recall.suite';
 import './131-mem-recall.suite';
 
-/*
 import './040-act.suite';
 import './140-act.suite';
 
+/*
 import './050-int-probe.suite';
 import './051-int-generate.suite';
 import './052-int-gemini.suite';

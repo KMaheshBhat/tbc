@@ -252,6 +252,120 @@ cmdMem.addCommand(cmdMemRecall);
 
 program.addCommand(cmdMem);
 
+let cmdAct = new Command('act')
+    .description('Activity operations');
+
+let cmdActStart = new Command('start')
+    .description('Start a new activity or resume from backlog')
+    .argument('[uuid]', 'Activity UUID (optional, generates new if not provided)')
+    .action(async (uuid) => {
+        const flowName = 'tbc-activity:act-start-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            activityId: uuid,
+        };
+        const flowParams = {
+            registry: registry,
+            opts: { verbose: isVerbose },
+            root: root,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdAct.addCommand(cmdActStart);
+
+let cmdActShow = new Command('show')
+    .description('Show current and backlog activities')
+    .action(async () => {
+        const flowName = 'tbc-activity:act-show-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+        };
+        const flowParams = {
+            registry: registry,
+            opts: { verbose: isVerbose },
+            root: root,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdAct.addCommand(cmdActShow);
+
+let cmdActPause = new Command('pause')
+    .description('Move activity from current to backlog')
+    .argument('<uuid>', 'Activity UUID')
+    .action(async (uuid) => {
+        const flowName = 'tbc-activity:act-pause-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            activityId: uuid,
+        };
+        const flowParams = {
+            registry: registry,
+            opts: { verbose: isVerbose },
+            root: root,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdAct.addCommand(cmdActPause);
+
+let cmdActClose = new Command('close')
+    .description('Close activity and assimilate logs to memory')
+    .argument('<uuid>', 'Activity UUID')
+    .action(async (uuid) => {
+        const flowName = 'tbc-activity:act-close-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            activityId: uuid,
+        };
+        const flowParams = {
+            registry: registry,
+            opts: { verbose: isVerbose },
+            root: root,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdAct.addCommand(cmdActClose);
+
+program.addCommand(cmdAct);
 
 let cmdDex = new Command('dex')
     .description('Manage inDEXes')
@@ -281,110 +395,6 @@ let cmdDexRebuild = new Command('rebuild')
 cmdDex.addCommand(cmdDexRebuild);
 
 program.addCommand(cmdDex);
-
-let cmdAct = new Command('act')
-    .description('Activity operations');
-
-let cmdActStart = new Command('start')
-    .description('Start a new activity or resume from backlog')
-    .argument('[uuid]', 'Activity UUID (optional, generates new if not provided)')
-    .action(async (uuid) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const actStartFlow = registry.createNode('tbc-activity:act-start-flow', {
-                verbose: isVerbose,
-                activityId: uuid,
-            });
-            await actStartFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during act start:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdAct.addCommand(cmdActStart);
-
-let cmdActShow = new Command('show')
-    .description('Show current and backlog activities')
-    .action(async () => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const actShowFlow = registry.createNode('tbc-activity:act-show-flow', {
-                verbose: isVerbose,
-            });
-            await actShowFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during act show:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdAct.addCommand(cmdActShow);
-
-let cmdActPause = new Command('pause')
-    .description('Move activity from current to backlog')
-    .argument('<uuid>', 'Activity UUID')
-    .action(async (uuid) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const actPauseFlow = registry.createNode('tbc-activity:act-pause-flow', {
-                verbose: isVerbose,
-                activityId: uuid,
-            });
-            await actPauseFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during act pause:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdAct.addCommand(cmdActPause);
-
-let cmdActClose = new Command('close')
-    .description('Close activity and assimilate logs to memory')
-    .argument('<uuid>', 'Activity UUID')
-    .action(async (uuid) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const actCloseFlow = registry.createNode('tbc-activity:act-close-flow', {
-                verbose: isVerbose,
-                activityId: uuid,
-            });
-            await actCloseFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during act close:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdAct.addCommand(cmdActClose);
-
-
-program.addCommand(cmdAct);
 
 let cmdInt = new Command('int')
     .description('Interface commands');

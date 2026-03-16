@@ -6,6 +6,11 @@ import { ActPauseFlow } from './ops/act-pause-flow.js';
 import { ActCloseFlow } from './ops/act-close-flow.js';
 import { PrepareWorkspaceNode } from './ops/prepare-workspace.js';
 
+import { ActStartFlowNx } from './ops/act-start-flow-nx.js';
+import { ActShowFlowNx } from './ops/act-show-flow-nx.js';
+import { ActPauseFlowNx } from './ops/act-pause-flow-nx.js';
+import { ActCloseFlowNx } from './ops/act-close-flow-nx.js';
+
 /**
  * TBC Activity Plugin for HAMI.
  * Provides activity operations for TBC.
@@ -26,6 +31,10 @@ const TBCActivityPlugin = createPlugin(
         ActShowFlow as any,
         ActPauseFlow as any,
         ActCloseFlow as any,
+        ActStartFlowNx as any,
+        ActShowFlowNx as any,
+        ActPauseFlowNx as any,
+        ActCloseFlowNx as any,
     ],
     'TBC Activity Plugin - Activity operations for TBC',
 );
