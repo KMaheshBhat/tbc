@@ -12,7 +12,7 @@ const handleError = (message: string, error: unknown, verbose: boolean) => {
     if (error instanceof Error) {
         console.error(`${message}: ${error.message}`);
         error.cause && console.error(error.cause);
-        verbose && console.error(error);;
+        verbose && console.error(error);
     } else {
         console.error(message);
         console.error(error);

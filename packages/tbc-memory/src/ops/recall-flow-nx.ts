@@ -5,7 +5,7 @@ import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema
 
 import { Shared } from '../types';
 
-interface FlowConfig {
+interface Config {
     verbose?: boolean;
     rootDirectory?: string;
     query?: string;
@@ -13,7 +13,7 @@ interface FlowConfig {
     limit?: number;
 }
 
-const FlowConfigSchema: ValidationSchema = {
+const ConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         verbose: { type: 'boolean' },
@@ -24,7 +24,7 @@ const FlowConfigSchema: ValidationSchema = {
     },
 };
 
-class RecallFlowStartNodeNx extends HAMINode<Shared, FlowConfig> {
+class StartNode extends HAMINode<Shared, Config> {
     kind() { return 'tbc-memory:recall-flow-start:nx'; }
 
     async post(shared: Shared): Promise<string> {
@@ -42,11 +42,11 @@ class RecallFlowStartNodeNx extends HAMINode<Shared, FlowConfig> {
     }
 }
 
-export class RecallFlowNx extends HAMIFlow<Shared, FlowConfig> {
+export class RecallFlowNx extends HAMIFlow<Shared, Config> {
     startNode: Node;
 
-    constructor(config: FlowConfig) {
-        const startNode = new RecallFlowStartNodeNx(config);
+    constructor(config: Config) {
+        const startNode = new StartNode(config);
         super(startNode, config);
         this.startNode = startNode;
     }
@@ -122,11 +122,10 @@ export class RecallFlowNx extends HAMIFlow<Shared, FlowConfig> {
                 },
             }))
             // This flow handles: Index Scan -> ID Mapping -> Record Fetching
-            .next(n('tbc-view:view-records-flow', {
+            .next(n('tbc-view:view-records-flow:nx', {
                 query: this.config?.query,
                 type: this.config?.type,
                 limit: this.config?.limit,
-                recordFetchers: ['tbc-record-fs:fetch-records'],
                 protocolKey: 'mem',
                 verbose: this.config?.verbose,
             }))
@@ -183,18 +182,31 @@ export class RecallFlowNx extends HAMIFlow<Shared, FlowConfig> {
         // --- ORCHESTRATION ---
         this.startNode
             .next(n('tbc-system:prepare-messages'))
-            .next(n('tbc-system:resolve-root-directory'))
-            .next(n('tbc-system:validate-flow', {
+            .next(n('tbc-system:resolve-flow:nx', { 
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
+                resolveRootDirectory: true,
                 resolveProtocol: true,
+                resolveCollections: true,
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:validate-flow:nx', {
+                verbose: shared.stage.verbose,
+                rootDirectory: shared.stage.rootDirectory,
             }))
             .next(branchToAbort)
             .next(router);
     }
 
-    validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema);
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, ConfigSchema);
         return { valid: result.isValid, errors: result.errors || [] };
+    }
+
+    async run(shared: Shared): Promise<string | undefined> {
+        shared.stage = shared.stage || {};
+        shared.stage.verbose = this.config?.verbose;
+        shared.stage.rootDirectory = this.config?.rootDirectory;
+        return super.run(shared);
     }
 }

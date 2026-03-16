@@ -5,7 +5,7 @@ import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema
 
 import { Shared } from '../types';
 
-interface FlowConfig {
+interface Config {
     verbose?: boolean;
     rootDirectory?: string;
     content?: string;
@@ -14,7 +14,7 @@ interface FlowConfig {
     tags?: string[];
 }
 
-const FlowConfigSchema: ValidationSchema = {
+const ConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         verbose: { type: 'boolean' },
@@ -38,7 +38,7 @@ const RECORD_PROTOCOLS: Record<string, { provider: string; idType: 'tbc-mint:uui
     party: { provider: 'tbc-system:synthesize-record', idType: 'tbc-mint:uuid-mint' },
 };
 
-class RememberFlowStartNodeNx extends HAMINode<Shared, FlowConfig> {
+class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
         return 'tbc-memory:remember-flow-start:nx';
     }
@@ -71,11 +71,11 @@ class RememberFlowStartNodeNx extends HAMINode<Shared, FlowConfig> {
     }
 }
 
-export class RememberFlowNx extends HAMIFlow<Shared, FlowConfig> {
+export class RememberFlowNx extends HAMIFlow<Shared, Config> {
     startNode: Node;
 
-    constructor(config: FlowConfig) {
-        const startNode = new RememberFlowStartNodeNx(config);
+    constructor(config: Config) {
+        const startNode = new StartNode(config);
         super(startNode, config);
         this.startNode = startNode;
     }
@@ -112,7 +112,14 @@ export class RememberFlowNx extends HAMIFlow<Shared, FlowConfig> {
         // --- MAIN ORCHESTRATION PIPELINE ---
         this.startNode
             .next(n('tbc-system:prepare-messages'))
-            .next(n('tbc-system:resolve-root-directory'))
+            .next(n('tbc-system:resolve-flow:nx', { 
+                verbose: this.config?.verbose,
+                rootDirectory: this.config?.rootDirectory,
+                resolveRootDirectory: true,
+                resolveProtocol: true,
+                resolveCollections: true,
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
@@ -123,10 +130,9 @@ export class RememberFlowNx extends HAMIFlow<Shared, FlowConfig> {
                 },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:validate-flow', {
-                verbose: this.config?.verbose,
-                rootDirectory: this.config?.rootDirectory,
-                resolveProtocol: true,
+            .next(n('tbc-system:validate-flow:nx', {
+                verbose: shared.stage.verbose,
+                rootDirectory: shared.stage.rootDirectory,
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
@@ -214,8 +220,15 @@ export class RememberFlowNx extends HAMIFlow<Shared, FlowConfig> {
             .next(n('tbc-system:log-and-clear-messages'));
     }
 
-    validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema);
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, ConfigSchema);
         return { valid: result.isValid, errors: result.errors || [] };
+    }
+
+    async run(shared: Shared): Promise<string | undefined> {
+        shared.stage = shared.stage || {};
+        shared.stage.verbose = this.config?.verbose;
+        shared.stage.rootDirectory = this.config?.rootDirectory;
+        return super.run(shared);
     }
 }
