@@ -363,6 +363,168 @@ cmdAct.addCommand(cmdActClose);
 
 program.addCommand(cmdAct);
 
+let cmdInt = new Command('int')
+    .description('Interface commands');
+
+let cmdIntProbe = new Command('probe')
+    .description('Probe the environment for TBC CLI and system information')
+    .action(async () => {
+        const flowName = 'tbc-interface:int-probe-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+        };
+        const flowParams = {
+            registry: registry,
+            app: 'TBC CLI',
+            appVersion: packageJson.version,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdInt.addCommand(cmdIntProbe);
+
+let cmdIntGeneric = new Command('generic')
+    .description('Generate generic AI assistant interface configuration')
+    .action(async () => {
+        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+            agentType: 'generic',
+        };
+        const flowParams = {
+            registry: registry,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdInt.addCommand(cmdIntGeneric);
+
+let cmdIntGeminiCli = new Command('gemini-cli')
+    .description('Generate Gemini CLI interface configuration')
+    .action(async () => {
+        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+            agentType: 'gemini-cli',
+        };
+        const flowParams = {
+            registry: registry,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdInt.addCommand(cmdIntGeminiCli);
+
+let cmdIntGoose = new Command('goose')
+    .description('Generate Goose interface configuration')
+    .action(async () => {
+        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+            agentType: 'goose',
+        };
+        const flowParams = {
+            registry: registry,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdInt.addCommand(cmdIntGoose);
+
+let cmdIntGitHubCopilot = new Command('github-copilot')
+    .description('Generate GitHub Copilot interface configuration')
+    .action(async () => {
+        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+            agentType: 'github-copilot',
+        };
+        const flowParams = {
+            registry: registry,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdInt.addCommand(cmdIntGitHubCopilot);
+
+let cmdIntKilocode = new Command('kilocode')
+    .description('Generate Kilo Code interface configuration')
+    .action(async () => {
+        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+            agentType: 'kilocode',
+        };
+        const flowParams = {
+            registry: registry,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdInt.addCommand(cmdIntKilocode);
+
+program.addCommand(cmdInt);
+
 let cmdDex = new Command('dex')
     .description('Manage inDEXes')
     .option('--root <path>', 'Root directory');
@@ -392,160 +554,5 @@ cmdDex.addCommand(cmdDexRebuild);
 
 program.addCommand(cmdDex);
 
-let cmdInt = new Command('int')
-    .description('Interface commands');
-
-let cmdIntProbe = new Command('probe')
-    .description('Probe the environment for TBC CLI and system information')
-    .action(async () => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const opts = { verbose: isVerbose };
-            const probeFlow = registry.createNode('tbc-interface:int-probe-flow', {
-                verbose: isVerbose,
-            });
-            await probeFlow.run({
-                registry: registry,
-                opts: opts,
-                root: root,
-                app: 'TBC CLI',
-                appVersion: packageJson.version,
-            });
-        } catch (error) {
-            console.error('Error during probe:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdInt.addCommand(cmdIntProbe);
-
-let cmdIntGeneric = new Command('generic')
-    .description('Generate generic AI assistant interface configuration')
-    .action(async (opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
-                root: root,
-                verbose: isVerbose,
-                agentType: 'generic',
-            });
-            await agentIntegrateFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during agent integration:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdInt.addCommand(cmdIntGeneric);
-
-let cmdIntGeminiCli = new Command('gemini-cli')
-    .description('Generate Gemini CLI interface configuration')
-    .action(async (opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
-                root: root,
-                verbose: isVerbose,
-                agentType: 'gemini-cli',
-            });
-            await agentIntegrateFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during agent integration:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdInt.addCommand(cmdIntGeminiCli);
-
-let cmdIntGoose = new Command('goose')
-    .description('Generate Goose interface configuration')
-    .action(async (opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
-                root: root,
-                verbose: isVerbose,
-                agentType: 'goose',
-            });
-            await agentIntegrateFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during agent integration:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdInt.addCommand(cmdIntGoose);
-
-let cmdIntGitHubCopilot = new Command('github-copilot')
-    .description('Generate GitHub Copilot interface configuration')
-    .action(async (opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
-                root: root,
-                verbose: isVerbose,
-                agentType: 'github-copilot',
-            });
-            await agentIntegrateFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during agent integration:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdInt.addCommand(cmdIntGitHubCopilot);
-
-let cmdIntKilocode = new Command('kilocode')
-    .description('Generate Kilo Code interface configuration')
-    .action(async (opts) => {
-        try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = cliOpts.root;
-            const agentIntegrateFlow = registry.createNode('tbc-interface:agent-integrate-flow', {
-                root: root,
-                verbose: isVerbose,
-                agentType: 'kilocode',
-            });
-            await agentIntegrateFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
-        } catch (error) {
-            console.error('Error during agent integration:', error);
-            process.exit(1);
-        }
-        return;
-    });
-cmdInt.addCommand(cmdIntKilocode);
-
-program.addCommand(cmdInt);
 
 program.parse();

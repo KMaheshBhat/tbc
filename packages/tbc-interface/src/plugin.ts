@@ -5,6 +5,9 @@ import { IntProbeFlow } from './ops/int-probe-flow.js';
 import { LoadGenericAssetsNode } from './ops/load-generic-asset.js';
 import { SynthesizeGenericRecordsNode } from './ops/synthesize-generic-records.js';
 
+import { AgentIntegrateFlowNx } from './ops/agent-integrate-flow-nx.js';
+import { IntProbeFlowNx } from './ops/int-probe-flow-nx.js';
+
 /**
  * TBC Interface Plugin for HAMI.
  * Provides interface operations for TBC.
@@ -25,6 +28,8 @@ const TBCInterfacePlugin = createPlugin(
         AgentIntegrateFlow as any,
         LoadGenericAssetsNode as any,
         SynthesizeGenericRecordsNode as any,
+        IntProbeFlowNx as any,
+        AgentIntegrateFlowNx as any,
     ],
     'TBC Interface Plugin - Interface operations for TBC',
 );
