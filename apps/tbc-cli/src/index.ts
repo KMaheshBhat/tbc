@@ -265,12 +265,11 @@ let cmdActStart = new Command('start')
         const root = cliOpts.root;
         const flowConfig = {
             verbose: isVerbose,
+            rootDirectory: root,
             activityId: uuid,
         };
         const flowParams = {
             registry: registry,
-            opts: { verbose: isVerbose },
-            root: root,
         };
         try {
             const flow = registry.createNode(flowName, flowConfig);
@@ -292,11 +291,10 @@ let cmdActShow = new Command('show')
         const root = cliOpts.root;
         const flowConfig = {
             verbose: isVerbose,
+            rootDirectory: root,
         };
         const flowParams = {
             registry: registry,
-            opts: { verbose: isVerbose },
-            root: root,
         };
         try {
             const flow = registry.createNode(flowName, flowConfig);
@@ -319,12 +317,11 @@ let cmdActPause = new Command('pause')
         const root = cliOpts.root;
         const flowConfig = {
             verbose: isVerbose,
+            rootDirectory: root,
             activityId: uuid,
         };
         const flowParams = {
             registry: registry,
-            opts: { verbose: isVerbose },
-            root: root,
         };
         try {
             const flow = registry.createNode(flowName, flowConfig);
@@ -347,12 +344,11 @@ let cmdActClose = new Command('close')
         const root = cliOpts.root;
         const flowConfig = {
             verbose: isVerbose,
+            rootDirectory: root,
             activityId: uuid,
         };
         const flowParams = {
             registry: registry,
-            opts: { verbose: isVerbose },
-            root: root,
         };
         try {
             const flow = registry.createNode(flowName, flowConfig);

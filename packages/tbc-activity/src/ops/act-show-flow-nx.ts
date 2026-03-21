@@ -65,11 +65,17 @@ export class ActShowFlowNx extends HAMIFlow<Shared, Config> {
 
         let tail = this.startNode
             .next(n('tbc-system:prepare-messages'))
-            .next(n('tbc-system:resolve-root-directory'))
-            .next(n('tbc-system:validate-flow', {
+            .next(n('tbc-system:resolve-flow:nx', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
+                resolveRootDirectory: true,
                 resolveProtocol: true,
+                resolveCollections: true,
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:validate-flow:nx', {
+                verbose: shared.stage.verbose,
+                rootDirectory: shared.stage.rootDirectory,
             }))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
