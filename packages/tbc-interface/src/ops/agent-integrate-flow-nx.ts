@@ -93,7 +93,7 @@ export class AgentIntegrateFlowNx extends HAMIFlow<Shared, Config> {
                     s.stage.messages.push({
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
-                        source: 'agent-integrate-flow',
+                        source: 'agent-integrate-flow:nx',
                         message: 'has no existing companion (not a valid TBC Root)',
                         suggestion: 'Use "tbc sys init" instead.',
                     });
@@ -105,11 +105,27 @@ export class AgentIntegrateFlowNx extends HAMIFlow<Shared, Config> {
 
         this.startNode
             .next(n('tbc-system:prepare-messages'))
-            .next(n('tbc-system:resolve-root-directory'))
-            .next(n('tbc-system:validate-flow', { 
+            .next(n('tbc-system:resolve-flow:nx', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
+                resolveRootDirectory: true,
                 resolveProtocol: true,
+                resolveCollections: true,
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'agent-integrate-flow:nx',
+                        message: 'Checking first ...',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:validate-flow:nx', {
+                verbose: shared.stage.verbose,
+                rootDirectory: shared.stage.rootDirectory,
             }))
             .next(branchToAbort)
             .next(n('tbc-system:load-system-assets'))
@@ -168,7 +184,7 @@ export class AgentIntegrateFlowNx extends HAMIFlow<Shared, Config> {
                     });
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'agent-integrate-flow',
+                        source: 'agent-integrate-flow:nx',
                         message: 'Agent integration done.',
                         suggestion: 'Highly recommended that the Prime User restarts the interface session for agent integration to take effect.',
                     });

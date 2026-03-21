@@ -51,15 +51,32 @@ export class IntProbeFlowNx extends HAMIFlow<Shared, Config> {
     async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
+
         this.startNode
             .next(n('tbc-system:prepare-messages'))
-            .next(n('tbc-system:resolve-root-directory'))
-            .next(n('tbc-system:validate-flow', { 
+            .next(n('tbc-system:resolve-flow:nx', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
+                resolveRootDirectory: true,
                 resolveProtocol: true,
+                resolveCollections: true,
             }))
-            .next(n('tbc-system:probe')) // TODO replace this
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'int-probe-flow:nx',
+                        message: 'Checking first ...',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:validate-flow:nx', {
+                verbose: shared.stage.verbose,
+                rootDirectory: shared.stage.rootDirectory,
+            }))
+            .next(n('tbc-system:probe'))
             .next(n('tbc-system:log-and-clear-messages'));
     }
 
