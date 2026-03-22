@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { CollateDigestNode } from './ops/collate-digest.js';
 import { CollateMetadataIndexNode } from './ops/collate-metadata-index.js';
@@ -25,13 +25,13 @@ const TBCDexPlugin = createPlugin(
   '0.1.0',
   [
     // Nodes
-    CollateDigestNode as any,
-    CollateMetadataIndexNode as any,
-    QueryIndicesNode as any,
-    SyncIncrementalIndexNode as any,
+    CollateDigestNode,
+    CollateMetadataIndexNode,
+    QueryIndicesNode,
+    SyncIncrementalIndexNode,
     // Flows
-    DiscoverRecordsFlow as any,
-  ],
+    DiscoverRecordsFlow,
+  ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
   'TBC Dex Plugin - Index generation and refresh operations',
 );
 

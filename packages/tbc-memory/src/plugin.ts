@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { AddRecallMessagesNode } from './ops/add-recall-messages.js';
 
@@ -21,11 +21,11 @@ const TBCMemoryPlugin = createPlugin(
     '0.1.0',
     [
         // Nodes
-        AddRecallMessagesNode as any,
+        AddRecallMessagesNode,
         // Flows
         RecallFlow,
         RememberFlow,
-    ],
+    ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC Memory Plugin - Memory operations for TBC',
 );
 

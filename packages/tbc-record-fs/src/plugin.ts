@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { FetchRecordsNode } from './ops/fetch-records.js';
 import { QueryRecordsNode } from './ops/query-records.js';
@@ -17,10 +17,11 @@ const TBCRecordFSPlugin = createPlugin(
     '@tbc-frameworx/tbc-record-fs',
     '0.1.0',
     [
-        FetchRecordsNode as any,
-        StoreRecordsNode as any,
-        QueryRecordsNode as any,
-    ],
+        // Nodes
+        FetchRecordsNode,
+        StoreRecordsNode,
+        QueryRecordsNode,
+    ] as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC Record File System Plugin - File system operations for TBC directories',
 );
 

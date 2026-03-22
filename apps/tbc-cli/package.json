@@ -17,9 +17,9 @@
     "start": "bun run dist/index.js"
   },
   "dependencies": {
-    "commander": "^14.0.2",
+    "commander": "^14.0.3",
     "pocketflow": "^1.0.4",
-    "@hami-frameworx/core": "0.1.4",
+    "@hami-frameworx/core": "0.1.10",
     "@tbc-frameworx/tbc-record": "^0.1.0",
     "@tbc-frameworx/tbc-record-fs": "^0.1.0",
     "@tbc-frameworx/tbc-record-sqlite": "^0.1.0",
@@ -38,7 +38,7 @@
     "@tbc-frameworx/tbc-github-copilot": "^0.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.19.37",
     "typescript": "^5.0.0"
   },
   "keywords": [],

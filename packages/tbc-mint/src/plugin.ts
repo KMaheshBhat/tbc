@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { MintIDsFlow } from './ops/mint-ids-flow.js';
 import { MintTSIDNode } from './ops/tsid.js';
@@ -17,10 +17,12 @@ const TBCMintPlugin = createPlugin(
     '@tbc-frameworx/tbc-mint',
     '0.1.0',
     [
-        MintIDsFlow as any,
-        MintTSIDNode as any,
-        MintUUIDNode as any,
-    ],
+        // Flows
+        MintIDsFlow,
+        // Nodes
+        MintTSIDNode,
+        MintUUIDNode,
+    ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC Mint Plugin - ID minting operations for TBC',
 );
 

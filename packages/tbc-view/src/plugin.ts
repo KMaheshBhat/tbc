@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { ViewRecordsFlow } from './ops/view-records.js';
 
@@ -15,8 +15,8 @@ const TBCViewPlugin = createPlugin(
     '0.1.0',
     [
         // Flows
-        ViewRecordsFlow as any,
-    ],
+        ViewRecordsFlow,
+    ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC View Plugin - View facade operations for TBC',
 );
 

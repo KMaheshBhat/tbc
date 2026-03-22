@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { PrepareWorkspaceNode } from './ops/prepare-workspace.js';
 
@@ -25,13 +25,13 @@ const TBCActivityPlugin = createPlugin(
     '0.1.0',
     [
         // Nodes
-        PrepareWorkspaceNode as any,
+        PrepareWorkspaceNode,
         // Flows
-        ActCloseFlow as any,
-        ActPauseFlow as any,
-        ActShowFlow as any,
-        ActStartFlow as any,
-    ],
+        ActCloseFlow,
+        ActPauseFlow,
+        ActShowFlow,
+        ActStartFlow,
+    ] as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC Activity Plugin - Activity operations for TBC',
 );
 

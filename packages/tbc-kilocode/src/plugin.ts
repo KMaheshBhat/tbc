@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { LoadAssetsNode } from './ops/load-assets.js';
 import { SynthesizeIntegrationRecordsNode } from './ops/synthesize-integration-records.js';
@@ -15,9 +15,10 @@ const TBCKilocodePlugin = createPlugin(
   '@tbc-frameworx/tbc-kilocode',
   '0.1.0',
   [
-    LoadAssetsNode as any,
-    SynthesizeIntegrationRecordsNode as any,
-  ],
+    // Nodes
+    LoadAssetsNode,
+    SynthesizeIntegrationRecordsNode,
+  ] as (typeof HAMINode | typeof HAMIFlow)[],
   'TBC Kilo Code Plugin - Operations for Kilo Code integration',
 );
 

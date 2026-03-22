@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { StoreRecordsNode } from './ops/store-records.js';
 
@@ -13,8 +13,9 @@ const TBCRecordSQLitePlugin = createPlugin(
     '@tbc-frameworx/tbc-record-sqlite',
     '0.1.0',
     [
-        StoreRecordsNode as any,
-    ],
+        // Nodes
+        StoreRecordsNode,
+    ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC Record SQLite Plugin - SQLite database operations for TBC records',
 );
 

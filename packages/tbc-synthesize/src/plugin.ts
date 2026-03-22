@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { SynthesizeRecordFlow } from './ops/synthesize-record-flow.js';
 import { SynthesizeValueFlow } from './ops/synthesize-value-flow.js';
@@ -15,9 +15,10 @@ const TBCSynthesizePlugin = createPlugin(
     '@tbc-frameworx/tbc-synthesize',
     '0.1.0',
     [
-        SynthesizeRecordFlow as any,
-        SynthesizeValueFlow as any,
-    ],
+        // Flows
+        SynthesizeRecordFlow,
+        SynthesizeValueFlow,
+    ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC Synthesize Plugin - Record and value synthesis operations for TBC',
 );
 

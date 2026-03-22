@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { StoreRecordsFlow } from './ops/store-records.js';
 import { QueryRecordsFlow } from './ops/query-records.js';
@@ -17,10 +17,11 @@ const TBCRecordPlugin = createPlugin(
     '@tbc-frameworx/tbc-record',
     '0.1.0',
     [
-        StoreRecordsFlow as any,
-        QueryRecordsFlow as any,
-        FetchRecordsFlow as any,
-    ],
+        // Flows
+        StoreRecordsFlow,
+        QueryRecordsFlow,
+        FetchRecordsFlow,
+    ] as unknown as (typeof HAMIFlow)[],
     'TBC Record Plugin - Record facade operations for TBC',
 );
 

@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { WriteRecordsFlow } from './ops/write-records.js';
 
@@ -13,8 +13,9 @@ const TBCWritePlugin = createPlugin(
     '@tbc-frameworx/tbc-write',
     '0.1.0',
     [
-        WriteRecordsFlow as any,
-    ],
+        // Flows
+        WriteRecordsFlow,
+    ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC Write Plugin - Write facade operations for TBC',
 );
 

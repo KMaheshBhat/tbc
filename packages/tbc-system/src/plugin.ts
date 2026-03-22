@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { AddIdentityMessagesNode } from './ops/add-identity-messages.js';
 import { AddManifestMessagesNode } from './ops/add-manifest-messages.js';
@@ -71,23 +71,23 @@ const TBCSystemPlugin = createPlugin(
     '0.1.0',
     [
         // Nodes
-        AddIdentityMessagesNode as any,
-        AddManifestMessagesNode as any,
-        ClearMessagesNode as any,
-        LoadSystemAssetsNode as any,
-        LogAndClearMessagesNode as any,
-        PrepareRecordsManifestNode as any,
-        ProbeNode as any,
-        ResolveCollectionsNode as any,
-        ResolveProtocolNode as any,
-        ResolveRootDirectoryNode as any,
-        SynthesizeCollationDigestNode as any,
-        SynthesizeCollationMetadataNode as any,
-        SynthesizeMemRecordsNode as any,
-        SynthesizeRecordNode as any,
-        SynthesizeSysRecordsNode as any,
-        SynthesizeValueNode as any,
-        ValidateSystemNode as any,
+        AddIdentityMessagesNode,
+        AddManifestMessagesNode,
+        ClearMessagesNode,
+        LoadSystemAssetsNode,
+        LogAndClearMessagesNode,
+        PrepareRecordsManifestNode,
+        ProbeNode,
+        ResolveCollectionsNode,
+        ResolveProtocolNode,
+        ResolveRootDirectoryNode,
+        SynthesizeCollationDigestNode,
+        SynthesizeCollationMetadataNode,
+        SynthesizeMemRecordsNode,
+        SynthesizeRecordNode,
+        SynthesizeSysRecordsNode,
+        SynthesizeValueNode,
+        ValidateSystemNode,
         // Flows
         AddMintedMessagesNode,
         DexRebuildFlow,
@@ -100,7 +100,7 @@ const TBCSystemPlugin = createPlugin(
         ResolveFlow,
         UpgradeFlow,
         ValidateFlow,
-    ],
+    ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC System Plugin - Environment probing, initialization, validation, and core management operations',
 );
 

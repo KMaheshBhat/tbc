@@ -1,4 +1,4 @@
-import { createPlugin } from '@hami-frameworx/core';
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
 import { LoadGenericAssetsNode } from './ops/load-generic-asset.js';
 import { SynthesizeGenericRecordsNode } from './ops/synthesize-generic-records.js';
@@ -23,12 +23,12 @@ const TBCInterfacePlugin = createPlugin(
     '0.1.0',
     [
         // Nodes
-        LoadGenericAssetsNode as any,
-        SynthesizeGenericRecordsNode as any,
+        LoadGenericAssetsNode,
+        SynthesizeGenericRecordsNode,
         // Flows
-        AgentIntegrateFlow as any,
-        IntProbeFlow as any,
-    ],
+        AgentIntegrateFlow,
+        IntProbeFlow,
+    ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC Interface Plugin - Interface operations for TBC',
 );
 
