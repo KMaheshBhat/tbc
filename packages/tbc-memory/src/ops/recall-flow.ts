@@ -122,7 +122,7 @@ export class RecallFlow extends HAMIFlow<Shared, Config> {
                 },
             }))
             // This flow handles: Index Scan -> ID Mapping -> Record Fetching
-            .next(n('tbc-view:view-records-flow', {
+            .next(n('tbc-system:view-records-flow', {
                 query: this.config?.query,
                 type: this.config?.type,
                 limit: this.config?.limit,

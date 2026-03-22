@@ -56,7 +56,7 @@ export type Shared = {
   stage: SharedStage;
 
   /** * The global record operation state.
-   * Synthesized records are pushed here for tbc-write to consume.
+   * Synthesized records are pushed here for tbc-system to consume.
    */
   record: TBCRecordOperation;
 

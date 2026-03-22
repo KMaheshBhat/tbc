@@ -29,3 +29,5 @@ export * from './ops/resolve-flow.js';
 export * from './ops/upgrade-flow.js';
 export * from './ops/validate-flow.js';
 export * from './ops/synthesize-value.js';
+export * from './ops/write-records.js';
+export * from './ops/view-records.js';

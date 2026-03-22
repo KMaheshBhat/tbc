@@ -35,8 +35,6 @@
         "@tbc-frameworx/tbc-record-sqlite": "^0.1.0",
         "@tbc-frameworx/tbc-synthesize": "^0.1.0",
         "@tbc-frameworx/tbc-system": "^0.4.0",
-        "@tbc-frameworx/tbc-view": "^0.1.0",
-        "@tbc-frameworx/tbc-write": "^0.1.0",
         "commander": "^14.0.3",
         "pocketflow": "^1.0.4",
       },
@@ -146,7 +144,6 @@
         "@tbc-frameworx/tbc-mint": "^0.1.0",
         "@tbc-frameworx/tbc-record": "^0.1.0",
         "@tbc-frameworx/tbc-system": "^0.4.0",
-        "@tbc-frameworx/tbc-view": "^0.1.0",
         "pocketflow": "^1.0.4",
       },
       "devDependencies": {
@@ -235,34 +232,6 @@
         "typescript": "^5.0.0",
       },
     },
-    "packages/tbc-view": {
-      "name": "@tbc-frameworx/tbc-view",
-      "version": "0.1.0",
-      "dependencies": {
-        "@hami-frameworx/core": "0.1.10",
-        "@tbc-frameworx/tbc-record": "^0.1.0",
-        "@tbc-frameworx/tbc-system": "^0.4.0",
-        "pocketflow": "^1.0.4",
-      },
-      "devDependencies": {
-        "@types/node": "^20.19.37",
-        "typescript": "^5.0.0",
-      },
-    },
-    "packages/tbc-write": {
-      "name": "@tbc-frameworx/tbc-write",
-      "version": "0.1.0",
-      "dependencies": {
-        "@hami-frameworx/core": "0.1.10",
-        "@tbc-frameworx/tbc-record": "^0.1.0",
-        "@tbc-frameworx/tbc-system": "^0.4.0",
-        "pocketflow": "^1.0.4",
-      },
-      "devDependencies": {
-        "@types/node": "^20.19.37",
-        "typescript": "^5.0.0",
-      },
-    },
   },
   "packages": {
     "@hami-frameworx/core": ["@hami-frameworx/core@0.1.10", "", { "dependencies": { "pocketflow": "^1.0.4" } }, "sha512-YOf8i0FovMgUqbMThtRahGbuDTAzjE9MV1Wp6t2le+hZXh2fhPI089Mig8rA1OaZmDugwsSGGHC4d1iOGWACyg=="],
@@ -302,10 +271,6 @@
     "@tbc-frameworx/tbc-synthesize": ["@tbc-frameworx/tbc-synthesize@workspace:packages/tbc-synthesize"],
 
     "@tbc-frameworx/tbc-system": ["@tbc-frameworx/tbc-system@workspace:packages/tbc-system"],
-
-    "@tbc-frameworx/tbc-view": ["@tbc-frameworx/tbc-view@workspace:packages/tbc-view"],
-
-    "@tbc-frameworx/tbc-write": ["@tbc-frameworx/tbc-write@workspace:packages/tbc-write"],
 
     "@types/bun": ["@types/bun@1.3.11", "", { "dependencies": { "bun-types": "1.3.11" } }, "sha512-5vPne5QvtpjGpsGYXiFyycfpDF2ECyPcTSsFBMa0fraoxiQyMJ3SmuQIGhzPg2WJuWxVBoxWJ2kClYTcw/4fAg=="],
 

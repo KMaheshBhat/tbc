@@ -1,5 +1,5 @@
 import { HAMIRegistrationManager } from '@hami-frameworx/core';
-import { TBCViewOperation } from '@tbc-frameworx/tbc-view';
+import { TBCViewOperation } from '@tbc-frameworx/tbc-system';
 import { TBCSystemOperation } from '@tbc-frameworx/tbc-system';
 import { TBCRecordOperation } from '@tbc-frameworx/tbc-record';
 

@@ -17,8 +17,7 @@
     "mint:build": "bun run --filter='@tbc-frameworx/tbc-mint' build",
     "synthesize:build": "bun run --filter='@tbc-frameworx/tbc-synthesize' build",
     "dex:build": "bun run --filter='@tbc-frameworx/tbc-dex' build",
-    "write:build": "bun run --filter='@tbc-frameworx/tbc-write' build",
-    "view:build": "bun run --filter='@tbc-frameworx/tbc-view' build",
+
     "system:build": "bun run --filter='@tbc-frameworx/tbc-system' build",
     "interface:build": "bun run --filter='@tbc-frameworx/tbc-interface' build",
     "memory:build": "bun run --filter='@tbc-frameworx/tbc-memory' build",

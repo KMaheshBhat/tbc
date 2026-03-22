@@ -1,6 +1,25 @@
 import { HAMIRegistrationManager } from '@hami-frameworx/core';
 import { TBCRecord, TBCRecordOperation } from '@tbc-frameworx/tbc-record';
 
+/**
+ * Lean results from DEX (.jsonl).
+ * Extracted into its own type for easier casting from stage.
+ */
+export type TBCViewMatch = {
+    id: string;
+    title: string;
+    tags: string[];
+    path: string;
+    type?: string;
+};
+
+export type TBCViewOperation = {
+    query?: string;
+    type?: string;
+    matches: TBCViewMatch[];
+    records: TBCRecord[];
+};
+
 type TBCCollectionProtocol = {
     collection: string;
     /** The Write-side: Every storer in this list gets the data (Multicast) */
@@ -84,6 +103,8 @@ type Shared = {
     primeName?: string;
     /** Manifest of records by collection. */
     manifest?: Record<string, string[]>;
+    /** View operation for viewing records */
+    view?: TBCViewOperation;
 };
 
 export {

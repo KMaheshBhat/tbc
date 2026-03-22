@@ -28,7 +28,7 @@ const FlowConfigSchema: ValidationSchema = {
 
 class WriteRecordsStartNode extends HAMINode<Shared, FlowConfig> {
     kind(): string {
-        return 'tbc-write:write-records-flow-start';
+        return 'tbc-system:write-records-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -48,7 +48,7 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
     }
 
     kind(): string {
-        return 'tbc-write:write-records-flow';
+        return 'tbc-system:write-records-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -97,7 +97,7 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                     const count = shared.record.records?.length || 0;
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'tbc-write',
+                        source: 'tbc-system',
                         message: `Processed ${count} record(s) in [${collection}] ${messageSuffix}.`,
                     });
                 },

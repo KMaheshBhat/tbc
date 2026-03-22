@@ -198,7 +198,7 @@ export class ActCloseFlow extends HAMIFlow<Shared, Config> {
                 source: 'act-close-flow',
                 level: 'info',
             }) : new Node())
-            .next(n('tbc-write:write-records-flow', {
+            .next(n('tbc-system:write-records-flow', {
                 verbose: shared.stage.verbose,
                 sourcePath: 'stage.activeDrafts',
                 collection: 'memCollection',

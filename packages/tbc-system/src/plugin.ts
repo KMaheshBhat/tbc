@@ -29,6 +29,8 @@ import { PrepareMessagesNode } from './ops/prepare-messages.js';
 import { ResolveFlow } from './ops/resolve-flow.js';
 import { UpgradeFlow } from './ops/upgrade-flow.js';
 import { ValidateFlow } from './ops/validate-flow.js';
+import { WriteRecordsFlow } from './ops/write-records.js';
+import { ViewRecordsFlow } from './ops/view-records.js';
 
 /**
  * TBC System Plugin for HAMI.
@@ -65,6 +67,8 @@ import { ValidateFlow } from './ops/validate-flow.js';
  *   - `tbc-system:resolve-flow`: Flow for resolving root directory and protocol
  *   - `tbc-system:upgrade-flow`: Comprehensive flow for upgrading a TBC environment
  *   - `tbc-system:validate-flow`: Comprehensive flow for validating a TBC environment
+ *   - `tbc-system:write-records-flow`: Writes records using configured providers and updates indexes
+ *   - `tbc-system:view-records-flow`: Views records using configured providers
  */
 const TBCSystemPlugin = createPlugin(
     '@tbc-frameworx/tbc-system',
@@ -100,8 +104,9 @@ const TBCSystemPlugin = createPlugin(
         ResolveFlow,
         UpgradeFlow,
         ValidateFlow,
+        WriteRecordsFlow,
+        ViewRecordsFlow,
     ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
-    'TBC System Plugin - Environment probing, initialization, validation, and core management operations',
 );
 
 export { TBCSystemPlugin };

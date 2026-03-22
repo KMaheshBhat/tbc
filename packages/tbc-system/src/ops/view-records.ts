@@ -26,7 +26,7 @@ const ConfigSchema: ValidationSchema = {
 
 class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return 'tbc-view:view-records-flow-start';
+        return 'tbc-system:view-records-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -53,7 +53,7 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-view:view-records-flow';
+        return 'tbc-system:view-records-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -111,11 +111,11 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
                     }
 
                     // 2. Finalize the view state
-                    s.view.records = flattened;
+                    s.view!.records = flattened;
 
                     // 3. Reporting and CLI Output Generation
                     const count = flattened.length;
-                    const queryDisplay = s.view.query || '*';
+                    const queryDisplay = s.view!.query || '*';
 
                     if (count > 0) {
                         // Standard summary message

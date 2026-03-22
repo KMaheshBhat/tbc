@@ -293,7 +293,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                 level: 'info',
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.sysCollection}/core`))
-            .next(n('tbc-write:write-records-flow', {
+            .next(n('tbc-system:write-records-flow', {
                 verbose: shared.stage.verbose,
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
@@ -301,7 +301,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                 syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/core`))
-            .next(n('tbc-write:write-records-flow', {
+            .next(n('tbc-system:write-records-flow', {
                 verbose: shared.stage.verbose,
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
@@ -399,7 +399,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
             .next(n('tbc-synthesize:synthesize-record-flow', {
                 requestsKey: 'synthesizeRequests',
             }))
-            .next(n('tbc-write:write-records-flow', {
+            .next(n('tbc-system:write-records-flow', {
                 verbose: this.config?.verbose,
                 sourcePath: 'record.records',
                 collection: 'dexCollection',

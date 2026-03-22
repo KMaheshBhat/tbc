@@ -185,7 +185,7 @@ export class RememberFlow extends HAMIFlow<Shared, Config> {
             }))
 
             // 3. PERSISTENCE
-            .next(n('tbc-write:write-records-flow', {
+            .next(n('tbc-system:write-records-flow', {
                 verbose: this.config?.verbose,
                 sourcePath: 'record.records',
                 collection: 'memCollection',
