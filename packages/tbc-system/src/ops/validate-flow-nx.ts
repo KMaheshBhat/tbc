@@ -100,7 +100,9 @@ export class ValidateFlowNx extends HAMIFlow<Record<string, any>, Config> {
             : new Node();
 
         this.startNode
-            .next(n('tbc-system:prepare-messages'))
+            .next(n('tbc-system:prepare-messages:nx', {
+                verbose: this.config?.verbose,
+            }))
             .next(resolveFlowOrSkip)
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('tbc-system:load-specifications-flow:nx', {

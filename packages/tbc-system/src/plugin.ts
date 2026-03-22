@@ -1,6 +1,5 @@
 import { createPlugin } from '@hami-frameworx/core';
 
-import { PrepareMessagesNode } from './ops/prepare-messages.js';
 import { ClearMessagesNode } from './ops/clear-messages.js';
 import { LogAndClearMessagesNode } from './ops/log-and-clear-messages.js';
 import { ResolveRootDirectoryNode } from './ops/resolve-root-directory.js';
@@ -18,11 +17,6 @@ import { SynthesizeCollationDigestNode } from './ops/synthesize-collation-digest
 import { SynthesizeCollationMetadataNode } from './ops/synthesize-collation-metadata.js';
 import { ProbeNode } from './ops/probe.js';
 import { ValidateSystemNode } from './ops/validate-system.js';
-import { InitFlow } from './ops/init-flow.js';
-import { UpgradeFlow } from './ops/upgrade-flow.js';
-import { SysValidateFlow } from './ops/validate-flow.js';
-import { GenerateUUIDsFlow } from './ops/generate-uuids-flow.js';
-import { GenerateTSIDsFlow } from './ops/generate-tsids-flow.js';
 import { DexRebuildFlow } from './ops/dex-rebuild-flow.js';
 import { SynthesizeValueNode } from './ops/synthesize-value.js';
 
@@ -83,7 +77,6 @@ const TBCSystemPlugin = createPlugin(
     '@tbc-frameworx/tbc-system',
     '0.1.0',
     [
-        PrepareMessagesNode as any,
         ClearMessagesNode as any,
         LogAndClearMessagesNode as any,
         ResolveRootDirectoryNode as any,
@@ -101,11 +94,6 @@ const TBCSystemPlugin = createPlugin(
         SynthesizeCollationMetadataNode as any,
         ProbeNode as any,
         ValidateSystemNode as any,
-        InitFlow as any,
-        UpgradeFlow as any,
-        SysValidateFlow as any,
-        GenerateUUIDsFlow as any,
-        GenerateTSIDsFlow as any,
         DexRebuildFlow as any,
         SynthesizeValueNode as any,
 

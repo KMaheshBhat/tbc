@@ -1,7 +1,5 @@
 import { createPlugin } from '@hami-frameworx/core';
 
-import { AgentIntegrateFlow } from './ops/agent-integrate-flow.js';
-import { IntProbeFlow } from './ops/int-probe-flow.js';
 import { LoadGenericAssetsNode } from './ops/load-generic-asset.js';
 import { SynthesizeGenericRecordsNode } from './ops/synthesize-generic-records.js';
 
@@ -24,8 +22,6 @@ const TBCInterfacePlugin = createPlugin(
     '@tbc-frameworx/tbc-interface',
     '0.1.0',
     [
-        IntProbeFlow as any,
-        AgentIntegrateFlow as any,
         LoadGenericAssetsNode as any,
         SynthesizeGenericRecordsNode as any,
         IntProbeFlowNx as any,

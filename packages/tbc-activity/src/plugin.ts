@@ -1,9 +1,5 @@
 import { createPlugin } from '@hami-frameworx/core';
 
-import { ActStartFlow } from './ops/act-start-flow.js';
-import { ActShowFlow } from './ops/act-show-flow.js';
-import { ActPauseFlow } from './ops/act-pause-flow.js';
-import { ActCloseFlow } from './ops/act-close-flow.js';
 import { PrepareWorkspaceNode } from './ops/prepare-workspace.js';
 
 import { ActStartFlowNx } from './ops/act-start-flow-nx.js';
@@ -27,10 +23,6 @@ const TBCActivityPlugin = createPlugin(
     '0.1.0',
     [
         PrepareWorkspaceNode as any,
-        ActStartFlow as any,
-        ActShowFlow as any,
-        ActPauseFlow as any,
-        ActCloseFlow as any,
         ActStartFlowNx as any,
         ActShowFlowNx as any,
         ActPauseFlowNx as any,

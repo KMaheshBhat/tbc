@@ -99,7 +99,9 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         });
         branchToAbort.on('abort', abortSequence);
         this.startNode
-            .next(n('tbc-system:prepare-messages'))
+            .next(n('tbc-system:prepare-messages:nx', {
+                verbose: this.config?.verbose,
+            }))
             .next(n('tbc-system:resolve-root-directory'))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {

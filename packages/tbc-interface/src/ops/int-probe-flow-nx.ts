@@ -53,7 +53,9 @@ export class IntProbeFlowNx extends HAMIFlow<Shared, Config> {
         const n = shared.registry.createNode.bind(shared.registry);
 
         this.startNode
-            .next(n('tbc-system:prepare-messages'))
+            .next(n('tbc-system:prepare-messages:nx', {
+                verbose: this.config?.verbose,
+            }))
             .next(n('tbc-system:resolve-flow:nx', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,

@@ -93,7 +93,9 @@ export class ResolveFlowNx extends HAMIFlow<Record<string, any>, Config> {
             : new Node();
 
         this.startNode
-            .next(n('tbc-system:prepare-messages'))
+            .next(n('tbc-system:prepare-messages:nx', {
+                verbose: this.config?.verbose,
+            }))
             .next(resolveRootDirectoryOrSkip)
             .next(resolveProtocolOrSkip)
             .next(resolveCollectionsOrSkip);

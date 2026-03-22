@@ -65,7 +65,9 @@ export class GenerateTSIDsFlowNx extends HAMIFlow<Record<string, any>, Config> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         this.startNode
-            .next(n('tbc-system:prepare-messages'))
+            .next(n('tbc-system:prepare-messages:nx', {
+                verbose: true,
+            }))
             .next(n('tbc-mint:mint-ids-flow', {
                 requests: [
                     {

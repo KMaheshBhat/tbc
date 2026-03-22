@@ -126,7 +126,9 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
         branchToSkipSynthesis.on('exists', startReport);
 
         this.startNode
-            .next(n('tbc-system:prepare-messages'))
+            .next(n('tbc-system:prepare-messages:nx', {
+                verbose: this.config?.verbose,
+            }))
             .next(n('tbc-system:resolve-flow:nx', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
