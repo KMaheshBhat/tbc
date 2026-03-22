@@ -26,7 +26,7 @@ const ConfigSchema: ValidationSchema = {
 
 class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return 'tbc-activity:act-close-flow-start:nx';
+        return 'tbc-activity:act-close-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -45,7 +45,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class ActCloseFlowNx extends HAMIFlow<Shared, Config> {
+export class ActCloseFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
     config: Config;
 
@@ -57,7 +57,7 @@ export class ActCloseFlowNx extends HAMIFlow<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-activity:act-close-flow:nx';
+        return 'tbc-activity:act-close-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -71,7 +71,7 @@ export class ActCloseFlowNx extends HAMIFlow<Shared, Config> {
                     s.stage.messages.push({
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
-                        source: 'act-close-flow:nx',
+                        source: 'act-close-flow',
                         message: `has no existing companion (not a valid TBC Root)`,
                         suggestion: 'Use "tbc sys init" instead.',
                     });
@@ -88,7 +88,7 @@ export class ActCloseFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
                         level: 'error',
-                        source: 'act-close-flow:nx',
+                        source: 'act-close-flow',
                         code: 'ACTIVITY-NOT-FOUND',
                         message: `Activity ${s.stage.activityId} not found in current workspace.`,
                         suggestion: 'Verify the ID with "tbc act show" or check if it is already in the backlog/archive.',
@@ -108,10 +108,10 @@ export class ActCloseFlowNx extends HAMIFlow<Shared, Config> {
         });
         branchOnMissingActivity.on('abort', abortOnMissingActivity);
         this.startNode
-            .next(n('tbc-system:prepare-messages:nx', {
+            .next(n('tbc-system:prepare-messages', {
                 verbose: this.config?.verbose,
             }))
-            .next(n('tbc-system:resolve-flow:nx', {
+            .next(n('tbc-system:resolve-flow', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
                 resolveRootDirectory: true,
@@ -123,13 +123,13 @@ export class ActCloseFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
                         level: 'info',
-                        source: 'act-close-flow:nx',
+                        source: 'act-close-flow',
                         message: 'Checking first ...',
                     });
                 },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:validate-flow:nx', {
+            .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))
@@ -160,7 +160,7 @@ export class ActCloseFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
                         level: 'debug',
-                        source: 'act-close-flow:nx',
+                        source: 'act-close-flow',
                         message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
                     });
                 },

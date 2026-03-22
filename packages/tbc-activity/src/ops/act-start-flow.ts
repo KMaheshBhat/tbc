@@ -25,7 +25,7 @@ const ConfigSchema: ValidationSchema = {
 
 class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return 'tbc-activity:act-start-flow-start:nx';
+        return 'tbc-activity:act-start-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -38,7 +38,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
+export class ActStartFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
     config: Config;
 
@@ -50,7 +50,7 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-activity:act-start-flow:nx';
+        return 'tbc-activity:act-start-flow';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -65,7 +65,7 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
                     s.stage.messages.push({
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
-                        source: 'act-start-flow:nx',
+                        source: 'act-start-flow',
                         message: `has no existing companion (not a valid TBC Root)`,
                         suggestion: 'Use "tbc sys init" instead.',
                     });
@@ -85,7 +85,7 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
                         level: 'info',
-                        source: 'act-start-flow:nx',
+                        source: 'act-start-flow',
                         message: 'No activityID provided ...',
                     });
                     // We populate the key we promised to point to
@@ -126,10 +126,10 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
         branchToSkipSynthesis.on('exists', startReport);
 
         this.startNode
-            .next(n('tbc-system:prepare-messages:nx', {
+            .next(n('tbc-system:prepare-messages', {
                 verbose: this.config?.verbose,
             }))
-            .next(n('tbc-system:resolve-flow:nx', {
+            .next(n('tbc-system:resolve-flow', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
                 resolveRootDirectory: true,
@@ -141,13 +141,13 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
                         level: 'info',
-                        source: 'act-start-flow:nx',
+                        source: 'act-start-flow',
                         message: 'Checking first ...',
                     });
                 },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:validate-flow:nx', {
+            .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))
@@ -156,7 +156,7 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
                         level: 'info',
-                        source: 'act-start-flow:nx',
+                        source: 'act-start-flow',
                         message: 'existing valid TBC root found, proceeding ...',
                     });
                 },
@@ -168,7 +168,7 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
                         level: 'info',
-                        source: 'act-start-flow:nx',
+                        source: 'act-start-flow',
                         message: 'actual workspace preparation',
                     });
                 },
@@ -185,7 +185,7 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
                     const actCollectionRoot = s.system.protocol.act.collection ?? 'act';
                     s.stage.messages.push({
                         level: 'info',
-                        source: 'act-start-flow:nx',
+                        source: 'act-start-flow',
                         message: `Synthesizing activity log ${activityId} with companion ${companionName}`,
                     });
                     // Setting up for tbc-synthesize:synthesize-record-flow
@@ -233,7 +233,7 @@ export class ActStartFlowNx extends HAMIFlow<Shared, Config> {
                     });
                     s.stage.messages.push({
                         level: 'info',
-                        source: 'act-start-flow:nx',
+                        source: 'act-start-flow',
                         message: `Log: ${s.stage.actCollection}/${activityId}.md`,
                         suggestion: 'This is your active workspace. Updates will be tracked here until the activity is closed.',
                     });

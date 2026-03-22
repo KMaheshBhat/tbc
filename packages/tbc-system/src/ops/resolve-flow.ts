@@ -31,7 +31,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-system:resolve-flow-start:nx';
+        return 'tbc-system:resolve-flow-start';
     }
 
     async post(shared: Shared, prepRes: unknown, execRes: unknown): Promise<string> {
@@ -42,7 +42,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class ResolveFlowNx extends HAMIFlow<Record<string, any>, Config> {
+export class ResolveFlow extends HAMIFlow<Record<string, any>, Config> {
     startNode: Node;
     config: Config;
 
@@ -54,7 +54,7 @@ export class ResolveFlowNx extends HAMIFlow<Record<string, any>, Config> {
     }
 
     kind(): string {
-        return 'tbc-system:resolve-flow:nx';
+        return 'tbc-system:resolve-flow';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {
@@ -93,7 +93,7 @@ export class ResolveFlowNx extends HAMIFlow<Record<string, any>, Config> {
             : new Node();
 
         this.startNode
-            .next(n('tbc-system:prepare-messages:nx', {
+            .next(n('tbc-system:prepare-messages', {
                 verbose: this.config?.verbose,
             }))
             .next(resolveRootDirectoryOrSkip)

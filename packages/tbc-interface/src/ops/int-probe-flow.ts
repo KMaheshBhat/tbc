@@ -21,7 +21,7 @@ const ConfigSchema: ValidationSchema = {
 
 class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return 'tbc-interface:int-probe-flow-start:nx';
+        return 'tbc-interface:int-probe-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -33,7 +33,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class IntProbeFlowNx extends HAMIFlow<Shared, Config> {
+export class IntProbeFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
     config: Config;
 
@@ -45,7 +45,7 @@ export class IntProbeFlowNx extends HAMIFlow<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-interface:int-probe-flow:nx';
+        return 'tbc-interface:int-probe-flow';
     }
 
     async prep(shared: Record<string, any>): Promise<void> {
@@ -53,10 +53,10 @@ export class IntProbeFlowNx extends HAMIFlow<Shared, Config> {
         const n = shared.registry.createNode.bind(shared.registry);
 
         this.startNode
-            .next(n('tbc-system:prepare-messages:nx', {
+            .next(n('tbc-system:prepare-messages', {
                 verbose: this.config?.verbose,
             }))
-            .next(n('tbc-system:resolve-flow:nx', {
+            .next(n('tbc-system:resolve-flow', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
                 resolveRootDirectory: true,
@@ -68,13 +68,13 @@ export class IntProbeFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
                         level: 'info',
-                        source: 'int-probe-flow:nx',
+                        source: 'int-probe-flow',
                         message: 'Checking first ...',
                     });
                 },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:validate-flow:nx', {
+            .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))

@@ -2,31 +2,35 @@ import { createPlugin } from '@hami-frameworx/core';
 
 import { PrepareWorkspaceNode } from './ops/prepare-workspace.js';
 
-import { ActStartFlowNx } from './ops/act-start-flow-nx.js';
-import { ActShowFlowNx } from './ops/act-show-flow-nx.js';
-import { ActPauseFlowNx } from './ops/act-pause-flow-nx.js';
-import { ActCloseFlowNx } from './ops/act-close-flow-nx.js';
+import { ActCloseFlow } from './ops/act-close-flow.js';
+import { ActPauseFlow } from './ops/act-pause-flow.js';
+import { ActShowFlow } from './ops/act-show-flow.js';
+import { ActStartFlow } from './ops/act-start-flow.js';
 
 /**
  * TBC Activity Plugin for HAMI.
  * Provides activity operations for TBC.
  *
  * Included operations:
- * - `tbc-activity:act-start-flow`: Flow for starting an activity
- * - `tbc-activity:act-show-flow`: Flow for showing current and backlog activities
- * - `tbc-activity:act-pause-flow`: Flow for pausing an activity
- * - `tbc-activity:act-pause-flow`: Flow for closing an activity
- * - `tbc-activity:prepare-workspace`: Prepares workspace for activity
+ * - Nodes:
+ *   - `tbc-activity:prepare-workspace`: Prepares workspace for activity
+ * - Flows:
+ *   - `tbc-activity:act-close-flow`: Flow for closing an activity
+ *   - `tbc-activity:act-pause-flow`: Flow for pausing an activity
+ *   - `tbc-activity:act-show-flow`: Flow for showing current and backlog activities
+ *   - `tbc-activity:act-start-flow`: Flow for starting an activity
  */
 const TBCActivityPlugin = createPlugin(
     '@tbc-frameworx/tbc-activity',
     '0.1.0',
     [
+        // Nodes
         PrepareWorkspaceNode as any,
-        ActStartFlowNx as any,
-        ActShowFlowNx as any,
-        ActPauseFlowNx as any,
-        ActCloseFlowNx as any,
+        // Flows
+        ActCloseFlow as any,
+        ActPauseFlow as any,
+        ActShowFlow as any,
+        ActStartFlow as any,
     ],
     'TBC Activity Plugin - Activity operations for TBC',
 );

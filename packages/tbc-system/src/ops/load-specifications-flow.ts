@@ -17,9 +17,9 @@ const ConfigSchema: ValidationSchema = {
     },
 };
 
-class LoadSpecificationsStartNode extends HAMINode<Shared, Config> {
+class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return 'tbc-system:load-specifications-flow-start:nx';
+        return 'tbc-system:load-specifications-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -38,19 +38,19 @@ class LoadSpecificationsStartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class LoadSpecificationsFlowNx extends HAMIFlow<Shared, Config> {
+export class LoadSpecificationsFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
     config: Config;
 
     constructor(config: Config) {
-        const startNode = new LoadSpecificationsStartNode(config);
+        const startNode = new StartNode(config);
         super(startNode, config);
         this.startNode = startNode;
         this.config = config;
     }
 
     kind(): string {
-        return 'tbc-system:load-specifications-flow:nx';
+        return 'tbc-system:load-specifications-flow';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {

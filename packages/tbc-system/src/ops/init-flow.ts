@@ -35,7 +35,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-system:init-flow-start:nx';
+        return 'tbc-system:init-flow-start';
     }
 
     async post(shared: Shared, prepRes: unknown, execRes: unknown): Promise<string> {
@@ -52,7 +52,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
+export class InitFlow extends HAMIFlow<Record<string, any>, Config> {
     startNode: Node;
     config: Config;
 
@@ -64,7 +64,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
     }
 
     kind(): string {
-        return 'tbc-system:init-flow:nx';
+        return 'tbc-system:init-flow';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {
@@ -160,7 +160,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
         });
         branchToAbortForFailedInitizalize.on('abort', abortFailedInitializeSequence);
         this.startNode
-            .next(n('tbc-system:resolve-flow:nx', { 
+            .next(n('tbc-system:resolve-flow', { 
                 verbose: this.config.verbose,
                 rootDirectory: this.config.rootDirectory,
                 resolveRootDirectory: true,
@@ -177,7 +177,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
                     });
                 },
             }))
-            .next(n('tbc-system:validate-flow:nx', {
+            .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))
@@ -295,7 +295,7 @@ export class InitFlowNx extends HAMIFlow<Record<string, any>, Config> {
                     });
                 },
             }))
-            .next(n('tbc-system:validate-flow:nx', {
+            .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))

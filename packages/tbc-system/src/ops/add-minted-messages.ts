@@ -1,6 +1,12 @@
 import assert from 'node:assert';
 
-import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+import {
+    HAMINode,
+    HAMINodeConfigValidateResult,
+    validateAgainstSchema,
+    ValidationSchema,
+} from '@hami-frameworx/core';
+
 import { Minted } from '@tbc-frameworx/tbc-mint';
 
 import { Shared, TBCLevel, TBCMessage } from '../types.js';
@@ -10,13 +16,13 @@ type Config = {
     level: TBCLevel;
 };
 
-const ValidateNodeConfigSchema: ValidationSchema = {
+const ConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         level: { type: 'string', enum: ['debug', 'info', 'warn', 'error'], default: 'info' },
         source: { type: 'string' },
     },
-    required: ['source'],
+    required: ['source', 'level'],
 };
 
 export class AddMintedMessagesNode extends HAMINode<Shared, Config> {
@@ -24,8 +30,14 @@ export class AddMintedMessagesNode extends HAMINode<Shared, Config> {
         return 'tbc-system:add-minted-messages';
     }
 
+    constructor(config: Config) {
+        super(config);
+        this.config = config;
+    }
+
     validateConfig(config: Config): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, ValidateNodeConfigSchema);
+        console.log(`${this.kind()} - validate ${config.level}`)
+        const result = validateAgainstSchema(config, ConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],

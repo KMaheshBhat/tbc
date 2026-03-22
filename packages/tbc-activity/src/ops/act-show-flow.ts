@@ -21,7 +21,7 @@ const ConfigSchema: ValidationSchema = {
 
 class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return 'tbc-activity:act-show-flow-start:nx';
+        return 'tbc-activity:act-show-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
@@ -39,7 +39,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class ActShowFlowNx extends HAMIFlow<Shared, Config> {
+export class ActShowFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
     config: Config;
 
@@ -51,7 +51,7 @@ export class ActShowFlowNx extends HAMIFlow<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-activity:act-show-flow:nx';
+        return 'tbc-activity:act-show-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
@@ -64,10 +64,10 @@ export class ActShowFlowNx extends HAMIFlow<Shared, Config> {
         branchToAbort.on('abort', abortSequence);
 
         let tail = this.startNode
-            .next(n('tbc-system:prepare-messages:nx', {
+            .next(n('tbc-system:prepare-messages', {
                 verbose: this.config?.verbose,
             }))
-            .next(n('tbc-system:resolve-flow:nx', {
+            .next(n('tbc-system:resolve-flow', {
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
                 resolveRootDirectory: true,
@@ -75,7 +75,7 @@ export class ActShowFlowNx extends HAMIFlow<Shared, Config> {
                 resolveCollections: true,
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:validate-flow:nx', {
+            .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))
@@ -138,7 +138,7 @@ export class ActShowFlowNx extends HAMIFlow<Shared, Config> {
         tail = tail
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
-                    const source = 'act-show-flow:nx';
+                    const source = 'act-show-flow';
                     const groups = [
                         { path: s.stage.currentActivityCollection, label: 'Active [current]', empty: 'No active activities found.' },
                         { path: s.stage.backlogActivityCollection, label: 'Paused [backlog]', empty: 'No paused activities found.' },

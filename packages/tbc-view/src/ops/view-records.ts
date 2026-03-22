@@ -26,12 +26,12 @@ const ConfigSchema: ValidationSchema = {
 
 class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return 'tbc-view:view-records-flow-start:nx';
+        return 'tbc-view:view-records-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
-        assert(shared.system?.rootDirectory, 'shared.system.rootDirectory is required for ViewRecordsFlowNx');
-        assert(shared.system?.protocol, 'protocol must be resolved before view-records-flow:nx');
+        assert(shared.system?.rootDirectory, 'shared.system.rootDirectory is required for ViewRecordsFlow');
+        assert(shared.system?.protocol, 'protocol must be resolved before view-records-flow');
 
         // Initialize the view namespace
         shared.view = shared.view || {
@@ -43,7 +43,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class ViewRecordsFlowNx extends HAMIFlow<Shared, Config> {
+export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
 
     constructor(config: Config) {
@@ -53,13 +53,13 @@ export class ViewRecordsFlowNx extends HAMIFlow<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-view:view-records-flow:nx';
+        return 'tbc-view:view-records-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
         assert(this.config, 'flow must be configured');
         assert(shared.registry, 'registry is required');
-        assert(shared.system?.protocol, 'protocol must be resolved before view-records-flow:nx');
+        assert(shared.system?.protocol, 'protocol must be resolved before view-records-flow');
         const config = this.config;
         const n = shared.registry.createNode.bind(shared.registry);
         const protocol = shared.system.protocol;
@@ -69,7 +69,7 @@ export class ViewRecordsFlowNx extends HAMIFlow<Shared, Config> {
         const recordFetchers = protocol[config.protocolKey!]?.recordFetchers ?? ['tbc-record-fs:fetch-records'];
 
         this.startNode
-            .next(n('tbc-dex:discover-records-flow:nx', {
+            .next(n('tbc-dex:discover-records-flow', {
                 ...config,
                 outputKey: 'dexMatches',
             }))
@@ -121,7 +121,7 @@ export class ViewRecordsFlowNx extends HAMIFlow<Shared, Config> {
                         // Standard summary message
                         s.stage.messages.push({
                             level: 'debug',
-                            source: 'view-records-flow:nx',
+                            source: 'view-records-flow',
                             message: `Found ${count} record(s) matching "${queryDisplay}".`,
                         });
 
@@ -130,14 +130,14 @@ export class ViewRecordsFlowNx extends HAMIFlow<Shared, Config> {
                         flattened.forEach(r => {
                             s.stage.messages.push({
                                 level: 'debug',
-                                source: 'view-records-flow:nx',
+                                source: 'view-records-flow',
                                 message: `Recalled: [${r.type}] ${r.title}`,
                             });
                         });
                     } else {
                         s.stage.messages.push({
                             level: 'warn',
-                            source: 'view-records-flow:nx',
+                            source: 'view-records-flow',
                             message: `No records found matching query: "${queryDisplay}"`,
                             suggestion: 'Try a different keyword or check your index partitions.',
                         });

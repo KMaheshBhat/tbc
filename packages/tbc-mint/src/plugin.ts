@@ -11,7 +11,7 @@ import { MintUUIDNode } from './ops/uuid.js';
  * Included operations:
  * - `tbc-mint:mint-ids-flow`: Flow to generate multiple IDs (keyed and batched) for given types
  * - `tbc-mint:tsid-mint`: Mints TSID IDs
- * - `tbc-mint:tsid-mint`: Mints UUID v7 IDs
+ * - `tbc-mint:uuid-mint`: Mints UUID v7 IDs
  */
 const TBCMintPlugin = createPlugin(
     '@tbc-frameworx/tbc-mint',

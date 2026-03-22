@@ -39,7 +39,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-system:validate-flow-start:nx';
+        return 'tbc-system:validate-flow-start';
     }
 
     async post(shared: Shared, prepRes: unknown, execRes: unknown): Promise<string> {
@@ -59,7 +59,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class ValidateFlowNx extends HAMIFlow<Record<string, any>, Config> {
+export class ValidateFlow extends HAMIFlow<Record<string, any>, Config> {
     startNode: Node;
     config: Config;
 
@@ -71,7 +71,7 @@ export class ValidateFlowNx extends HAMIFlow<Record<string, any>, Config> {
     }
 
     kind(): string {
-        return 'tbc-system:validate-flow:nx';
+        return 'tbc-system:validate-flow';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {
@@ -90,7 +90,7 @@ export class ValidateFlowNx extends HAMIFlow<Record<string, any>, Config> {
         // When false (default), skip resolve-flow as root/protocol already resolved by caller
         const shouldResolve = this.config.resolve?.resolveRootDirectory ?? false;
         const resolveFlowOrSkip = shouldResolve
-            ? n('tbc-system:resolve-flow:nx', { 
+            ? n('tbc-system:resolve-flow', { 
                 verbose: this.config.verbose,
                 rootDirectory: this.config.rootDirectory,
                 resolveRootDirectory: this.config.resolve?.resolveRootDirectory ?? true,
@@ -100,12 +100,12 @@ export class ValidateFlowNx extends HAMIFlow<Record<string, any>, Config> {
             : new Node();
 
         this.startNode
-            .next(n('tbc-system:prepare-messages:nx', {
+            .next(n('tbc-system:prepare-messages', {
                 verbose: this.config?.verbose,
             }))
             .next(resolveFlowOrSkip)
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:load-specifications-flow:nx', {
+            .next(n('tbc-system:load-specifications-flow', {
                 verbose: shared.stage.verbose,
             }))
             .next(n('tbc-system:log-and-clear-messages'))

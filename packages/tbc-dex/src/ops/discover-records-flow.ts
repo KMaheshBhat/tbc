@@ -4,7 +4,7 @@ import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema
 
 import { Shared } from '../types.js';
 
-interface FlowConfig {
+interface Config {
     verbose: boolean;
     query: string;
     type?: string;
@@ -13,7 +13,7 @@ interface FlowConfig {
     outputKey: string;
 }
 
-const FlowConfigSchema: ValidationSchema = {
+const ConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         verbose: { type: 'boolean' },
@@ -26,15 +26,16 @@ const FlowConfigSchema: ValidationSchema = {
     required: ['verbose', 'outputKey'],
 };
 
-class DiscoverRecordsFlowStartNode extends HAMINode<Shared, FlowConfig> {
+class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
         return 'tbc-dex:discover-records-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
-        assert(shared.system?.rootDirectory, 'shared.system.rootDirectory is required for ViewRecordsFlow');
+        assert(shared.system?.rootDirectory, 'shared.system.rootDirectory is required for DiscoverRecordsFlow');
+        assert(shared.system?.protocol, 'protocol must be resolved before discover-records-flow');
 
-        // Initialize the view namespace
+        // Initialize the dex namespace
         shared.stage.dex = shared.stage.dex || {
             matches: [],
             records: [],
@@ -44,11 +45,11 @@ class DiscoverRecordsFlowStartNode extends HAMINode<Shared, FlowConfig> {
     }
 }
 
-export class DiscoverRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
+export class DiscoverRecordsFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
 
-    constructor(config: FlowConfig) {
-        const startNode = new DiscoverRecordsFlowStartNode(config);
+    constructor(config: Config) {
+        const startNode = new StartNode(config);
         super(startNode, config);
         this.startNode = startNode;
     }
@@ -60,9 +61,15 @@ export class DiscoverRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
     async prep(shared: Shared): Promise<void> {
         assert(this.config, 'flow must be configured');
         assert(shared.registry, 'registry is required');
+        assert(shared.system?.protocol, 'protocol must be resolved before discover-records-flow');
         const config = this.config;
         const n = shared.registry.createNode.bind(shared.registry);
-        const dexCollection = shared.system.protocol.dex.collection ?? 'dex';
+        const protocol = shared.system.protocol;
+        const dexCollection = protocol.dex.collection ?? 'dex';
+
+        // Get protocol-derived providers for dex
+        const dexQueriers = protocol.dex.recordQueriers;
+        const dexFetchers = protocol.dex.recordFetchers;
 
         const fsSequence = new Node();
         fsSequence
@@ -75,19 +82,19 @@ export class DiscoverRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                 },
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-fs:query-records'],
+                recordProviders: dexQueriers,
                 verbose: this.config.verbose,
             }))
             .next(n('core:assign', {
                 'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['tbc-record-fs:fetch-records'],
+                recordProviders: dexFetchers,
                 verbose: this.config.verbose,
             }))
             .next(n('tbc-system:prepare-records-manifest'))
             .next(this.config.verbose ? n('tbc-system:add-manifest-messages', {
-                source: 'view-records-flow',
+                source: 'discover-records-flow',
                 level: 'debug',
             }) : new Node())
             // 1. Setup Query
@@ -103,7 +110,7 @@ export class DiscoverRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                 query: config.query,
                 type: config.type,
                 limit: config.limit || 10,
-                outputKey: config.outputKey, // Tell DEX where to put the results in shared.stage
+                outputKey: config.outputKey,
             }))
             // 3. Map only IDs back
             .next(n('core:mutate', {
@@ -112,6 +119,11 @@ export class DiscoverRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                 },
             }))
             ;
+
+        // Get protocol-derived providers for the target protocol (from config.protocolKey)
+        const targetProtocol = protocol[config.protocolKey!];
+        const targetQueriers = targetProtocol?.recordQueriers ?? ['tbc-record-sqlite:query-records'];
+        const targetCollection = targetProtocol?.collection ?? 'mem';
 
         const rdbmsSequence = new Node();
         rdbmsSequence
@@ -123,38 +135,37 @@ export class DiscoverRecordsFlow extends HAMIFlow<Shared, FlowConfig> {
                         sortBy: 'id',
                         sortOrder: 'desc',
                     };
-                    s.record.collection = shared.system.protocol[config.protocolKey!].collection;
-                }
+                    s.record.collection = targetCollection;
+                },
             }))
             .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-sqlite:query-records'],
-                verbose: config.verbose
+                recordProviders: targetQueriers,
+                verbose: config.verbose,
             }))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
-                    // SQLite Querier usually returns result.IDs directly
+                    // Querier usually returns result.IDs directly
                     s.stage[config.outputKey] = s.record.result?.IDs || [];
-                }
+                },
             }));
 
         const branch =
             n('core:branch', {
                 branch: (s: Shared) => {
-                    const protocol = s.system.protocol[config.protocolKey!];
+                    const targetProtocol = s.system.protocol[config.protocolKey!];
                     // If we have a dedicated querier (like SQLite), use the fast path
-                    const path = protocol?.recordQueriers?.includes('tbc-record-sqlite:query-records')
-                        ? 'rdbms-path'
-                        : 'fs-path';
+                    const hasRdbms = targetProtocol?.recordQueriers?.some((q: string) => q.includes('sqlite'));
+                    const path = hasRdbms ? 'rdbms-path' : 'fs-path';
                     return path;
-                }
+                },
             });
         branch.on('fs-path', fsSequence);
         branch.on('rdbms-path', rdbmsSequence);
         this.startNode.next(branch);
     }
 
-    validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema);
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, ConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],

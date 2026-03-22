@@ -29,7 +29,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-system:generate-tsids-flow-start:nx';
+        return 'tbc-system:generate-tsids-flow-start';
     }
 
     async post(shared: Record<string, any>, prepRes: unknown, execRes: unknown): Promise<string> {
@@ -38,7 +38,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class GenerateTSIDsFlowNx extends HAMIFlow<Record<string, any>, Config> {
+export class GenerateTSIDsFlow extends HAMIFlow<Record<string, any>, Config> {
     startNode: Node;
     config: Config;
 
@@ -50,7 +50,7 @@ export class GenerateTSIDsFlowNx extends HAMIFlow<Record<string, any>, Config> {
     }
 
     kind(): string {
-        return 'tbc-system:generate-tsids-flow:nx';
+        return 'tbc-system:generate-tsids-flow';
     }
 
     validateConfig(config: Config): HAMINodeConfigValidateResult {
@@ -65,7 +65,7 @@ export class GenerateTSIDsFlowNx extends HAMIFlow<Record<string, any>, Config> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
         this.startNode
-            .next(n('tbc-system:prepare-messages:nx', {
+            .next(n('tbc-system:prepare-messages', {
                 verbose: true,
             }))
             .next(n('tbc-mint:mint-ids-flow', {
@@ -76,7 +76,7 @@ export class GenerateTSIDsFlowNx extends HAMIFlow<Record<string, any>, Config> {
                     },
                 ],
             }))
-            .next(n('tbc-system:add-minted-messages:nx', {
+            .next(n('tbc-system:add-minted-messages', {
                 source: 'generate-tsids-flow',
                 level: 'info',
             }))

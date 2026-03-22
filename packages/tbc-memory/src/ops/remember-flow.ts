@@ -1,15 +1,17 @@
 import assert from 'node:assert';
 
 import { Node } from 'pocketflow';
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, ValidationSchema, validateAgainstSchema } from '@hami-frameworx/core';
-
-import { Shared } from '../types.js';
+import { Shared } from '../types';
 
 interface Config {
-    verbose: boolean;
+    verbose?: boolean;
     rootDirectory?: string;
-    agentType: string;
+    content?: string;
+    type: string;
+    title?: string;
+    tags?: string[];
 }
 
 const ConfigSchema: ValidationSchema = {
@@ -17,75 +19,76 @@ const ConfigSchema: ValidationSchema = {
     properties: {
         verbose: { type: 'boolean' },
         rootDirectory: { type: 'string' },
-        agentType: { type: 'string' },
+        content: { type: 'string' },
+        type: { type: 'string' },
+        title: { type: 'string' },
+        tags: { type: 'array', items: { type: 'string' } },
     },
-    required: ['agentType'],
+    required: ['type'],
+};
+
+/**
+ * Protocol Registry
+ * Maps record_type to the specific providers and ID strategies.
+ */
+const RECORD_PROTOCOLS: Record<string, { provider: string; idType: 'tbc-mint:uuid-mint' | 'tbc-mint:tsid-mint' }> = {
+    note: { provider: 'tbc-system:synthesize-record', idType: 'tbc-mint:uuid-mint' },
+    goal: { provider: 'tbc-system:synthesize-record', idType: 'tbc-mint:uuid-mint' },
+    log: { provider: 'tbc-system:synthesize-record', idType: 'tbc-mint:uuid-mint' },
+    party: { provider: 'tbc-system:synthesize-record', idType: 'tbc-mint:uuid-mint' },
 };
 
 class StartNode extends HAMINode<Shared, Config> {
     kind(): string {
-        return 'tbc-interface:agent-integrate-flow-start:nx';
+        return 'tbc-memory:remember-flow-start';
     }
 
     async post(shared: Shared): Promise<string> {
         shared.stage = shared.stage || {};
         shared.system = shared.system || {};
+
+        // 1. Setup Base Stage context
         shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
         shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
-        shared.stage.agentType = shared.stage.agentType || this.config?.agentType;
-        const targetType = shared.stage.agentType || 'generic';
-        const protocol = AGENT_PROTOCOLS[targetType];
+
+        // 2. Resolve Protocol via Type
+        const targetType = shared.stage.type || this.config?.type || 'note';
+        const protocol = RECORD_PROTOCOLS[targetType];
+
         assert(protocol, `Protocol Error: No registered protocol for record type [${targetType}]`);
+
         shared.stage.activeProtocol = protocol;
-        shared.stage.rootCollection = '.';
+        shared.stage.memoryInput = {
+            content: shared.content || this.config?.content || '',
+            type: targetType,
+            title: shared.title || this.config?.title,
+            tags: shared.tags || this.config?.tags || [],
+        };
+
+        shared.stage.memCollection = 'mem';
+
         return 'default';
     }
 }
 
-const AGENT_PROTOCOLS: Record<string, {
-    assetProvider: string;
-    synthesisProvider: string;
-}> = {
-    'generic': {
-        assetProvider: 'tbc-interface:load-generic-assets',
-        synthesisProvider: 'tbc-interface:synthesize-generic-records',
-    },
-    'gemini-cli': {
-        assetProvider: 'tbc-gemini:load-assets',
-        synthesisProvider: 'tbc-gemini:synthesize-integration-records',
-    },
-    'goose': {
-        assetProvider: 'tbc-goose:load-assets',
-        synthesisProvider: 'tbc-goose:synthesize-integration-records',
-    },
-    'github-copilot': {
-        assetProvider: 'tbc-github-copilot:load-assets',
-        synthesisProvider: 'tbc-github-copilot:synthesize-integration-records',
-    },
-    'kilocode': {
-        assetProvider: 'tbc-kilocode:load-assets',
-        synthesisProvider: 'tbc-kilocode:synthesize-integration-records',
-    },
-};
-
-export class AgentIntegrateFlowNx extends HAMIFlow<Shared, Config> {
+export class RememberFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
-    config: Config;
 
     constructor(config: Config) {
         const startNode = new StartNode(config);
         super(startNode, config);
         this.startNode = startNode;
-        this.config = config;
     }
 
     kind(): string {
-        return 'tbc-interface:agent-integrate-flow:nx';
+        return 'tbc-memory:remember-flow';
     }
 
-    async prep(shared: Record<string, any>): Promise<void> {
+    async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
+
+        // --- ABORT SEQUENCE: System Guard ---
         const abortSequence = new Node();
         abortSequence
             .next(n('core:mutate', {
@@ -93,21 +96,25 @@ export class AgentIntegrateFlowNx extends HAMIFlow<Shared, Config> {
                     s.stage.messages.push({
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
-                        source: 'agent-integrate-flow:nx',
+                        source: 'remember-flow',
                         message: 'has no existing companion (not a valid TBC Root)',
                         suggestion: 'Use "tbc sys init" instead.',
                     });
                 },
             }))
             .next(n('tbc-system:log-and-clear-messages'));
-        const branchToAbort = n('core:branch', { branch: (s: Shared) => s.stage.validationResult?.success ? 'default' : 'abort' });
+
+        const branchToAbort = n('core:branch', {
+            branch: (s: Shared) => s.stage.validationResult?.success ? 'default' : 'abort',
+        });
         branchToAbort.on('abort', abortSequence);
 
+        // --- MAIN ORCHESTRATION PIPELINE ---
         this.startNode
-            .next(n('tbc-system:prepare-messages:nx', {
+            .next(n('tbc-system:prepare-messages', {
                 verbose: this.config?.verbose,
             }))
-            .next(n('tbc-system:resolve-flow:nx', {
+            .next(n('tbc-system:resolve-flow', { 
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
                 resolveRootDirectory: true,
@@ -119,56 +126,76 @@ export class AgentIntegrateFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (s: Shared) => {
                     s.stage.messages.push({
                         level: 'info',
-                        source: 'agent-integrate-flow:nx',
+                        source: 'remember-flow',
                         message: 'Checking first ...',
                     });
                 },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:validate-flow:nx', {
+            .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))
             .next(branchToAbort)
-            .next(n('tbc-system:load-system-assets'))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
-                    s.stage.synthesizeRequests = [{
-                        type: 'role-definition',
-                        provider: 'tbc-system:synthesize-value',
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'remember-flow',
+                        message: 'existing valid TBC root found, proceeding ...',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+
+            // 1. IDENTITY MINTING
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    // We populate the key we promised to point to
+                    s.stage.mintRequests = [{
+                        type: s.stage.activeProtocol.idType,
+                        count: 1,
                     }];
                 },
             }))
-            .next(n('tbc-synthesize:synthesize-value-flow', {
-                requestsKey: 'synthesizeRequests',
-                valueTargetKey: 'roleDefinition',
+            .next(n('tbc-mint:mint-ids-flow', {
+                requestsKey: 'mintRequests', // Tell the flow where to look on s.stage
             }))
+
+            // 2. RECORD REALIZATION (Synthesis)
+            .next(n('tbc-system:load-system-assets'))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
-                    s.stage.records = undefined;
-                },
-            }))
-            .next(n(AGENT_PROTOCOLS[shared.stage.agentType].assetProvider))
-            .next(n('core:mutate', {
-                mutate: (s: Shared) => {
+                    // Correcting the lookup to 'batch' to match MintIDsFlow output
+                    const mintedId = s.stage.minted?.batch?.[0];
+                    assert(mintedId, 'Identity Minting failed: No ID found in stage.minted.batch.');
+
                     s.stage.synthesizeRequests = [{
-                        type: s.stage.agentType,
-                        provider: s.stage.activeProtocol.synthesisProvider,
+                        type: s.stage.memoryInput.type,
+                        provider: s.stage.activeProtocol.provider,
+                        meta: {
+                            ...s.stage.memoryInput,
+                            id: mintedId,
+                        },
                     }];
                 },
             }))
             .next(n('tbc-synthesize:synthesize-record-flow', {
                 requestsKey: 'synthesizeRequests',
             }))
+
+            // 3. PERSISTENCE
             .next(n('tbc-write:write-records-flow', {
                 verbose: this.config?.verbose,
-                recordStorers: ['tbc-record-fs:store-records'],
                 sourcePath: 'record.records',
-                collection: 'rootCollection',
-                syncIndex: false,
+                collection: 'memCollection',
+                protocolKey: 'mem',
+                syncIndex: true,
             }))
+            // 4. FEEDBACK
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
+                    const finalId = s.stage.minted?.batch?.[0];
                     shared.stage.messages.push({
                         level: 'info',
                         kind: 'raw',
@@ -177,7 +204,7 @@ export class AgentIntegrateFlowNx extends HAMIFlow<Shared, Config> {
                     s.stage.messages.push({
                         level: 'info',
                         kind: 'raw',
-                        message: `[✓] Integration files created for Agent Type: ${s.stage.agentType}`,
+                        message: `[✓] Memory persisted (${s.stage.memoryInput.type}): ${finalId}`,
                     });
                     shared.stage.messages.push({
                         level: 'info',
@@ -186,9 +213,9 @@ export class AgentIntegrateFlowNx extends HAMIFlow<Shared, Config> {
                     });
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'agent-integrate-flow:nx',
-                        message: 'Agent integration done.',
-                        suggestion: 'Highly recommended that the Prime User restarts the interface session for agent integration to take effect.',
+                        source: 'remember-flow',
+                        message: `Record: ${shared.stage.memCollection}/${finalId}.md`,
+                        suggestion: 'This file now contains the memory.  Adjust and enhance it if required.',
                     });
                 },
             }))
@@ -202,9 +229,8 @@ export class AgentIntegrateFlowNx extends HAMIFlow<Shared, Config> {
 
     async run(shared: Shared): Promise<string | undefined> {
         shared.stage = shared.stage || {};
-        shared.stage.verbose = shared.verbose || this.config?.verbose;
-        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
-        shared.stage.agentType = this.config?.agentType;
+        shared.stage.verbose = this.config?.verbose;
+        shared.stage.rootDirectory = this.config?.rootDirectory;
         return super.run(shared);
     }
 }

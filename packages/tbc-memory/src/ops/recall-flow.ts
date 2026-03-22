@@ -25,7 +25,7 @@ const ConfigSchema: ValidationSchema = {
 };
 
 class StartNode extends HAMINode<Shared, Config> {
-    kind() { return 'tbc-memory:recall-flow-start:nx'; }
+    kind() { return 'tbc-memory:recall-flow-start'; }
 
     async post(shared: Shared): Promise<string> {
         shared.stage = shared.stage || {};
@@ -42,7 +42,7 @@ class StartNode extends HAMINode<Shared, Config> {
     }
 }
 
-export class RecallFlowNx extends HAMIFlow<Shared, Config> {
+export class RecallFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
 
     constructor(config: Config) {
@@ -51,7 +51,7 @@ export class RecallFlowNx extends HAMIFlow<Shared, Config> {
         this.startNode = startNode;
     }
 
-    kind() { return 'tbc-memory:recall-flow:nx'; }
+    kind() { return 'tbc-memory:recall-flow'; }
 
     async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
@@ -69,7 +69,7 @@ export class RecallFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (shared: Shared) => {
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'recall-flow:nx',
+                        source: 'recall-flow',
                         message: 'This is **your** identity.',
                         suggestion: 'Lookup the record to know more.',
                     });
@@ -87,7 +87,7 @@ export class RecallFlowNx extends HAMIFlow<Shared, Config> {
                 mutate: (shared: Shared) => {
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'recall-flow:nx',
+                        source: 'recall-flow',
                         message: `This is your prime's identity.`,
                         suggestion: 'Lookup the record to know more.',
                     });
@@ -117,12 +117,12 @@ export class RecallFlowNx extends HAMIFlow<Shared, Config> {
 
                     // Log for the dev/verbose mode
                     if (s.stage.verbose) {
-                        console.log(`[»] ── debug | recall-flow:nx | Searching DEX for: ${s.view.query} (Type: ${s.view.type || 'all'})`);
+                        console.log(`[»] ── debug | recall-flow | Searching DEX for: ${s.view.query} (Type: ${s.view.type || 'all'})`);
                     }
                 },
             }))
             // This flow handles: Index Scan -> ID Mapping -> Record Fetching
-            .next(n('tbc-view:view-records-flow:nx', {
+            .next(n('tbc-view:view-records-flow', {
                 query: this.config?.query,
                 type: this.config?.type,
                 limit: this.config?.limit,
@@ -131,21 +131,21 @@ export class RecallFlowNx extends HAMIFlow<Shared, Config> {
             }))
             .next(n('tbc-memory:add-recall-messages', {
                 title: 'Recalled Memories',
-                source: 'recall-flow:nx',
+                source: 'recall-flow',
             }))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     if (s.view.records.length === 0) {
                         shared.stage.messages.push({
                             level: 'info',
-                            source: 'recall-flow:nx',
+                            source: 'recall-flow',
                             message: 'No memory records found.',
                             suggestion: 'Try a different query!',
                         });
                     } else {
                         shared.stage.messages.push({
                             level: 'info',
-                            source: 'recall-flow:nx',
+                            source: 'recall-flow',
                             message: `Found ${s.view.records.length} memory record(s).`,
                             suggestion: 'Lookup those record(s) to know more.',
                         });
@@ -166,7 +166,7 @@ export class RecallFlowNx extends HAMIFlow<Shared, Config> {
                     s.stage.messages.push({
                         level: 'error',
                         code: 'OVERWRITE-GUARD',
-                        source: 'recall-flow:nx',
+                        source: 'recall-flow',
                         message: 'has no existing companion (not a valid TBC Root)',
                         suggestion: 'Use "tbc sys init" instead.',
                     });
@@ -181,10 +181,10 @@ export class RecallFlowNx extends HAMIFlow<Shared, Config> {
 
         // --- ORCHESTRATION ---
         this.startNode
-            .next(n('tbc-system:prepare-messages:nx', {
+            .next(n('tbc-system:prepare-messages', {
                 verbose: this.config?.verbose,
             }))
-            .next(n('tbc-system:resolve-flow:nx', { 
+            .next(n('tbc-system:resolve-flow', { 
                 verbose: this.config?.verbose,
                 rootDirectory: this.config?.rootDirectory,
                 resolveRootDirectory: true,
@@ -192,7 +192,7 @@ export class RecallFlowNx extends HAMIFlow<Shared, Config> {
                 resolveCollections: true,
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:validate-flow:nx', {
+            .next(n('tbc-system:validate-flow', {
                 verbose: shared.stage.verbose,
                 rootDirectory: shared.stage.rootDirectory,
             }))

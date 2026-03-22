@@ -21,11 +21,11 @@ const ConfigSchema: ValidationSchema = {
     required: ['verbose'],
 };
 
-export class PrepareMessagesNodeNx extends HAMINode<Shared, Config> {
+export class PrepareMessagesNode extends HAMINode<Shared, Config> {
     config: Config;
 
     kind(): string {
-        return 'tbc-system:prepare-messages:nx';
+        return 'tbc-system:prepare-messages';
     }
 
     constructor(config: Config) {

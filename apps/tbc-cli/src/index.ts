@@ -33,7 +33,7 @@ let cmdGen = new Command('gen')
 let cmdGenUuid = new Command('uuid')
     .description('Generate/mint IDs of UUID v7')
     .action(async (_opts, cmd) => {
-        const flowName = 'tbc-system:generate-uuids-flow:nx';
+        const flowName = 'tbc-system:generate-uuids-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const flowConfig = {
@@ -56,7 +56,7 @@ cmdGen.addCommand(cmdGenUuid);
 let cmdGenTsid = new Command('tsid')
     .description('Generate/mint IDs of timestamp')
     .action(async (_opts, cmd) => {
-        const flowName = 'tbc-system:generate-tsids-flow:nx';
+        const flowName = 'tbc-system:generate-tsids-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const flowConfig = {
@@ -88,7 +88,7 @@ let cmdSysInit = new Command('init')
     .option('--profile <type>', 'System profile (baseline|next)', 'baseline')
     .action(async (opts) => {
         // Use nx flows
-        const flowName = 'tbc-system:init-flow:nx';
+        const flowName = 'tbc-system:init-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -122,7 +122,7 @@ let cmdSysUpgrade = new Command('upgrade')
     .description('Upgrade an existing Third Brain Companion directory')
     .action(async () => {
         // Use nx flows
-        const flowName = 'tbc-system:upgrade-flow:nx';
+        const flowName = 'tbc-system:upgrade-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -151,7 +151,7 @@ let cmdSysValidate = new Command('validate')
     .description('Validate current directory to check if it is a valid Third Brain Companion directory')
     .action(async () => {
         // Use nx flows
-        const flowName = 'tbc-system:validate-flow:nx';
+        const flowName = 'tbc-system:validate-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -189,7 +189,7 @@ let cmdMemRemember = new Command('remember')
     .option('--title <title>', 'Explicit title for the record')
     .option('--tags <tags>', 'Comma-separated tags')
     .action(async (content, opts) => {
-        const flowName = 'tbc-memory:remember-flow:nx';
+        const flowName = 'tbc-memory:remember-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -223,7 +223,7 @@ let cmdMemRecall = new Command('recall')
     .option('-t, --type <type>', 'Filter by record type (note, goal, log, party, structure)')
     .option('-l, --limit <number>', 'Limit the number of results', parseInt, 10)
     .action(async (query, opts) => {
-        const flowName = 'tbc-memory:recall-flow:nx';
+        const flowName = 'tbc-memory:recall-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -259,7 +259,7 @@ let cmdActStart = new Command('start')
     .description('Start a new activity or resume from backlog')
     .argument('[uuid]', 'Activity UUID (optional, generates new if not provided)')
     .action(async (uuid) => {
-        const flowName = 'tbc-activity:act-start-flow:nx';
+        const flowName = 'tbc-activity:act-start-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -285,7 +285,7 @@ cmdAct.addCommand(cmdActStart);
 let cmdActShow = new Command('show')
     .description('Show current and backlog activities')
     .action(async () => {
-        const flowName = 'tbc-activity:act-show-flow:nx';
+        const flowName = 'tbc-activity:act-show-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -311,7 +311,7 @@ let cmdActPause = new Command('pause')
     .description('Move activity from current to backlog')
     .argument('<uuid>', 'Activity UUID')
     .action(async (uuid) => {
-        const flowName = 'tbc-activity:act-pause-flow:nx';
+        const flowName = 'tbc-activity:act-pause-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -338,7 +338,7 @@ let cmdActClose = new Command('close')
     .description('Close activity and assimilate logs to memory')
     .argument('<uuid>', 'Activity UUID')
     .action(async (uuid) => {
-        const flowName = 'tbc-activity:act-close-flow:nx';
+        const flowName = 'tbc-activity:act-close-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -369,7 +369,7 @@ let cmdInt = new Command('int')
 let cmdIntProbe = new Command('probe')
     .description('Probe the environment for TBC CLI and system information')
     .action(async () => {
-        const flowName = 'tbc-interface:int-probe-flow:nx';
+        const flowName = 'tbc-interface:int-probe-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -396,7 +396,7 @@ cmdInt.addCommand(cmdIntProbe);
 let cmdIntGeneric = new Command('generic')
     .description('Generate generic AI assistant interface configuration')
     .action(async () => {
-        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const flowName = 'tbc-interface:agent-integrate-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -422,7 +422,7 @@ cmdInt.addCommand(cmdIntGeneric);
 let cmdIntGeminiCli = new Command('gemini-cli')
     .description('Generate Gemini CLI interface configuration')
     .action(async () => {
-        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const flowName = 'tbc-interface:agent-integrate-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -448,7 +448,7 @@ cmdInt.addCommand(cmdIntGeminiCli);
 let cmdIntGoose = new Command('goose')
     .description('Generate Goose interface configuration')
     .action(async () => {
-        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const flowName = 'tbc-interface:agent-integrate-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -474,7 +474,7 @@ cmdInt.addCommand(cmdIntGoose);
 let cmdIntGitHubCopilot = new Command('github-copilot')
     .description('Generate GitHub Copilot interface configuration')
     .action(async () => {
-        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const flowName = 'tbc-interface:agent-integrate-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
@@ -500,7 +500,7 @@ cmdInt.addCommand(cmdIntGitHubCopilot);
 let cmdIntKilocode = new Command('kilocode')
     .description('Generate Kilo Code interface configuration')
     .action(async () => {
-        const flowName = 'tbc-interface:agent-integrate-flow:nx';
+        const flowName = 'tbc-interface:agent-integrate-flow';
         const cliOpts = program.opts();
         const isVerbose = !!cliOpts.verbose;
         const root = cliOpts.root;
