@@ -151,12 +151,16 @@ class FSStore implements RecordStore {
         return store;
     }
 
-    async index(action: 'rebuild' | 'clear' | 'verify', collection: string): Promise<void> {
+    async index(collection: string, options: {
+        event: 'full-build' | 'incremental';
+        recordIds?: string[];
+        params?: Record<string, any>;
+    }): Promise<void> {
         this.ensureInitialized();
         const dexDir = join(this.rootDirectory, this.dexCollection);
         if (!existsSync(dexDir)) mkdirSync(dexDir, { recursive: true });
 
-        if (action === 'rebuild') {
+        if (options.event === 'full-build') {
             const collectionPath = join(this.rootDirectory, collection);
             if (!existsSync(collectionPath)) return;
 
@@ -182,6 +186,8 @@ class FSStore implements RecordStore {
                 const indexPath = join(dexDir, `${collection}.${kind}.jsonl`);
                 this.updateDexShard(indexPath, records);
             }
+        } else if (options.event === 'incremental') {
+            throw new Error('FSStore.index: incremental not implemented');
         }
     }
 

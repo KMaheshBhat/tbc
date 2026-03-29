@@ -26,7 +26,11 @@ export interface RecordStore {
     /** * Indexing / Reconciliation:
      * Scoped by collection to allow surgical rebuilds of specific domains.
      */
-    index?: (action: 'rebuild' | 'clear' | 'verify', collection: string) => Promise<void>;
+    index?: (collection: string, options: {
+        event: 'full-build' | 'incremental';
+        recordIds?: string[];  // Context for incremental updates
+        params?: Record<string, any>;  // Static config from Protocol
+    }) => Promise<void>;
 
     /** * Persistence: 
      * The collection is typically embedded in TBCRecord, but explicit 
