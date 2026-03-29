@@ -69,11 +69,11 @@ export class LoadSpecificationsFlow extends HAMIFlow<Shared, Config> {
         const proto = shared.system.protocol;
         const verbose = this.config.verbose ?? false;
         // Get protocol-derived providers for sys (used for sys, sysCore, sysExt)
-        const sysQueriers = proto.sys.recordQueriers;
-        const sysFetchers = proto.sys.recordFetchers;
+        const sysQueriers = proto.sys.on?.query?.map(p => p.id) ?? [];
+        const sysFetchers = proto.sys.on?.fetch?.map(p => p.id) ?? [];
         // Get protocol-derived providers for skills
-        const skillsQueriers = proto.skills.recordQueriers;
-        const skillsFetchers = proto.skills.recordFetchers;
+        const skillsQueriers = proto.skills.on?.query?.map(p => p.id) ?? [];
+        const skillsFetchers = proto.skills.on?.fetch?.map(p => p.id) ?? [];
         this.startNode
             .next(n('core:assign', {
                 'record.rootDirectory': 'system.rootDirectory',

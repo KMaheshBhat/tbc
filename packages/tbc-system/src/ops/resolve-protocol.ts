@@ -114,16 +114,23 @@ export class ResolveProtocolNode extends HAMINode<Shared> {
         ];
 
         if (possibleDbPaths.some(p => existsSync(p))) {
-            // Write-side
-            if (!protocol.mem.recordStorers.includes('tbc-record-sqlite:store-records')) {
-                protocol.mem.recordStorers.push('tbc-record-sqlite:store-records');
+            // Write-side: Add SQLite storer to mem.on.store
+            const memStore = protocol.mem.on?.store || [];
+            if (!memStore.some(p => p.id === 'tbc-record-sqlite:store-records')) {
+                protocol.mem.on = protocol.mem.on || {};
+                protocol.mem.on.store = [...memStore, { id: 'tbc-record-sqlite:store-records' }];
             }
             /*
-            // Discovery-side (Fallthrough Priority)
-            protocol.mem.recordQueriers = [
-                'tbc-record-sqlite:query-records',
-                ...protocol.mem.recordQueriers.filter(q => q !== 'tbc-record-sqlite:query-records')
-            ];
+            // Discovery-side (Fallthrough Priority) - commented out, not used
+            const memQuery = protocol.mem.on?.query || [];
+            const hasSqliteQuerier = memQuery.some(p => p.id === 'tbc-record-sqlite:query-records');
+            if (!hasSqliteQuerier) {
+                protocol.mem.on = protocol.mem.on || {};
+                protocol.mem.on.query = [
+                    { id: 'tbc-record-sqlite:query-records' },
+                    ...memQuery
+                ];
+            }
             */
             messages.push({
                 level: 'info',

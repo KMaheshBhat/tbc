@@ -65,8 +65,8 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
         const protocol = shared.system.protocol;
         const collection = protocol[config.protocolKey!]?.collection ?? 'mem';
 
-        // Get record fetchers from protocol
-        const recordFetchers = protocol[config.protocolKey!]?.recordFetchers ?? ['tbc-record-fs:fetch-records'];
+        // Get fetch providers from protocol.on.fetch, fallback to fs
+        const fetchProviders = protocol[config.protocolKey!]?.on?.fetch?.map(p => p.id) ?? ['tbc-record-fs:fetch-records'];
 
         this.startNode
             .next(n('tbc-dex:discover-records-flow', {
@@ -83,7 +83,7 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
             }))
             // Execute Settled Fetch Logic - use protocol-derived fetchers
             .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: recordFetchers,
+                recordProviders: fetchProviders,
                 verbose: config.verbose,
             }))
             // Project Results & Reporting

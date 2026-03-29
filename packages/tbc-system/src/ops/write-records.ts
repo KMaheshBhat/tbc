@@ -9,7 +9,7 @@ interface FlowConfig {
     verbose: boolean;
     sourcePath: string;
     collection: string;
-    recordStorers: string[];
+    storeProviders?: Array<{ id: string; config?: Record<string, any> }>;
     protocolKey: 'sys' | 'skills' | 'mem' | 'dex' | 'act' | undefined;
     syncIndex: boolean;
 }
@@ -20,7 +20,7 @@ const FlowConfigSchema: ValidationSchema = {
         verbose: { type: 'boolean' },
         sourcePath: { type: 'string' },
         collection: { type: 'string' },
-        recordStorers: { type: 'array', items: { type: 'string' } },
+        storeProviders: { type: 'array' },
         protocolKey: { type: 'string', enum: ['sys', 'skills', 'mem', 'dex', 'act']},
     },
     required: ['verbose', 'sourcePath', 'collection'],
@@ -57,7 +57,9 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         const n = shared.registry.createNode.bind(shared.registry);
         const sourcePath = this.config.sourcePath;
         const collection : string = shared.stage[this.config.collection];
-        const recordStorers = shared.system.protocol?.[this.config.protocolKey!]?.recordStorers ?? this.config.recordStorers; 
+        // Get store providers from protocol.on.store, fallback to config
+        const proto = shared.system.protocol?.[this.config.protocolKey!];
+        const storeProviders = proto?.on?.store?.map(p => p.id) ?? this.config.storeProviders?.map(p => p.id) ?? []; 
         const indexer = this.config.syncIndex ? n('tbc-dex:sync-incremental-index', {
             sourcePath: this.config.sourcePath,
             collection: collection,
@@ -85,7 +87,7 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
             // 2. Delegate Storage (The "Command" Side)
             // This node/flow is the authority on how to write 'raw', 'markdown', etc.
             .next(n('tbc-record:store-records-flow', {
-                recordProviders: recordStorers,
+                recordProviders: storeProviders,
                 verbose: this.config.verbose,
             }))
             // 3. Delegate Indexing (The "Query" Side)

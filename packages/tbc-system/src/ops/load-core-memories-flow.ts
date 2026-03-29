@@ -50,7 +50,7 @@ export class LoadCoreMemoriesFlow extends HAMIFlow<Shared, Config> {
         const n = shared.registry.createNode.bind(shared.registry);
 
         // Get protocol-derived fetchers for mem collection
-        const memFetchers = shared.system.protocol.mem.recordFetchers;
+        const memFetchers = shared.system.protocol.mem.on?.fetch?.map(p => p.id) ?? [];
 
         this.startNode
             // Set mem collection

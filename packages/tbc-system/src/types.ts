@@ -21,13 +21,21 @@ export type TBCViewOperation = {
 };
 
 type TBCCollectionProtocol = {
+    /** The collection name to use within the stores */
     collection: string;
-    /** The Write-side: Every storer in this list gets the data (Multicast) */
-    recordStorers: string[]; 
-    /** The Discovery-side: Try these in order, stop at the first hit (Fallthrough) */
-    recordQueriers: string[]; 
-    /** The Hydration-side: Fetch from all, merging subsequent data onto the first (Overlay) */
-    recordFetchers: string[]; 
+    /** Event-driven provider configuration */
+    on?: {
+        /** The Write-side: Every storer in this list gets the data (Multicast) */
+        'store'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** The Discovery-side: Try these in order, stop at the first hit (Fallthrough) */
+        'query'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** The Hydration-side: Fetch from all, merging subsequent data onto the first (Overlay) */
+        'fetch'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** Full index rebuild */
+        'index-full'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** Incremental index update */
+        'index-incremental'?: Array<{ id: string; config?: Record<string, any> }>;
+    };
 };
 
 type TBCProtocol = {

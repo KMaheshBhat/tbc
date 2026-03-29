@@ -68,8 +68,8 @@ export class DiscoverRecordsFlow extends HAMIFlow<Shared, Config> {
         const dexCollection = protocol.dex.collection ?? 'dex';
 
         // Get protocol-derived providers for dex
-        const dexQueriers = protocol.dex.recordQueriers;
-        const dexFetchers = protocol.dex.recordFetchers;
+        const dexQueriers = protocol.dex.on?.query?.map(p => p.id) ?? [];
+        const dexFetchers = protocol.dex.on?.fetch?.map(p => p.id) ?? [];
 
         const fsSequence = new Node();
         fsSequence
@@ -122,7 +122,7 @@ export class DiscoverRecordsFlow extends HAMIFlow<Shared, Config> {
 
         // Get protocol-derived providers for the target protocol (from config.protocolKey)
         const targetProtocol = protocol[config.protocolKey!];
-        const targetQueriers = targetProtocol?.recordQueriers ?? ['tbc-record-sqlite:query-records'];
+        const targetQueriers = targetProtocol?.on?.query?.map(p => p.id) ?? ['tbc-record-sqlite:query-records'];
         const targetCollection = targetProtocol?.collection ?? 'mem';
 
         const rdbmsSequence = new Node();
@@ -154,7 +154,7 @@ export class DiscoverRecordsFlow extends HAMIFlow<Shared, Config> {
                 branch: (s: Shared) => {
                     const targetProtocol = s.system.protocol[config.protocolKey!];
                     // If we have a dedicated querier (like SQLite), use the fast path
-                    const hasRdbms = targetProtocol?.recordQueriers?.some((q: string) => q.includes('sqlite'));
+                    const hasRdbms = targetProtocol?.on?.query?.some((p: any) => p.id.includes('sqlite'));
                     const path = hasRdbms ? 'rdbms-path' : 'fs-path';
                     return path;
                 },
