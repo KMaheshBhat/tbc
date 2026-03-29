@@ -191,7 +191,7 @@ describe('FSStore Contract (RecordStore)', () => {
             const manual = join(TEST_DIR, 'notes', 'manual.md');
             writeFileSync(manual, '---\nrecord_type: note\n---\n# Manual');
 
-            await store.index('rebuild', 'notes');
+            await store.index('notes', { event: 'full-build' });
 
             const dexPath = join(TEST_DIR, 'dex', 'notes.note.jsonl');
             const lines = readFileSync(dexPath, 'utf-8')
@@ -206,7 +206,7 @@ describe('FSStore Contract (RecordStore)', () => {
             const bad = join(TEST_DIR, 'notes', 'bad.json');
             writeFileSync(bad, '{ invalid json');
 
-            await store.index('rebuild', 'notes');
+            await store.index('notes', { event: 'full-build' });
             // Should not throw
         });
     });
