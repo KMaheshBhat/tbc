@@ -189,7 +189,7 @@ export class ActCloseFlow extends HAMIFlow<Shared, Config> {
                     primaryRecord && s.stage.activeDrafts.push({
                         ...primaryRecord,
                         id: activityId,
-                        filename: join(s.stage.memCollection, targetFile),
+                        filename: targetFile,
                     });
                 },
             }))

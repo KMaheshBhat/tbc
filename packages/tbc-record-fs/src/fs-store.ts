@@ -60,7 +60,7 @@ class FSStore implements RecordStore {
             this.validateId(record.id);
 
             if (!record.record_title) {
-                if (record.content) {
+                if (typeof record.content === 'string' && record.content) {
                     const match = record.content.match(/^#\s+(.+)/m);
                     if (match) record.record_title = match[1].trim();
                 } else if (record.data?.title) {
@@ -81,9 +81,10 @@ class FSStore implements RecordStore {
             } else if (format === 'json') {
                 writeFileSync(filePath, JSON.stringify(record, null, 2));
             } else if (format === 'yaml') {
-                writeFileSync(filePath, yaml.dump(record.content || record));
+                const yamlContent = typeof record.content === 'object' ? record.content : (record.content || record);
+                writeFileSync(filePath, yaml.dump(yamlContent));
             } else {
-                writeFileSync(filePath, record.content || '');
+                writeFileSync(filePath, typeof record.content === 'string' ? record.content : JSON.stringify(record.content || ''));
             }
 
             const kind = record.record_type || record.kind || 'unknown';

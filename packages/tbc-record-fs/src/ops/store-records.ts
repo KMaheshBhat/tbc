@@ -9,11 +9,12 @@ import { TBCRecordFSShared as Shared } from '../types.js';
 const storeCache: Map<string, FSStore> = new Map();
 
 async function getOrCreateStore(rootDirectory: string, collection: string, config: Config): Promise<FSStore> {
-    let store = storeCache.get(`${rootDirectory}:${collection}`);
+    const cacheKey = `${rootDirectory}:${collection}`;
+    let store = storeCache.get(cacheKey);
     if (!store) {
         store = new FSStore();
         await store.initialize({ rootDirectory, ...config });
-        storeCache.set(rootDirectory, store);
+        storeCache.set(cacheKey, store);
     }
     return store;
 }

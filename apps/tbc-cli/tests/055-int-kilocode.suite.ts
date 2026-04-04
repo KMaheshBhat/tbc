@@ -15,13 +15,10 @@ describe('🐵 LETS-GO: tbc int generate (Kilocode)', () => {
             'int', 'kilocode',
             '--root', TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
         expect(output).toContain('Agent Type: kilocode');
-
         const kiloPath = join(TBC_ROOT, '.kilocodemodes');
         expect(existsSync(kiloPath)).toBe(true);
-
         const content = readFileSync(kiloPath, 'utf-8');
 
         // 1. Structural Validation (YAML Schema)

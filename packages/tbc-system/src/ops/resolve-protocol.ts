@@ -114,11 +114,17 @@ export class ResolveProtocolNode extends HAMINode<Shared> {
         ];
 
         if (possibleDbPaths.some(p => existsSync(p))) {
-            // Write-side: Add SQLite storer to mem.on.store
+            // Write-side: Add SQLite storer to mem.on.store while preserving existing config
             const memStore = protocol.mem.on?.store || [];
             if (!memStore.some(p => p.id === 'tbc-record-sqlite:store-records')) {
                 protocol.mem.on = protocol.mem.on || {};
                 protocol.mem.on.store = [...memStore, { id: 'tbc-record-sqlite:store-records' }];
+            }
+            // Update dexCollection config for FS store to match resolved dex collection
+            protocol.mem.on = protocol.mem.on || {};
+            const fsStoreEntry = (protocol.mem.on.store || []).find(p => p.id === 'tbc-record-fs:store-records');
+            if (fsStoreEntry) {
+                fsStoreEntry.config = { ...fsStoreEntry.config, dexCollection: protocol.dex.collection };
             }
             /*
             // Discovery-side (Fallthrough Priority) - commented out, not used

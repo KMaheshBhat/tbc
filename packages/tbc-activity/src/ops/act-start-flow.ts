@@ -205,7 +205,7 @@ export class ActStartFlow extends HAMIFlow<Shared, Config> {
             .next(n('tbc-synthesize:synthesize-record-flow', { requestsKey: 'synthesizeRequests' }))
             .next(n('tbc-system:write-records-flow', {
                 verbose: this.config?.verbose,
-                storeProviders: [{ id: 'tbc-record-fs:store-records' }],
+                storeProviders: [{ id: 'tbc-record-fs:store-records', config: { eagerIndex: false } }],
                 sourcePath: 'record.records',
                 collection: 'actCollection',
                 syncIndex: false,
