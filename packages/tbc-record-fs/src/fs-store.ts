@@ -41,8 +41,8 @@ class FSStore implements RecordStore {
     }
 
     /* ============================================================
-       Persistence
-    ============================================================ */
+            Persistence
+       ============================================================ */
     async store(collection: string, records: TBCRecord[]): Promise<void> {
         this.ensureInitialized();
         const collectionPath = join(this.rootDirectory, collection);
@@ -53,10 +53,6 @@ class FSStore implements RecordStore {
         for (const record of records) {
             this.validateId(record.id);
 
-            // Logic fix: determine format early so metadata extraction happens for both paths
-            const isMarkdown = record.contentType === 'markdown' || !!record.content;
-
-            // Extract title from H1 if missing - needed for the Dex shard
             if (!record.record_title) {
                 if (record.content) {
                     const match = record.content.match(/^#\s+(.+)/m);
@@ -66,15 +62,19 @@ class FSStore implements RecordStore {
                 }
             }
 
-            const fileName = isMarkdown ? `${record.id}.md` : `${record.id}.json`;
-            const filePath = join(collectionPath, fileName);
+            const format = this.determineFileFormat(record);
+            const filePath = this.constructFilePath(collectionPath, record, format);
 
-            if (isMarkdown) {
+            if (format === 'markdown') {
                 const { content, ...meta } = record;
                 const frontmatter = yaml.dump(meta, { lineWidth: -1 });
                 writeFileSync(filePath, `---\n${frontmatter}---\n${content || ''}`);
-            } else {
+            } else if (format === 'json') {
                 writeFileSync(filePath, JSON.stringify(record, null, 2));
+            } else if (format === 'yaml') {
+                writeFileSync(filePath, yaml.dump(record.content || record));
+            } else {
+                writeFileSync(filePath, record.content || '');
             }
 
             const kind = record.record_type || record.kind || 'unknown';
@@ -86,6 +86,67 @@ class FSStore implements RecordStore {
             const indexPath = join(this.rootDirectory, this.dexCollection, `${collection}.${kind}.jsonl`);
             this.updateDexShard(indexPath, group);
         }
+    }
+
+    private determineFileFormat(record: Record<string, any>): 'markdown' | 'json' | 'yaml' | 'raw' {
+        if (record.contentType === 'text') {
+            return 'raw';
+        }
+
+        if (record.filename) {
+            if (record.filename.endsWith('.md')) {
+                return 'markdown';
+            }
+            if (record.filename.endsWith('.json')) {
+                return 'json';
+            }
+            if (record.filename.endsWith('.yaml') || record.filename.endsWith('.yml')) {
+                return 'yaml';
+            }
+        }
+
+        if (record.contentType === 'markdown') {
+            return 'markdown';
+        }
+        if (record.contentType === 'json') {
+            return 'json';
+        }
+        if (record.contentType === 'yaml') {
+            return 'yaml';
+        }
+
+        if (record.content) {
+            return 'markdown';
+        }
+
+        return 'raw';
+    }
+
+    private constructFilePath(collectionPath: string, record: Record<string, any>, format: 'markdown' | 'json' | 'yaml' | 'raw'): string {
+        let fileName: string;
+
+        if (record.filename) {
+            fileName = record.filename;
+        } else {
+            switch (format) {
+                case 'markdown':
+                    fileName = `${record.id}.md`;
+                    break;
+                case 'json':
+                    fileName = `${record.id}.json`;
+                    break;
+                case 'yaml':
+                    fileName = `${record.id}.yaml`;
+                    break;
+                case 'raw':
+                    fileName = record.id;
+                    break;
+                default:
+                    fileName = record.id;
+            }
+        }
+
+        return join(collectionPath, fileName);
     }
 
     /* ============================================================
@@ -213,20 +274,35 @@ class FSStore implements RecordStore {
     }
 
     private findAndParseRecord(collectionPath: string, id: string): TBCRecord | null {
-        const candidates = [join(collectionPath, `${id}.json`), join(collectionPath, `${id}.md`)];
+        const candidates = this.getFileCandidates(collectionPath, id);
+
         for (const filePath of candidates) {
             if (!existsSync(filePath)) continue;
             try {
                 const content = readFileSync(filePath, 'utf-8');
-                if (extname(filePath) === '.json') return JSON.parse(content);
+                const ext = extname(filePath);
 
-                const parsed = matter(content);
-                const record: any = { ...parsed.data, content: parsed.content, id };
-                if (!record.record_title && parsed.content) {
-                    const match = parsed.content.match(/^#\s+(.+)/m);
-                    if (match) record.record_title = match[1].trim();
+                if (ext === '.json') {
+                    const record = JSON.parse(content);
+                    return { ...record, id };
                 }
-                return record as TBCRecord;
+
+                if (ext === '.yaml' || ext === '.yml') {
+                    const record = yaml.load(content) as Record<string, any>;
+                    return { ...record, id, filename: basename(filePath) };
+                }
+
+                if (ext === '.md') {
+                    const parsed = matter(content);
+                    const record: any = { ...parsed.data, content: parsed.content, id, filename: basename(filePath) };
+                    if (!record.record_title && parsed.content) {
+                        const match = parsed.content.match(/^#\s+(.+)/m);
+                        if (match) record.record_title = match[1].trim();
+                    }
+                    return record as TBCRecord;
+                }
+
+                return { content, fullContent: content, id, filename: basename(filePath) };
             } catch (e) {
                 if (process.env.NODE_ENV !== 'test') {
                     console.error(`FSStore: Error parsing ${filePath}`, e);
@@ -234,6 +310,27 @@ class FSStore implements RecordStore {
             }
         }
         return null;
+    }
+
+    private getFileCandidates(collectionPath: string, id: string): string[] {
+        const candidates = [
+            join(collectionPath, `${id}.json`),
+            join(collectionPath, `${id}.md`),
+            join(collectionPath, id),
+        ];
+
+        try {
+            if (!existsSync(collectionPath)) return candidates;
+            const files = readdirSync(collectionPath);
+            const patternMatches = files
+                .filter(file => file.startsWith(`${id}.`) && file !== `${id}.json` && file !== `${id}.md`)
+                .map(file => join(collectionPath, file));
+            candidates.push(...patternMatches);
+        } catch {
+            // Directory doesn't exist
+        }
+
+        return candidates;
     }
 
     private validateId(id: string) {

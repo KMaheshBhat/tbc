@@ -34,8 +34,8 @@ describe('FSStore Contract (RecordStore)', () => {
         await store.teardown();
     });
 
-    /* ============================================================
-       MARKDOWN + JSON PERSISTENCE
+/* ============================================================
+        MARKDOWN + JSON PERSISTENCE
     ============================================================ */
 
     describe('Persistence', () => {
@@ -54,6 +54,51 @@ describe('FSStore Contract (RecordStore)', () => {
             const raw = readFileSync(file, 'utf-8');
             expect(raw).toContain('record_title: Meta Title');
             expect(raw).toContain('# Header');
+        });
+
+        it('persists yaml files with yaml extension', async () => {
+            await store.store('configs', [{
+                id: 'app-config',
+                record_type: 'config',
+                record_title: 'App Config',
+                data: { port: 3000 },
+                contentType: 'yaml',
+                filename: 'app-config.yaml'
+            }]);
+
+            const file = join(TEST_DIR, 'configs', 'app-config.yaml');
+            expect(existsSync(file)).toBe(true);
+
+            const raw = readFileSync(file, 'utf-8');
+            expect(raw).toContain('port: 3000');
+        });
+
+        it('persists raw files without extension', async () => {
+            await store.store('secrets', [{
+                id: '.env',
+                record_type: 'secret',
+                contentType: 'text',
+                content: 'API_KEY=abc123'
+            }]);
+
+            const file = join(TEST_DIR, 'secrets', '.env');
+            expect(existsSync(file)).toBe(true);
+
+            const raw = readFileSync(file, 'utf-8');
+            expect(raw).toBe('API_KEY=abc123');
+        });
+
+        it('preserves filename from record', async () => {
+            await store.store('notes', [{
+                id: 'note1',
+                record_type: 'note',
+                record_title: 'Custom File',
+                content: '# Title',
+                filename: 'custom-filename.md'
+            }]);
+
+            const file = join(TEST_DIR, 'notes', 'custom-filename.md');
+            expect(existsSync(file)).toBe(true);
         });
 
         it('extracts H1 if record_title missing', async () => {
@@ -220,6 +265,18 @@ describe('FSStore Contract (RecordStore)', () => {
             const result = await store.fetch('notes', ['md1', 'md2']);
             expect(result.notes?.['md1']).toBeDefined();
             expect(result.notes?.['md2']?.content).toContain('Some content.');
+        });
+
+        it('hydrates yaml files', async () => {
+            const result = await store.fetch('configs', ['app-config']);
+            expect(result.configs?.['app-config']).toBeDefined();
+            expect(result.configs?.['app-config']?.data?.port).toBe(3000);
+        });
+
+        it('hydrates raw files', async () => {
+            const result = await store.fetch('secrets', ['.env']);
+            expect(result.secrets?.['.env']).toBeDefined();
+            expect(result.secrets?.['.env']?.content).toBe('API_KEY=abc123');
         });
 
         it('prevents directory traversal', async () => {
