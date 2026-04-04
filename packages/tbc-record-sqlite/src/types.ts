@@ -1,3 +1,4 @@
+import { TBCShared } from '@tbc-frameworx/tbc-record';
 import { SQLiteStore } from "./sqlite-store";
 
 /**
@@ -11,7 +12,7 @@ type SQLiteStoreConfig = {
 /**
  * Shared storage interface for TBC record SQLite operations.
  */
-type TBCRecordSQLiteShared = {
+type TBCRecordSQLiteShared = TBCShared & {
     /** The SQLite store instance for RDBMS operations. */
     store: SQLiteStore;
 };
