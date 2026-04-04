@@ -16,8 +16,8 @@ type NodeOutput = TBCResult;
 
 const storeCache: Map<string, FSStore> = new Map();
 
-async function getOrCreateStore(rootDirectory: string): Promise<FSStore> {
-    let store = storeCache.get(rootDirectory);
+async function getOrCreateStore(rootDirectory: string, collection: string): Promise<FSStore> {
+    let store = storeCache.get(`${rootDirectory}:${collection}`);
     if (!store) {
         store = new FSStore();
         await store.initialize({ rootDirectory });
@@ -54,7 +54,7 @@ export class QueryRecordsNode extends HAMINode<Shared> {
             throw new Error('filter-by-tags not implemented');
         }
 
-        const store = await getOrCreateStore(rootDirectory);
+        const store = await getOrCreateStore(rootDirectory, collection);
         const IDs = await store.query(collection, query);
 
         return {

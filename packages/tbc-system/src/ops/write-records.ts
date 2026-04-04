@@ -59,7 +59,8 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         const collection : string = shared.stage[this.config.collection];
         // Get store providers from protocol.on.store, fallback to config
         const proto = shared.system.protocol?.[this.config.protocolKey!];
-        const storeProviders = proto?.on?.store?.map(p => p.id) ?? this.config.storeProviders?.map(p => p.id) ?? []; 
+        // const storeProviders = proto?.on?.store?.map(p => p.id) ?? this.config.storeProviders?.map(p => p.id) ?? []; 
+        const storeProviders = proto?.on?.store ?? this.config.storeProviders ?? []
         const indexer = this.config.syncIndex ? n('tbc-dex:sync-incremental-index', {
             sourcePath: this.config.sourcePath,
             collection: collection,

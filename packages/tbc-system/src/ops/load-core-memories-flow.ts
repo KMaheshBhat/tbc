@@ -61,6 +61,10 @@ export class LoadCoreMemoriesFlow extends HAMIFlow<Shared, Config> {
                 'stage.records': 'record.result.records',
             }))
             .next(n('tbc-system:prepare-records-manifest'))
+            .next(n('tbc-system:add-manifest-messages', {
+                'source': 'load-core-memories-flow',
+                'level': 'debug',
+            }))
             // Extract IDs from root.md
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {

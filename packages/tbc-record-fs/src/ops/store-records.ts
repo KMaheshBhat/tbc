@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 
-import { HAMINode } from '@hami-frameworx/core';
+import { HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 import { TBCRecord, TBCStore } from '@tbc-frameworx/tbc-record';
 
 import { FSStore } from '../fs-store.js';
@@ -8,19 +8,33 @@ import { TBCRecordFSShared as Shared } from '../types.js';
 
 const storeCache: Map<string, FSStore> = new Map();
 
-async function getOrCreateStore(rootDirectory: string): Promise<FSStore> {
-    let store = storeCache.get(rootDirectory);
+async function getOrCreateStore(rootDirectory: string, collection: string, config: Config): Promise<FSStore> {
+    let store = storeCache.get(`${rootDirectory}:${collection}`);
     if (!store) {
         store = new FSStore();
-        await store.initialize({ rootDirectory });
+        await store.initialize({ rootDirectory, ...config });
         storeCache.set(rootDirectory, store);
     }
     return store;
 }
 
-export class StoreRecordsNode extends HAMINode<Shared> {
-    constructor(maxRetries?: number, wait?: number) {
-        super(maxRetries, wait);
+interface Config {
+    eagerIndex?: boolean;
+}
+
+const ConfigSchema: ValidationSchema = {
+    type: 'object',
+    properties: {
+        eagerIndex: { type: 'boolean' },
+    },
+    required: [],
+};
+
+export class StoreRecordsNode extends HAMINode<Shared, Config> {
+
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, ConfigSchema);
+        return { valid: result.isValid, errors: result.errors || [] };
     }
 
     kind(): string {
@@ -42,7 +56,7 @@ export class StoreRecordsNode extends HAMINode<Shared> {
     async exec(params: [string, string, Record<string, any>[]]): Promise<TBCStore> {
         const [rootDirectory, collection, records] = params;
 
-        const store = await getOrCreateStore(rootDirectory);
+        const store = await getOrCreateStore(rootDirectory, collection, this.config || {});
         await store.store(collection, records);
 
         const storedTBCStore: TBCStore = {

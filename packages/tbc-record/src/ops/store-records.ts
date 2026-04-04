@@ -7,7 +7,10 @@ import { TBCResult, TBCShared as Shared, TBCStore } from '../types.js';
 
 interface FlowConfig {
     verbose: boolean;
-    recordProviders?: string[];
+    recordProviders?: {
+        id: string;
+        config: Record<string, any>;
+    }[];
     root?: string;
 }
 
@@ -15,7 +18,16 @@ const FlowConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         verbose: { type: 'boolean' },
-        recordProviders: { type: 'array', items: { type: 'string' } },
+        recordProviders: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string' },
+                    config: { type: 'object' },
+                },
+            },
+        },
         root: { type: 'string' },
     },
     required: ['verbose'],
@@ -56,7 +68,7 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         const n = shared.registry.createNode.bind(shared.registry);
         const providers = this.config.recordProviders || [];
         for (const provider of providers) {
-            const nodeKind = provider;
+            const nodeKind = provider.id;
             assert(
                 shared.registry.hasNodeClass(nodeKind),
                 `Composition Error: The required node class [${nodeKind}] is not registered in the HAMI manager.`,
@@ -76,7 +88,7 @@ export class StoreRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                         shared.record!.result!.records = undefined;
                     },
                 }))
-                .next(n(provider))
+                .next(n(provider.id, provider.config))
                 .next(new AccumulateNode())
                 .next(targetNext);
             tailNode = targetNext;

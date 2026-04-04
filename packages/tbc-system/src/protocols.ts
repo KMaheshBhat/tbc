@@ -5,7 +5,12 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
         sys: {
             collection: 'sys',
             on: {
-                store: [{ id: 'tbc-record-fs:store-records' }],
+                store: [
+                    {
+                        id: 'tbc-record-fs:store-records',
+                        config: { eagerIndex: false },
+                    }
+                ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
             },
@@ -13,7 +18,12 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
         skills: {
             collection: 'skills',
             on: {
-                store: [{ id: 'tbc-record-fs:store-records' }],
+                store: [
+                    {
+                        id: 'tbc-record-fs:store-records',
+                        config: { eagerIndex: false },
+                    }
+                ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
             },
@@ -21,7 +31,12 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
         mem: {
             collection: 'mem',
             on: {
-                store: [{ id: 'tbc-record-fs:store-records' }],
+                store: [
+                    {
+                        id: 'tbc-record-fs:store-records',
+                        config: { eagerIndex: true },
+                    }
+                ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
             },
@@ -29,7 +44,12 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
         dex: {
             collection: 'dex',
             on: {
-                store: [{ id: 'tbc-record-fs:store-records' }],
+                store: [
+                    {
+                        id: 'tbc-record-fs:store-records',
+                        config: { eagerIndex: false },
+                    }
+                ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
             },
@@ -37,7 +57,12 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
         act: {
             collection: 'act',
             on: {
-                store: [{ id: 'tbc-record-fs:store-records' }],
+                store: [
+                    {
+                        id: 'tbc-record-fs:store-records',
+                        config: { eagerIndex: false },
+                    }
+                ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
             },

@@ -8,8 +8,8 @@ import { TBCRecordFSShared as Shared } from '../types.js';
 
 const storeCache: Map<string, FSStore> = new Map();
 
-async function getOrCreateStore(rootDirectory: string): Promise<FSStore> {
-    let store = storeCache.get(rootDirectory);
+async function getOrCreateStore(rootDirectory: string, collection: string): Promise<FSStore> {
+    let store = storeCache.get(`${rootDirectory}:${collection}`);
     if (!store) {
         store = new FSStore();
         await store.initialize({ rootDirectory });
@@ -42,8 +42,9 @@ export class FetchRecordsNode extends HAMINode<Shared> {
     async exec(params: [string, string, string[]]): Promise<TBCStore> {
         const [rootDirectory, collection, IDs] = params;
 
-        const store = await getOrCreateStore(rootDirectory);
-        return await store.fetch(collection, IDs);
+        const store = await getOrCreateStore(rootDirectory, collection);
+        const result = await store.fetch(collection, IDs);
+        return result;
     }
 
     async post(

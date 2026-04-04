@@ -11,7 +11,8 @@ import {
     readFileSync,
     writeFileSync,
     readdirSync,
-    rmSync
+    rmSync,
+    statSync
 } from 'node:fs';
 import { join, basename, extname, dirname } from 'node:path';
 import matter from 'gray-matter';
@@ -21,6 +22,7 @@ class FSStore implements RecordStore {
     private rootDirectory: string = '';
     private dexCollection: string = 'dex';
     private initialized: boolean = false;
+    private config : Record<string, any> = {};
 
     async initialize(config: Record<string, any>): Promise<TBCRecordStoreCapability[]> {
         this.rootDirectory = config.rootDirectory || '';
@@ -33,6 +35,7 @@ class FSStore implements RecordStore {
         if (!existsSync(dexDir)) mkdirSync(dexDir, { recursive: true });
 
         this.initialized = true;
+        this.config = { ...config, eagerIndex: config.eagerIndex !== false };
         return ['store', 'fetch', 'index', 'query'];
     }
 
@@ -65,6 +68,9 @@ class FSStore implements RecordStore {
             const format = this.determineFileFormat(record);
             const filePath = this.constructFilePath(collectionPath, record, format);
 
+            const parentDir = dirname(filePath);
+            if (!existsSync(parentDir)) mkdirSync(parentDir, { recursive: true });
+
             if (format === 'markdown') {
                 const { content, ...meta } = record;
                 const frontmatter = yaml.dump(meta, { lineWidth: -1 });
@@ -82,6 +88,9 @@ class FSStore implements RecordStore {
             kindGroups[kind].push(record);
         }
 
+        if (!this.config.eagerIndex) {
+            return;
+        }
         for (const [kind, group] of Object.entries(kindGroups)) {
             const indexPath = join(this.rootDirectory, this.dexCollection, `${collection}.${kind}.jsonl`);
             this.updateDexShard(indexPath, group);
@@ -89,7 +98,7 @@ class FSStore implements RecordStore {
     }
 
     private determineFileFormat(record: Record<string, any>): 'markdown' | 'json' | 'yaml' | 'raw' {
-        if (record.contentType === 'text') {
+        if (record.contentType === 'raw' || record.contentType === 'text') {
             return 'raw';
         }
 
@@ -128,15 +137,16 @@ class FSStore implements RecordStore {
         if (record.filename) {
             fileName = record.filename;
         } else {
+            const hasExtension = (id: string) => /\.[a-zA-Z0-9]+$/.test(id);
             switch (format) {
                 case 'markdown':
-                    fileName = `${record.id}.md`;
+                    fileName = hasExtension(record.id) ? record.id : `${record.id}.md`;
                     break;
                 case 'json':
-                    fileName = `${record.id}.json`;
+                    fileName = hasExtension(record.id) ? record.id : `${record.id}.json`;
                     break;
                 case 'yaml':
-                    fileName = `${record.id}.yaml`;
+                    fileName = hasExtension(record.id) ? record.id : `${record.id}.yaml`;
                     break;
                 case 'raw':
                     fileName = record.id;
@@ -160,25 +170,55 @@ class FSStore implements RecordStore {
         }
 
         const dexDir = join(this.rootDirectory, this.dexCollection);
-        if (!existsSync(dexDir)) return [];
+        
+        let results = new Set<string>();
+        
+        const shards = existsSync(dexDir) 
+            ? readdirSync(dexDir).filter(f => f.startsWith(`${collection}.`) && f.endsWith('.jsonl'))
+            : [];
 
-        const shards = readdirSync(dexDir)
-            .filter(f => f.startsWith(`${collection}.`) && f.endsWith('.jsonl'));
+        let hasDataFromIndex = false;
+        if (shards.length > 0) {
+            for (const shard of shards) {
+                const shardPath = join(dexDir, shard);
+                const content = readFileSync(shardPath, 'utf-8');
+                const lines = content.split('\n').filter(l => l.trim());
+                
+                if (lines.length > 0) {
+                    hasDataFromIndex = true;
+                    for (const line of lines) {
+                        const entry = JSON.parse(line);
 
-        const results = new Set<string>();
-
-        for (const shard of shards) {
-            const content = readFileSync(join(dexDir, shard), 'utf-8');
-            const lines = content.split('\n').filter(l => l.trim());
-
-            for (const line of lines) {
-                const entry = JSON.parse(line);
-
-                if (params.type === 'list-all-ids') {
-                    results.add(entry.id);
-                } else if (params.type === 'search-by-content' && params.searchTerm) {
-                    if (line.toLowerCase().includes(params.searchTerm.toLowerCase())) {
-                        results.add(entry.id);
+                        if (params.type === 'list-all-ids') {
+                            results.add(entry.id);
+                        } else if (params.type === 'search-by-content' && params.searchTerm) {
+                            if (line.toLowerCase().includes(params.searchTerm.toLowerCase())) {
+                                results.add(entry.id);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (!hasDataFromIndex) {
+            const collectionPath = join(this.rootDirectory, collection);
+            if (existsSync(collectionPath)) {
+                const files = readdirSync(collectionPath, { recursive: params.recursive });
+                for (const file of files) {
+                    if (typeof file === 'string') {
+                        const fullPath = join(collectionPath, file);
+                        if (existsSync(fullPath) && !statSync(fullPath).isDirectory()) {
+                            let id: string;
+                            if (file.includes('/')) {
+                                id = file;
+                            } else {
+                                id = basename(file);
+                            }
+                            if (params.type === 'list-all-ids') {
+                                results.add(id);
+                            }
+                        }
                     }
                 }
             }
@@ -334,7 +374,7 @@ class FSStore implements RecordStore {
     }
 
     private validateId(id: string) {
-        if (id.includes('..') || id.includes('/') || id.includes('\\')) {
+        if (id.includes('..') || id.includes('\\')) {
             throw new Error(`Security: Invalid record ID "${id}"`);
         }
     }

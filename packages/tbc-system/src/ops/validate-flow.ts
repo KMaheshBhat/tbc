@@ -48,13 +48,6 @@ class StartNode extends HAMINode<Shared, Config> {
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
         shared.system = shared.system || {};
         shared.record = shared.record || {};
-        shared.stage.query = {
-            type: 'list-all-ids',
-        };
-        shared.stage.queryRecursive = {
-            type: 'list-all-ids',
-            recursive: true,
-        };
         return 'default';
     }
 }
@@ -88,6 +81,7 @@ export class ValidateFlow extends HAMIFlow<Record<string, any>, Config> {
 
         // When resolve.resolveRootDirectory is true, invoke resolve-flow at start (for direct CLI invocation)
         // When false (default), skip resolve-flow as root/protocol already resolved by caller
+        // NOTE: We always need resolveCollections to ensure sysCollection/memCollection are set
         const shouldResolve = this.config.resolve?.resolveRootDirectory ?? false;
         const resolveFlowOrSkip = shouldResolve
             ? n('tbc-system:resolve-flow', { 
@@ -95,9 +89,9 @@ export class ValidateFlow extends HAMIFlow<Record<string, any>, Config> {
                 rootDirectory: this.config.rootDirectory,
                 resolveRootDirectory: this.config.resolve?.resolveRootDirectory ?? true,
                 resolveProtocol: this.config.resolve?.resolveProtocol ?? true,
-                resolveCollections: this.config.resolve?.resolveCollections ?? true,
+                resolveCollections: true,  // Always resolve collections for sys/mem collection names
               })
-            : new Node();
+            : n('tbc-system:resolve-collections');  // At minimum resolve collections
 
         this.startNode
             .next(n('tbc-system:prepare-messages', {
