@@ -70,15 +70,24 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                 }
             });
 
+            // When hitting, set the source
+            const setSourceNode = n('core:mutate', {
+                mutate: (s: Shared) => {
+                    if (s.record?.result?.IDs?.length) {
+                        s.record.result.IDsSource = provider;
+                    }
+                },
+            });
+
             // Anchor -> Provider -> Branch
-            currentAnchor.next(providerNode).next(hitBranch);
+            currentAnchor.next(providerNode).next(setSourceNode).next(hitBranch);
 
             // If 'hit', short-circuit straight to endNode
             hitBranch.on('hit', endNode);
-
-            // If 'default', we set up a new anchor for the next loop iteration
             const nextAnchor = new Node();
             hitBranch.next(nextAnchor);
+
+            // If 'default', we set up a new anchor for the next loop iteration
             currentAnchor = nextAnchor;
         }
 

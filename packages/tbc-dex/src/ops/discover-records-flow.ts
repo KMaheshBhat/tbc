@@ -144,8 +144,16 @@ export class DiscoverRecordsFlow extends HAMIFlow<Shared, Config> {
             }))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
+                    // Capture IDsSource before overwriting result
+                    const idsSource = s.record.result?.IDsSource;
+                    
                     // Querier usually returns result.IDs directly
                     s.stage[config.outputKey] = s.record.result?.IDs || [];
+                    
+                    // Preserve source for downstream
+                    if (idsSource && s.record.result) {
+                        s.record.result.IDsSource = idsSource;
+                    }
                 },
             }));
 

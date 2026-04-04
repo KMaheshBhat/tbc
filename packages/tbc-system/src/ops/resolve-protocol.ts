@@ -126,8 +126,7 @@ export class ResolveProtocolNode extends HAMINode<Shared> {
             if (fsStoreEntry) {
                 fsStoreEntry.config = { ...fsStoreEntry.config, dexCollection: protocol.dex.collection };
             }
-            /*
-            // Discovery-side (Fallthrough Priority) - commented out, not used
+            // Discovery-side (Fallthrough Priority) - SQLite querier
             const memQuery = protocol.mem.on?.query || [];
             const hasSqliteQuerier = memQuery.some(p => p.id === 'tbc-record-sqlite:query-records');
             if (!hasSqliteQuerier) {
@@ -137,7 +136,6 @@ export class ResolveProtocolNode extends HAMINode<Shared> {
                     ...memQuery
                 ];
             }
-            */
             messages.push({
                 level: 'info',
                 code: 'SQLITE-ENABLED',

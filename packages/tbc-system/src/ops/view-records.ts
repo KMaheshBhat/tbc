@@ -76,8 +76,21 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
             // Map Stage to View
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
+                    // Capture IDsSource before clearing result
+                    const idsSource = s.record.result?.IDsSource;
+                    
                     s.record.IDs = s.stage.dexMatches || [];
                     s.record.collection = collection;
+                    
+                    // Report the query source for debugging
+                    if (idsSource) {
+                        s.stage.messages.push({
+                            level: 'debug',
+                            source: 'view-records-flow',
+                            message: `Query source: ${idsSource}`,
+                        });
+                    }
+                    
                     s.record.result = undefined;
                 },
             }))

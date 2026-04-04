@@ -10,7 +10,6 @@ describe('🐵 LETS-GO: tbc mem recall', () => {
         const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem', 'recall', 'companion', '--root', TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         expect(output).toContain('Companion Identity');

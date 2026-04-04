@@ -72,6 +72,8 @@ type TBCQueryParams = {
 
 type TBCResult = {
     IDs?: string[];
+    /** The provider that returned the IDs (e.g., 'tbc-record-sqlite:query-records') */
+    IDsSource?: string;
     records?: TBCStore;
     totalCount?: number;
 };
