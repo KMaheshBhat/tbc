@@ -185,6 +185,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
                 recordProviders: [{
                     id: 'tbc-record-fs:store-records',
+                    config: { eagerIndex: false },
                 }],
             }))
             .next(n('core:mutate', {
@@ -210,6 +211,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
                 recordProviders: [{
                     id: 'tbc-record-fs:store-records',
+                    config: { eagerIndex: false },
                 }],
             }))
             .next(n('core:mutate', {
@@ -235,6 +237,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
                 recordProviders: [{
                     id: 'tbc-record-fs:store-records',
+                    config: { eagerIndex: false },
                 }],
             }))
             .next(n('core:mutate', {
@@ -262,6 +265,7 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
                 recordProviders: [{
                     id: 'tbc-record-fs:store-records',
+                    config: { eagerIndex: false },
                 }],
             }))
             .next(n('core:mutate', {

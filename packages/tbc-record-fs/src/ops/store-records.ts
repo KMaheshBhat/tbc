@@ -20,12 +20,14 @@ async function getOrCreateStore(rootDirectory: string, collection: string, confi
 
 interface Config {
     eagerIndex?: boolean;
+    dexCollection?: string;
 }
 
 const ConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         eagerIndex: { type: 'boolean' },
+        dexCollection: { type: 'string' },
     },
     required: [],
 };

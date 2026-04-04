@@ -31,12 +31,15 @@ class FSStore implements RecordStore {
         if (!this.rootDirectory) throw new Error('FSStore: rootDirectory is required');
 
         if (!existsSync(this.rootDirectory)) mkdirSync(this.rootDirectory, { recursive: true });
-        const dexDir = join(this.rootDirectory, this.dexCollection);
-        if (!existsSync(dexDir)) mkdirSync(dexDir, { recursive: true });
 
         this.initialized = true;
         this.config = { ...config, eagerIndex: config.eagerIndex !== false };
         return ['store', 'fetch', 'index', 'query'];
+    }
+
+    private ensureDexDir(): void {
+        const dexDir = join(this.rootDirectory, this.dexCollection);
+        if (!existsSync(dexDir)) mkdirSync(dexDir, { recursive: true });
     }
 
     async teardown(): Promise<void> {
@@ -91,6 +94,7 @@ class FSStore implements RecordStore {
         if (!this.config.eagerIndex) {
             return;
         }
+        this.ensureDexDir();
         for (const [kind, group] of Object.entries(kindGroups)) {
             const indexPath = join(this.rootDirectory, this.dexCollection, `${collection}.${kind}.jsonl`);
             this.updateDexShard(indexPath, group);
