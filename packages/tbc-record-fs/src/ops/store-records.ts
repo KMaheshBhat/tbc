@@ -1,14 +1,22 @@
 import assert from 'node:assert';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-
-import matter from 'gray-matter';
-import yaml from 'js-yaml';
 
 import { HAMINode } from '@hami-frameworx/core';
-import { TBCStore } from '@tbc-frameworx/tbc-record';
+import { TBCRecord, TBCStore } from '@tbc-frameworx/tbc-record';
 
+import { FSStore } from '../fs-store.js';
 import { TBCRecordFSShared as Shared } from '../types.js';
+
+const storeCache: Map<string, FSStore> = new Map();
+
+async function getOrCreateStore(rootDirectory: string): Promise<FSStore> {
+    let store = storeCache.get(rootDirectory);
+    if (!store) {
+        store = new FSStore();
+        await store.initialize({ rootDirectory });
+        storeCache.set(rootDirectory, store);
+    }
+    return store;
+}
 
 export class StoreRecordsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
@@ -33,112 +41,21 @@ export class StoreRecordsNode extends HAMINode<Shared> {
 
     async exec(params: [string, string, Record<string, any>[]]): Promise<TBCStore> {
         const [rootDirectory, collection, records] = params;
+
+        const store = await getOrCreateStore(rootDirectory);
+        await store.store(collection, records);
+
         const storedTBCStore: TBCStore = {
             [collection]: {},
         };
-        const collectionPath = join(rootDirectory, collection);
-
-        // Ensure collection directory exists
-        await mkdir(collectionPath, { recursive: true });
-
         for (const record of records) {
             if (!record.id) {
                 console.error('Record missing id:', record);
                 continue;
             }
-
-            try {
-                // Determine file format based on record.filename or record.contentType
-                const fileFormat = this.determineFileFormat(record);
-                const filePath = this.constructFilePath(collectionPath, record, fileFormat);
-                const fileContent = this.generateFileContent(record, fileFormat);
-
-                // Ensure directory exists
-                await mkdir(dirname(filePath), { recursive: true });
-
-                // Write file
-                await writeFile(filePath, fileContent, 'utf-8');
-                storedTBCStore[collection][record.id] = record;
-            } catch (error) {
-                console.error(`Error storing record ${record.id}:`, error);
-                // Continue with other records
-            }
+            storedTBCStore[collection][record.id] = record;
         }
         return storedTBCStore;
-    }
-
-    private determineFileFormat(record: Record<string, any>): 'markdown' | 'json' | 'yaml' | 'raw' {
-        // Check contentType first for interface files
-        if (record.contentType === 'text') {
-            return 'raw';
-        }
-
-        // Check filename extension
-        if (record.filename) {
-            if (record.filename.endsWith('.md')) {
-                return 'markdown';
-            }
-            if (record.filename.endsWith('.json')) {
-                return 'json';
-            }
-            if (record.filename.endsWith('.yaml') || record.filename.endsWith('.yml')) {
-                return 'yaml';
-            }
-        }
-
-        // Check contentType
-        if (record.contentType === 'markdown') {
-            return 'markdown';
-        }
-        if (record.contentType === 'json') {
-            return 'json';
-        }
-        if (record.contentType === 'yaml') {
-            return 'yaml';
-        }
-
-        // For filenames like .kilocodemodes (dotfiles without extension), default to yaml if contentType indicates
-        if (record.filename && record.filename.startsWith('.') && !record.filename.includes('.') && record.contentType === 'yaml') {
-            return 'yaml';
-        }
-
-        // Default to raw format
-        return 'raw';
-    }
-
-    private constructFilePath(collectionPath: string, record: Record<string, any>, format: 'markdown' | 'json' | 'yaml' | 'raw'): string {
-        // Default filename based on format
-        let fileName = String(record.id);
-        switch (format) {
-            case 'markdown':
-                fileName = fileName.endsWith('.md') ? fileName : `${fileName}.md`;
-                break;
-            case 'json':
-                fileName = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
-                break;
-            case 'yaml':
-                fileName = record.filename ? record.filename : fileName.endsWith('.yaml') ? fileName : `${fileName}.yaml`;
-                break;
-        }
-        return join(collectionPath, fileName);
-    }
-
-    private generateFileContent(record: Record<string, any>, format: 'markdown' | 'json' | 'yaml' | 'raw'): string {
-        switch (format) {
-            case 'markdown':
-                const { content, frontmatter, ...frontmatterData } = record;
-                const finalFrontmatter = frontmatter || frontmatterData;
-                delete finalFrontmatter.fullContent;
-                // Use yaml.dump with no line wrapping to keep description on single line
-                const frontmatterStr = yaml.dump(finalFrontmatter, { lineWidth: -1 });
-                return `---\n${frontmatterStr}---\n${content || ''}`;
-            case 'json':
-                return JSON.stringify(record, null, 2);
-            case 'yaml':
-                return yaml.dump(record.content || record);
-            case 'raw':
-                return record.content || '';
-        }
     }
 
     async post(

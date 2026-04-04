@@ -1,13 +1,22 @@
 import assert from 'node:assert';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { basename, extname, join } from 'node:path';
-
-import matter from 'gray-matter';
 
 import { HAMINode } from '@hami-frameworx/core';
 import { TBCStore } from '@tbc-frameworx/tbc-record';
 
+import { FSStore } from '../fs-store.js';
 import { TBCRecordFSShared as Shared } from '../types.js';
+
+const storeCache: Map<string, FSStore> = new Map();
+
+async function getOrCreateStore(rootDirectory: string): Promise<FSStore> {
+    let store = storeCache.get(rootDirectory);
+    if (!store) {
+        store = new FSStore();
+        await store.initialize({ rootDirectory });
+        storeCache.set(rootDirectory, store);
+    }
+    return store;
+}
 
 export class FetchRecordsNode extends HAMINode<Shared> {
     constructor(maxRetries?: number, wait?: number) {
@@ -32,71 +41,9 @@ export class FetchRecordsNode extends HAMINode<Shared> {
 
     async exec(params: [string, string, string[]]): Promise<TBCStore> {
         const [rootDirectory, collection, IDs] = params;
-        const results: TBCStore = {};
-        const collectionPath = join(rootDirectory, collection);
-        for (const id of IDs) {
-            const record = this.findAndParseRecord(collectionPath, collection, id);
-            if (record) {
-                results[id] = record;
-            }
-        }
-        return { [collection]: results };
-    }
 
-    private findAndParseRecord(collectionPath: string, collection: string, id: string): Record<string, any> | null {
-        // Priority order: .json, .md, no ext, then any ext
-        const candidates = [
-            join(collectionPath, `${id}.json`),
-            join(collectionPath, `${id}.md`),
-            join(collectionPath, id), // no extension
-        ];
-
-        // Add files matching {id}.*
-        candidates.push(...this.getFilesWithPattern(collectionPath, id));
-
-        for (const filePath of candidates) {
-            if (existsSync(filePath)) {
-                try {
-                    const content = readFileSync(filePath, 'utf-8');
-                    const ext = extname(filePath);
-                    let record: Record<string, any>;
-                    if (ext === '.json') {
-                        record = JSON.parse(content);
-                    } else if (ext === '.md') {
-                        const parsed = matter(content);
-                        record = { ...parsed.data, content: parsed.content, fullContent: content };
-                        // Extract title from markdown content (first H1 heading) if not present in frontmatter
-                        if (!record.record_title && parsed.content) {
-                            const titleMatch = parsed.content.match(/^#\s+(.+)/m);
-                            if (titleMatch) {
-                                record.record_title = titleMatch[1].trim();
-                            }
-                        }
-                    } else {
-                        record = { content, fullContent: content };
-                    }
-                    record.id = id;
-                    // Add filename relative to rootDirectory
-                    record.filename = join(collection, basename(filePath));
-                    return record;
-                } catch (error) {
-                    console.error(`Error parsing file ${filePath}:`, error);
-                    // Continue to next candidate
-                }
-            }
-        }
-        return null;
-    }
-
-    private getFilesWithPattern(collectionPath: string, id: string): string[] {
-        try {
-            const files = readdirSync(collectionPath);
-            return files
-                .filter(file => file.startsWith(`${id}.`))
-                .map(file => join(collectionPath, file));
-        } catch {
-            return [];
-        }
+        const store = await getOrCreateStore(rootDirectory);
+        return await store.fetch(collection, IDs);
     }
 
     async post(
