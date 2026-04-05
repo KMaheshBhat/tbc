@@ -51,11 +51,6 @@ describe('🐵 LETS-GO: tbc sys', () => {
             '--prime',
             'Jojo',
         ]);
-        if (!success) {
-            console.log(output);
-            console.log('Tree on failure:');
-            console.log(generateFileTree(TBC_ROOT));
-        }
         expect(exitCode).toBe(0);
         expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
         expect(output).toContain('[✗] ┬─ error | init-flow | has existing companion');

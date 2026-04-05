@@ -8,7 +8,10 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 store: [
                     {
                         id: 'tbc-record-fs:store-records',
-                        config: { eagerIndex: false },
+                        config: {
+                            eagerIndex: false,
+                            post: { id: 'tbc-system:dex-rebuild-sys-flow', config: {} },
+                        }
                     }
                 ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
@@ -21,7 +24,10 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 store: [
                     {
                         id: 'tbc-record-fs:store-records',
-                        config: { eagerIndex: false },
+                        config: {
+                            eagerIndex: false,
+                            post: { id: 'tbc-system:dex-rebuild-skills-flow', config: {} },
+                        }
                     }
                 ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
@@ -75,7 +81,10 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 store: [
                     {
                         id: 'tbc-record-fs:store-records',
-                        config: { eagerIndex: false },
+                        config: {
+                            eagerIndex: false,
+                            post: { id: 'tbc-system:dex-rebuild-sys-flow', config: {} }
+                        }
                     }
                 ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
@@ -88,7 +97,10 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 store: [
                     {
                         id: 'tbc-record-fs:store-records',
-                        config: { eagerIndex: false },
+                        config: {
+                            eagerIndex: false,
+                            post: { id: 'tbc-system:dex-rebuild-skills-flow', config: {} }
+                        }
                     }
                 ],
                 query: [{ id: 'tbc-record-fs:query-records' }],

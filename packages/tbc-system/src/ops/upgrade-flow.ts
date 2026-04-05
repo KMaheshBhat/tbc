@@ -377,66 +377,6 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                     });
                 },
             }))
-            .next(n('core:mutate', {
-                mutate: (s: Shared) => {
-                    s.record.records = undefined;
-                    s.stage.synthesizeRequests = [
-                        {
-                            type: 'digest',
-                            provider: 'tbc-system:synthesize-collation-digest',
-                            meta: {
-                                sources: [
-                                    { collection: `${s.stage.sysCollection}`, idGlob: 'root.md' },
-                                    { collection: `${s.stage.sysCollection}/core`, idGlob: '*.md' },
-                                    { collection: `${s.stage.sysCollection}/ext`, idGlob: '*.md' },
-                                ],
-                                id: 'sys.digest.txt',
-                            },
-                        },
-                        {
-                            type: 'metadata-index',
-                            provider: 'tbc-system:synthesize-collation-metadata',
-                            meta: {
-                                sources: [
-                                    { collection: `${s.stage.skillsCollection}`, 'idGlob': '*/SKILL.md' },
-                                ],
-                                id: 'skills.jsonl',
-                            },
-                        },
-                    ];
-                },
-            }))
-            .next(n('tbc-synthesize:synthesize-record-flow', {
-                requestsKey: 'synthesizeRequests',
-            }))
-            .next(n('tbc-system:write-records-flow', {
-                verbose: this.config?.verbose,
-                sourcePath: 'record.records',
-                collection: 'dexCollection',
-                protocolKey: 'dex',
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'upgrade-flow',
-                        message: `Stored ${shared.record.records?.length} ${shared.record.collection} record(s).`,
-                    });
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'upgrade-flow',
-                        message: 'Digest: dex/sys.digest.txt',
-                        suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.',
-                    });
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'upgrade-flow',
-                        message: 'Digest: dex/skills.jsonl',
-                        suggestion: 'This file is index of all skill you can use for your goals.',
-                    });
-                },
-            }))
-            .next(n('tbc-system:log-and-clear-messages'))
             .next(n('tbc-system:log-and-clear-messages'));
     }
 

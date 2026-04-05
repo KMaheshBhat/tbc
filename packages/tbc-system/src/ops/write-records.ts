@@ -56,10 +56,20 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         const n = shared.registry.createNode.bind(shared.registry);
         const sourcePath = this.config.sourcePath;
         const collection : string = shared.stage[this.config.collection];
-        // Get store providers from protocol.on.store, fallback to config
         const proto = shared.system.protocol?.[this.config.protocolKey!];
-        // const storeProviders = proto?.on?.store?.map(p => p.id) ?? this.config.storeProviders?.map(p => p.id) ?? []; 
         const storeProviders = proto?.on?.store ?? this.config.storeProviders ?? []
+        const storeConfig = proto?.on?.store ?? [];
+
+        const postNode = new Node();
+        for (const provider of storeConfig) {
+            const postHook = provider.config?.post;
+            if (postHook) {
+                postNode.next(n(postHook.id, {
+                    ...postHook.config,
+                    verbose: this.config?.verbose,
+                }));
+            }
+        }
 
         this.startNode
             // 1. Prepare shared.record for tbc-record:store-records-flow
@@ -67,24 +77,17 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                 mutate: (shared: Shared) => {
                     const source = this.resolvePath(shared, sourcePath);
                     if (!source) throw new Error(`No data found at path: ${sourcePath}`);
-
-                    // Normalize to array of records
                     const records = Array.isArray(source) ? source : [source];
-
-                    // Set up the standard shared.record contract for store-records-flow
                     shared.record = shared.record || {};
                     shared.record.rootDirectory = shared.system.rootDirectory;
                     shared.record.collection = collection;
                     shared.record.records = records;
                 },
             }))
-            // 2. Delegate Storage (The "Command" Side)
-            // This node/flow is the authority on how to write 'raw', 'markdown', etc.
             .next(n('tbc-record:store-records-flow', {
                 recordProviders: storeProviders,
                 verbose: this.config.verbose,
             }))
-            // 3. Reporting
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
                     const count = shared.record.records?.length || 0;
@@ -94,7 +97,9 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                         message: `Processed ${count} record(s) in [${collection}].`,
                     });
                 },
-            }));
+            }))
+            .next(postNode)
+            ;
     }
 
     validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {

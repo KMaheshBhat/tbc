@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { HAMINode } from '@hami-frameworx/core';
 import { TBCRecord } from '@tbc-frameworx/tbc-record';
 import { Shared, SynthesizeRequest } from '@tbc-frameworx/tbc-synthesize';
+import { YAML } from 'bun';
 
 /**
  * Configuration for a single metadata index source.
@@ -57,7 +58,7 @@ export class SynthesizeCollationMetadataNode extends HAMINode<Shared> {
     const extractedMetadata: ExtractedMetadata[] = [];
 
     // Global defaults to always exclude from a metadata index
-    const globalExcludes = ['content', 'fullContent'];
+    const globalExcludes = ['content', 'fullContent', 'data'];
 
     for (const source of sources) {
       const bucket = allRecords[source.collection];
@@ -66,15 +67,19 @@ export class SynthesizeCollationMetadataNode extends HAMINode<Shared> {
       for (const [id, record] of Object.entries(bucket)) {
         if (!this.matchesGlob(id, source.idGlob)) continue;
 
-        const rawRecord = record as Record<string, any>;
+        const regex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
+        const match = (record as string).match(regex);
+        if (!match) {
+          continue;
+        }
+        const frontmatter  = YAML.parse(match[1]) as Record<string, any>;
         const customExcludes = source.excludeKeys || [];
         const allExcludes = [...globalExcludes, ...customExcludes];
-
         // Create a clean metadata object by filtering keys
-        const filteredData = Object.keys(rawRecord)
+        const filteredData = Object.keys(frontmatter)
           .filter(key => !allExcludes.includes(key))
           .reduce((obj, key) => {
-            obj[key] = rawRecord[key];
+            obj[key] = frontmatter[key];
             return obj;
           }, {} as Record<string, any>);
 
@@ -82,7 +87,7 @@ export class SynthesizeCollationMetadataNode extends HAMINode<Shared> {
           id,
           collection: source.collection,
           // Use the rawRecord for partitioning logic
-          partitionValue: source.partitionKey ? String(rawRecord[source.partitionKey] || 'unknown') : null,
+          partitionValue: source.partitionKey ? String(frontmatter[source.partitionKey] || 'unknown') : null,
           data: filteredData,
         });
       }

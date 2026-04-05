@@ -334,65 +334,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, Config> {
                     });
                 },
             }))
-            .next(n('core:mutate', {
-                mutate: (s: Shared) => {
-                    s.record.records = undefined;
-                    s.stage.synthesizeRequests = [
-                        {
-                            type: 'digest',
-                            provider: 'tbc-system:synthesize-collation-digest',
-                            meta: {
-                                sources: [
-                                    { collection: `${s.stage.sysCollection}`, idGlob: 'root.md' },
-                                    { collection: `${s.stage.sysCollection}/core`, idGlob: '*.md' },
-                                    { collection: `${s.stage.sysCollection}/ext`, idGlob: '*.md' },
-                                ],
-                                id: 'sys.digest.txt',
-                            },
-                        },
-                        {
-                            type: 'metadata-index',
-                            provider: 'tbc-system:synthesize-collation-metadata',
-                            meta: {
-                                sources: [
-                                    { collection: `${s.stage.skillsCollection}`, 'idGlob': '*/SKILL.md' },
-                                ],
-                                id: 'skills.jsonl',
-                            },
-                        },
-                    ];
-                },
-            }))
-            .next(n('tbc-synthesize:synthesize-record-flow', {
-                requestsKey: 'synthesizeRequests',
-            }))
-            .next(n('tbc-system:write-records-flow', {
-                verbose: this.config?.verbose,
-                sourcePath: 'record.records',
-                collection: 'dexCollection',
-                protocolKey: 'dex',
-            }))
-            .next(n('core:mutate', {
-                mutate: (s: Shared) => {
-                    s.stage.messages.push({
-                        level: 'info',
-                        source: 'init-flow',
-                        message: `Stored ${s.record.records?.length} ${s.record.collection} record(s).`,
-                    });
-                    s.stage.messages.push({
-                        level: 'info',
-                        source: 'init-flow',
-                        message: `Digest: ${s.stage.dexCollection}/sys.digest.txt`,
-                        suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.',
-                    });
-                    s.stage.messages.push({
-                        level: 'info',
-                        source: 'init-flow',
-                        message: `Digest: ${s.stage.dexCollection}/skills.jsonl`,
-                        suggestion: 'This file is index of all skill you can use for your goals.',
-                    });
-                },
-            }))
             .next(n('tbc-system:log-and-clear-messages'));
     }
 

@@ -19,6 +19,8 @@ export * from './ops/validate-system.js';
 
 export * from './ops/add-minted-messages.js';
 export * from './ops/dex-rebuild-flow.js';
+export * from './ops/dex-rebuild-sys-flow.js';
+export * from './ops/dex-rebuild-skills-flow.js';
 export * from './ops/generate-tsids-flow.js';
 export * from './ops/generate-uuids-flow.js';
 export * from './ops/init-flow.js';

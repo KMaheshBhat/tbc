@@ -20,6 +20,8 @@ import { ValidateSystemNode } from './ops/validate-system.js';
 
 import { AddMintedMessagesNode } from './ops/add-minted-messages.js';
 import { DexRebuildFlow } from './ops/dex-rebuild-flow.js';
+import { DexRebuildSysFlow } from './ops/dex-rebuild-sys-flow.js';
+import { DexRebuildSkillsFlow } from './ops/dex-rebuild-skills-flow.js';
 import { GenerateTSIDsFlow } from './ops/generate-tsids-flow.js';
 import { GenerateUUIDsFlow } from './ops/generate-uuids-flow.js';
 import { InitFlow } from './ops/init-flow.js';
@@ -95,6 +97,8 @@ const TBCSystemPlugin = createPlugin(
         // Flows
         AddMintedMessagesNode,
         DexRebuildFlow,
+        DexRebuildSysFlow,
+        DexRebuildSkillsFlow,
         GenerateTSIDsFlow,
         GenerateUUIDsFlow,
         InitFlow,
