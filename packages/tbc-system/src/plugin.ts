@@ -63,7 +63,7 @@ import { ViewRecordsFlow } from './ops/view-records.js';
  *   - `tbc-system:generate-tsids-flow`: Generation flow for TSID minting (batch only)
  *   - `tbc-system:generate-uuids-flow`: Generation flow for UUID minting (batch only)
  *   - `tbc-system:init-flow`: Comprehensive flow for initializing a TBC environment
- *   - `tbc-system:load-core-memories`: Flow for loading core memories (companion, prime, memoryMap) - protocol-aware
+ *   - `tbc-system:load-core-memories-flow`: Flow for loading core memories (companion, prime, memoryMap) - protocol-aware
  *   - `tbc-system:load-specifications-flow`: Flow for loading system specifications
  *   - `tbc-system:prepare-messages`: Setup staged messages for TBC operations
  *   - `tbc-system:resolve-flow`: Flow for resolving root directory and protocol

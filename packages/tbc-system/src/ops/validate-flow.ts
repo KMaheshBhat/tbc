@@ -103,7 +103,7 @@ export class ValidateFlow extends HAMIFlow<Record<string, any>, Config> {
                 verbose: shared.stage.verbose,
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-system:load-core-memories', {
+            .next(n('tbc-system:load-core-memories-flow', {
                 verbose: shared.stage.verbose,
             }))
             .next(n('core:mutate', {

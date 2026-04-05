@@ -4,7 +4,6 @@ import { TBCRecordFSPlugin } from '@tbc-frameworx/tbc-record-fs';
 import { TBCRecordSQLitePlugin } from '@tbc-frameworx/tbc-record-sqlite';
 import { TBCMintPlugin } from '@tbc-frameworx/tbc-mint';
 import { TBCSynthesizePlugin } from '@tbc-frameworx/tbc-synthesize';
-import { TBCDexPlugin } from '@tbc-frameworx/tbc-dex';
 import { TBCSystemPlugin } from '@tbc-frameworx/tbc-system';
 import { TBCInterfacePlugin } from '@tbc-frameworx/tbc-interface';
 import { TBCMemoryPlugin } from '@tbc-frameworx/tbc-memory';
@@ -22,7 +21,6 @@ export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }
     await registry.registerPlugin(TBCRecordSQLitePlugin);
     await registry.registerPlugin(TBCMintPlugin);
     await registry.registerPlugin(TBCSynthesizePlugin);
-    await registry.registerPlugin(TBCDexPlugin);
     await registry.registerPlugin(TBCSystemPlugin);
     await registry.registerPlugin(TBCInterfacePlugin);
     await registry.registerPlugin(TBCMemoryPlugin);

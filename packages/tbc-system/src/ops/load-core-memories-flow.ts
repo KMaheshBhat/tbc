@@ -40,7 +40,7 @@ export class LoadCoreMemoriesFlow extends HAMIFlow<Shared, Config> {
     }
 
     kind(): string {
-        return 'tbc-system:load-core-memories';
+        return 'tbc-system:load-core-memories-flow';
     }
 
     async prep(shared: Shared): Promise<void> {
