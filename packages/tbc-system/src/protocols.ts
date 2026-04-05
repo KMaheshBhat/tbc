@@ -16,6 +16,7 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
+                rebuild: [{ id: 'tbc-system:dex-rebuild-sys-flow', config: {} }],
             },
         },
         skills: {
@@ -32,6 +33,7 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
+                rebuild: [{ id: 'tbc-system:dex-rebuild-skills-flow', config: {} }],
             },
         },
         mem: {
@@ -45,6 +47,7 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
+                rebuild: [{ id: 'tbc-record-fs:dex-rebuild', config: { collection: 'mem' } }],
             },
         },
         dex: {
@@ -89,6 +92,7 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
+                rebuild: [{ id: 'tbc-system:dex-rebuild-sys-flow', config: {} }],
             },
         },
         skills: {
@@ -105,6 +109,7 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 ],
                 query: [{ id: 'tbc-record-fs:query-records' }],
                 fetch: [{ id: 'tbc-record-fs:fetch-records' }],
+                rebuild: [{ id: 'tbc-system:dex-rebuild-skills-flow', config: {} }],
             },
         },
         mem: {
@@ -125,6 +130,7 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                     { id: 'tbc-record-sqlite:fetch-records' },
                     { id: 'tbc-record-fs:fetch-records' },
                 ],
+                rebuild: [{ id: 'tbc-record-fs:dex-rebuild', config: { collection: 'mem_next' } }],
             },
         },
         dex: {

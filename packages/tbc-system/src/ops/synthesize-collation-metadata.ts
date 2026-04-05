@@ -64,11 +64,14 @@ export class SynthesizeCollationMetadataNode extends HAMINode<Shared> {
       const bucket = allRecords[source.collection];
       if (!bucket) continue;
 
-      for (const [id, record] of Object.entries(bucket)) {
+      for (const [id, r] of Object.entries(bucket)) {
         if (!this.matchesGlob(id, source.idGlob)) continue;
 
+        const record =r as Record<string,any>;
+        const content: string = record.content;
+
         const regex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
-        const match = (record as string).match(regex);
+        const match = (content)?.match(regex);
         if (!match) {
           continue;
         }
@@ -82,6 +85,7 @@ export class SynthesizeCollationMetadataNode extends HAMINode<Shared> {
             obj[key] = frontmatter[key];
             return obj;
           }, {} as Record<string, any>);
+        filteredData['id'] = record.id ?? filteredData['id'];
 
         extractedMetadata.push({
           id,

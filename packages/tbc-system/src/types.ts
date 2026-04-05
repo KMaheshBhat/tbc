@@ -35,6 +35,8 @@ type TBCCollectionProtocol = {
         'index-full'?: Array<{ id: string; config?: Record<string, any> }>;
         /** Incremental index update */
         'index-incremental'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** DEX rebuild - rebuild DEX shards for this collection */
+        'rebuild'?: Array<{ id: string; config?: Record<string, any> }>;
     };
 };
 

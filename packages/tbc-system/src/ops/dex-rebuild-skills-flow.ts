@@ -79,8 +79,7 @@ export class DexRebuildSkillsFlow extends HAMIFlow<Record<string, any>, FlowConf
                             provider: 'tbc-system:synthesize-collation-metadata',
                             meta: {
                                 sources: [
-                                    { collection: `${s.stage.skillsCollection}/core`, 'idGlob': '*/SKILL.md' },
-                                    { collection: `${s.stage.skillsCollection}/ext`, 'idGlob': '*/SKILL.md' },
+                                    { collection: `${s.stage.skillsCollection}`, 'idGlob': '*/SKILL.md' },
                                 ],
                                 id: 'skills.jsonl',
                             },

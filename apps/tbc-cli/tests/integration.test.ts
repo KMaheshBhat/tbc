@@ -23,4 +23,7 @@ import './054-int-github-copilot.suite';
 import './055-int-kilocode.suite';
 import './150-int.suite';
 
+import './060-dex-rebuild.suite';
+import './160-dex-rebuild.suite';
+
 import './999-teardown.suite';

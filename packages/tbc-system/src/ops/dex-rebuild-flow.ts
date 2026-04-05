@@ -114,8 +114,13 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 },
             }))
             .next(n('tbc-system:validate-flow', {
-                verbose: shared.stage.verbose,
-                rootDirectory: shared.stage.rootDirectory,
+                verbose: this.config?.verbose,
+                rootDirectory: this.config?.rootDirectory,
+                resolve: {
+                    resolveRootDirectory: true,
+                    resolveProtocol: true,
+                    resolveCollections: true,
+                },
             }))
             .next(branchToAbort)
             .next(n('core:mutate', {
@@ -135,58 +140,120 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             }))
             .next(n('tbc-record:query-records-flow', {
                 recordProviders: ['tbc-record-fs:query-records'],
-                verbose: shared.stage.verbose,
+                verbose: this.config?.verbose,
             }))
             .next(n('core:assign', {
                 'record.IDs': 'record.result.IDs',
             }))
             .next(n('tbc-record:fetch-records-flow', {
                 recordProviders: ['tbc-record-fs:fetch-records'],
-                verbose: shared.stage.verbose,
+                verbose: this.config?.verbose,
             }))
-            .next(n('core:assign', {
-                'record.rootDirectory': 'system.rootDirectory',
-                'record.collection': 'stage.memCollection',
-                'record.query': 'stage.query',
-            }))
+            .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {
-                mutate: (shared: Record<string, any>) => {
+                mutate: (shared: Shared) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'dex-rebuild-flow',
+                        message: 'Rebuilding DEX using protocol approach...',
+                    });
+                    const protocol = shared.system.protocol;
+                    const collections: Array<'sys' | 'skills' | 'mem' | 'dex' | 'act'> = ['sys', 'skills', 'mem', 'dex', 'act'];
+                    const rebuilds: Array<{ id: string; config?: Record<string, any> }> = [];
+                    for (const col of collections) {
+                        const colConfig = protocol[col];
+                        const rebuildProviders = colConfig?.on?.rebuild;
+                        if (rebuildProviders && rebuildProviders.length > 0) {
+                            for (const provider of rebuildProviders) {
+                                rebuilds.push({
+                                    id: provider.id,
+                                    config: { ...provider.config, verbose: shared.stage.verbose },
+                                });
+                            }
+                        }
+                    }
+                    shared.stage.pendingRebuilds = rebuilds;
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    const rebuilds = shared.stage.pendingRebuilds || [];
+                    if (rebuilds.length === 0) {
+                        shared.stage.messages.push({
+                            level: 'debug',
+                            source: 'dex-rebuild-flow',
+                            message: 'No rebuild providers found in protocol.',
+                        });
+                        return;
+                    }
+                    const firstRebuild = rebuilds[0];
+                    shared.stage.currentRebuildIndex = 0;
+                    shared.stage.rebuilds = rebuilds;
                     shared.stage.messages.push({
                         level: 'debug',
-                        source: 'validate-flow',
-                        message: `Query (${JSON.stringify(shared.record.query)}) and load from ${shared.record.collection}`,
+                        source: 'dex-rebuild-flow',
+                        message: `Calling rebuild provider: ${firstRebuild.id}`,
+                    });
+                    shared.record = shared.record || {};
+                    shared.record.rootDirectory = shared.stage.rootDirectory;
+                    if (firstRebuild.config?.collection) {
+                        shared.record.collection = firstRebuild.config.collection;
+                    }
+                },
+            }))
+            .next(n('tbc-system:dex-rebuild-sys-flow', {
+                verbose: this.config?.verbose,
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'dex-rebuild-flow',
+                        message: 'Completed sys rebuild',
                     });
                 },
             }))
-            .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-fs:query-records'],
-                verbose: shared.stage.verbose,
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    const rebuilds = shared.stage.rebuilds || [];
+                    shared.stage.messages.push({
+                        level: 'debug',
+                        source: 'dex-rebuild-flow',
+                        message: `Calling rebuild provider: tbc-system:dex-rebuild-skills-flow`,
+                    });
+                },
             }))
-            .next(n('tbc-system:prepare-records-manifest'))
-            .next(n('tbc-system:add-manifest-messages', {
-                source: 'dex-upgrade-flow',
-                level: 'info',
+            .next(n('tbc-system:dex-rebuild-skills-flow', {
+                verbose: this.config?.verbose,
+            }))
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    shared.stage.messages.push({
+                        level: 'info',
+                        source: 'dex-rebuild-flow',
+                        message: 'Completed skills rebuild',
+                    });
+                },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('tbc-dex:collate-digest', {
-                output: { collection: 'dex', id: 'sys.digest.txt' },
-                sources: [
-                    { collection: 'sys', idGlob: 'root.md' },
-                    { collection: 'sys/core', idGlob: '*.md' },
-                    { collection: 'sys/ext', idGlob: '*.md' },
-                ],
+            .next(n('core:mutate', {
+                mutate: (shared: Shared) => {
+                    const memCollection = shared.stage.memCollection;
+                    const dexCollection = shared.stage.dexCollection;
+                    shared.stage.messages.push({
+                        level: 'debug',
+                        source: 'dex-rebuild-flow',
+                        message: `Calling rebuild provider: tbc-record-fs:dex-rebuild for ${memCollection} -> dex: ${dexCollection}`,
+                    });
+                    shared.record = shared.record || {};
+                    shared.record.rootDirectory = shared.stage.rootDirectory;
+                    shared.record.collection = memCollection;
+                },
             }))
-            .next(n('tbc-dex:collate-metadata-index', {
-                output: { collection: 'dex', id: 'skills.jsonl' },
-                sources: [
-                    { collection: 'skills', idGlob: '*/SKILL.md' },
-                ],
-            }))
-            .next(n('tbc-dex:collate-metadata-index', {
-                output: { collection: 'dex', id: 'memory.jsonl' },
-                sources: [
-                    { collection: 'mem', idGlob: '*', partitionKey: 'record_type' },
-                ],
+            .next(n('tbc-record-fs:dex-rebuild', {
+                verbose: true,
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
@@ -203,19 +270,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     }
                 },
             }))
-            .next(n('tbc-record:store-records-flow', {
-                verbose: shared.stage.verbose,
-                recordProviders: ['tbc-record-fs:store-records'],
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'dex-rebuild-flow',
-                        message: `Stored ${shared.record.records?.length} ${shared.record.collection} record(s).`,
-                    });
-                },
-            }))
+            .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
                     shared.stage.messages.push({
@@ -236,19 +291,19 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'dex-rebuild-flow',
-                        message: 'Digest: dex/sys.digest.txt',
+                        message: `Digest: ${shared.stage.dexCollection}/sys.digest.txt`,
                         suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.',
                     });
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'dex-rebuild-flow',
-                        message: 'Digest: dex/skills.jsonl',
+                        message: `Digest: ${shared.stage.dexCollection}/skills.jsonl`,
                         suggestion: 'This file is index of all skill you can use for your goals.',
                     });
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'dex-rebuild-flow',
-                        message: 'Digest: dex/*.memory.jsonl',
+                        message: `Digest: ${shared.stage.dexCollection}/*.memory.jsonl`,
                         suggestion: 'These files is index of all your memory records partitioined by record_type.',
                     });
                 },
