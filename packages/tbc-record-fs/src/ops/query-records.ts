@@ -49,14 +49,11 @@ export class QueryRecordsNode extends HAMINode<Shared> {
 
     async exec(params: NodeInput): Promise<NodeOutput> {
         const { rootDirectory, collection, query } = params;
-
         if (query.type === 'filter-by-tags') {
             throw new Error('filter-by-tags not implemented');
         }
-
         const store = await getOrCreateStore(rootDirectory, collection);
         const IDs = await store.query(collection, query);
-
         return {
             IDs: IDs,
             totalCount: IDs.length,

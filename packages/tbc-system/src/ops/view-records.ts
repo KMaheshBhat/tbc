@@ -65,22 +65,51 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
         const protocol = shared.system.protocol;
         const collection = protocol[config.protocolKey!]?.collection ?? 'mem';
 
-        // Get fetch providers from protocol.on.fetch, fallback to fs
-        const fetchProviders = protocol[config.protocolKey!]?.on?.fetch?.map(p => p.id) ?? ['tbc-record-fs:fetch-records'];
+        // Get query providers from protocol.on.query - fallback to fs if empty
+        let queryProviders = protocol[config.protocolKey!]?.on?.query?.map(p => p.id) ?? [];
+        if (queryProviders.length === 0) {
+            queryProviders = ['tbc-record-fs:query-records'];
+        }
+        // Get fetch providers from protocol.on.fetch - fallback to fs if empty
+        let fetchProviders = protocol[config.protocolKey!]?.on?.fetch?.map(p => p.id) ?? [];
+        if (fetchProviders.length === 0) {
+            fetchProviders = ['tbc-record-fs:fetch-records'];
+        }
 
         this.startNode
-            .next(n('tbc-dex:discover-records-flow', {
-                ...config,
-                outputKey: 'dexMatches',
-            }))
-            // Map Stage to View
+            // Step 0: Setup query parameters
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
-                    // Capture IDsSource before clearing result
-                    const idsSource = s.record.result?.IDsSource;
+                    const queryStr = config.query || '';
+                    const queryType = queryStr.trim().length > 0 ? 'search-by-content' : 'list-all-ids';
                     
-                    s.record.IDs = s.stage.dexMatches || [];
+                    s.record.query = {
+                        type: queryType,
+                        searchTerm: queryStr,
+                        recordType: config.type,
+                        sortBy: 'id',
+                        sortOrder: 'desc',
+                        limit: config.limit,
+                    };
                     s.record.collection = collection;
+                },
+            }))
+            // Step 1: Query records using protocol.on.query providers
+            .next(n('tbc-record:query-records-flow', {
+                recordProviders: queryProviders,
+                verbose: config.verbose,
+            }))
+            // Step 2: Map query results to IDs for fetch
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    // Capture IDsSource and IDs before clearing result
+                    const idsSource = s.record.result?.IDsSource;
+                    const queryIDs = s.record.result?.IDs || [];
+                    
+                    // Clear previous result to avoid accumulation from earlier queries
+                    s.record.result = undefined;
+                    
+                    s.record.IDs = queryIDs;
                     
                     // Report the query source for debugging
                     if (idsSource) {
@@ -90,11 +119,9 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
                             message: `Query source: ${idsSource}`,
                         });
                     }
-                    
-                    s.record.result = undefined;
                 },
             }))
-            // Execute Settled Fetch Logic - use protocol-derived fetchers
+            // Step 3: Fetch records using protocol.on.fetch providers
             .next(n('tbc-record:fetch-records-flow', {
                 recordProviders: fetchProviders,
                 verbose: config.verbose,

@@ -68,6 +68,7 @@ type TBCQueryParams = {
     // tags?: string[];
     sortBy?: 'id' | 'created' | 'modified';
     sortOrder?: 'asc' | 'desc';
+    recordType?: string;
 };
 
 type TBCResult = {

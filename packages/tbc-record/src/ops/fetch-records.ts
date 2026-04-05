@@ -79,6 +79,10 @@ export class FetchRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         assert(shared.record, 'shared.record (operation state) is required');
         const rootDir = shared.record.rootDirectory || this.config.root || process.cwd();
         shared.record.rootDirectory = rootDir;
+        
+        // Clear previous result to avoid accumulation
+        shared.record.result = undefined;
+        
         return super.run(shared);
     }
 

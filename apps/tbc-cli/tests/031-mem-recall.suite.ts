@@ -58,11 +58,9 @@ describe('🐵 LETS-GO: tbc mem recall', () => {
             '--type', 'goal',
             '--root', TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
         expect(output).toContain('goal');
         expect(output).toContain('New goal');
-
         // Strict filtering check: should NOT show notes
         expect(output).not.toContain('note');
         expect(output).not.toContain('Buy more bananas');

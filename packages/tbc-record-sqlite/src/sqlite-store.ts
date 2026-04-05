@@ -104,8 +104,8 @@ class SQLiteStore implements RecordStore {
         tx(records, relations);
     }
     async query(collection: string, params: TBCQueryParams): Promise<string[]> {
-        if (params.type === 'search-by-content') {
-            return this.searchNodes(params.searchTerm || '', collection);
+        if (params.type === 'search-by-content' && params.searchTerm) {
+            return this.searchNodes(params.searchTerm, collection, params.recordType);
         }
 
         return this.listNodeIds({
@@ -114,6 +114,7 @@ class SQLiteStore implements RecordStore {
             sortOrder: params.sortOrder,
             limit: params.limit,
             offset: params.offset,
+            kind: params.recordType,
         });
     }
 
@@ -314,11 +315,12 @@ class SQLiteStore implements RecordStore {
         return rows.map(r => r.record_id);
     }
 
-    async searchNodes(text: string, collection?: string): Promise<string[]> {
+    async searchNodes(text: string, collection?: string, recordType?: string): Promise<string[]> {
         if (!this.db) throw new Error('Database not initialized');
         let query = 'SELECT record_id FROM record WHERE data LIKE ?';
         const params: any[] = [`%${text}%`];
         if (collection) { query += ' AND collection = ?'; params.push(collection); }
+        if (recordType) { query += ' AND record_kind = ?'; params.push(recordType); }
         const rows = this.db.query(query).all(...params) as { record_id: string }[];
         return rows.map(r => r.record_id);
     }

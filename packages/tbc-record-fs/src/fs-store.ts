@@ -182,9 +182,14 @@ class FSStore implements RecordStore {
             ? readdirSync(dexDir).filter(f => f.startsWith(`${collection}.`) && f.endsWith('.jsonl'))
             : [];
 
+        // Filter shards by recordType if specified (e.g., mem.goal.jsonl for 'goal')
+        const filteredShards = params.recordType 
+            ? shards.filter(f => f === `${collection}.${params.recordType}.jsonl`)
+            : shards;
+
         let hasDataFromIndex = false;
-        if (shards.length > 0) {
-            for (const shard of shards) {
+        if (filteredShards.length > 0) {
+            for (const shard of filteredShards) {
                 const shardPath = join(dexDir, shard);
                 const content = readFileSync(shardPath, 'utf-8');
                 const lines = content.split('\n').filter(l => l.trim());
@@ -220,8 +225,25 @@ class FSStore implements RecordStore {
                             } else {
                                 id = basename(file);
                             }
+                            
+                            // Skip files that don't match recordType filter
+                            if (params.recordType) {
+                                const fileRecordType = this.extractRecordType(fullPath, file);
+                                if (fileRecordType !== params.recordType) {
+                                    continue;
+                                }
+                            }
+                            
                             if (params.type === 'list-all-ids') {
                                 results.add(id);
+                            } else if (params.type === 'search-by-content' && params.searchTerm) {
+                                try {
+                                    const content = readFileSync(fullPath, 'utf-8');
+                                    if (content.toLowerCase().includes(params.searchTerm.toLowerCase())) {
+                                        results.add(id);
+                                    }
+                                } catch {
+                                }
                             }
                         }
                     }
@@ -382,6 +404,24 @@ class FSStore implements RecordStore {
         if (id.includes('..') || id.includes('\\')) {
             throw new Error(`Security: Invalid record ID "${id}"`);
         }
+    }
+
+    private extractRecordType(filePath: string, fileName: string): string | null {
+        try {
+            const ext = extname(filePath);
+            if (ext === '.json') {
+                const content = readFileSync(filePath, 'utf-8');
+                const data = JSON.parse(content);
+                return data.record_type || data.kind || null;
+            }
+            if (ext === '.md') {
+                const content = readFileSync(filePath, 'utf-8');
+                const parsed = matter(content);
+                return parsed.data?.record_type || parsed.data?.kind || null;
+            }
+        } catch {
+        }
+        return null;
     }
 
     private ensureInitialized() {
