@@ -109,7 +109,10 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                     { id: 'tbc-record-sqlite:query-records' },
                     { id: 'tbc-record-fs:query-records' },
                 ],
-                fetch: [{ id: 'tbc-record-fs:fetch-records' }],
+                fetch: [
+                    { id: 'tbc-record-sqlite:fetch-records' },
+                    { id: 'tbc-record-fs:fetch-records' },
+                ],
             },
         },
         dex: {
