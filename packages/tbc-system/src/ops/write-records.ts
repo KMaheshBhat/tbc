@@ -11,7 +11,6 @@ interface FlowConfig {
     collection: string;
     storeProviders?: Array<{ id: string; config?: Record<string, any> }>;
     protocolKey: 'sys' | 'skills' | 'mem' | 'dex' | 'act' | undefined;
-    syncIndex: boolean;
 }
 
 const FlowConfigSchema: ValidationSchema = {
@@ -61,12 +60,6 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
         const proto = shared.system.protocol?.[this.config.protocolKey!];
         // const storeProviders = proto?.on?.store?.map(p => p.id) ?? this.config.storeProviders?.map(p => p.id) ?? []; 
         const storeProviders = proto?.on?.store ?? this.config.storeProviders ?? []
-        const indexer = this.config.syncIndex ? n('tbc-dex:sync-incremental-index', {
-            sourcePath: this.config.sourcePath,
-            collection: collection,
-            rootDirectory: shared.system.rootDirectory,
-        }) : new Node();
-        const messageSuffix = `(Storage${this.config.syncIndex ? ' + Index' : ''})`;
 
         this.startNode
             // 1. Prepare shared.record for tbc-record:store-records-flow
@@ -91,17 +84,14 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                 recordProviders: storeProviders,
                 verbose: this.config.verbose,
             }))
-            // 3. Delegate Indexing (The "Query" Side)
-            // We pass the same indirection so the indexer knows where the data came from
-            .next(indexer)
-            // 4. Reporting
+            // 3. Reporting
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
                     const count = shared.record.records?.length || 0;
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'tbc-system',
-                        message: `Processed ${count} record(s) in [${collection}] ${messageSuffix}.`,
+                        message: `Processed ${count} record(s) in [${collection}].`,
                     });
                 },
             }));

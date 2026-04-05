@@ -190,7 +190,6 @@ export class RememberFlow extends HAMIFlow<Shared, Config> {
                 sourcePath: 'record.records',
                 collection: 'memCollection',
                 protocolKey: 'mem',
-                syncIndex: true,
             }))
             // 4. FEEDBACK
             .next(n('core:mutate', {

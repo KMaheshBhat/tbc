@@ -310,7 +310,6 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
                 protocolKey: 'sys',
-                syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/core`))
             .next(n('tbc-system:write-records-flow', {
@@ -318,7 +317,6 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
                 protocolKey: 'skills',
-                syncIndex: false,
             }))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {
@@ -416,7 +414,6 @@ export class UpgradeFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'record.records',
                 collection: 'dexCollection',
                 protocolKey: 'dex',
-                syncIndex: false,
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {

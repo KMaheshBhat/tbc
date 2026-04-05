@@ -165,7 +165,6 @@ export class AgentIntegrateFlow extends HAMIFlow<Shared, Config> {
                 storeProviders: [{ id: 'tbc-record-fs:store-records', config: { eagerIndex: false } }],
                 sourcePath: 'record.records',
                 collection: 'rootCollection',
-                syncIndex: false,
             }))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {

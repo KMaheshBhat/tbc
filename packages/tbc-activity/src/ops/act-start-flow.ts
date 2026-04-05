@@ -208,7 +208,6 @@ export class ActStartFlow extends HAMIFlow<Shared, Config> {
                 storeProviders: [{ id: 'tbc-record-fs:store-records', config: { eagerIndex: false } }],
                 sourcePath: 'record.records',
                 collection: 'actCollection',
-                syncIndex: false,
             }))
             .next(startReport)
             // --- FEEDBACK SECTION ---

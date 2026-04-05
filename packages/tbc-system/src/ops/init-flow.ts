@@ -244,7 +244,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
                 protocolKey: 'sys',
-                syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.sysCollection}/core`))
             .next(n('tbc-system:write-records-flow', {
@@ -252,7 +251,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
                 protocolKey: 'sys',
-                syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.sysCollection}/ext`))
             .next(n('tbc-system:write-records-flow', {
@@ -260,7 +258,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
                 protocolKey: 'sys',
-                syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/core`))
             .next(n('tbc-system:write-records-flow', {
@@ -268,7 +265,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
                 protocolKey: 'skills',
-                syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => `${s.stage.skillsCollection}/ext`))
             .next(n('tbc-system:write-records-flow', {
@@ -276,7 +272,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'stage.activeDrafts',
                 collection: 'currentCollectionName',
                 protocolKey: 'skills',
-                syncIndex: false,
             }))
             .next(stageRecords(shared.registry, s => s.stage.memCollection, 'stage.memDrafts'))
             .next(n('tbc-system:write-records-flow', {
@@ -284,7 +279,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'stage.memDrafts',
                 collection: 'memCollection',
                 protocolKey: 'mem',
-                syncIndex: true,
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -377,7 +371,6 @@ export class InitFlow extends HAMIFlow<Record<string, any>, Config> {
                 sourcePath: 'record.records',
                 collection: 'dexCollection',
                 protocolKey: 'dex',
-                syncIndex: false,
             }))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {

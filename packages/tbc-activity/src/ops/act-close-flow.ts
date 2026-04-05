@@ -203,7 +203,6 @@ export class ActCloseFlow extends HAMIFlow<Shared, Config> {
                 sourcePath: 'stage.activeDrafts',
                 collection: 'memCollection',
                 protocolKey: 'mem',
-                syncIndex: true,
             }))
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
