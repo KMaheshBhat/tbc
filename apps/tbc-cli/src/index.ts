@@ -532,20 +532,22 @@ let cmdDex = new Command('dex')
 let cmdDexRebuild = new Command('rebuild')
     .description('Rebuild all inDEXes')
     .action(async (opts) => {
+        const flowName = 'tbc-system:dex-rebuild-flow';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+        };
+        const flowParams = {
+            registry: registry,
+        };
         try {
-            const cliOpts = program.opts();
-            const isVerbose = !!cliOpts.verbose;
-            const root = opts.root || cliOpts.root;
-            const refreshCoreFlow = registry.createNode('tbc-system:dex-rebuild-flow', {
-                verbose: opts.verbose,
-            });
-            await refreshCoreFlow.run({
-                registry: registry,
-                opts: { verbose: isVerbose },
-                root: root,
-            });
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
         } catch (error) {
-            console.error('Error during dex core:', error);
+            handleError(`Error running ${flowName}`, error, isVerbose);
             process.exit(1);
         }
         return;

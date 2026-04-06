@@ -92,8 +92,8 @@ export class WriteRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
                 mutate: (shared: Shared) => {
                     const count = shared.record.records?.length || 0;
                     shared.stage.messages.push({
-                        level: 'info',
-                        source: 'tbc-system',
+                        level: 'debug',
+                        source: 'write-records-flow',
                         message: `Processed ${count} record(s) in [${collection}].`,
                     });
                 },

@@ -49,7 +49,10 @@ export class LogAndClearMessagesNode extends HAMINode<Shared> {
     }
 
     async exec({messages, verbose}: Input): Promise<TBCMessage[]> {
-        console.log(composeMessages(messages, verbose || false));
+        const composedMessage = composeMessages(messages, verbose || false);
+        if (composedMessage) {
+            console.log(composedMessage);
+        }
         return messages;
     }
 

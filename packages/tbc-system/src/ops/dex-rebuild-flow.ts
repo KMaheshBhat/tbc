@@ -7,12 +7,12 @@ import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema
 import packageJson from '../../package.json' with { type: 'json' };
 import { Shared } from '../types.js';
 
-interface FlowConfig {
+interface Config {
     rootDirectory?: string;
     verbose: boolean;
 }
 
-const FlowConfigSchema: ValidationSchema = {
+const ConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         root: { type: 'string' },
@@ -21,39 +21,97 @@ const FlowConfigSchema: ValidationSchema = {
     required: ['verbose'],
 };
 
-class DexRebuildStartNode extends HAMINode<Shared, FlowConfig> {
-    constructor(config?: FlowConfig, maxRetries?: number, wait?: number) {
-        super(config, maxRetries, wait);
-    }
-
+class DexRebuildStartNode extends HAMINode<Shared, Config> {
     kind(): string {
         return 'tbc-system:dex-rebuild-flow-start';
     }
 
-    async post(shared: Record<string, any>, prepRes: unknown, execRes: unknown): Promise<string> {
+    async post(shared: Shared, prepRes: unknown, execRes: unknown): Promise<string> {
         shared.stage = shared.stage || {};
-        shared.stage.verbose = shared.verbose || this.config?.verbose;
+        shared.stage.verbose = this.config?.verbose;
         shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
         shared.system = shared.system || {};
-        shared.stage.query = {
-            type: 'list-all-ids',
-        };
-        shared.stage.sysCollection = 'sys';
-        shared.stage.skillsCollection = 'skills';
-        shared.stage.dexCollection = 'dex';
-        shared.stage.memCollection = 'mem';
-        shared.stage.actCollection = 'act';
-        const timestamp = (new Date()).toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
-        shared.stage.backupCollection = `bak-${timestamp}`;
         return 'default';
     }
 }
 
-export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
+class DexRebuildInnerFlow extends HAMIFlow<Shared, Config> {
     startNode: Node;
-    config: FlowConfig;
+    config: Config;
 
-    constructor(config: FlowConfig) {
+    constructor(config: Config) {
+        const startNode = new Node();
+        super(startNode, config);
+        this.startNode = startNode;
+        this.config = config;
+    }
+
+    kind(): string {
+        return 'tbc-system:dex-rebuild-inner-flow';
+    }
+
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
+        return { valid: true, errors: [] };
+    }
+
+    async prep(shared: Shared): Promise<void> {
+        assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode.bind(shared.registry);
+        const protocol = shared.system.protocol;
+
+        const dexCollection = protocol?.dex?.collection || 'dex';
+        const memCollection = protocol?.mem?.collection || 'mem';
+
+        const collections = ['sys', 'skills', 'mem', 'dex', 'act'] as const;
+        let currentNode: Node = this.startNode;
+
+        for (const col of collections) {
+            const colConfig = protocol[col];
+            const rebuildProviders = colConfig?.on?.rebuild;
+
+            if (!rebuildProviders || rebuildProviders.length === 0) {
+                continue;
+            }
+
+            for (const provider of rebuildProviders) {
+                const node = n(provider.id, {
+                    ...provider.config,
+                    collection: memCollection,
+                    dexCollection,
+                    verbose: this.config?.verbose,
+                }) as Node;
+                currentNode = currentNode.next(node);
+
+                const mutateNode = n('core:mutate', {
+                    mutate: (s: Shared) => {
+                        s.stage.messages.push({
+                            level: 'info',
+                            source: 'dex-rebuild-flow',
+                            message: `Completed ${col} rebuild via ${provider.id}`,
+                        });
+                    },
+                }) as Node;
+                currentNode = currentNode.next(mutateNode);
+
+                const logNode = n('tbc-system:log-and-clear-messages') as Node;
+                currentNode = currentNode.next(logNode);
+            }
+        }
+    }
+
+    async run(shared: Shared): Promise<string | undefined> {
+        shared.stage = shared.stage || {};
+        shared.stage.verbose = this.config?.verbose;
+        shared.stage.rootDirectory = shared.stage.rootDirectory || shared.rootDirectory || this.config?.rootDirectory;
+        return super.run(shared);
+    }
+}
+
+export class DexRebuildFlow extends HAMIFlow<Shared, Config> {
+    startNode: Node;
+    config: Config;
+
+    constructor(config: Config) {
         const startNode = new DexRebuildStartNode(config);
         super(startNode, config);
         this.startNode = startNode;
@@ -64,8 +122,8 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
         return 'tbc-system:dex-rebuild-flow';
     }
 
-    validateConfig(config: FlowConfig): HAMINodeConfigValidateResult {
-        const result = validateAgainstSchema(config, FlowConfigSchema);
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, ConfigSchema);
         return {
             valid: result.isValid,
             errors: result.errors || [],
@@ -75,6 +133,7 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
     async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
+
         const abortSequence = new Node();
         abortSequence
             .next(n('core:mutate', {
@@ -98,11 +157,51 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
             },
         });
         branchToAbort.on('abort', abortSequence);
+
+        const innerFlow = new DexRebuildInnerFlow(this.config);
+
+        const finalLogNode = n('core:mutate', {
+            mutate: (shared: Shared) => {
+                shared.stage.messages.push({
+                    level: 'info',
+                    kind: 'raw',
+                    message: ' ┌┼───────────────────────────────────────────────────────────',
+                });
+                shared.stage.messages.push({
+                    level: 'info',
+                    kind: 'raw',
+                    message: `[✓] System Index (Dex) Rebuilt: ${packageJson.version}`,
+                });
+                shared.stage.messages.push({
+                    level: 'info',
+                    kind: 'raw',
+                    message: ' └┼───────────────────────────────────────────────────────────',
+                });
+                shared.stage.messages.push({
+                    level: 'info',
+                    source: 'dex-rebuild-flow',
+                    message: `Digest: ${shared.stage.dexCollection}/sys.digest.txt`,
+                    suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.',
+                });
+                shared.stage.messages.push({
+                    level: 'info',
+                    source: 'dex-rebuild-flow',
+                    message: `Digest: ${shared.stage.dexCollection}/skills.jsonl`,
+                    suggestion: 'This file is index of all skill you can use for your goals.',
+                });
+                shared.stage.messages.push({
+                    level: 'info',
+                    source: 'dex-rebuild-flow',
+                    message: `Digest: ${shared.stage.dexCollection}/${shared.stage.memCollection}.*.jsonl`,
+                    suggestion: 'These files is index of all your memory records partitioined by record_type.',
+                });
+            },
+        });
+
         this.startNode
             .next(n('tbc-system:prepare-messages', {
                 verbose: this.config?.verbose,
             }))
-            .next(n('tbc-system:resolve-root-directory'))
             .next(n('tbc-system:log-and-clear-messages'))
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
@@ -127,194 +226,30 @@ export class DexRebuildFlow extends HAMIFlow<Record<string, any>, FlowConfig> {
                 mutate: (shared: Shared) => {
                     shared.stage.messages.push({
                         level: 'info',
-                        source: 'dex-upgrade-flow',
+                        source: 'dex-rebuild-flow',
                         message: 'existing valid TBC root found, proceeding ...',
                     });
-                    shared.stage.records['mem'] = undefined; // Clear memories from vaildation
                 },
-            }))
-            .next(n('core:assign', { // and reload all records
-                'record.rootDirectory': 'system.rootDirectory',
-                'record.collection': 'stage.memCollection',
-                'record.query': 'stage.query',
-            }))
-            .next(n('tbc-record:query-records-flow', {
-                recordProviders: ['tbc-record-fs:query-records'],
-                verbose: this.config?.verbose,
-            }))
-            .next(n('core:assign', {
-                'record.IDs': 'record.result.IDs',
-            }))
-            .next(n('tbc-record:fetch-records-flow', {
-                recordProviders: ['tbc-record-fs:fetch-records'],
-                verbose: this.config?.verbose,
-            }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'dex-rebuild-flow',
-                        message: 'Rebuilding DEX using protocol approach...',
-                    });
-                    const protocol = shared.system.protocol;
-                    const collections: Array<'sys' | 'skills' | 'mem' | 'dex' | 'act'> = ['sys', 'skills', 'mem', 'dex', 'act'];
-                    const rebuilds: Array<{ id: string; config?: Record<string, any> }> = [];
-                    for (const col of collections) {
-                        const colConfig = protocol[col];
-                        const rebuildProviders = colConfig?.on?.rebuild;
-                        if (rebuildProviders && rebuildProviders.length > 0) {
-                            for (const provider of rebuildProviders) {
-                                rebuilds.push({
-                                    id: provider.id,
-                                    config: { ...provider.config, verbose: shared.stage.verbose },
-                                });
-                            }
-                        }
-                    }
-                    shared.stage.pendingRebuilds = rebuilds;
-                },
-            }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    const rebuilds = shared.stage.pendingRebuilds || [];
-                    if (rebuilds.length === 0) {
-                        shared.stage.messages.push({
-                            level: 'debug',
-                            source: 'dex-rebuild-flow',
-                            message: 'No rebuild providers found in protocol.',
-                        });
-                        return;
-                    }
-                    const firstRebuild = rebuilds[0];
-                    shared.stage.currentRebuildIndex = 0;
-                    shared.stage.rebuilds = rebuilds;
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'dex-rebuild-flow',
-                        message: `Calling rebuild provider: ${firstRebuild.id}`,
-                    });
-                    shared.record = shared.record || {};
-                    shared.record.rootDirectory = shared.stage.rootDirectory;
-                    if (firstRebuild.config?.collection) {
-                        shared.record.collection = firstRebuild.config.collection;
-                    }
-                },
-            }))
-            .next(n('tbc-system:dex-rebuild-sys-flow', {
-                verbose: this.config?.verbose,
             }))
             .next(n('core:mutate', {
                 mutate: (shared: Shared) => {
                     shared.stage.messages.push({
                         level: 'info',
                         source: 'dex-rebuild-flow',
-                        message: 'Completed sys rebuild',
+                        message: 'Rebuilding DEX...',
                     });
                 },
             }))
             .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    const rebuilds = shared.stage.rebuilds || [];
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'dex-rebuild-flow',
-                        message: `Calling rebuild provider: tbc-system:dex-rebuild-skills-flow`,
-                    });
-                },
-            }))
-            .next(n('tbc-system:dex-rebuild-skills-flow', {
-                verbose: this.config?.verbose,
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'dex-rebuild-flow',
-                        message: 'Completed skills rebuild',
-                    });
-                },
-            }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    const memCollection = shared.stage.memCollection;
-                    const dexCollection = shared.stage.dexCollection;
-                    shared.stage.messages.push({
-                        level: 'debug',
-                        source: 'dex-rebuild-flow',
-                        message: `Calling rebuild provider: tbc-record-fs:dex-rebuild for ${memCollection} -> dex: ${dexCollection}`,
-                    });
-                    shared.record = shared.record || {};
-                    shared.record.rootDirectory = shared.stage.rootDirectory;
-                    shared.record.collection = memCollection;
-                },
-            }))
-            .next(n('tbc-record-fs:dex-rebuild', {
-                verbose: true,
-            }))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.record = shared.record || {};
-                    shared.record.rootDirectory = shared.stage.rootDirectory;
-                    shared.record.collection = shared.stage.dexCollection;
-                    shared.record.records = [];
-                    const dexRecords = shared.stage.dex?.records || {};
-                    for (const [id, record] of Object.entries(dexRecords)) {
-                        shared.record.records.push({
-                            ...(record as any),
-                            id: id,
-                        });
-                    }
-                },
-            }))
-            .next(n('tbc-system:log-and-clear-messages'))
-            .next(n('core:mutate', {
-                mutate: (shared: Shared) => {
-                    shared.stage.messages.push({
-                        level: 'info',
-                        kind: 'raw',
-                        message: ' ┌┼───────────────────────────────────────────────────────────',
-                    });
-                    shared.stage.messages.push({
-                        level: 'info',
-                        kind: 'raw',
-                        message: `[✓] System Index (Dex) Rebuilt: ${packageJson.version}`,
-                    });
-                    shared.stage.messages.push({
-                        level: 'info',
-                        kind: 'raw',
-                        message: ' └┼───────────────────────────────────────────────────────────',
-                    });
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'dex-rebuild-flow',
-                        message: `Digest: ${shared.stage.dexCollection}/sys.digest.txt`,
-                        suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.',
-                    });
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'dex-rebuild-flow',
-                        message: `Digest: ${shared.stage.dexCollection}/skills.jsonl`,
-                        suggestion: 'This file is index of all skill you can use for your goals.',
-                    });
-                    shared.stage.messages.push({
-                        level: 'info',
-                        source: 'dex-rebuild-flow',
-                        message: `Digest: ${shared.stage.dexCollection}/*.memory.jsonl`,
-                        suggestion: 'These files is index of all your memory records partitioined by record_type.',
-                    });
-                },
-            }))
+            .next(innerFlow)
+            .next(finalLogNode)
             .next(n('tbc-system:log-and-clear-messages'));
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async run(shared: Shared): Promise<string | undefined> {
         shared.stage = shared.stage || {};
-        shared.stage.verbose = shared.verbose || this.config?.verbose;
-        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        shared.stage.verbose = this.config?.verbose;
+        shared.stage.rootDirectory = shared.stage.rootDirectory || shared.rootDirectory || this.config?.rootDirectory;
         return super.run(shared);
     }
 }

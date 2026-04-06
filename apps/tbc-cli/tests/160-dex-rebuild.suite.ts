@@ -23,7 +23,6 @@ record_create_date: ${new Date().toISOString()}
 # Manual memory for dex test (Kong)
 This was added manually to test dex rebuild on Kong.`;
         writeFileSync(manualMemPath, content);
-
         if (existsSync(sysDigestPath)) {
             unlinkSync(sysDigestPath);
         }
@@ -35,20 +34,20 @@ This was added manually to test dex rebuild on Kong.`;
     test('should rebuild dex index to include manually added memory', async () => {
         expect(existsSync(sysDigestPath)).toBe(false);
         expect(existsSync(skillsJsonlPath)).toBe(false);
-
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
-            'dex', 'rebuild', '--root', TBC_ROOT_NEXT,
+            'dex',
+            'rebuild',
+            '--root',
+            TBC_ROOT_NEXT,
+            '--verbose',
         ]);
         expect(success).toBe(true);
         expect(output).toContain('System Index (Dex) Rebuilt');
-
         expect(existsSync(sysDigestPath)).toBe(true);
         expect(existsSync(skillsJsonlPath)).toBe(true);
         expect(existsSync(dexShardPath)).toBe(true);
-
         const shardContent = readFileSync(dexShardPath, 'utf-8');
         expect(shardContent).toContain(manualMemId);
-
         const digestContent = readFileSync(sysDigestPath, 'utf-8');
         expect(digestContent).toContain('sys');
     });
