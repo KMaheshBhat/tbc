@@ -7,7 +7,7 @@ import { runMonorepoCommand } from '../../../scripts/common';
 import { CLI_TARGET, TBC_ROOT } from './test-helper';
 
 describe('🐵 DEX REBUILD: tbc dex rebuild (Mojo)', () => {
-    const manualMemId = '0199-test-dex-rebuild-manual';
+    const manualMemId = '019d6261-c37d-77e5-8460-c6c5a896bc64';
     const manualMemPath = join(TBC_ROOT, 'mem', `${manualMemId}.md`);
     const dexShardPath = join(TBC_ROOT, 'dex', 'mem.note.jsonl');
     const sysDigestPath = join(TBC_ROOT, 'dex', 'sys.digest.txt');

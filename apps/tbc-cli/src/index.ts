@@ -250,6 +250,31 @@ let cmdMemRecall = new Command('recall')
 
 cmdMem.addCommand(cmdMemRecall);
 
+let cmdMemAssimilate = new Command('assimilate')
+    .description('Replicate memory records across all RecordStore providers')
+    .action(async () => {
+        const flowName = 'tbc-memory:assimilate-flow';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+        };
+        const flowParams = {
+            registry: registry,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdMem.addCommand(cmdMemAssimilate);
+
 program.addCommand(cmdMem);
 
 let cmdAct = new Command('act')

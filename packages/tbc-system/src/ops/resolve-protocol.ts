@@ -48,6 +48,10 @@ export class ResolveProtocolNode extends HAMINode<Shared> {
         let foundPath: string | null = null;
         for await (const file of scanner) {
             if (file.startsWith('bak-')) continue;
+            if (file.startsWith('mem')) continue;
+            if (file.startsWith('dex')) continue;
+            if (file.startsWith('act')) continue;
+            if (file.startsWith('skills')) continue;
             foundPath = file;
             break;
         }

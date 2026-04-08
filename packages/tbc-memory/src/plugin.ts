@@ -4,6 +4,7 @@ import { AddRecallMessagesNode } from './ops/add-recall-messages.js';
 
 import { RecallFlow } from './ops/recall-flow.js';
 import { RememberFlow } from './ops/remember-flow.js';
+import { AssimilateFlow } from './ops/assimilate-flow.js';
 
 /**
  * TBC Memory Plugin for HAMI.
@@ -15,6 +16,7 @@ import { RememberFlow } from './ops/remember-flow.js';
  * - Flows:
  *   - `tbc-memory:recall-flow`: Retrieves identity and memory records
  *   - `tbc-memory:remember-flow`: Creates memory records
+ *   - `tbc-memory:assimilate-flow`: Replicates memory records across all RecordStore providers
  */
 const TBCMemoryPlugin = createPlugin(
     '@tbc-frameworx/tbc-memory',
@@ -25,6 +27,7 @@ const TBCMemoryPlugin = createPlugin(
         // Flows
         RecallFlow,
         RememberFlow,
+        AssimilateFlow,
     ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
     'TBC Memory Plugin - Memory operations for TBC',
 );

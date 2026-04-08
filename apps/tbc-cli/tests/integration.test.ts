@@ -26,4 +26,7 @@ import './150-int.suite';
 import './060-dex-rebuild.suite';
 import './160-dex-rebuild.suite';
 
+import './061-mem-assimilate.suite';
+import './161-mem-assimilate.suite';
+
 import './999-teardown.suite';

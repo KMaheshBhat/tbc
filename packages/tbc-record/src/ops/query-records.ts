@@ -3,11 +3,12 @@ import assert from 'node:assert';
 import { Node } from 'pocketflow';
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { TBCShared as Shared, TBCQueryParams, TBCResult, TBCStore } from '../types.js';
+import { TBCShared as Shared } from '../types.js';
 
 interface FlowConfig {
     verbose: boolean;
     recordProviders?: string[];
+    deepQuery?: boolean;
     root?: string;
 }
 
@@ -15,6 +16,7 @@ const FlowConfigSchema: ValidationSchema = {
     type: 'object',
     properties: {
         verbose: { type: 'boolean' },
+        deepQuery: { type: 'boolean', default: false },
         recordProviders: { type: 'array', items: { type: 'string' } },
         root: { type: 'string' },
     },
@@ -66,6 +68,9 @@ export class QueryRecordsFlow extends HAMIFlow<Record<string, any>, FlowConfig> 
             const hitBranch = n('core:branch', {
                 branch: (s: Shared) => {
                     const hasIds = s.record?.result?.IDs && s.record.result.IDs.length > 0;
+                    if (this.config.deepQuery) {
+                        return 'default';
+                    }
                     return hasIds ? 'hit' : 'default';
                 }
             });

@@ -7,6 +7,7 @@ import { Shared } from '../types.js';
 interface Config {
     verbose: boolean;
     query: string;
+    deepQuery: boolean;
     type?: string;
     protocolKey: 'sys' | 'skills' | 'mem' | 'dex' | 'act' | undefined;
     limit?: number;
@@ -17,6 +18,7 @@ const ConfigSchema: ValidationSchema = {
     properties: {
         verbose: { type: 'boolean' },
         query: { type: 'string' },
+        deepQuery: { type: 'boolean', default: false },
         type: { type: 'string' },
         protocolKey: { type: 'string', enum: ['sys', 'skills', 'mem', 'dex', 'act'] },
         limit: { type: 'number' },
@@ -96,6 +98,7 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
             }))
             // Step 1: Query records using protocol.on.query providers
             .next(n('tbc-record:query-records-flow', {
+                deepQuery: config.deepQuery,
                 recordProviders: queryProviders,
                 verbose: config.verbose,
             }))
