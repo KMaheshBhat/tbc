@@ -1,5 +1,5 @@
 import { describe, expect, test, beforeAll } from 'bun:test';
-import { existsSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { runMonorepoCommand } from '../../../scripts/common';

@@ -15,51 +15,46 @@ describe('🐵 LETS-GO: tbc act', () => {
 
     test('should start a new activity in \'current\' directory', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'act', 'start',
-            '--root', TBC_ROOT,
+            'act',
+            'start',
+            '--root',
+            TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
         expect(output).toContain('Activity started');
-
         const lines = output.split('\n');
         const successLine = lines.find(l => l.includes('Activity started'));
         const match = successLine?.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-
         activity1ID = match ? match[0] : '';
         expect(activity1ID).not.toBe('');
-
-        // Verify directory existence
         const currentPath = path.join(TBC_ROOT, 'act', 'current', activity1ID);
         expect(existsSync(currentPath)).toBe(true);
-
-        // Verify the initial context record exists
         const contextFile = path.join(currentPath, `${activity1ID}.md`);
         expect(existsSync(contextFile)).toBe(true);
     });
 
     test('should start a new activity using an externally minted UUID', () => {
-        // 1. Generate a UUID externally
         const genResult = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'gen', 'uuid', '--root', TBC_ROOT,
+            'gen',
+            'uuid',
+            '--root',
+            TBC_ROOT,
         ]);
         expect(genResult.success).toBe(true);
-
         const uuidMatch = genResult.output.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
         const externalUuid = uuidMatch ? uuidMatch[0] : '';
         expect(externalUuid).not.toBe('');
         activity2ID = externalUuid;
-
-        // 2. Pass that UUID to act start
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'act', 'start', externalUuid, '--root', TBC_ROOT,
+            'act',
+            'start',
+            externalUuid,
+            '--root',
+            TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
         expect(output).toContain('Activity started');
         expect(output).toContain(externalUuid);
-
-        // 3. Persistence Verification
         const contextFile = path.join(TBC_ROOT, 'act', 'current', externalUuid, `${externalUuid}.md`);
         expect(existsSync(contextFile)).toBe(true);
         const content = readFileSync(contextFile, 'utf-8');
@@ -69,9 +64,11 @@ describe('🐵 LETS-GO: tbc act', () => {
 
     test('should show active activities in the \'show\' command', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'act', 'show', '--root', TBC_ROOT,
+            'act',
+            'show',
+            '--root',
+            TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
         expect(output).toContain('Active [current]');
         expect(output).toContain(activity1ID);
@@ -82,30 +79,29 @@ describe('🐵 LETS-GO: tbc act', () => {
 
     test('should show active activities without clutter from artifacts', () => {
         const activity1Dir = path.join(TBC_ROOT, 'act', 'current', activity1ID);
-
-        // Create artifacts
         fs.writeFileSync(path.join(activity1Dir, 'research-notes.md'), '# Research\nSome notes.');
         fs.writeFileSync(path.join(activity1Dir, 'data-dump.json'), '{"key": "value"}');
-
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'act', 'show', '--root', TBC_ROOT,
+            'act',
+            'show',
+            '--root',
+            TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
-
-        // Expected count: 1 in the list entry + 1 in the Suggestion line = 2
         const activity1Matches = (output.match(new RegExp(activity1ID, 'g')) || []).length;
         expect(activity1Matches).toBe(2);
-
         expect(output).not.toContain('research-notes');
         expect(output).not.toContain('data-dump');
     });
 
     test('should pause an activity (move from current to backlog)', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'act', 'pause', activity1ID, '--root', TBC_ROOT,
+            'act',
+            'pause',
+            activity1ID,
+            '--root',
+            TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
         expect(existsSync(path.join(TBC_ROOT, 'act', 'current', activity1ID))).toBe(false);
         expect(existsSync(path.join(TBC_ROOT, 'act', 'backlog', activity1ID))).toBe(true);
@@ -116,9 +112,12 @@ describe('🐵 LETS-GO: tbc act', () => {
     test('should report error when trying to pause a non-existent activity', () => {
         const fakeUUID = '019c3b94-fake-uuid-not-real-4f9c9c52f482';
         const { output } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'act', 'pause', fakeUUID, '--root', TBC_ROOT,
+            'act',
+            'pause',
+            fakeUUID,
+            '--root',
+            TBC_ROOT,
         ]);
-
         expect(output).toContain(`Activity ${fakeUUID} not found in current workspace.`);
         expect(output).toContain('Check "tbc act show"');
         expect(existsSync(path.join(TBC_ROOT, 'act', 'backlog', fakeUUID))).toBe(false);
@@ -126,9 +125,12 @@ describe('🐵 LETS-GO: tbc act', () => {
 
     test('should resume an activity (move from backlog to current)', () => {
         const { success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'act', 'start', activity1ID, '--root', TBC_ROOT,
+            'act',
+            'start',
+            activity1ID,
+            '--root',
+            TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
         expect(existsSync(path.join(TBC_ROOT, 'act', 'current', activity1ID))).toBe(true);
         expect(existsSync(path.join(TBC_ROOT, 'act', 'backlog', activity1ID))).toBe(false);
@@ -137,9 +139,12 @@ describe('🐵 LETS-GO: tbc act', () => {
     test('should report error when trying to close a non-existent activity', () => {
         const ghostUUID = '019c3baf-dead-beef-8f39-c4d0e390c158';
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'act', 'close', ghostUUID, '--root', TBC_ROOT,
+            'act',
+            'close',
+            ghostUUID,
+            '--root',
+            TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
         expect(output).toContain(`Activity ${ghostUUID} not found in current workspace.`);
         expect(output).toContain('Verify the ID with "tbc act show"');
@@ -149,32 +154,26 @@ describe('🐵 LETS-GO: tbc act', () => {
 
     test('should close and assimilate activity (move to archive and promote to mem/)', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
-            'act', 'close', activity1ID, '--root', TBC_ROOT,
+            'act',
+            'close',
+            activity1ID,
+            '--root',
+            TBC_ROOT,
         ]);
-
         expect(success).toBe(true);
-
         const currentPath = path.join(TBC_ROOT, 'act', 'current', activity1ID);
         const archivePath = path.join(TBC_ROOT, 'act', 'archive', activity1ID);
         const memRecordPath = path.join(TBC_ROOT, 'mem', `${activity1ID}.md`);
-
-        // 1. Lifecycle Assertions
         expect(existsSync(currentPath)).toBe(false);
         expect(existsSync(archivePath)).toBe(true);
         expect(existsSync(memRecordPath)).toBe(true);
-
-        // 2. Selective Promotion Assertions
         expect(existsSync(path.join(archivePath, `${activity1ID}.md`))).toBe(true);
         expect(existsSync(path.join(archivePath, 'research-notes.md'))).toBe(true);
         expect(existsSync(path.join(TBC_ROOT, 'mem', 'research-notes.md'))).toBe(false);
-
-        // 3. Content Integrity Check
         const memContent = readFileSync(memRecordPath, 'utf-8');
         expect(memContent).toContain('record_type: log');
-        expect(memContent).toContain(`id: ${activity1ID}`); // Ensure no .md here
+        expect(memContent).toContain(`id: ${activity1ID}`);
         expect(memContent).not.toContain(`id: ${activity1ID}.md`);
-
-        // 4. Index (Dex) Verification
         const logDexPath = path.join(TBC_ROOT, 'dex', 'log.memory.jsonl');
         if (existsSync(logDexPath)) {
             const dexContent = readFileSync(logDexPath, 'utf-8');

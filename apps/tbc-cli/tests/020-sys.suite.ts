@@ -78,14 +78,11 @@ describe('🐵 LETS-GO: tbc sys', () => {
         ]);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
-        // Verify the Audit Box exists
         expect(output).toContain('┌┤ Validation Audit ├');
         expect(output).toContain('Verified presence of "root.md"');
         expect(output).toContain('Referenced Root Memory Map');
-        // Verify the Status Line
         expect(output).toContain('[✓] STABLE');
         expect(output).toContain('0 error(s) detected.');
-        // Ensure debug noise is NOT present
         expect(output).not.toContain('[»] ── debug');
     });
 
@@ -99,10 +96,8 @@ describe('🐵 LETS-GO: tbc sys', () => {
         ]);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
-        // Verify AX/DX Debug lines are present
         expect(output).toContain('[»] ── debug | load-core-memories | Identifying companionID');
         expect(output).toContain('[»] ── debug | load-specifications-flow | Query');
-        // Verify the core audit is still there
         expect(output).toContain('┌┤ Validation Audit ├');
         expect(output).toContain('[✓] STABLE');
     });

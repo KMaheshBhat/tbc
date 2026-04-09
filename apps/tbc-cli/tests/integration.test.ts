@@ -18,7 +18,7 @@ import './140-act.suite';
 import './050-int-probe.suite';
 import './051-int-generate.suite';
 import './052-int-gemini.suite';
-import './053-int-goose.sutie';
+import './053-int-goose.suite';
 import './054-int-github-copilot.suite';
 import './055-int-kilocode.suite';
 import './150-int.suite';

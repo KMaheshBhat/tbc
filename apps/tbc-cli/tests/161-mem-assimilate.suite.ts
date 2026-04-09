@@ -36,7 +36,6 @@ This was added manually to test mem assimilate on Kong.`;
         expect(output).toContain('record(s) to assimilate.');
         expect(output).toContain('Broadcast');
         expect(existsSync(manualMemPath)).toBe(true);
-        // Check with .md suffix as that's how it's stored in SQLite
         const results = querySqliteNext('SELECT record_id FROM record WHERE record_id = ?', [`${manualMemId}.md`]);
         expect(results.length).toBeGreaterThan(0);
     });

@@ -16,13 +16,11 @@ describe('🧪 TBC-CLI Integration: Teardown', () => {
             console.log('\n🐵 Mojo Jojo!');
             console.log(generateFileTree(TBC_ROOT));
         }
-
         // Final visual report for Kong
         if (existsSync(TBC_ROOT_NEXT)) {
             console.log('\n🦍 Kong Zilla!');
             console.log(generateFileTree(TBC_ROOT_NEXT));
         }
-
         console.log('🧪 Suite Complete');
     });
 
