@@ -19,14 +19,11 @@ describe('FSStore Contract (RecordStore)', () => {
             rmSync(TEST_DIR, { recursive: true, force: true });
         }
         mkdirSync(TEST_DIR, { recursive: true });
-
         store = new FSStore();
         const caps = await store.initialize({
             rootDirectory: TEST_DIR,
             dexCollection: 'dex'
         });
-
-        // Exact capability assertion (no silent expansion)
         expect(caps.sort()).toEqual(['fetch', 'index', 'query', 'store']);
     });
 
@@ -47,10 +44,8 @@ describe('FSStore Contract (RecordStore)', () => {
                 content: '# Header\nBody',
                 contentType: 'markdown'
             }]);
-
             const file = join(TEST_DIR, 'notes', 'md1.md');
             expect(existsSync(file)).toBe(true);
-
             const raw = readFileSync(file, 'utf-8');
             expect(raw).toContain('record_title: Meta Title');
             expect(raw).toContain('# Header');
@@ -65,10 +60,8 @@ describe('FSStore Contract (RecordStore)', () => {
                 contentType: 'yaml',
                 filename: 'app-config.yaml'
             }]);
-
             const file = join(TEST_DIR, 'configs', 'app-config.yaml');
             expect(existsSync(file)).toBe(true);
-
             const raw = readFileSync(file, 'utf-8');
             expect(raw).toContain('port: 3000');
         });
@@ -80,10 +73,8 @@ describe('FSStore Contract (RecordStore)', () => {
                 contentType: 'text',
                 content: 'API_KEY=abc123'
             }]);
-
             const file = join(TEST_DIR, 'secrets', '.env');
             expect(existsSync(file)).toBe(true);
-
             const raw = readFileSync(file, 'utf-8');
             expect(raw).toBe('API_KEY=abc123');
         });
@@ -96,7 +87,6 @@ describe('FSStore Contract (RecordStore)', () => {
                 content: '# Title',
                 filename: 'custom-filename.md'
             }]);
-
             const file = join(TEST_DIR, 'notes', 'custom-filename.md');
             expect(existsSync(file)).toBe(true);
         });
@@ -107,12 +97,10 @@ describe('FSStore Contract (RecordStore)', () => {
                 record_type: 'note',
                 content: '# Extracted Title\nSome content.'
             }]);
-
             const dexPath = join(TEST_DIR, 'dex', 'notes.note.jsonl');
             const line = readFileSync(dexPath, 'utf-8')
                 .split('\n')
                 .find(l => l.includes('md2'))!;
-
             const entry = JSON.parse(line);
             expect(entry.record_title).toBe('Extracted Title');
         });
@@ -123,10 +111,8 @@ describe('FSStore Contract (RecordStore)', () => {
                 record_type: 'memory',
                 data: { title: 'Buy Milk', secret: 'abc' }
             }]);
-
             const dexPath = join(TEST_DIR, 'dex', 'goals.memory.jsonl');
             const entry = JSON.parse(readFileSync(dexPath, 'utf-8').trim());
-
             expect(entry.id).toBe('json1');
             expect(entry.record_title).toBe('Buy Milk');
             expect(entry.data).toBeUndefined();
@@ -138,18 +124,15 @@ describe('FSStore Contract (RecordStore)', () => {
                 record_type: 'info',
                 data: { v: 1 }
             }]);
-
             await store.store('updates', [{
                 id: 'u1',
                 record_type: 'info',
                 data: { v: 2 }
             }]);
-
             const dexPath = join(TEST_DIR, 'dex', 'updates.info.jsonl');
             const lines = readFileSync(dexPath, 'utf-8')
                 .trim()
                 .split('\n');
-
             expect(lines).toHaveLength(1);
         });
     });
@@ -163,14 +146,12 @@ describe('FSStore Contract (RecordStore)', () => {
             const ids = await store.query('notes', {
                 type: 'list-all-ids'
             });
-
             expect(ids).toEqual(expect.arrayContaining(['md1', 'md2']));
         });
 
         it('isolates collections', async () => {
             const noteIds = await store.query('notes', { type: 'list-all-ids' });
             const goalIds = await store.query('goals', { type: 'list-all-ids' });
-
             expect(noteIds).not.toContain('json1');
             expect(goalIds).toContain('json1');
         });
@@ -180,7 +161,6 @@ describe('FSStore Contract (RecordStore)', () => {
                 type: 'search-by-content',
                 searchTerm: 'Buy Milk'
             });
-
             expect(ids).toContain('json1');
         });
 
@@ -190,19 +170,16 @@ describe('FSStore Contract (RecordStore)', () => {
                 record_type: 'note',
                 content: '# A1'
             }]);
-
             const asc = await store.query('notes', {
                 type: 'list-all-ids',
                 sortBy: 'id',
                 sortOrder: 'asc'
             });
-
             const desc = await store.query('notes', {
                 type: 'list-all-ids',
                 sortBy: 'id',
                 sortOrder: 'desc'
             });
-
             expect(asc[0]).not.toBe(desc[0]);
         });
 
@@ -214,7 +191,6 @@ describe('FSStore Contract (RecordStore)', () => {
                 offset: 1,
                 limit: 1
             });
-
             expect(ids.length).toBe(1);
         });
 
@@ -235,14 +211,11 @@ describe('FSStore Contract (RecordStore)', () => {
         it('rebuilds from raw files and deduplicates', async () => {
             const manual = join(TEST_DIR, 'notes', 'manual.md');
             writeFileSync(manual, '---\nrecord_type: note\n---\n# Manual');
-
             await store.index('notes', { event: 'full-build' });
-
             const dexPath = join(TEST_DIR, 'dex', 'notes.note.jsonl');
             const lines = readFileSync(dexPath, 'utf-8')
                 .trim()
                 .split('\n');
-
             const manualLines = lines.filter(l => l.includes('manual'));
             expect(manualLines.length).toBe(1);
         });
@@ -250,9 +223,7 @@ describe('FSStore Contract (RecordStore)', () => {
         it('survives corrupt JSON file during rebuild', async () => {
             const bad = join(TEST_DIR, 'notes', 'bad.json');
             writeFileSync(bad, '{ invalid json');
-
             await store.index('notes', { event: 'full-build' });
-            // Should not throw
         });
     });
 
@@ -286,19 +257,12 @@ describe('FSStore Contract (RecordStore)', () => {
         });
     });
 
-    /* ============================================================
-       TEARDOWN ENFORCEMENT
-    ============================================================ */
-
     describe('Lifecycle', () => {
         it('rejects operations after teardown', async () => {
             await store.teardown();
-
             await expect(
                 store.query('notes', { type: 'list-all-ids' })
             ).rejects.toThrow();
-
-            // reinitialize for other tests
             await store.initialize({ rootDirectory: TEST_DIR });
         });
     });
