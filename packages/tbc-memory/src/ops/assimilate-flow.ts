@@ -132,11 +132,14 @@ export class AssimilateFlow extends HAMIFlow<Shared, Config> {
                     
                     // Build records in the format: { [collection]: { [id]: record } }
                     s.record.records = records.map((r: any) => ({
+                        /*
                         id: r.id,
                         record_type: r.type,
                         record_title: r.title,
                         content: r.content,
                         record_tags: r.tags || [],
+                        */
+                        ...r,
                     }));
                     
                     s.stage.messages.push({

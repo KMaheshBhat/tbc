@@ -42,11 +42,18 @@ export const PROTOCOLS: Record<string, TBCProtocol> = {
                 store: [
                     {
                         id: 'tbc-record-fs:store-records',
-                        config: { eagerIndex: true },
-                    }
+                        config: { eagerIndex: true, dexCollection: 'dex' },
+                    },
+                    { id: 'tbc-record-sqlite:store-records' },
                 ],
-                query: [{ id: 'tbc-record-fs:query-records' }],
-                fetch: [{ id: 'tbc-record-fs:fetch-records' }],
+                query: [
+                    { id: 'tbc-record-sqlite:query-records' },
+                    { id: 'tbc-record-fs:query-records' },
+                ],
+                fetch: [
+                    { id: 'tbc-record-sqlite:fetch-records' },
+                    { id: 'tbc-record-fs:fetch-records' },
+                ],
                 rebuild: [{ id: 'tbc-record-fs:dex-rebuild', config: { collection: 'mem' } }],
             },
         },

@@ -8,7 +8,7 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 LETS-GO: tbc int generate (Generic)', () => {
+describe('🐵 051 LETS-GO: tbc int generate (Generic)', () => {
 
     test('should generate AGENTS.md with correct role definition', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [

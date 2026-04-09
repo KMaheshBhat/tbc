@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, rmSync } from 'node:fs';
 
 import { SANDBOX, TBC_ROOT, TBC_ROOT_NEXT } from './test-helper';
 
-describe('🧪 TBC-CLI Integration: Setup', () => {
+describe('🧪 000 TBC-CLI Integration: Setup', () => {
 
     beforeAll(() => {
         if (!existsSync(SANDBOX)) {
@@ -20,8 +20,8 @@ describe('🧪 TBC-CLI Integration: Setup', () => {
     });
 
     it('should have a clean sandbox for Mojo and Kong', () => {
-        console.log(`🐵 Mojo Baseline (Standard): ${TBC_ROOT}`);
-        console.log(`🦍 Kong Next (SQLite):      ${TBC_ROOT_NEXT}`);
+        console.log(`🐵 Mojo Baseline: ${TBC_ROOT}`);
+        console.log(`🦍 Kong Next    : ${TBC_ROOT_NEXT}`);
     });
 
 });

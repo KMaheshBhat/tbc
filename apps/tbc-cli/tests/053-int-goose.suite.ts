@@ -8,7 +8,7 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 LETS-GO: tbc int generate (Goose)', () => {
+describe('🐵 053 LETS-GO: tbc int generate (Goose)', () => {
 
     test('should generate .goosehints with correct role definition', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [

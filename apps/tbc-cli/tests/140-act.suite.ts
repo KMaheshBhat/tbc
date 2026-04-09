@@ -10,7 +10,7 @@ import {
     expectSQLiteData
 } from './test-helper';
 
-describe('🦍 LETS-GO: tbc act (Kong/Next)', () => {
+describe('🦍 140 LETS-GO: tbc act (Kong/Next)', () => {
     let activityID: string = '';
 
     test('should manage activity lifecycle on FS (Mojo-parity)', () => {

@@ -28,7 +28,7 @@ interface CountRow {
     count: number;
 }
 
-describe('🦍 LETS-GO: tbc sys (Kong/Next)', () => {
+describe('🦍 120 LETS-GO: tbc sys (Kong/Next)', () => {
 
     test('sys init --profile next should sync identity to SQLite with deep validation', async () => {
         const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [

@@ -7,9 +7,11 @@ import {
     TBC_ROOT,
     CLI_TARGET,
     runMonorepoCommand,
+    querySqlite,
+    expectSQLiteDataMojo,
 } from './test-helper';
 
-describe('🐵 LETS-GO: tbc act', () => {
+describe('🐵 040 LETS-GO: tbc act', () => {
     let activity1ID: string = '';
     let activity2ID: string = '';
 
@@ -179,5 +181,30 @@ describe('🐵 LETS-GO: tbc act', () => {
             const dexContent = readFileSync(logDexPath, 'utf-8');
             expect(dexContent).toContain(activity1ID);
         }
+    });
+
+    test('should close and promote activity to SQLite (dual-write assimilation)', () => {
+        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'act',
+            'start',
+            '--root',
+            TBC_ROOT,
+        ]);
+        const lines = output.split('\n');
+        const successLine = lines.find(l => l.includes('Activity started'));
+        const activityId = successLine?.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0];
+        expect(activityId).toBeDefined();
+        const closeResult = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'act',
+            'close',
+            activityId!,
+            '--root',
+            TBC_ROOT,
+        ]);
+        expect(closeResult.success).toBe(true);
+        const memPath = path.join(TBC_ROOT, 'mem', `${activityId}.md`);
+        expect(existsSync(memPath)).toBe(true);
+        expectSQLiteDataMojo(activityId!, 'collection', 'mem');
+        expectSQLiteDataMojo(activityId!, 'record_type', 'log');
     });
 });

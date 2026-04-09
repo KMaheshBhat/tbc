@@ -7,7 +7,7 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 LETS-GO: tbc int probe', () => {
+describe('🐵 050 LETS-GO: tbc int probe', () => {
 
     test('should probe successfully when provided a valid TBC_ROOT', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [

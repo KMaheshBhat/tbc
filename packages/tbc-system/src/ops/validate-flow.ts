@@ -4,7 +4,7 @@ import { Node } from 'pocketflow';
 
 import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, HAMIRegistrationManager, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
 
-import { Shared } from '../types.js';
+import { Shared, TBCLevel } from '../types.js';
 import { PROTOCOLS } from '../protocols.js';
 
 interface Config {
@@ -15,6 +15,7 @@ interface Config {
         resolveProtocol?: boolean;
         resolveCollections?: boolean;
     };
+    level: TBCLevel;
 };
 
 const ConfigSchema: ValidationSchema = {
@@ -30,6 +31,7 @@ const ConfigSchema: ValidationSchema = {
                 resolveCollections: { type: 'boolean' },
             },
         },
+        level: { type: 'string', enum: ['debug', 'info', 'warn', 'error'], default: 'info' },
     },
 };
 
@@ -78,6 +80,7 @@ export class ValidateFlow extends HAMIFlow<Record<string, any>, Config> {
     async prep(shared: Shared): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
+        this.config.level = this.config.level ?? 'info';
 
         // When resolve.resolveRootDirectory is true, invoke resolve-flow at start (for direct CLI invocation)
         // When false (default), skip resolve-flow as root/protocol already resolved by caller
@@ -109,7 +112,7 @@ export class ValidateFlow extends HAMIFlow<Record<string, any>, Config> {
             .next(n('core:mutate', {
                 mutate: (shared: Record<string, any>) => {
                     shared.stage.messages.push({
-                        level: 'info',
+                        level: this.config.level,
                         source: 'validate-flow',
                         message: 'Validating system',
                     });

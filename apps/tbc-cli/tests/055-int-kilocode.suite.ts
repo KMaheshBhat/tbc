@@ -8,7 +8,7 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 LETS-GO: tbc int generate (Kilocode)', () => {
+describe('🐵 055 LETS-GO: tbc int generate (Kilocode)', () => {
 
     test('should generate .kilocodemodes with correct schema and identity', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [

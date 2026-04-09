@@ -1,10 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-
 import { runMonorepoCommand } from '../../../scripts/common';
-
 import { CLI_TARGET, SANDBOX, TBC_ROOT, UUID_SEARCH_REGEX } from './test-helper';
 
-describe('🐵 LETS-GO: tbc mem recall', () => {
+describe('🐵 031 LETS-GO: tbc mem recall', () => {
 
     test('should recall companion identity (who am i)', () => {
         const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
@@ -82,7 +80,7 @@ describe('🐵 LETS-GO: tbc mem recall', () => {
         expect(output).toContain('Recalled Memories');
         expect(output).toContain('Buy more bananas for Mojo');
         expect(output).toContain('note');
-        expect(output).toContain('Found 1 memory record(s)');
+        expect(output).toContain('Found 2 memory record(s)');
         expect(output).not.toContain('Master Plan');
     });
 
@@ -128,7 +126,7 @@ describe('🐵 LETS-GO: tbc mem recall', () => {
     });
 
     test('should respect the --limit flag and return the newest records first', () => {
-        const limit = 2;
+        const limit = 3;
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',
@@ -145,6 +143,30 @@ describe('🐵 LETS-GO: tbc mem recall', () => {
         const tableContent = output.split('┌┤ Recalled Memories')[1] || '';
         const matchCount = (tableContent.match(/\[✓\]/g) || []).length;
         expect(matchCount).toBe(limit);
+    });
+
+    test('should query SQLite for recall results (hybrid querier)', () => {
+        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'mem',
+            'recall',
+            '--root',
+            TBC_ROOT,
+            '--verbose',
+        ]);
+        expect(success).toBe(true);
+        expect(output).toContain('SQLite');
+    });
+
+    test('should support rapid keyword search via SQLite', () => {
+        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'mem',
+            'recall',
+            'bananas',
+            '--root',
+            TBC_ROOT,
+        ]);
+        expect(success).toBe(true);
+        expect(output).toContain('Buy more bananas for Mojo');
     });
 
 });

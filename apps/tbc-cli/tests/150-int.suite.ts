@@ -8,7 +8,7 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🦍 LETS-GO: tbc int (Kong/Next)', () => {
+describe('🦍 150 LETS-GO: tbc int (Kong/Next)', () => {
 
     test('int probe should correctly identify protocol-specific paths', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [

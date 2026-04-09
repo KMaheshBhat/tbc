@@ -4,7 +4,7 @@ import { runMonorepoCommand } from '../../../scripts/common';
 
 import { CLI_TARGET, SANDBOX, TSID_SEARCH_REGEX, UUID_SEARCH_REGEX, expectTSID, expectUUID } from './test-helper';
 
-describe('🐵 GENERATOR: tbc gen', () => {
+describe('🐵 010 GENERATOR: tbc gen', () => {
 
     test('should generate a single UUID v7 by default', () => {
         const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [

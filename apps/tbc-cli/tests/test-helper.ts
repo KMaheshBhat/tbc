@@ -16,6 +16,7 @@ export const CLI_TARGET = TEST_BINARY ? join(PROJECT_ROOT, TEST_BINARY) : CLI_EN
 // - prime: jojo
 export const SANDBOX = join(PROJECT_ROOT, '_test');
 export const TBC_ROOT = join(SANDBOX, 'mojo');
+export const TBC_DB = join(TBC_ROOT, 'records.db');
 
 // Kong "Next" (Dual FS + SQLite 0.4 standard)
 // - companion: kong
@@ -45,10 +46,34 @@ export function querySqliteNext(sql: string, params: any[] = []) {
 }
 
 /**
+ * Validates the SQLite state in SANDBOX (Mojo baseline).
+ * Returns results of a raw SQL query for deep assertion.
+ */
+export function querySqlite(sql: string, params: any[] = []) {
+    if (!existsSync(TBC_DB)) {
+        throw new Error(`SQLite database not found at: ${TBC_DB}`);
+    }
+    const db = new Database(TBC_DB);
+    try {
+        return db.query(sql).all(...params);
+    } finally {
+        db.close();
+    }
+}
+
+/**
  * Asserts a record exists in the SQLite data table.
  */
 export function expectSQLiteRecord(id: string) {
     const results = querySqliteNext('SELECT record_id FROM record WHERE record_id = ?', [id]);
+    expect(results.length).toBeGreaterThan(0);
+}
+
+/**
+ * Asserts a record exists in Mojo baseline SQLite.
+ */
+export function expectSQLiteRecordMojo(id: string) {
+    const results = querySqlite('SELECT record_id FROM record WHERE record_id = ?', [id]);
     expect(results.length).toBeGreaterThan(0);
 }
 
@@ -75,6 +100,29 @@ export function expectSQLiteData(id: string | undefined, key: string, expectedVa
         }
     } else {
         // Otherwise, standard equality
+        expect(actualValue).toEqual(expectedValue);
+    }
+}
+
+/**
+ * Utility to check the 'data' JSON column for a specific key/value pair in Mojo.
+ */
+export function expectSQLiteDataMojo(id: string | undefined, key: string, expectedValue: any) {
+    expect(id).toBeDefined();
+    const results = querySqlite('SELECT * FROM record WHERE record_id = ?', [id]) as any[];
+    if (results.length === 0) throw new Error(`Record ${id} not found`);
+    
+    const row = results[0];
+    const data = JSON.parse(row.data);
+    
+    const actualValue = row[key] !== undefined ? row[key] : data[key];
+
+    if (typeof expectedValue === 'function') {
+        const result = expectedValue(actualValue);
+        if (!result) {
+            throw new Error(`Predicate failed for key "${key}". Received: ${JSON.stringify(actualValue)}`);
+        }
+    } else {
         expect(actualValue).toEqual(expectedValue);
     }
 }

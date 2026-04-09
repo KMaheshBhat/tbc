@@ -1,12 +1,12 @@
 import { describe, expect, test, beforeAll } from 'bun:test';
-import { writeFileSync, readFileSync } from 'node:fs';
+import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { runMonorepoCommand } from '../../../scripts/common';
 
 import { CLI_TARGET, TBC_ROOT } from './test-helper';
 
-describe('🐵 MEMORY ASSIMILATE: tbc mem assimilate (Mojo)', () => {
+describe('🐵 061 MEMORY ASSIMILATE: tbc mem assimilate (Mojo)', () => {
     const manualMemId = '019d6261-c37d-77e5-8460-c6c5a896bc66';
     const manualMemPath = join(TBC_ROOT, 'mem', `${manualMemId}.md`);
 

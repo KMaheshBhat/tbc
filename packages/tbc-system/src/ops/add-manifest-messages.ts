@@ -46,7 +46,7 @@ export class AddManifestMessagesNode extends HAMINode<Shared, Config> {
             const count = records.length;
             const preview = records.slice(0, 3).join(', ') + (count > 3 ? '...' : '');
             messages.push({
-                level: 'info',
+                level: this.config.level,
                 kind: 'raw',
                 message: ` │ [${collection.padEnd(12)}] | ${count} record(s) | ${preview}`,
                 code: 'MANIFEST',
@@ -60,7 +60,7 @@ export class AddManifestMessagesNode extends HAMINode<Shared, Config> {
         assert(this.config, 'the add-manifest-messages must be configured');
         shared.stage.messages = shared.stage.messages || [];
         shared.stage.messages.push({
-            level: 'info',
+            level: this.config.level,
             kind: 'raw',
             message: ' ┌┤ Staged Records Manifest ├──────────────────────────────────',
             source: this.config.source,
@@ -68,7 +68,7 @@ export class AddManifestMessagesNode extends HAMINode<Shared, Config> {
         });
         shared.stage.messages.push(...messages);
         shared.stage.messages.push({
-            level: 'info',
+            level: this.config.level,
             kind: 'raw',
             message: ' └┼───────────────────────────────────────────────────────────',
             source: this.config.source,

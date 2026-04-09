@@ -4,9 +4,9 @@ import { join } from 'node:path';
 
 import { runMonorepoCommand } from '../../../scripts/common';
 
-import { CLI_TARGET, TBC_ROOT, UUID_SEARCH_REGEX } from './test-helper';
+import { CLI_TARGET, TBC_ROOT, UUID_SEARCH_REGEX, expectSQLiteDataMojo, expectSQLiteRecordMojo } from './test-helper';
 
-describe('🐵 LETS-GO: tbc mem remember', () => {
+describe('🐵 030 LETS-GO: tbc mem remember', () => {
 
     test('should remember a simple note with a generated UUID', async () => {
         const thought = 'Buy more bananas for Mojo';
@@ -81,6 +81,44 @@ describe('🐵 LETS-GO: tbc mem remember', () => {
         expect(content).toContain('- t/secret');
         expect(content).toContain('- t/mojo');
         expect(content).toContain('- c/agent/mojo');
+    });
+
+    test('should persist memory to both FS and SQLite (hybrid dual-write)', async () => {
+        const thought = 'Test SQLite dual-write';
+        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'mem',
+            'remember',
+            thought,
+            '--root',
+            TBC_ROOT,
+        ]);
+        expect(success).toBe(true);
+        const matches = output.match(UUID_SEARCH_REGEX);
+        const mintedId = matches?.[matches.length - 1];
+        expect(mintedId).toBeDefined();
+        const memFilePath = join(TBC_ROOT, 'mem', `${mintedId}.md`);
+        expect(existsSync(memFilePath)).toBe(true);
+        expectSQLiteRecordMojo(mintedId!);
+        expectSQLiteDataMojo(mintedId!, 'record_title', thought);
+        expectSQLiteDataMojo(mintedId!, 'record_type', 'note');
+    });
+
+    test('should index tags into the SQLite relation table', async () => {
+        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'mem',
+            'remember',
+            'Scaling the empire',
+            '--tags',
+            'growth,bananas',
+            '--root',
+            TBC_ROOT,
+        ]);
+        const matches = output.match(UUID_SEARCH_REGEX);
+        const mintedId = matches?.[matches.length - 1];
+        expect(mintedId).toBeDefined();
+        expectSQLiteDataMojo(mintedId!, 'record_tags', (tags: string) => {
+            return tags.includes('t/growth') && tags.includes('t/bananas');
+        });
     });
 
 });

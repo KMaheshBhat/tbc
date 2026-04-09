@@ -39,8 +39,8 @@ export class AddRecallMessagesNode extends HAMINode<Shared, NodeConfig> {
 
         // Record Rows
         records.forEach(rec => {
-            const typeLabel = (rec.type || 'memory').padEnd(10);
-            const displayTitle = rec.title || rec.id;
+            const typeLabel = (rec.record_type || 'memory').padEnd(10);
+            const displayTitle = rec.record_title || rec.id;
             shared.stage.messages.push({
                 level: 'info',
                 kind: 'raw',

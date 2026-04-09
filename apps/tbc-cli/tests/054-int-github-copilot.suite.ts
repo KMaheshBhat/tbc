@@ -8,7 +8,7 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 LETS-GO: tbc int generate (GitHub Copilot)', () => {
+describe('🐵 054 LETS-GO: tbc int generate (GitHub Copilot)', () => {
 
     test('should generate Copilot specific configuration in nested directory with slugified name', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [

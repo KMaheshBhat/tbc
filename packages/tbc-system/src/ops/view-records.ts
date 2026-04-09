@@ -144,8 +144,8 @@ export class ViewRecordsFlow extends HAMIFlow<Shared, Config> {
                             const normalizedRecord = {
                                 ...r,
                                 // Priority: specific field > generic field > fallback ID
-                                title: r.record_title || r.title || id,
-                                type: r.record_type || r.type || 'memory',
+                                record_title: r.record_title || r.title || id,
+                                record_type: r.record_type || r.type || 'memory',
                                 id: r.id || id,
                             };
 
