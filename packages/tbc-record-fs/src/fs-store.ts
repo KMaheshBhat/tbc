@@ -76,6 +76,7 @@ class FSStore implements RecordStore {
 
             if (format === 'markdown') {
                 const { content, ...meta } = record;
+                meta.id = (meta.id as string).replaceAll('.md', '')
                 const frontmatter = yaml.dump(meta, { lineWidth: -1 });
                 writeFileSync(filePath, `---\n${frontmatter}---\n${content || ''}`);
             } else if (format === 'json') {

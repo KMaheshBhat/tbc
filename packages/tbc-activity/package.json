@@ -1,6 +1,6 @@
 {
   "name": "@tbc-frameworx/tbc-activity",
-  "version": "0.1.0",
+  "version": "0.4.1",
   "description": "TBC Activity operations library",
   "license": "MIT",
   "type": "module",
@@ -18,9 +18,9 @@
   "dependencies": {
     "pocketflow": "^1.0.4",
     "@hami-frameworx/core": "0.1.10",
-    "@tbc-frameworx/tbc-system": "^0.4.0",
-    "@tbc-frameworx/tbc-record": "^0.1.0",
-    "@tbc-frameworx/tbc-mint": "^0.1.0",
+    "@tbc-frameworx/tbc-system": "^0.4.1",
+    "@tbc-frameworx/tbc-record": "^0.4.1",
+    "@tbc-frameworx/tbc-mint": "^0.4.1",
     "uuidv7": "1.1.0"
   }
 }

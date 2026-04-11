@@ -6,8 +6,9 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Memory and Record Operations (`skills/core/tbc-mem-ops`)
 specification_name: tbc-mem-ops
-description: Use this skill to read/write on long-term memory and perform accelerated operations, like id(UUID, TSID) generations.
-methods_supported: Persist Memories, Reflection
+description: Use this skill to persist and recall memories, generate IDs (UUID, TSID), and replicate records across storage providers.
+name: tbc-mem-ops
+methods_supported: Persist Memories, Recall Memories, ID Generation, Record Replication
 ---
 # Memory & Record Operations (`tbc-mem-ops`)
 
@@ -17,54 +18,48 @@ methods_supported: Persist Memories, Reflection
 
 ## Guide
 
-* **Identity Access**: Use `tbc mem prime` or `tbc mem companion` with the `--show full` flag to retrieve actor details required for log headers and context setting.
+* **Persist Memory**: Use `tbc mem remember [content]` to persist a thought, fact, or note to memory.
 ```bash
-$ tbc mem --help
-Usage: tbc mem [options] [command]
+$ tbc mem remember --help
+Usage: tbc mem remember [options] [content]
 
-Memory operations
-
-Options:
-  -h, --help      display help for command
-
-Commands:
-  companion       Display companion information
-  prime           Display prime user information
-  stub            Create stub records for various record types in memory
-  help [command]  display help for command
-```
-```bash
-$ tbc mem companion --help
-Usage: tbc mem companion [options]
-
-Display companion information
-
-Options:
-  --show <type>   What to show: id (default), name, or full
-  -h, --help      display help for command
-```
-```bash
-$ tbc mem prime --help
-Usage: tbc mem prime [options]
-
-Display prime user information
-
-Options:
-  --show <type>   What to show: id (default), name, or full
-  -h, --help      display help for command
-```
-* **Record Creation**: Use `tbc mem stub <recordType>` to generate a new file in `mem/` with the correct TBC-compliant YAML front matter. Valid types: `party`, `goal`, `log`, `note`, `structure`.
-```bash
-$ tbc mem stub --help
-Usage: tbc mem stub [options] <recordType>
-
-Create a stub record for a specific record type in memory
+Persist a thought, fact, or stub to memory
 
 Arguments:
-  recordType  Record type to create stub for (party|goal|log|note|structure)
+  content            The content of the memory
 
 Options:
-  -h, --help      display help for command
+  -t, --type <type>  Record type: note (default), goal, log, party, structure
+                     (default: "note")
+  --title <title>    Explicit title for the record
+  --tags <tags>      Comma-separated tags
+  -h, --help         display help for command
+```
+* **Recall Memory**: Use `tbc mem recall [query]` to search and retrieve memories.
+```bash
+$ tbc mem recall --help
+Usage: tbc mem recall [options] [query]
+
+Recall memories or identity information
+
+Arguments:
+  query                 Search query (e.g., "companion", "prime", or a keyword)
+
+Options:
+  -t, --type <type>     Filter by record type (note, goal, log, party,
+                        structure)
+  -l, --limit <number>  Limit the number of results (default: 10)
+  -h, --help            display help for command
+```
+* **Assimilate**: Use `tbc mem assimilate` to replicate memory records across all RecordStore providers.
+```bash
+$ tbc mem assimilate --help
+Usage: tbc mem assimilate [options]
+
+Replicate memory records across all RecordStore providers
+
+Options:
+  -h, --help  display help for command
 ```
 * **ID Generation**: Use `tbc gen uuid` or `tbc gen tsid` when creating cross-links or manual records to maintain unique identity invariants.
 ```bash
@@ -74,13 +69,11 @@ Usage: tbc gen [options] [command]
 Generate IDs
 
 Options:
-  --root <path>         Root directory
   -c, --count <number>  Number of IDs to generate (default: "1")
   -h, --help            display help for command
 
 Commands:
-  uuid                  Generate a UUID v7
-  tsid                  Generate a timestamp ID
+  uuid                  Generate/mint IDs of UUID v7
+  tsid                  Generate/mint IDs of timestamp
   help [command]        display help for command
 ```
-

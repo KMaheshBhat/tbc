@@ -1,6 +1,6 @@
 {
   "name": "@tbc-frameworx/tbc-gemini",
-  "version": "0.1.0",
+  "version": "0.4.1",
   "description": "TBC Gemini CLI integration plugin",
   "license": "MIT",
   "type": "module",
