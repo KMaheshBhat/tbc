@@ -22,6 +22,10 @@ describe('🐵 052 LETS-GO: tbc int generate (Gemini CLI)', () => {
         expect(existsSync(geminiPath)).toBe(true);
         const content = readFileSync(geminiPath, 'utf-8');
         expect(content).toContain('Mojo');
-        expect(content).toContain('ALWAYS read @tbc/root.md');
+        expect(content).toContain('ALWAYS read @sys/root.md');
+        expect(content).toContain('ALWAYS READ FULLY');
+        expect(content).toContain('sys.digest.txt');
+        expect(content).toContain('skills.jsonl');
+        expect(content).toContain('tbc dex rebuild');
     });
 });
