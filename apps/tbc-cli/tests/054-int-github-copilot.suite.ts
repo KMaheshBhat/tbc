@@ -31,7 +31,11 @@ describe('🐵 054 LETS-GO: tbc int generate (GitHub Copilot)', () => {
         expect(content).toContain('tools:');
         expect(content).toContain('- execute');
         expect(content).toContain('For the interaction, you will act as Mojo.');
-        expect(content).toContain('ALWAYS read @tbc/root.md');
+        expect(content).toContain('ALWAYS read @sys/root.md');
+        expect(content).toContain('ALWAYS READ FULLY');
+        expect(content).toContain('sys.digest.txt');
+        expect(content).toContain('skills.jsonl');
+        expect(content).toContain('tbc dex rebuild');
     });
 
     test('should be idempotent (running twice changes nothing)', () => {

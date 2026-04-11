@@ -22,8 +22,12 @@ describe('🐵 051 LETS-GO: tbc int generate (Generic)', () => {
         expect(existsSync(agentsPath)).toBe(true);
         const content = readFileSync(agentsPath, 'utf-8');
         expect(content).toContain('Mojo');
-        expect(content).toContain('ALWAYS read @tbc/root.md');
-        expect(content).toContain('@dex/core.md');
+        expect(content).toContain('ALWAYS read @sys/root.md');
+        expect(content).toContain('@dex/sys.digest.txt');
+        expect(content).toContain('ALWAYS READ FULLY');
+        expect(content).toContain('sys.digest.txt');
+        expect(content).toContain('skills.jsonl');
+        expect(content).toContain('tbc dex rebuild');
     });
 
     test('should be idempotent (running twice changes nothing)', () => {

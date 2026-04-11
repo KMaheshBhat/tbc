@@ -29,7 +29,11 @@ describe('🐵 055 LETS-GO: tbc int generate (Kilocode)', () => {
         expect(content).toContain('- mcp');
         expect(content).toContain('source: project');
         expect(content).toContain('name: Mojo');
-        expect(content).toContain('ALWAYS read @tbc/root.md');
+        expect(content).toContain('ALWAYS read @sys/root.md');
+        expect(content).toContain('ALWAYS READ FULLY');
+        expect(content).toContain('sys.digest.txt');
+        expect(content).toContain('skills.jsonl');
+        expect(content).toContain('tbc dex rebuild');
         expect(content).toContain('interaction');
         expect(content).toMatch(/slug: mojo\s+name: Mojo/);
     });

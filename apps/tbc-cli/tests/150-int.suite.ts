@@ -34,7 +34,11 @@ describe('🦍 150 LETS-GO: tbc int (Kong/Next)', () => {
         const agentsPath = join(TBC_ROOT_NEXT, 'AGENTS.md');
         expect(existsSync(agentsPath)).toBe(true);
         const content = readFileSync(agentsPath, 'utf-8');
-        expect(content).toContain('ALWAYS read @tbc/root.md');
+        expect(content).toContain('ALWAYS read @sys/root.md');
+        expect(content).toContain('ALWAYS READ FULLY');
+        expect(content).toContain('sys.digest.txt');
+        expect(content).toContain('skills.jsonl');
+        expect(content).toContain('tbc dex rebuild');
         expect(content).toContain('Kong');
     });
 
