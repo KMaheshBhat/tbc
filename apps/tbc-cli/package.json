@@ -25,7 +25,6 @@
     "@tbc-frameworx/tbc-record-sqlite": "^0.4.1",
     "@tbc-frameworx/tbc-mint": "^0.4.1",
     "@tbc-frameworx/tbc-synthesize": "^0.4.1",
-    "@tbc-frameworx/tbc-dex": "^0.4.1",
     "@tbc-frameworx/tbc-system": "^0.4.1",
     "@tbc-frameworx/tbc-interface": "^0.4.1",
     "@tbc-frameworx/tbc-memory": "^0.4.1",
@@ -33,7 +32,8 @@
     "@tbc-frameworx/tbc-kilocode": "^0.4.1",
     "@tbc-frameworx/tbc-goose": "^0.4.1",
     "@tbc-frameworx/tbc-gemini": "^0.4.1",
-    "@tbc-frameworx/tbc-github-copilot": "^0.4.1"
+    "@tbc-frameworx/tbc-github-copilot": "^0.4.1",
+    "@tbc-frameworx/tbc-pi": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.19.37",

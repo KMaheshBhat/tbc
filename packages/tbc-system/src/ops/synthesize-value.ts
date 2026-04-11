@@ -8,6 +8,7 @@ type NodeInput = {
     request: SynthesizeRequest;
     templates: Record<string, string>;
     companionName: string;
+    primeName: string;
 };
 
 export class SynthesizeValueNode extends HAMINode<Shared> {
@@ -21,11 +22,12 @@ export class SynthesizeValueNode extends HAMINode<Shared> {
             request: shared.stage.synthesizeRequest,
             templates: shared.stage.records?.templates || {},
             companionName: shared.system.companionRecord?.record_title || 'companion',
+            primeName: shared.system.primeRecord?.record_title || 'prime',
         };
     }
 
     async exec(input: NodeInput): Promise<any[]> {
-        const { request, templates, companionName } = input;
+        const { request, templates, companionName, primeName } = input;
         const { type } = request;
 
         const templateName = `${type}.md`;
@@ -34,6 +36,7 @@ export class SynthesizeValueNode extends HAMINode<Shared> {
 
         let hydratedContent = template
             .replace(/{{\s*companionName\s*}}/g, companionName)
+            .replace(/{{\s*primeName\s*}}/g, primeName)
             .trim() + '\n';
 
         return [hydratedContent];
