@@ -6,7 +6,8 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: System Stewardship (`skills/core/tbc-sys-ops`)
 specification_name: tbc-sys-ops
-description: Use this skill to maintain the structural integrity of the TBC.  Generally executed by Prime User.
+description: Use this skill to maintain the structural integrity of the TBC, initialize new instances with system profiles, and validate existing directories. Generally executed by Prime User.
+name: tbc-sys-ops
 methods_supported: Instantiate Companion, Upgrade Companion
 ---
 # System Stewardship (`tbc-sys-ops`)
@@ -29,6 +30,7 @@ Initialize a new Third Brain Companion directory
 Options:
   --companion <name>  Name of the AI companion
   --prime <name>      Name of the prime user (group)
+  --profile <type>    System profile (baseline|next) (default: "baseline")
   -h, --help          display help for command
 ```
 * **Health Check**: Run `tbc sys validate` to ensure the core directory structure (`mem`, `act`, `sys`, `dex`, `skills`) is intact.

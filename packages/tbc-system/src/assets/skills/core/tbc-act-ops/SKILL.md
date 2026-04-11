@@ -6,8 +6,9 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Activity Workspace Management (`skills/core/tbc-act-ops`)
 specification_name: tbc-act-ops
-description: Use this skill to maintain activity state - to stop, backlog/pause, and close activity..
-methods_supported: Start Activity, Suspend Activity, Close Activity
+description: Use this skill to manage activity lifecycle - start, pause/backlog, and close activities. Ensures no loss of cognitive state.
+name: tbc-act-ops
+methods_supported: Start Activity, Pause Activity, Close Activity
 ---
 # Activity Workspace Management (`tbc-act-ops`)
 
@@ -42,15 +43,15 @@ Show current and backlog activities
 Options:
   -h, --help  display help for command
 ```
-* **Suspension**: Use `tbc act backlog <uuid>` to pause an activity. This moves the directory to `act/backlog/` to clear the "Current" focus without data loss.
+* **Pause/Backlog**: Use `tbc act pause <uuid>` to pause an activity. This moves the directory to `act/backlog/` to clear the "Current" focus without data loss.
 ```bash
-$ tbc act backlog --help
-Usage: tbc act backlog [options] <uuid>
+$ tbc act pause --help
+Usage: tbc act pause [options] <uuid>
 
 Move activity from current to backlog
 
 Arguments:
-  uuid  Activity UUID
+  uuid        Activity UUID
 
 Options:
   -h, --help  display help for command

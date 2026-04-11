@@ -5,9 +5,8 @@
 - Agent: [{{companionName}}](/mem/{{companionID}}.md)
 - Prime User: [{{primeName}}](/mem/{{primeID}}.md)
 - Specifications:
-  - [core](/dex/core.md) - use 'Index Management Skill' if not present; provides full definitions.
-  - [extensions](/dex/extensions.md) - use 'Index Management Skill' Method if not present; only provides summary; read specific extensions from /sys/ext/ as needed.
-  - [skills](/dex/skills.md) - use 'Index Management Skill' if not present; only provides summary; read specific extensions from /skills/{core|ext}/{id}/SKILL.md as needed.
+  - [core](/dex/sys.digest.txt) - use 'Index & View Maintenance' if not present; provides full definitions.
+  - [skills](/dex/skills.jsonl) - use 'Index & View Maintenance' if not present; only provides summary; read specific extensions from /skills/{core|ext}/{id}/SKILL.md as needed.
 
 ## Agent Identity
 
@@ -20,4 +19,5 @@
 
 ## Memories
 
+- see `/dex/mem.{record_type}.jsonl` for indexes of various memory records
 - [root Map of Memories](/mem/{{memoryMapID}}.md)

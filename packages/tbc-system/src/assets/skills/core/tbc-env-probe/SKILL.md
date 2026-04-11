@@ -6,7 +6,7 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Environment Awareness (`skills/core/tbc-env-probe`)
 specification_name: tbc-env-probe
-description: Use this skill upon instantiation or "Ejection" to orient the Companion to the host system or to understand and probe the current interface.
+description: Use this skill upon instantiation or "Ejection" to orient the Companion to the host system - probe environment for TBC CLI version, Git status, Node version, OS details, and system information.
 methods_supported: Gather Context, Eject Kernel
 ---
 # Environment Awareness (`tbc-env-probe`)
@@ -29,7 +29,7 @@ Use this skill upon instantiation or "Ejection" to orient the Companion to the h
     - Node.js version: Execute `node --version`.
     - OS details: Execute `uname -a`.
     - User: Execute `whoami`.
-    - Uptime: Execute `uptime`.
+    - Uptime: execute `uptime`.
     - Timestamps: Execute `date` for local and UTC.
 * **Error Handling**: If the probe command fails, report the error and suggest verifying TBC CLI installation or using manual checks.
 * **Application**: Use this data to populate the `interaction_model` and `interaction_interface` fields in activity logs. If not available, ASK Prime User instead and avoid assuming.
