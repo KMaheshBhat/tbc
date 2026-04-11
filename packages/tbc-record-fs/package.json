@@ -1,6 +1,6 @@
 {
   "name": "@tbc-frameworx/tbc-record-fs",
-  "version": "0.1.0",
+  "version": "0.4.1",
   "description": "TBC File System operations library",
   "license": "MIT",
   "type": "module",
@@ -22,6 +22,6 @@
     "js-yaml": "^4.1.0",
     "pocketflow": "^1.0.4",
     "@hami-frameworx/core": "0.1.10",
-    "@tbc-frameworx/tbc-record": "^0.1.0"
+    "@tbc-frameworx/tbc-record": "^0.4.1"
   }
 }
