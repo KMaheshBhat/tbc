@@ -1,0 +1,24 @@
+{
+  "name": "@tbc-frameworx/tbc-record-sqlite",
+  "version": "0.1.0",
+  "description": "TBC SQLite operations library",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "bun test tests/integration.test.ts",
+    "build": "bun build:src && bun build:types",
+    "build:src": "bun build src/index.ts --outfile=dist/index.js --target=bun",
+    "build:types": "bunx tsc --emitDeclarationOnly --outDir dist"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.37",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@hami-frameworx/core": "0.1.10",
+    "@tbc-frameworx/tbc-record": "workspace:*",
+    "pocketflow": "^1.0.4"
+  }
+}

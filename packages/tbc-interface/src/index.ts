@@ -1,9 +1,8 @@
 export * from './types.js';
-export * from './ops/common-nodes.js';
-export * from './ops/int-probe-flow.js';
-export * from './ops/int-generic-flow.js';
-export * from './ops/int-gemini-cli-flow.js';
-export * from './ops/int-kilocode-flow.js';
-export * from './ops/int-goose-flow.js';
-export * from './ops/int-github-copilot-flow.js';
 export * from './plugin.js';
+
+export * from './ops/load-generic-asset.js';
+export * from './ops/synthesize-generic-records.js';
+
+export * from './ops/agent-integrate-flow.js';
+export * from './ops/int-probe-flow.js';

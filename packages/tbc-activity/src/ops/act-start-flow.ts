@@ -1,60 +1,256 @@
-import assert from "assert";
-import { Node } from "pocketflow";
+import assert from 'node:assert';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 
-import { HAMIFlow } from "@hami-frameworx/core";
+import { Node } from 'pocketflow';
 
-interface ActStartFlowConfig {
-    verbose: boolean;
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types';
+
+interface Config {
+    verbose?: boolean;
+    rootDirectory?: string;
     activityId?: string;
 }
 
-export class ActStartFlow extends HAMIFlow<Record<string, any>, ActStartFlowConfig> {
-    startNode: Node;
-    config: ActStartFlowConfig;
+const ConfigSchema: ValidationSchema = {
+    type: 'object',
+    properties: {
+        verbose: { type: 'boolean' },
+        rootDirectory: { type: 'string' },
+        activityId: { type: 'string' },
+    },
+};
 
-    constructor(config: ActStartFlowConfig) {
-        const startNode = new Node();
+class StartNode extends HAMINode<Shared, Config> {
+    kind(): string {
+        return 'tbc-activity:act-start-flow-start';
+    }
+
+    async post(shared: Shared): Promise<string> {
+        shared.stage = shared.stage || {};
+        shared.system = shared.system || {};
+        shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
+        shared.stage.activityId = shared.stage.activityId || this.config?.activityId;
+        return 'default';
+    }
+}
+
+export class ActStartFlow extends HAMIFlow<Shared, Config> {
+    startNode: Node;
+    config: Config;
+
+    constructor(config: Config) {
+        const startNode = new StartNode(config);
         super(startNode, config);
         this.startNode = startNode;
         this.config = config;
     }
 
     kind(): string {
-        return "tbc-activity:act-start-flow";
+        return 'tbc-activity:act-start-flow';
     }
 
-    async run(shared: Record<string, any>): Promise<string | undefined> {
+    async prep(shared: Record<string, any>): Promise<void> {
         assert(shared.registry, 'registry is required');
         const n = shared.registry.createNode.bind(shared.registry);
 
-        shared.opts = { verbose: this.config.verbose, activityId: this.config.activityId };
+        // --- ABORT SEQUENCE: System Guard ---
+        const abortSequence = new Node();
+        abortSequence
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'error',
+                        code: 'OVERWRITE-GUARD',
+                        source: 'act-start-flow',
+                        message: `has no existing companion (not a valid TBC Root)`,
+                        suggestion: 'Use "tbc sys init" instead.',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'));
 
-        const rootDir = shared.root || process.cwd();
-        shared.rootDirectory = rootDir;
+        const branchToAbort = n('core:branch', {
+            branch: (s: Shared) => s.stage.validationResult?.success ? 'default' : 'abort',
+        });
+        branchToAbort.on('abort', abortSequence);
 
-        // Fetch companion info
-        shared.collection = 'sys';
-        shared.IDs = ['companion.id'];
+        const startMintActivityID = new Node();
+        const startPrepareWorkspace = new Node();
+        startMintActivityID
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'act-start-flow',
+                        message: 'No activityID provided ...',
+                    });
+                    // We populate the key we promised to point to
+                    s.stage.mintRequests = [{
+                        type: 'tbc-mint:uuid-mint',
+                        count: 1,
+                    }];
+                },
+            }))
+            .next(n('tbc-mint:mint-ids-flow', {
+                requestsKey: 'mintRequests',
+            }))
+            .next(n('tbc-system:add-minted-messages', {
+                source: 'generate-uuids-flow',
+                level: 'info',
+            }))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    const mintedId = s.stage.minted?.batch?.[0];
+                    assert(mintedId, 'Identity Minting failed: No ID found in stage.minted.batch.');
+                    s.stage.activityId = mintedId;
+                },
+            }))
+            .next(startPrepareWorkspace);
+
+        const branchToMint = n('core:branch', {
+            branch: (s: Shared) => s.stage.activityId ? 'default' : 'mintActivityID',
+        });
+        branchToMint.on('mintActivityID', startMintActivityID);
+
+        const startReport = new Node();
+        const branchToSkipSynthesis = n('core:branch', {
+            branch: (s: Shared) => {
+                const logPath = join(s.stage.activityPath, `${s.stage.activityId}.md`);
+                return existsSync(logPath) ? 'exists' : 'default';
+            },
+        });
+        branchToSkipSynthesis.on('exists', startReport);
 
         this.startNode
-            .next(n('tbc-system:resolve'))
-            .next(n('tbc-record-fs:fetch-records'))
-            .next(n('tbc-memory:extract-companion-id'))
-            .next(n('tbc-record-fs:fetch-records'))
-            .next(n('tbc-memory:extract-companion-name'))
-            .next(n('tbc-activity:generate-activity-id'))
-            .next(n('tbc-activity:check-activity-state'))
-            .next(n('tbc-activity:validate-start-state'))
-            .next(n('tbc-activity:move-activity-directory'))
-            .next(n('tbc-activity:create-activity-log-stub'))
-            .next(n('tbc-record-fs:store-records'))
-            .next(n('core:log-result', {
-                resultKey: 'createdRecordId',
-                format: 'text' as const,
-                prefix: 'Started activity:',
-                verbose: this.config.verbose
-            }));
+            .next(n('tbc-system:prepare-messages', {
+                verbose: this.config?.verbose,
+            }))
+            .next(n('tbc-system:resolve-flow', {
+                verbose: this.config?.verbose,
+                rootDirectory: this.config?.rootDirectory,
+                resolveRootDirectory: true,
+                resolveProtocol: true,
+                resolveCollections: true,
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'act-start-flow',
+                        message: 'Checking first ...',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:validate-flow', {
+                verbose: shared.stage.verbose,
+                rootDirectory: shared.stage.rootDirectory,
+            }))
+            .next(branchToAbort)
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'act-start-flow',
+                        message: 'existing valid TBC root found, proceeding ...',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(branchToMint)
+            .next(startPrepareWorkspace)
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'act-start-flow',
+                        message: 'actual workspace preparation',
+                    });
+                },
+            }))
+            .next(n('tbc-activity:prepare-workspace'))
+            .next(branchToSkipSynthesis)
+            .next(n('tbc-system:load-system-assets'))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    const activityId = s.stage.activityId;
+                    const companionName = s.system.companionRecord?.record_title || 'companion';
+                    const timestamp = new Date().toISOString();
+                    const actCollectionRoot = s.system.protocol.act.collection ?? 'act';
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'act-start-flow',
+                        message: `Synthesizing activity log ${activityId} with companion ${companionName}`,
+                    });
+                    // Setting up for tbc-synthesize:synthesize-record-flow
+                    s.stage.synthesizeRequests = [{
+                        type: 'log',
+                        provider: 'tbc-system:synthesize-record',
+                        meta: {
+                            id: activityId,
+                            title: `Activity Log ${timestamp}`,
+                            content: 'Activity session initialized. Replace this with actual activity details and logs as you work.',
+                            log_type: 'activity',
+                        },
+                    }];
+                    s.stage.actCollection = `${actCollectionRoot}/current/${activityId}`;
+                },
+            }))
+            .next(n('tbc-synthesize:synthesize-record-flow', { requestsKey: 'synthesizeRequests' }))
+            .next(n('tbc-system:write-records-flow', {
+                verbose: this.config?.verbose,
+                storeProviders: [{ id: 'tbc-record-fs:store-records', config: { eagerIndex: false } }],
+                sourcePath: 'record.records',
+                collection: 'actCollection',
+            }))
+            .next(startReport)
+            // --- FEEDBACK SECTION ---
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    const activityId = s.stage.activityId;
 
+                    s.stage.messages.push({
+                        level: 'info',
+                        kind: 'raw',
+                        message: ' ┌┼───────────────────────────────────────────────────────────',
+                    });
+                    s.stage.messages.push({
+                        level: 'info',
+                        kind: 'raw',
+                        message: `[✓] Activity started: ${activityId}`,
+                    });
+                    s.stage.messages.push({
+                        level: 'info',
+                        kind: 'raw',
+                        message: ' └┼───────────────────────────────────────────────────────────',
+                    });
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'act-start-flow',
+                        message: `Log: ${s.stage.actCollection}/${activityId}.md`,
+                        suggestion: 'This is your active workspace. Updates will be tracked here until the activity is closed.',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'));
+    }
+
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, ConfigSchema);
+        return { valid: result.isValid, errors: result.errors || [] };
+    }
+
+    async run(shared: Shared): Promise<string | undefined> {
+        shared.stage = shared.stage || {};
+        shared.stage.verbose = shared.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        shared.stage.activityId = shared.activityId || this.config?.activityId;
         return super.run(shared);
     }
 }

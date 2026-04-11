@@ -1,21 +1,30 @@
 {
   "name": "@tbc-frameworx/tbc-system",
-  "version": "0.1.0",
-  "description": "TBC Core operations library",
+  "version": "0.4.0",
+  "description": "TBC System operations library",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "bunx tsc",
-    "dev": "bun run build"
+    "build": "bun build:src && bun build:types && bun build:assets",
+    "build:src": "bun build src/index.ts --outfile=dist/index.js --target=bun",
+    "build:types": "bunx tsc --emitDeclarationOnly --outDir dist",
+    "build:assets": "shx rm -rf dist/assets && shx cp -r src/assets dist/"
   },
   "dependencies": {
-    "@hami-frameworx/core": "0.1.1",
-    "pocketflow": "^1.0.4"
+    "pocketflow": "^1.0.4",
+    "@hami-frameworx/core": "0.1.10",
+    "@tbc-frameworx/tbc-record": "^0.1.0",
+    "@tbc-frameworx/tbc-mint": "^0.1.0",
+    "@tbc-frameworx/tbc-synthesize": "^0.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.19.37",
+    "shx": "^0.4.0",
     "typescript": "^5.0.0"
   }
 }

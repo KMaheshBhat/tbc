@@ -1,0 +1,182 @@
+import assert from 'node:assert';
+import { existsSync, mkdirSync, renameSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { Node } from 'pocketflow';
+
+import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+
+import { Shared } from '../types';
+
+interface Config {
+    verbose?: boolean;
+    rootDirectory?: string;
+    activityId: string;
+}
+
+const ConfigSchema: ValidationSchema = {
+    type: 'object',
+    properties: {
+        verbose: { type: 'boolean' },
+        rootDirectory: { type: 'string' },
+        activityId: { type: 'string' },
+    },
+    required: ['activityId'],
+};
+
+class StartNode extends HAMINode<Shared, Config> {
+    kind(): string {
+        return 'tbc-activity:act-pause-flow-start';
+    }
+
+    async post(shared: Shared): Promise<string> {
+        shared.stage = shared.stage || {};
+        shared.system = shared.system || {};
+        shared.stage.verbose = shared.stage.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.stage.rootDirectory || this.config?.rootDirectory;
+        shared.stage.activityId = shared.stage.activityId || this.config?.activityId;
+        return 'default';
+    }
+}
+
+export class ActPauseFlow extends HAMIFlow<Shared, Config> {
+    startNode: Node;
+    config: Config;
+
+    constructor(config: Config) {
+        const startNode = new StartNode(config);
+        super(startNode, config);
+        this.startNode = startNode;
+        this.config = config;
+    }
+
+    kind(): string {
+        return 'tbc-activity:act-pause-flow';
+    }
+
+    async prep(shared: Shared): Promise<void> {
+        assert(shared.registry, 'registry is required');
+        const n = shared.registry.createNode.bind(shared.registry);
+
+        // --- ABORT SEQUENCE: System Guard ---
+        const abortSequence = new Node();
+        abortSequence
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'error',
+                        code: 'OVERWRITE-GUARD',
+                        source: 'act-pause-flow',
+                        message: `has no existing companion (not a valid TBC Root)`,
+                        suggestion: 'Use "tbc sys init" instead.',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'));
+
+        const branchToAbort = n('core:branch', {
+            branch: (s: Shared) => s.stage.validationResult?.success ? 'default' : 'abort',
+        });
+        branchToAbort.on('abort', abortSequence);
+
+        this.startNode
+            .next(n('tbc-system:prepare-messages', {
+                verbose: this.config?.verbose,
+            }))
+            .next(n('tbc-system:resolve-flow', {
+                verbose: this.config?.verbose,
+                rootDirectory: this.config?.rootDirectory,
+                resolveRootDirectory: true,
+                resolveProtocol: true,
+                resolveCollections: true,
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    s.stage.messages.push({
+                        level: 'info',
+                        source: 'act-pause-flow',
+                        message: 'Checking first ...',
+                    });
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'))
+            .next(n('tbc-system:validate-flow', {
+                verbose: shared.stage.verbose,
+                rootDirectory: shared.stage.rootDirectory,
+            }))
+            .next(branchToAbort)
+            .next(n('core:mutate', {
+                mutate: (s: Shared) => {
+                    const root = s.stage.rootDirectory;
+                    const id = s.stage.activityId;
+                    const actCollectionRoot = s.system.protocol.act.collection ?? 'act';
+                    const sourcePath = join(root, actCollectionRoot, 'current', id);
+                    const targetDir = join(root, actCollectionRoot, 'backlog');
+                    const targetPath = join(targetDir, id);
+
+                    // 1. Check if it exists in current
+                    if (!existsSync(sourcePath)) {
+                        s.stage.messages.push({
+                            level: 'error',
+                            source: 'act-pause-flow',
+                            message: `Activity ${id} not found in current workspace.`,
+                            suggestion: 'Check "tbc act show" to verify the activity status or "tbc act start" to start a new activity.',
+                        });
+                        return;
+                    }
+
+                    // 2. Ensure backlog directory exists
+                    if (!existsSync(targetDir)) {
+                        mkdirSync(targetDir, { recursive: true });
+                    }
+
+                    // 3. Move the directory
+                    try {
+                        renameSync(sourcePath, targetPath);
+                        s.stage.messages.push({
+                            level: 'info',
+                            kind: 'raw',
+                            message: ' ┌┼───────────────────────────────────────────────────────────',
+                        });
+                        s.stage.messages.push({
+                            level: 'info',
+                            kind: 'raw',
+                            message: `[✓] Activity paused: ${id}`,
+                        });
+                        s.stage.messages.push({
+                            level: 'info',
+                            kind: 'raw',
+                            message: ' └┼───────────────────────────────────────────────────────────',
+                        });
+                        s.stage.messages.push({
+                            level: 'info',
+                            source: 'act-pause-flow',
+                            message: `Paused activity: ${id}`,
+                            suggestion: `Use "tbc act start ${id}" to resume the activity.`,
+                        });
+                    } catch (err: any) {
+                        s.stage.messages.push({
+                            level: 'error',
+                            source: 'act-pause-flow',
+                            message: `Failed to move activity: ${err.message}`,
+                        });
+                    }
+                },
+            }))
+            .next(n('tbc-system:log-and-clear-messages'));
+    }
+
+    validateConfig(config: Config): HAMINodeConfigValidateResult {
+        const result = validateAgainstSchema(config, ConfigSchema);
+        return { valid: result.isValid, errors: result.errors || [] };
+    }
+
+    async run(shared: Shared): Promise<string | undefined> {
+        shared.stage = shared.stage || {};
+        shared.stage.verbose = shared.verbose || this.config?.verbose;
+        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
+        shared.stage.activityId = shared.activityId || this.config?.activityId;
+        return super.run(shared);
+    }
+}

@@ -1,85 +1,128 @@
-/**
- * Options for TBC core operations.
- * Defines configuration flags that can be used across TBC core operations.
- */
-type TBCCoreOpts = {
-  /** Whether to enable verbose logging for operations. */
-  verbose?: boolean;
-}
+import { HAMIRegistrationManager } from '@hami-frameworx/core';
+import { TBCRecord, TBCRecordOperation } from '@tbc-frameworx/tbc-record';
 
 /**
- * Shared storage interface for TBC core operations.
- * Defines the structure of data that can be shared between TBC core operation nodes.
- * Contains configuration options and results from various TBC core operations.
+ * Lean results from DEX (.jsonl).
+ * Extracted into its own type for easier casting from stage.
  */
-type TBCCoreStorage = {
-  /** Optional configuration options for TBC core operations. */
-  opts?: TBCCoreOpts;
-  /** Application name (injected from CLI). */
-  app?: string;
-  /** Application version (injected from CLI). */
-  appVersion?: string;
-  /** Explicit root directory path (optional, defaults to CWD). */
-  root?: string;
-  /** Resolved root directory for TBC operations. */
-  rootDirectory?: string;
-  /** Whether the directory is a valid TBC root. */
-  isValidTBCRoot?: boolean;
-  /** Whether the directory is a git repository. */
-  isGitRepository?: boolean;
-  /** Array of validation messages. */
-  messages?: string[];
-  /** Probe results containing environment information. */
-  probeResults?: string[];
-  /** Init results containing directory creation information. */
-  initResults?: string[];
-  /** Path to assets directory for copying operations. */
-  assetsPath?: string;
-  /** Copy assets results containing copy operation information. */
-  copyAssetsResults?: string[];
-  /** Generate root results containing root.md generation information. */
-  generateRootResults?: string[];
-  /** Backup TBC results containing backup operation information. */
-  backupTbcResults?: { backedUp: boolean; backupPath?: string };
-  /** Restore sys extensions results containing restore operation information. */
-  restoreSysExtensionsResults?: { restored: boolean; message?: string };
-  /** Restore skill extensions results containing restore operation information. */
-  restoreSkillExtensionsResults?: { restored: boolean; message?: string };
-  /** Restore root results containing restore operation information. */
-  restoreRootResults?: { restored: boolean; message?: string };
-  /** Fetched records by collection and ID (from record-fs operations). */
-  fetchResults?: Record<string, Record<string, Record<string, any>>>;
-  /** Generated UUIDs from generator operations. */
-  generatedIds?: string[];
-  /** Companion name for enhanced initialization. */
-  companion?: string;
-  /** Prime user name for enhanced initialization. */
-  prime?: string;
-  /** Generate init records results containing record generation information. */
-  generateInitRecordsResults?: string[];
-  /** Generate init IDs results containing ID record generation information. */
-  generateInitIdsResults?: string[];
-  /** Record IDs for generated records. */
-  recordIds?: { companion: string; prime: string; memory: string };
-  /** Generated dex core record for storage operations. */
-  generatedDexCore?: Record<string, any>;
-  /** Generated dex records for storage operations. */
-  generatedDexRecords?: Record<string, any>[];
-  /** Generated dex extensions for storage operations. */
-  generatedDexExtensions?: Record<string, any>[];
-  /** Records grouped by their record_type for dex generation. */
-  recordsByType?: Record<string, any[]>;
-  /** Array of records to store (for record-fs operations). */
-  records?: Record<string, any>[];
-  /** Collection directory to store records in (for record-fs operations). */
-  collection?: string;
-  /** Companion name extracted from vault records. */
-  companionName?: string;
-  /** Generated role definition for AI integrations. */
-  roleDefinition?: string;
+export type TBCViewMatch = {
+    id: string;
+    title: string;
+    tags: string[];
+    path: string;
+    type?: string;
+};
+
+export type TBCViewOperation = {
+    query?: string;
+    type?: string;
+    matches: TBCViewMatch[];
+    records: TBCRecord[];
+};
+
+type TBCCollectionProtocol = {
+    /** The collection name to use within the stores */
+    collection: string;
+    /** Event-driven provider configuration */
+    on?: {
+        /** The Write-side: Every storer in this list gets the data (Multicast) */
+        'store'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** The Discovery-side: Try these in order, stop at the first hit (Fallthrough) */
+        'query'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** The Hydration-side: Fetch from all, merging subsequent data onto the first (Overlay) */
+        'fetch'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** Full index rebuild */
+        'index-full'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** Incremental index update */
+        'index-incremental'?: Array<{ id: string; config?: Record<string, any> }>;
+        /** DEX rebuild - rebuild DEX shards for this collection */
+        'rebuild'?: Array<{ id: string; config?: Record<string, any> }>;
+    };
+};
+
+type TBCProtocol = {
+    sys: TBCCollectionProtocol;
+    skills: TBCCollectionProtocol;
+    mem: TBCCollectionProtocol;
+    dex: TBCCollectionProtocol;
+    act: TBCCollectionProtocol;
+};
+
+type TBCMessageKind = 'structured' | 'raw';
+
+type TBCLevel = 'debug' | 'info' | 'warn' | 'error';
+
+const TBC_LEVEL_ICON_MAP = {
+    debug: '»',
+    info: 'i',
+    warn: '!',
+    error: '✗',
+} as const;
+
+interface TBCMessage {
+    level: TBCLevel;
+    kind?: TBCMessageKind;  // 'structured' (default) | 'raw'
+    source: string;      // The node or specific check that generated this
+    code: string;        // Machine-readable error code for logic branching
+    message: string;     // Descriptive message for the LLM
+    suggestion?: string; // Actionable hint for self-healing
 }
+
+type SharedStage = Record<string, any>;
+
+type TBCSystemOperation = {
+    rootDirectory: string;
+    isValidTBCRoot: boolean;
+    protocol: TBCProtocol;
+    manifest: Record<string, string[]>;
+    rootRecord: TBCRecord;
+    companionID: string;
+    companionRecord: TBCRecord;
+    primeID: string;
+    primeRecord: TBCRecord;
+    memoryMapID: string;
+    memoryMapRecord: TBCRecord;
+};
+
+/**
+ * Shared state interface for TBC System operations.
+ */
+type Shared = {
+    /** HAMI registration manager for node creation and management. */
+    registry: HAMIRegistrationManager;
+    stage: SharedStage;
+    system: TBCSystemOperation;
+    record: TBCRecordOperation;
+    /** Optional configuration options for TBC core operations. */
+    opts?: { verbose?: boolean };
+    /** Application name (injected from CLI). */
+    app?: string;
+    /** Application version (injected from CLI). */
+    appVersion?: string;
+    /** Explicit root directory path (optional, defaults to CWD). */
+    root?: string;
+    /** Resolved root directory for TBC operations. */
+    rootDirectory?: string;
+    /** Whether the directory is a valid TBC root. */
+    isValidTBCRoot?: boolean;
+    /** Fetched records by collection and ID (from record-fs operations). */
+    fetchResults?: Record<string, Record<string, Record<string, any>>>;
+    /** Companion name for enhanced initialization. */
+    companionName?: string;
+    /** Prime user name for enhanced initialization. */
+    primeName?: string;
+    /** Manifest of records by collection. */
+    manifest?: Record<string, string[]>;
+    /** View operation for viewing records */
+    view?: TBCViewOperation;
+};
 
 export {
-  TBCCoreOpts,
-  TBCCoreStorage,
+    Shared,
+    TBCProtocol,
+    TBCLevel,
+    TBCMessageKind,
+    TBC_LEVEL_ICON_MAP,
+    TBCMessage,
+    TBCSystemOperation,
 };

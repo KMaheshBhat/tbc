@@ -1,21 +1,25 @@
-import { createPlugin } from "@hami-frameworx/core";
+import { createPlugin, HAMIFlow, HAMINode } from '@hami-frameworx/core';
 
-import { GenerateCoreNode } from "./ops/generate-core.js";
+import { LoadAssetsNode } from './ops/load-assets.js';
+import { SynthesizeIntegrationRecordsNode } from './ops/synthesize-integration-records.js';
 
 /**
  * TBC Goose Plugin for HAMI.
  * Provides operations for generating Goose integration files.
  *
  * Included operations:
- * - `tbc-goose:generate-core`: Generates Goose hints configuration
+ * - `tbc-goose:load-assets`: Load templates
+ * - `tbc-goose:synthesize-integration-records`: Synthetize agent records for Goose CLI interface
  */
 const TBCGoosePlugin = createPlugin(
-    "@tbc-frameworx/tbc-goose",
-    "0.1.0",
-    [
-        GenerateCoreNode as any,
-    ],
-    "TBC Goose Plugin - Operations for Goose integration",
+  '@tbc-frameworx/tbc-goose',
+  '0.1.0',
+  [
+    // Nodes
+    LoadAssetsNode,
+    SynthesizeIntegrationRecordsNode,
+  ] as unknown as (typeof HAMINode | typeof HAMIFlow)[],
+  'TBC Goose Plugin - Operations for Goose integration',
 );
 
 export { TBCGoosePlugin };

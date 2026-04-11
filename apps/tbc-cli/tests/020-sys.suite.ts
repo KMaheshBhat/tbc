@@ -1,0 +1,121 @@
+import { file } from 'bun';
+import { describe, expect, test } from 'bun:test';
+import { join } from 'node:path';
+import { readdirSync } from 'node:fs';
+
+import { generateFileTree, runMonorepoCommand } from '../../../scripts/common';
+import packageJson from '../package.json' with { type: 'json' };
+
+import { CLI_TARGET, TBC_ROOT, expectUUID, querySqlite, expectSQLiteDataMojo, expectSQLiteRecordMojo } from './test-helper';
+
+describe('🐵 020 LETS-GO: tbc sys', () => {
+
+    test('running sys init with companion and prime flags is successful', async () => {
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'sys',
+            'init',
+            '--root',
+            TBC_ROOT,
+            '--companion',
+            'Mojo',
+            '--prime',
+            'Jojo',
+        ]);
+        expect(success).toBe(true);
+        expect(exitCode).toBe(0);
+        const companionIdPath = join(TBC_ROOT, 'sys', 'companion.id');
+        const companionId = (await file(companionIdPath).text()).trim();
+        expectUUID(companionId);
+        const primeIdPath = join(TBC_ROOT, 'sys', 'prime.id');
+        const primeId = (await file(primeIdPath).text()).trim();
+        expectUUID(primeId);
+        expect(output).toContain('┌┤ Minted IDs ├');
+        expect(output).toContain('├┤ Keyed ├');
+        expect(output).toContain('[i] ── info  | init-flow | companionID: ');
+        expect(output).toContain('[i] ── info  | init-flow | primeID: ');
+        expect(output).toContain('[i] ── info  | init-flow | memoryMapID: ');
+        expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
+        expect(output).toContain('[i] ── info  | init-flow | Companion: Mojo');
+        expect(output).toContain('[i] ── info  | init-flow | Prime: Jojo');
+        expect(output).toContain('[i] ── info  | init-flow | Map of Memories');
+        expect(output).toContain(`[✓] Third Brain Companion ${packageJson.version} initialized.`);
+    });
+
+    test('running sys init on existing TBC-Root should fail with helpful message', async () => {
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'sys',
+            'init',
+            '--root',
+            TBC_ROOT,
+            '--companion',
+            'Mojo',
+            '--prime',
+            'Jojo',
+        ]);
+        expect(exitCode).toBe(0);
+        expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
+        expect(output).toContain('[✗] ┬─ error | init-flow | has existing companion');
+        expect(output).toContain('    └─ Suggestion: Use "tbc sys upgrade" instead.');
+    });
+
+    test('running sys upgrade on TBC-Root is successful', async () => {
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'sys',
+            'upgrade',
+            '--root',
+            TBC_ROOT,
+        ]);
+        expect(success).toBe(true);
+        expect(exitCode).toBe(0);
+        expect(output).toContain(`[✓] Third Brain Companion upgraded to ${packageJson.version}.`);
+        expect(output).toContain('┌┤ Validation Audit ├');
+        expect(output).toContain('[✓] STABLE');
+    });
+
+    test('running sys validate on a healthy root', () => {
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'sys',
+            'validate',
+            '--root',
+            TBC_ROOT,
+        ]);
+        expect(success).toBe(true);
+        expect(exitCode).toBe(0);
+        expect(output).toContain('┌┤ Validation Audit ├');
+        expect(output).toContain('Verified presence of "root.md"');
+        expect(output).toContain('Referenced Root Memory Map');
+        expect(output).toContain('[✓] STABLE');
+        expect(output).toContain('0 error(s) detected.');
+        expect(output).not.toContain('[»] ── debug');
+    });
+
+    test('running sys validate with --verbose shows deep trace', () => {
+        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            'sys',
+            'validate',
+            '--root',
+            TBC_ROOT,
+            '--verbose',
+        ]);
+        expect(success).toBe(true);
+        expect(exitCode).toBe(0);
+        expect(output).toContain('[»] ── debug | load-core-memories | Identifying companionID');
+        expect(output).toContain('[»] ── debug | load-specifications-flow | Query');
+        expect(output).toContain('┌┤ Validation Audit ├');
+        expect(output).toContain('[✓] STABLE');
+    });
+
+    test('sys init should write identity to SQLite (dual-write verification)', async () => {
+        const companionIdPath = join(TBC_ROOT, 'sys', 'companion.id');
+        const companionId = (await file(companionIdPath).text()).trim();
+        const primeIdPath = join(TBC_ROOT, 'sys', 'prime.id');
+        const primeId = (await file(primeIdPath).text()).trim();
+        expectSQLiteRecordMojo(companionId);
+        expectSQLiteRecordMojo(primeId);
+        expectSQLiteDataMojo(companionId, 'record_title', 'Mojo');
+        expectSQLiteDataMojo(companionId, 'record_type', 'party');
+        expectSQLiteDataMojo(primeId, 'record_title', 'Jojo');
+        const dbRecords = querySqlite('SELECT record_id FROM record WHERE collection = ?', ['mem']);
+        expect(dbRecords.length).toBeGreaterThan(0);
+    });
+});
