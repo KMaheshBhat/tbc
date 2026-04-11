@@ -8,47 +8,53 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 053 LETS-GO: tbc int generate (Goose)', () => {
+describe('🐵 0505 LETS-GO: tbc int generate (Kilocode)', () => {
 
-    test('should generate .goosehints with correct role definition', () => {
+    test('should generate .kilocodemodes with correct schema and identity', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
-            'goose',
+            'kilocode',
             '--root',
             TBC_ROOT,
         ]);
         expect(success).toBe(true);
-        expect(output).toContain('Agent Type: goose');
-        expect(output).toContain('STABLE');
-        const goosePath = join(TBC_ROOT, '.goosehints');
-        expect(existsSync(goosePath)).toBe(true);
-        const content = readFileSync(goosePath, 'utf-8');
-        expect(content).toContain('Mojo');
+        expect(output).toContain('Agent Type: kilocode');
+        const kiloPath = join(TBC_ROOT, '.kilocodemodes');
+        expect(existsSync(kiloPath)).toBe(true);
+        const content = readFileSync(kiloPath, 'utf-8');
+        expect(content).toContain('customModes:');
+        expect(content).toContain('slug: mojo');
+        expect(content).toContain('groups:');
+        expect(content).toContain('- read');
+        expect(content).toContain('- mcp');
+        expect(content).toContain('source: project');
+        expect(content).toContain('name: Mojo');
         expect(content).toContain('ALWAYS read @sys/root.md');
         expect(content).toContain('ALWAYS READ FULLY');
         expect(content).toContain('sys.digest.txt');
         expect(content).toContain('skills.jsonl');
         expect(content).toContain('tbc dex rebuild');
         expect(content).toContain('interaction');
+        expect(content).toMatch(/slug: mojo\s+name: Mojo/);
     });
 
     test('should be idempotent (running twice changes nothing)', () => {
-        const goosePath = join(TBC_ROOT, '.goosehints');
+        const kiloPath = join(TBC_ROOT, '.kilocodemodes');
         runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
-            'goose',
+            'kilocode',
             '--root',
             TBC_ROOT,
         ]);
-        const firstRunContent = readFileSync(goosePath, 'utf-8');
+        const firstRunContent = readFileSync(kiloPath, 'utf-8');
         const { success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
-            'goose',
+            'kilocode',
             '--root',
             TBC_ROOT,
         ]);
         expect(success).toBe(true);
-        const secondRunContent = readFileSync(goosePath, 'utf-8');
+        const secondRunContent = readFileSync(kiloPath, 'utf-8');
         expect(secondRunContent).toBe(firstRunContent);
     });
 });

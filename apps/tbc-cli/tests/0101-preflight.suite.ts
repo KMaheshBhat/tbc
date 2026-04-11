@@ -4,7 +4,7 @@ import { runMonorepoCommand } from '../../../scripts/common';
 
 import { CLI_TARGET, SANDBOX, TBC_ROOT } from './test-helper';
 
-describe('🐵 011 PRE-FLIGHT', () => {
+describe('🐵 0101 PRE-FLIGHT', () => {
     describe('tbc ', () => {
         test('running with no args gives help and error exit code (still provides Usage)', () => {
             const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, []);

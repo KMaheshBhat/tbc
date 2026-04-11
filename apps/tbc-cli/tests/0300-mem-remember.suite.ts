@@ -6,7 +6,7 @@ import { runMonorepoCommand } from '../../../scripts/common';
 
 import { CLI_TARGET, TBC_ROOT, UUID_SEARCH_REGEX, expectSQLiteDataMojo, expectSQLiteRecordMojo } from './test-helper';
 
-describe('🐵 030 LETS-GO: tbc mem remember', () => {
+describe('🐵 0300 LETS-GO: tbc mem remember', () => {
 
     test('should remember a simple note with a generated UUID', async () => {
         const thought = 'Buy more bananas for Mojo';

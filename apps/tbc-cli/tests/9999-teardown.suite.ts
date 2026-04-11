@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { generateFileTree } from '../../../scripts/common';
 import { TBC_ROOT, TBC_ROOT_NEXT } from './test-helper';
 
-describe('🧪 999 TBC-CLI Integration: Teardown', () => {
+describe('🧪 9999 TBC-CLI Integration: Teardown', () => {
 
     it('should finalize the integration run', () => {
         // Just a placeholder to ensure the describe block runs

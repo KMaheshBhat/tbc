@@ -11,7 +11,7 @@ import {
     expectSQLiteDataMojo,
 } from './test-helper';
 
-describe('🐵 040 LETS-GO: tbc act', () => {
+describe('🐵 0400 LETS-GO: tbc act', () => {
     let activity1ID: string = '';
     let activity2ID: string = '';
 

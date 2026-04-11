@@ -8,7 +8,7 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🦍 150 LETS-GO: tbc int (Kong/Next)', () => {
+describe('🦍 1500 LETS-GO: tbc int (Kong/Next)', () => {
 
     test('int probe should correctly identify protocol-specific paths', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
@@ -69,6 +69,22 @@ describe('🦍 150 LETS-GO: tbc int (Kong/Next)', () => {
         const content = readFileSync(copilotPath, 'utf-8');
         expect(content).toContain('interaction');
         expect(content).toContain('Kong');
+    });
+
+    test('int pi should generate .pi/SYSTEM.md with role definition', () => {
+        const { success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+            'int',
+            'pi',
+            '--root',
+            TBC_ROOT_NEXT,
+        ]);
+        expect(success).toBe(true);
+        const piPath = join(TBC_ROOT_NEXT, '.pi', 'SYSTEM.md');
+        expect(existsSync(piPath)).toBe(true);
+        const content = readFileSync(piPath, 'utf-8');
+        expect(content).toContain('You are an Expert Assistant');
+        expect(content).toContain('Kong');
+        expect(content).toContain('Available Tools');
     });
 
 });
