@@ -51,4 +51,31 @@ This was added manually to test dex rebuild on Kong.`;
         const digestContent = readFileSync(sysDigestPath, 'utf-8');
         expect(digestContent).toContain('sys');
     });
+
+    test('should produce deterministic JSONL output on repeated rebuilds', async () => {
+        const { success: s1 } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+            'dex',
+            'rebuild',
+            '--root',
+            TBC_ROOT_NEXT,
+        ]);
+        expect(s1).toBe(true);
+
+        const firstOutput = readFileSync(dexShardPath, 'utf-8');
+        const firstDigest = readFileSync(sysDigestPath, 'utf-8');
+
+        const { success: s2 } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+            'dex',
+            'rebuild',
+            '--root',
+            TBC_ROOT_NEXT,
+        ]);
+        expect(s2).toBe(true);
+
+        const secondOutput = readFileSync(dexShardPath, 'utf-8');
+        const secondDigest = readFileSync(sysDigestPath, 'utf-8');
+
+        expect(firstOutput).toBe(secondOutput);
+        expect(firstDigest).toBe(secondDigest);
+    });
 });
