@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { runMonorepoCommand, querySqliteNext, TBC_ROOT_NEXT, CLI_TARGET, UUID_SEARCH_REGEX, expectSQLiteData } from './test-helper';
 
-describe('🦍 130 LETS-GO: tbc mem remember (Kong/Next)', () => {
+describe('🦍 1300 LETS-GO: tbc mem remember (Kong/Next)', () => {
 
     test('should persist memory to both FS and SQLite', async () => {
         const thought = 'Kong likes giant bananas';

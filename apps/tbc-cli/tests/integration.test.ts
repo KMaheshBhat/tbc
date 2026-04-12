@@ -1,32 +1,33 @@
 // -- Infrastructure & Shared Setup ---
-import './000-setup.suite';
+import './0000-setup.suite';
 
-import './010-gen.suite';
-import './011-preflight.suite';
+import './0100-gen.suite';
+import './0101-preflight.suite';
 
-import './020-sys.suite';
-import './120-sys.suite';
+import './0200-sys.suite';
+import './1200-sys.suite';
 
-import './030-mem-remember.suite';
-import './130-mem-remember.suite';
-import './031-mem-recall.suite';
-import './131-mem-recall.suite';
+import './0300-mem-remember.suite';
+import './1300-mem-remember.suite';
+import './0301-mem-recall.suite';
+import './1301-mem-recall.suite';
 
-import './040-act.suite';
-import './140-act.suite';
+import './0400-act.suite';
+import './1400-act.suite';
 
-import './050-int-probe.suite';
-import './051-int-generate.suite';
-import './052-int-gemini.suite';
-import './053-int-goose.suite';
-import './054-int-github-copilot.suite';
-import './055-int-kilocode.suite';
-import './150-int.suite';
+import './0500-int-probe.suite';
+import './0501-int-generate.suite';
+import './0502-int-gemini.suite';
+import './0503-int-goose.suite';
+import './0504-int-github-copilot.suite';
+import './0505-int-kilocode.suite';
+import './0506-int-pi.suite';
+import './1500-int.suite';
 
-import './060-dex-rebuild.suite';
-import './160-dex-rebuild.suite';
+import './0600-dex-rebuild.suite';
+import './1600-dex-rebuild.suite';
 
-import './061-mem-assimilate.suite';
-import './161-mem-assimilate.suite';
+import './0610-mem-assimilate.suite';
+import './1610-mem-assimilate.suite';
 
-import './999-teardown.suite';
+import './9999-teardown.suite';

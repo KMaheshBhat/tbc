@@ -548,6 +548,32 @@ let cmdIntKilocode = new Command('kilocode')
     });
 cmdInt.addCommand(cmdIntKilocode);
 
+let cmdIntPi = new Command('pi')
+    .description('Generate Pi interface configuration')
+    .action(async () => {
+        const flowName = 'tbc-interface:agent-integrate-flow';
+        const cliOpts = program.opts();
+        const isVerbose = !!cliOpts.verbose;
+        const root = cliOpts.root;
+        const flowConfig = {
+            verbose: isVerbose,
+            rootDirectory: root,
+            agentType: 'pi',
+        };
+        const flowParams = {
+            registry: registry,
+        };
+        try {
+            const flow = registry.createNode(flowName, flowConfig);
+            await flow.run(flowParams);
+        } catch (error) {
+            handleError(`Error running ${flowName}`, error, isVerbose);
+            process.exit(1);
+        }
+        return;
+    });
+cmdInt.addCommand(cmdIntPi);
+
 program.addCommand(cmdInt);
 
 let cmdDex = new Command('dex')

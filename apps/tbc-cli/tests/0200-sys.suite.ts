@@ -8,7 +8,7 @@ import packageJson from '../package.json' with { type: 'json' };
 
 import { CLI_TARGET, TBC_ROOT, expectUUID, querySqlite, expectSQLiteDataMojo, expectSQLiteRecordMojo } from './test-helper';
 
-describe('🐵 020 LETS-GO: tbc sys', () => {
+describe('🐵 0200 LETS-GO: tbc sys', () => {
 
     test('running sys init with companion and prime flags is successful', async () => {
         const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [

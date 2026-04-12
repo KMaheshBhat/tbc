@@ -1,7 +1,7 @@
 {
-  "name": "@tbc-frameworx/tbc-synthesize",
-  "version": "0.4.1",
-  "description": "TBC Synthesize operations library",
+  "name": "@tbc-frameworx/tbc-pi",
+  "version": "0.1.0",
+  "description": "TBC Pi integration plugin",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -16,8 +16,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@hami-frameworx/core": "0.1.10",
     "pocketflow": "^1.0.4",
+    "@hami-frameworx/core": "0.1.10",
+    "@tbc-frameworx/tbc-system": "^0.4.1",
     "@tbc-frameworx/tbc-record": "^0.4.1"
   }
 }

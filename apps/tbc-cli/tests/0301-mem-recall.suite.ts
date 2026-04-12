@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { runMonorepoCommand } from '../../../scripts/common';
 import { CLI_TARGET, SANDBOX, TBC_ROOT, UUID_SEARCH_REGEX } from './test-helper';
 
-describe('🐵 031 LETS-GO: tbc mem recall', () => {
+describe('🐵 0301 LETS-GO: tbc mem recall', () => {
 
     test('should recall companion identity (who am i)', () => {
         const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [

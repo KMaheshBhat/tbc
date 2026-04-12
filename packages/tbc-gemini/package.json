@@ -16,7 +16,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "pocketflow": "^1.0.4",
     "@hami-frameworx/core": "0.1.10",
-    "pocketflow": "^1.0.4"
+    "@tbc-frameworx/tbc-system": "^0.4.1",
+    "@tbc-frameworx/tbc-record": "^0.4.1"
   }
 }

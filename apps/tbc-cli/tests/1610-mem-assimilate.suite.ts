@@ -6,7 +6,7 @@ import { runMonorepoCommand } from '../../../scripts/common';
 
 import { CLI_TARGET, TBC_ROOT_NEXT, querySqliteNext } from './test-helper';
 
-describe('🦍 161 MEMORY ASSIMILATE: tbc mem assimilate (Kong)', () => {
+describe('🦍 1610 MEMORY ASSIMILATE: tbc mem assimilate (Kong)', () => {
     const manualMemId = '019d6261-c37d-77e5-8460-c6c5a896bc67';
     const manualMemPath = join(TBC_ROOT_NEXT, 'mem_next', `${manualMemId}.md`);
 
