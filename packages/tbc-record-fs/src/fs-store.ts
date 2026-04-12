@@ -312,6 +312,7 @@ class FSStore implements RecordStore {
             }
 
             for (const [kind, records] of Object.entries(kindGroups)) {
+                records.sort((a, b) => a.id.localeCompare(b.id));
                 const indexPath = join(dexDir, `${collection}.${kind}.jsonl`);
                 this.updateDexShard(indexPath, records);
             }
