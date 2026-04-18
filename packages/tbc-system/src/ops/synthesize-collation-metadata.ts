@@ -70,12 +70,12 @@ export class SynthesizeCollationMetadataNode extends HAMINode<Shared> {
         const record =r as Record<string,any>;
         const content: string = record.content;
 
+        let frontmatter = record;
         const regex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
         const match = (content)?.match(regex);
-        if (!match) {
-          continue;
+        if (match) {
+          frontmatter = YAML.parse(match[1]) as Record<string, any>;
         }
-        const frontmatter  = YAML.parse(match[1]) as Record<string, any>;
         const customExcludes = source.excludeKeys || [];
         const allExcludes = [...globalExcludes, ...customExcludes];
         // Create a clean metadata object by filtering keys
