@@ -51,6 +51,13 @@ Options:
   -l, --limit <number>  Limit the number of results (default: 10)
   -h, --help            display help for command
 ```
+
+> **Important**: The `--type` filter restricts search to only that record type. 
+> - `tbc mem recall John` searches all record types
+> - `tbc mem recall --type party John` searches only party-type records
+> 
+> When comparing recall results with `rg` (ripgrep), use unfiltered recall (`tbc mem recall <query>`) to ensure equivalent search scope.
+
 * **Assimilate**: Use `tbc mem assimilate` to replicate memory records across all RecordStore providers.
 ```bash
 $ tbc mem assimilate --help
