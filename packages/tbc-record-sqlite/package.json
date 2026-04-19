@@ -13,8 +13,8 @@
     "build:types": "bunx tsc --emitDeclarationOnly --outDir dist"
   },
   "devDependencies": {
-    "@types/node": "^20.19.37",
-    "typescript": "^5.0.0"
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@hami-frameworx/core": "0.1.10",

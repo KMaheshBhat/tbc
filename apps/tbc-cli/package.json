@@ -36,8 +36,8 @@
     "@tbc-frameworx/tbc-pi": "^0.4.2"
   },
   "devDependencies": {
-    "@types/node": "^20.19.37",
-    "typescript": "^5.0.0"
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3"
   },
   "keywords": [],
   "author": "",
