@@ -8,9 +8,9 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 0506 LETS-GO: tbc int pi', () => {
+describe('🐵 0506 tbc int generate (Pi)', () => {
 
-    test('should generate Pi specific configuration (.pi/SYSTEM.md)', () => {
+    test('00 should generate Pi specific configuration (.pi/SYSTEM.md)', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
             'pi',
@@ -40,7 +40,7 @@ describe('🐵 0506 LETS-GO: tbc int pi', () => {
         expect(content).toContain('write');
     });
 
-    test('should be idempotent (running twice changes nothing)', () => {
+    test('01 should be idempotent (running twice changes nothing)', () => {
         const systemPath = join(TBC_ROOT, '.pi', 'SYSTEM.md');
         runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',

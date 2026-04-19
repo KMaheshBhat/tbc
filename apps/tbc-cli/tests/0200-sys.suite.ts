@@ -8,9 +8,9 @@ import packageJson from '../package.json' with { type: 'json' };
 
 import { CLI_TARGET, TBC_ROOT, expectUUID, querySqlite, expectSQLiteDataMojo, expectSQLiteRecordMojo } from './test-helper';
 
-describe('🐵 0200 LETS-GO: tbc sys', () => {
+describe('🐵 0200 tbc sys', () => {
 
-    test('running sys init with companion and prime flags is successful', async () => {
+    test('00 running sys init with companion and prime flags is successful', async () => {
         const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'sys',
             'init',
@@ -63,7 +63,7 @@ describe('🐵 0200 LETS-GO: tbc sys', () => {
         expect(body.startsWith('---')).toBe(false);
     });
 
-    test('running sys init on existing TBC-Root should fail with helpful message', async () => {
+    test('01 running sys init on existing TBC-Root should fail with helpful message', async () => {
         const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'sys',
             'init',
@@ -80,7 +80,7 @@ describe('🐵 0200 LETS-GO: tbc sys', () => {
         expect(output).toContain('    └─ Suggestion: Use "tbc sys upgrade" instead.');
     });
 
-    test('running sys upgrade on TBC-Root is successful', async () => {
+    test('02 running sys upgrade on TBC-Root is successful', async () => {
         const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'sys',
             'upgrade',
@@ -112,7 +112,7 @@ describe('🐵 0200 LETS-GO: tbc sys', () => {
         expect(body.startsWith('---')).toBe(false);
     });
 
-    test('running sys validate on a healthy root', () => {
+    test('03 running sys validate on a healthy root', () => {
         const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'sys',
             'validate',
@@ -129,7 +129,7 @@ describe('🐵 0200 LETS-GO: tbc sys', () => {
         expect(output).not.toContain('[»] ── debug');
     });
 
-    test('running sys validate with --verbose shows deep trace', () => {
+    test('04 running sys validate with --verbose shows deep trace', () => {
         const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'sys',
             'validate',
@@ -145,7 +145,7 @@ describe('🐵 0200 LETS-GO: tbc sys', () => {
         expect(output).toContain('[✓] STABLE');
     });
 
-    test('sys init should write identity to SQLite (dual-write verification)', async () => {
+    test('05 sys init should write identity to SQLite (dual-write verification)', async () => {
         const companionIdPath = join(TBC_ROOT, 'sys', 'companion.id');
         const companionId = (await file(companionIdPath).text()).trim();
         const primeIdPath = join(TBC_ROOT, 'sys', 'prime.id');

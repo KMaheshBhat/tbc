@@ -8,9 +8,9 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🦍 1500 LETS-GO: tbc int (Kong/Next)', () => {
+describe('🦍 1500 tbc int', () => {
 
-    test('int probe should correctly identify protocol-specific paths', () => {
+    test('00 int probe should correctly identify protocol-specific paths', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'int',
             'probe',
@@ -23,7 +23,7 @@ describe('🦍 1500 LETS-GO: tbc int (Kong/Next)', () => {
         expect(output).toContain('STABLE');
     });
 
-    test('int generic should synthesize AGENTS.md using Kong profile data', () => {
+    test('01 int generic should synthesize AGENTS.md using Kong profile data', () => {
         const { success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'int',
             'generic',
@@ -42,7 +42,7 @@ describe('🦍 1500 LETS-GO: tbc int (Kong/Next)', () => {
         expect(content).toContain('Kong');
     });
 
-    test('int goose should respect protocol-aware skill locations', () => {
+    test('02 int goose should respect protocol-aware skill locations', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'int',
             'goose',
@@ -56,7 +56,7 @@ describe('🦍 1500 LETS-GO: tbc int (Kong/Next)', () => {
         expect(existsSync(legacySkills)).toBe(false);
     });
 
-    test('int github-copilot should function in a hybrid SQLite environment', () => {
+    test('03 int github-copilot should function in a hybrid SQLite environment', () => {
         const { success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'int',
             'github-copilot',
@@ -71,7 +71,7 @@ describe('🦍 1500 LETS-GO: tbc int (Kong/Next)', () => {
         expect(content).toContain('Kong');
     });
 
-    test('int pi should generate .pi/SYSTEM.md with role definition', () => {
+    test('04 int pi should generate .pi/SYSTEM.md with role definition', () => {
         const { success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'int',
             'pi',

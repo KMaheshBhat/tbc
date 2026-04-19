@@ -10,10 +10,10 @@ import {
     expectSQLiteData
 } from './test-helper';
 
-describe('🦍 1400 LETS-GO: tbc act (Kong/Next)', () => {
+describe('🦍 1400 tbc act', () => {
     let activityID: string = '';
 
-    test('should manage activity lifecycle on FS (Mojo-parity)', () => {
+    test('00 should manage activity lifecycle on FS (Mojo-parity)', () => {
         const start = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'act',
             'start',
@@ -39,7 +39,7 @@ describe('🦍 1400 LETS-GO: tbc act (Kong/Next)', () => {
         expect(rows[0].count).toBe(0);
     });
 
-    test('should promote to SQLite only upon close (Assimilation)', () => {
+    test('01 should promote to SQLite only upon close (Assimilation)', () => {
         runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'act',
             'start',

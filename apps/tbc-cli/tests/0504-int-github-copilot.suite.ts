@@ -8,9 +8,9 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 0504 LETS-GO: tbc int generate (GitHub Copilot)', () => {
+describe('🐵 0504 tbc int generate (GitHub Copilot)', () => {
 
-    test('should generate Copilot specific configuration in nested directory with slugified name', () => {
+    test('00 should generate Copilot specific configuration in nested directory with slugified name', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
             'github-copilot',
@@ -38,7 +38,7 @@ describe('🐵 0504 LETS-GO: tbc int generate (GitHub Copilot)', () => {
         expect(content).toContain('tbc dex rebuild');
     });
 
-    test('should be idempotent (running twice changes nothing)', () => {
+    test('01 should be idempotent (running twice changes nothing)', () => {
         const copilotPath = join(TBC_ROOT, '.github', 'agents', 'mojo.agent.md');
         runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',

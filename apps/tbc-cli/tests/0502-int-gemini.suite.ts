@@ -8,8 +8,8 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 0502 LETS-GO: tbc int generate (Gemini CLI)', () => {
-    test('should generate Gemini specific configuration in nested directory', () => {
+describe('🐵 0502 tbc int generate (Gemini CLI)', () => {
+    test('00 should generate Gemini specific configuration in nested directory', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
             'gemini-cli',

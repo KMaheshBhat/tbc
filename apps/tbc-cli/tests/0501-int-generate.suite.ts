@@ -8,9 +8,9 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 0501 LETS-GO: tbc int generate (Generic)', () => {
+describe('🐵 0501 tbc int generate (Generic)', () => {
 
-    test('should generate AGENTS.md with correct role definition', () => {
+    test('00 should generate AGENTS.md with correct role definition', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
             'generic',
@@ -30,7 +30,7 @@ describe('🐵 0501 LETS-GO: tbc int generate (Generic)', () => {
         expect(content).toContain('tbc dex rebuild');
     });
 
-    test('should be idempotent (running twice changes nothing)', () => {
+    test('01 should be idempotent (running twice changes nothing)', () => {
         runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
             'generic',
