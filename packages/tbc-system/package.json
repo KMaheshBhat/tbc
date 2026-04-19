@@ -1,6 +1,6 @@
 {
   "name": "@tbc-frameworx/tbc-system",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "TBC System operations library",
   "license": "MIT",
   "type": "module",
@@ -19,13 +19,13 @@
     "pocketflow": "^1.0.4",
     "@hami-frameworx/core": "0.1.10",
     "js-yaml": "^4.1.0",
-    "@tbc-frameworx/tbc-record": "^0.4.1",
-    "@tbc-frameworx/tbc-mint": "^0.4.1",
-    "@tbc-frameworx/tbc-synthesize": "^0.4.1"
+    "@tbc-frameworx/tbc-record": "^0.4.2",
+    "@tbc-frameworx/tbc-mint": "^0.4.2",
+    "@tbc-frameworx/tbc-synthesize": "^0.4.2"
   },
   "devDependencies": {
-    "@types/node": "^20.19.37",
+    "@types/node": "^25.6.0",
     "shx": "^0.4.0",
-    "typescript": "^5.0.0"
+    "typescript": "^6.0.3"
   }
 }

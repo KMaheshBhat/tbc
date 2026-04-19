@@ -1,6 +1,6 @@
 {
   "name": "tbc-frameworx-monorepo",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Monorepo for TBC FRAMEWORX",
   "license": "MIT",
   "private": true,
@@ -16,7 +16,6 @@
     "record-sqlite:build": "bun run --filter='@tbc-frameworx/tbc-record-sqlite' build",
     "mint:build": "bun run --filter='@tbc-frameworx/tbc-mint' build",
     "synthesize:build": "bun run --filter='@tbc-frameworx/tbc-synthesize' build",
-
     "system:build": "bun run --filter='@tbc-frameworx/tbc-system' build",
     "interface:build": "bun run --filter='@tbc-frameworx/tbc-interface' build",
     "memory:build": "bun run --filter='@tbc-frameworx/tbc-memory' build",
@@ -38,10 +37,10 @@
     "@types/bun": "latest",
     "@types/js-yaml": "^4.0.9",
     "shx": "^0.4.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^6.0.3"
   },
   "module": "index.ts",
   "type": "module"

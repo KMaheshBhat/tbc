@@ -4,9 +4,9 @@ import { runMonorepoCommand } from '../../../scripts/common';
 
 import { CLI_TARGET, SANDBOX, TSID_SEARCH_REGEX, UUID_SEARCH_REGEX, expectTSID, expectUUID } from './test-helper';
 
-describe('🐵 0100 GENERATOR: tbc gen', () => {
+describe('🐵 0100 tbc gen', () => {
 
-    test('should generate a single UUID v7 by default', () => {
+    test('00 should generate a single UUID v7 by default', () => {
         const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
             'gen',
             'uuid',
@@ -19,7 +19,7 @@ describe('🐵 0100 GENERATOR: tbc gen', () => {
         if (matches) expectUUID(matches[0]);
     });
 
-    test('should generate multiple UUIDs using --count', () => {
+    test('01 should generate multiple UUIDs using --count', () => {
         const count = 5;
         const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
             'gen',
@@ -32,7 +32,7 @@ describe('🐵 0100 GENERATOR: tbc gen', () => {
         expect(matches?.length).toBe(count);
     });
 
-    test('should generate a single TSID (timestamp ID)', () => {
+    test('02 should generate a single TSID (timestamp ID)', () => {
         const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
             'gen',
             'tsid',
@@ -44,7 +44,7 @@ describe('🐵 0100 GENERATOR: tbc gen', () => {
         if (matches) expectTSID(matches[0]);
     });
 
-    test('should generate multiple TSIDs using -c shorthand', () => {
+    test('03 should generate multiple TSIDs using -c shorthand', () => {
         const count = 2;
         const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
             'gen',
@@ -57,7 +57,7 @@ describe('🐵 0100 GENERATOR: tbc gen', () => {
         expect(matches?.length).toBe(count);
     });
 
-    test('should show error for invalid count', () => {
+    test('04 should show error for invalid count', () => {
         const { success, exitCode } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
             'gen',
             'uuid',

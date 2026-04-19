@@ -1,6 +1,6 @@
 {
   "name": "@tbc-frameworx/tbc-kilocode",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "TBC Kilo Code integration plugin",
   "license": "MIT",
   "type": "module",
@@ -12,13 +12,13 @@
     "build:types": "bunx tsc --emitDeclarationOnly --outDir dist"
   },
   "devDependencies": {
-    "@types/node": "^20.19.37",
-    "typescript": "^5.0.0"
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "pocketflow": "^1.0.4",
     "@hami-frameworx/core": "0.1.10",
-    "@tbc-frameworx/tbc-system": "^0.4.1",
-    "@tbc-frameworx/tbc-record": "^0.4.1"
+    "@tbc-frameworx/tbc-system": "^0.4.2",
+    "@tbc-frameworx/tbc-record": "^0.4.2"
   }
 }

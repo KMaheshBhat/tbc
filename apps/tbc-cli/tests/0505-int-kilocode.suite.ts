@@ -8,9 +8,9 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 0505 LETS-GO: tbc int generate (Kilocode)', () => {
+describe('🐵 0505 tbc int generate (Kilocode)', () => {
 
-    test('should generate .kilocodemodes with correct schema and identity', () => {
+    test('00 should generate .kilocodemodes with correct schema and identity', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
             'kilocode',
@@ -38,7 +38,7 @@ describe('🐵 0505 LETS-GO: tbc int generate (Kilocode)', () => {
         expect(content).toMatch(/slug: mojo\s+name: Mojo/);
     });
 
-    test('should be idempotent (running twice changes nothing)', () => {
+    test('01 should be idempotent (running twice changes nothing)', () => {
         const kiloPath = join(TBC_ROOT, '.kilocodemodes');
         runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',

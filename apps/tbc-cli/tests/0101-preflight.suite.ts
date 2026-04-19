@@ -4,9 +4,9 @@ import { runMonorepoCommand } from '../../../scripts/common';
 
 import { CLI_TARGET, SANDBOX, TBC_ROOT } from './test-helper';
 
-describe('🐵 0101 PRE-FLIGHT', () => {
+describe('🐵 0101', () => {
     describe('tbc ', () => {
-        test('running with no args gives help and error exit code (still provides Usage)', () => {
+        test('00 running with no args gives help and error exit code (still provides Usage)', () => {
             const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, []);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
@@ -14,7 +14,7 @@ describe('🐵 0101 PRE-FLIGHT', () => {
             expect(output).toContain('Usage:');
         });
 
-        test('running with --help gives help and success exit code', () => {
+        test('01 running with --help gives help and success exit code', () => {
             const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
                 '--help',
             ]);
@@ -26,7 +26,7 @@ describe('🐵 0101 PRE-FLIGHT', () => {
     });
 
     describe('tbc sys init', () => {
-        test('running sys init with missing flags is fails with helpful message', () => {
+        test('10 running sys init with missing flags is fails with helpful message', () => {
             {
                 const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
                     'sys',
@@ -77,7 +77,7 @@ describe('🐵 0101 PRE-FLIGHT', () => {
     });
 
     describe('tbc sys upgrade', () => {
-        test('running sys upgrade on non-TBC-Root should fail with helpful message', async () => {
+        test('20 running sys upgrade on non-TBC-Root should fail with helpful message', async () => {
             const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
                 'sys',
                 'upgrade',

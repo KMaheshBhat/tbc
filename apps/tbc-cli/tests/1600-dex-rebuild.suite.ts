@@ -6,7 +6,7 @@ import { runMonorepoCommand } from '../../../scripts/common';
 
 import { CLI_TARGET, TBC_ROOT_NEXT } from './test-helper';
 
-describe('🦍 1600 DEX REBUILD: tbc dex rebuild (Kong)', () => {
+describe('🦍 1600 tbc dex rebuild', () => {
     const manualMemId = '019d6261-c37d-77e5-8460-c6c5a896bc65';
     const manualMemPath = join(TBC_ROOT_NEXT, 'mem_next', `${manualMemId}.md`);
     const dexShardPath = join(TBC_ROOT_NEXT, 'dex_next', 'mem_next.note.jsonl');
@@ -31,7 +31,7 @@ This was added manually to test dex rebuild on Kong.`;
         }
     });
 
-    test('should rebuild dex index to include manually added memory', async () => {
+    test('00 should rebuild dex index to include manually added memory', async () => {
         expect(existsSync(sysDigestPath)).toBe(false);
         expect(existsSync(skillsJsonlPath)).toBe(false);
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
@@ -52,7 +52,7 @@ This was added manually to test dex rebuild on Kong.`;
         expect(digestContent).toContain('sys');
     });
 
-    test('should produce deterministic JSONL output on repeated rebuilds', async () => {
+    test('01 should produce deterministic JSONL output on repeated rebuilds', async () => {
         const { success: s1 } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'dex',
             'rebuild',
@@ -60,10 +60,8 @@ This was added manually to test dex rebuild on Kong.`;
             TBC_ROOT_NEXT,
         ]);
         expect(s1).toBe(true);
-
         const firstOutput = readFileSync(dexShardPath, 'utf-8');
         const firstDigest = readFileSync(sysDigestPath, 'utf-8');
-
         const { success: s2 } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'dex',
             'rebuild',
@@ -71,10 +69,8 @@ This was added manually to test dex rebuild on Kong.`;
             TBC_ROOT_NEXT,
         ]);
         expect(s2).toBe(true);
-
         const secondOutput = readFileSync(dexShardPath, 'utf-8');
         const secondDigest = readFileSync(sysDigestPath, 'utf-8');
-
         expect(firstOutput).toBe(secondOutput);
         expect(firstDigest).toBe(secondDigest);
     });
