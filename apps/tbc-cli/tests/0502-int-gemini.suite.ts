@@ -8,8 +8,8 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 052 LETS-GO: tbc int generate (Gemini CLI)', () => {
-    test('should generate Gemini specific configuration in nested directory', () => {
+describe('🐵 0502 tbc int generate (Gemini CLI)', () => {
+    test('00 should generate Gemini specific configuration in nested directory', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
             'gemini-cli',
@@ -22,6 +22,10 @@ describe('🐵 052 LETS-GO: tbc int generate (Gemini CLI)', () => {
         expect(existsSync(geminiPath)).toBe(true);
         const content = readFileSync(geminiPath, 'utf-8');
         expect(content).toContain('Mojo');
-        expect(content).toContain('ALWAYS read @tbc/root.md');
+        expect(content).toContain('ALWAYS read @sys/root.md');
+        expect(content).toContain('ALWAYS READ FULLY');
+        expect(content).toContain('sys.digest.txt');
+        expect(content).toContain('skills.jsonl');
+        expect(content).toContain('tbc dex rebuild');
     });
 });

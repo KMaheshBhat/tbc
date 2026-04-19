@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, rmSync } from 'node:fs';
 
 import { SANDBOX, TBC_ROOT, TBC_ROOT_NEXT } from './test-helper';
 
-describe('🧪 000 TBC-CLI Integration: Setup', () => {
+describe('🧪 0000 TBC-CLI Integration Setup', () => {
 
     beforeAll(() => {
         if (!existsSync(SANDBOX)) {

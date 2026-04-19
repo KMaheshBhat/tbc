@@ -28,9 +28,9 @@ interface CountRow {
     count: number;
 }
 
-describe('🦍 120 LETS-GO: tbc sys (Kong/Next)', () => {
+describe('🦍 1200 tbc sys', () => {
 
-    test('sys init --profile next should sync identity to SQLite with deep validation', async () => {
+    test('00 sys init --profile next should sync identity to SQLite with deep validation', async () => {
         const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'sys',
             'init',
@@ -66,7 +66,7 @@ describe('🦍 120 LETS-GO: tbc sys (Kong/Next)', () => {
         expectSQLiteData(primeId, 'record_title', 'Zilla');
     });
 
-    test('path isolation: Mojo operations should not leak into Kong SQLite', () => {
+    test('01 path isolation: Mojo operations should not leak into Kong SQLite', () => {
         const beforeRows = querySqliteNext('SELECT COUNT(*) as count FROM record') as CountRow[];
         const countBefore = beforeRows[0]?.count;
         expect(TBC_ROOT_NEXT).not.toContain('mojo');
@@ -75,7 +75,7 @@ describe('🦍 120 LETS-GO: tbc sys (Kong/Next)', () => {
         expect(countBefore).toBe(countAfter);
     });
 
-    test('sys validate should confirm stability for Kong profile', () => {
+    test('02 sys validate should confirm stability for Kong profile', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'sys',
             'validate',
@@ -88,7 +88,7 @@ describe('🦍 120 LETS-GO: tbc sys (Kong/Next)', () => {
         expect(output).toContain('[✓] STABLE');
     });
 
-    test('sys upgrade should refresh system specs and maintain stability', async () => {
+    test('03 sys upgrade should refresh system specs and maintain stability', async () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'sys',
             'upgrade',

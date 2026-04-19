@@ -6,9 +6,9 @@ import { runMonorepoCommand } from '../../../scripts/common';
 
 import { CLI_TARGET, TBC_ROOT, UUID_SEARCH_REGEX, expectSQLiteDataMojo, expectSQLiteRecordMojo } from './test-helper';
 
-describe('🐵 030 LETS-GO: tbc mem remember', () => {
+describe('🐵 0300 tbc mem remember', () => {
 
-    test('should remember a simple note with a generated UUID', async () => {
+    test('00 should remember a simple note with a generated UUID', async () => {
         const thought = 'Buy more bananas for Mojo';
         const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
@@ -35,7 +35,7 @@ describe('🐵 030 LETS-GO: tbc mem remember', () => {
         expect(content.endsWith('\n')).toBe(true);
     });
 
-    test('should create a stub for a specific record type', async () => {
+    test('01 should create a stub for a specific record type', async () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'remember',
@@ -55,7 +55,7 @@ describe('🐵 030 LETS-GO: tbc mem remember', () => {
         expect(content).not.toContain('Untitled');
     });
 
-    test('should accept tags and title via flags', async () => {
+    test('02 should accept tags and title via flags', async () => {
         const detail = 'Detail about the plan';
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
@@ -83,7 +83,7 @@ describe('🐵 030 LETS-GO: tbc mem remember', () => {
         expect(content).toContain('- c/agent/mojo');
     });
 
-    test('should persist memory to both FS and SQLite (hybrid dual-write)', async () => {
+    test('03 should persist memory to both FS and SQLite (hybrid dual-write)', async () => {
         const thought = 'Test SQLite dual-write';
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
@@ -103,7 +103,7 @@ describe('🐵 030 LETS-GO: tbc mem remember', () => {
         expectSQLiteDataMojo(mintedId!, 'record_type', 'note');
     });
 
-    test('should index tags into the SQLite relation table', async () => {
+    test('04 should index tags into the SQLite relation table', async () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'remember',

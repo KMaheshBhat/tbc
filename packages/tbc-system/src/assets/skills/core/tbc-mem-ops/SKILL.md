@@ -6,9 +6,9 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Memory and Record Operations (`skills/core/tbc-mem-ops`)
 specification_name: tbc-mem-ops
-description: Use this skill to persist and recall memories, generate IDs (UUID, TSID), and replicate records across storage providers.
-name: tbc-mem-ops
 methods_supported: Persist Memories, Recall Memories, ID Generation, Record Replication
+name: tbc-mem-ops
+description: Use this skill to persist and recall memories, generate IDs (UUID, TSID), and replicate records across storage providers.
 ---
 # Memory & Record Operations (`tbc-mem-ops`)
 
@@ -51,6 +51,13 @@ Options:
   -l, --limit <number>  Limit the number of results (default: 10)
   -h, --help            display help for command
 ```
+
+> **Important**: The `--type` filter restricts search to only that record type. 
+> - `tbc mem recall John` searches all record types
+> - `tbc mem recall --type party John` searches only party-type records
+> 
+> When comparing recall results with `rg` (ripgrep), use unfiltered recall (`tbc mem recall <query>`) to ensure equivalent search scope.
+
 * **Assimilate**: Use `tbc mem assimilate` to replicate memory records across all RecordStore providers.
 ```bash
 $ tbc mem assimilate --help

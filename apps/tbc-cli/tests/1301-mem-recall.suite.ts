@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { runMonorepoCommand, TBC_ROOT_NEXT, CLI_TARGET } from './test-helper';
 
-describe('🦍 131 LETS-GO: tbc mem recall (Kong/Next)', () => {
+describe('🦍 1301 tbc mem recall', () => {
 
-    test('should recall using the Hybrid SQLite storer', () => {
+    test('00 should recall using the Hybrid SQLite storer', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'mem',
             'recall',
@@ -18,7 +18,7 @@ describe('🦍 131 LETS-GO: tbc mem recall (Kong/Next)', () => {
         expect(output).toContain('Zilla');
     });
 
-    test('should support rapid keyword search via SQLite', () => {
+    test('01 should support rapid keyword search via SQLite', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'mem',
             'recall',

@@ -12,6 +12,7 @@ import { TBCKilocodePlugin } from '@tbc-frameworx/tbc-kilocode';
 import { TBCGoosePlugin } from '@tbc-frameworx/tbc-goose';
 import { TBCGeminiPlugin } from '@tbc-frameworx/tbc-gemini';
 import { TBCGitHubCopilotPlugin } from '@tbc-frameworx/tbc-github-copilot';
+import { TBCPiPlugin } from '@tbc-frameworx/tbc-pi';
 
 export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }> {
     const registry = new HAMIRegistrationManager();
@@ -29,5 +30,6 @@ export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }
     await registry.registerPlugin(TBCGoosePlugin);
     await registry.registerPlugin(TBCGeminiPlugin);
     await registry.registerPlugin(TBCGitHubCopilotPlugin);
+    await registry.registerPlugin(TBCPiPlugin);
     return { registry };
 }

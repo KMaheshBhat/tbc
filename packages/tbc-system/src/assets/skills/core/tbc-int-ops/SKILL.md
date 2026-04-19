@@ -6,6 +6,7 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Interface Integration (`skills/core/tbc-int-gen`)
 specification_name: tbc-int-gen
+methods_supported: Interface Integration
 name: tbc-int-ops
 description: Use this skill to probe environment for TBC CLI information and generate external interface configuration hooks for various AI interfaces (goose, kilocode, gemini-cli, github-copilot).
 ---

@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { runMonorepoCommand } from '../../../scripts/common';
-import { CLI_TARGET, SANDBOX, TBC_ROOT, UUID_SEARCH_REGEX } from './test-helper';
+import { CLI_TARGET, NON_TBC_ROOT, SANDBOX, TBC_ROOT, UUID_SEARCH_REGEX } from './test-helper';
 
-describe('🐵 031 LETS-GO: tbc mem recall', () => {
+describe('🐵 0301 tbc mem recall', () => {
 
-    test('should recall companion identity (who am i)', () => {
+    test('00 should recall companion identity (who am i)', () => {
         const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',
@@ -20,7 +20,7 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(matches).not.toBeNull();
     });
 
-    test('should recall prime identity (who is my prime)', () => {
+    test('02 should recall prime identity (who is my prime)', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',
@@ -35,7 +35,7 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(matches).not.toBeNull();
     });
 
-    test('should recall a list of recent memories by default', () => {
+    test('03 should recall a list of recent memories by default', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',
@@ -52,7 +52,7 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(output).toContain('Suggestion: Lookup those record(s)');
     });
 
-    test('should filter recall results by type (e.g., goals)', () => {
+    test('04 should filter recall results by type (e.g., goals)', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',
@@ -68,7 +68,7 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(output).not.toContain('Buy more bananas');
     });
 
-    test('should support search queries across titles', () => {
+    test('05 should support search queries across titles', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',
@@ -84,7 +84,7 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(output).not.toContain('Master Plan');
     });
 
-    test('should handle queries with no matches gracefully', () => {
+    test('06 should handle queries with no matches gracefully', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',
@@ -98,7 +98,7 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(output).not.toContain('┌┤ Recalled Memories');
     });
 
-    test('should return zero results when type filter excludes keyword matches', () => {
+    test('07 should return zero results when type filter excludes keyword matches', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',
@@ -112,12 +112,12 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(output).toContain('No memory records found.');
     });
 
-    test('should abort recall if run in a non-TBC directory', () => {
+    test('08 should abort recall if run in a non-TBC directory', () => {
         const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
             'mem',
             'recall',
             '--root',
-            SANDBOX,
+            NON_TBC_ROOT,
         ]);
         expect(success).toBe(true);
         expect(output).toContain('error | recall-flow');
@@ -125,7 +125,7 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(output).toContain('Suggestion: Use "tbc sys init" instead.');
     });
 
-    test('should respect the --limit flag and return the newest records first', () => {
+    test('09 should respect the --limit flag and return the newest records first', () => {
         const limit = 3;
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
@@ -145,7 +145,7 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(matchCount).toBe(limit);
     });
 
-    test('should query SQLite for recall results (hybrid querier)', () => {
+    test('10 should query SQLite for recall results (hybrid querier)', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',
@@ -157,7 +157,7 @@ describe('🐵 031 LETS-GO: tbc mem recall', () => {
         expect(output).toContain('SQLite');
     });
 
-    test('should support rapid keyword search via SQLite', () => {
+    test('11 should support rapid keyword search via SQLite', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'mem',
             'recall',

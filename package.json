@@ -1,6 +1,6 @@
 {
   "name": "tbc-frameworx-monorepo",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Monorepo for TBC FRAMEWORX",
   "license": "MIT",
   "private": true,
@@ -16,8 +16,6 @@
     "record-sqlite:build": "bun run --filter='@tbc-frameworx/tbc-record-sqlite' build",
     "mint:build": "bun run --filter='@tbc-frameworx/tbc-mint' build",
     "synthesize:build": "bun run --filter='@tbc-frameworx/tbc-synthesize' build",
-    "dex:build": "bun run --filter='@tbc-frameworx/tbc-dex' build",
-
     "system:build": "bun run --filter='@tbc-frameworx/tbc-system' build",
     "interface:build": "bun run --filter='@tbc-frameworx/tbc-interface' build",
     "memory:build": "bun run --filter='@tbc-frameworx/tbc-memory' build",
@@ -26,6 +24,7 @@
     "kilocode:build": "bun run --filter='@tbc-frameworx/tbc-kilocode' build",
     "goose:build": "bun run --filter='@tbc-frameworx/tbc-goose' build",
     "github-copilot:build": "bun run --filter='@tbc-frameworx/tbc-github-copilot' build",
+    "pi:build": "bun run --filter='@tbc-frameworx/tbc-pi' build",
     "cli:test": "bun run --filter='@tbc-frameworx/tbc-cli' --concurrency=1 test",
     "cli:build": "bun run --filter='@tbc-frameworx/tbc-cli' build",
     "cli:install": "bun run cli:build && cd apps/tbc-cli && bun link",
@@ -36,11 +35,12 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/js-yaml": "^4.0.9",
     "shx": "^0.4.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^6.0.3"
   },
   "module": "index.ts",
   "type": "module"

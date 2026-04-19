@@ -1,7 +1,7 @@
 {
-  "name": "@tbc-frameworx/tbc-github-copilot",
+  "name": "@tbc-frameworx/tbc-pi",
   "version": "0.4.2",
-  "description": "TBC GitHub Copilot integration plugin",
+  "description": "TBC Pi integration plugin",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",

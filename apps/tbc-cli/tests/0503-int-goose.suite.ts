@@ -8,9 +8,9 @@ import {
     runMonorepoCommand,
 } from './test-helper';
 
-describe('🐵 053 LETS-GO: tbc int generate (Goose)', () => {
+describe('🐵 0503 tbc int generate (Goose)', () => {
 
-    test('should generate .goosehints with correct role definition', () => {
+    test('00 should generate .goosehints with correct role definition', () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',
             'goose',
@@ -24,11 +24,15 @@ describe('🐵 053 LETS-GO: tbc int generate (Goose)', () => {
         expect(existsSync(goosePath)).toBe(true);
         const content = readFileSync(goosePath, 'utf-8');
         expect(content).toContain('Mojo');
-        expect(content).toContain('ALWAYS read @tbc/root.md');
+        expect(content).toContain('ALWAYS read @sys/root.md');
+        expect(content).toContain('ALWAYS READ FULLY');
+        expect(content).toContain('sys.digest.txt');
+        expect(content).toContain('skills.jsonl');
+        expect(content).toContain('tbc dex rebuild');
         expect(content).toContain('interaction');
     });
 
-    test('should be idempotent (running twice changes nothing)', () => {
+    test('01 should be idempotent (running twice changes nothing)', () => {
         const goosePath = join(TBC_ROOT, '.goosehints');
         runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
             'int',

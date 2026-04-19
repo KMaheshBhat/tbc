@@ -3,9 +3,9 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { runMonorepoCommand, querySqliteNext, TBC_ROOT_NEXT, CLI_TARGET, UUID_SEARCH_REGEX, expectSQLiteData } from './test-helper';
 
-describe('🦍 130 LETS-GO: tbc mem remember (Kong/Next)', () => {
+describe('🦍 1300 tbc mem remember', () => {
 
-    test('should persist memory to both FS and SQLite', async () => {
+    test('00 should persist memory to both FS and SQLite', async () => {
         const thought = 'Kong likes giant bananas';
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'mem',
@@ -23,7 +23,7 @@ describe('🦍 130 LETS-GO: tbc mem remember (Kong/Next)', () => {
         expectSQLiteData(mintedId, 'record_type', 'note');
     });
 
-    test('should index tags into the SQLite relation table', async () => {
+    test('01 should index tags into the SQLite relation table', async () => {
         const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
             'mem',
             'remember',
