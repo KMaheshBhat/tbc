@@ -39,6 +39,28 @@ describe('🐵 0200 LETS-GO: tbc sys', () => {
         expect(output).toContain('[i] ── info  | init-flow | Prime: Jojo');
         expect(output).toContain('[i] ── info  | init-flow | Map of Memories');
         expect(output).toContain(`[✓] Third Brain Companion ${packageJson.version} initialized.`);
+
+        // Validate frontmatter in skill record (single block, no duplicates)
+        const skillPath = join(TBC_ROOT, 'skills', 'core', 'tbc-act-ops', 'SKILL.md');
+        const content = await file(skillPath).text();
+        // Should have exactly two --- delimiter lines
+        const delimiterMatches = content.match(/^---$/gm);
+        expect(delimiterMatches?.length).toBe(2);
+        // Extract the frontmatter text (between first two delimiters)
+        const firstDelimiterEnd = content.indexOf('---') + 3;
+        const secondDelimiterStart = content.indexOf('---', firstDelimiterEnd);
+        const frontmatterText = content.substring(firstDelimiterEnd, secondDelimiterStart).trim();
+        // Verify expected metadata fields (plain text)
+        expect(frontmatterText).toContain('id: tbc-act-ops');
+        expect(frontmatterText).toContain('record_type: specification');
+        expect(frontmatterText).toContain('record_tags:');
+        expect(frontmatterText).toContain('- c/public/tbc');
+        expect(frontmatterText).toContain('specification_name: tbc-act-ops');
+        expect(frontmatterText).toContain('description:');
+        expect(frontmatterText).toContain('record_create_date:');
+        // Ensure body does NOT start with additional frontmatter
+        const body = content.substring(secondDelimiterStart + 3).trim();
+        expect(body.startsWith('---')).toBe(false);
     });
 
     test('running sys init on existing TBC-Root should fail with helpful message', async () => {
@@ -70,6 +92,24 @@ describe('🐵 0200 LETS-GO: tbc sys', () => {
         expect(output).toContain(`[✓] Third Brain Companion upgraded to ${packageJson.version}.`);
         expect(output).toContain('┌┤ Validation Audit ├');
         expect(output).toContain('[✓] STABLE');
+
+        // Validate frontmatter in skill record after upgrade (single block, no duplicates)
+        const skillPath = join(TBC_ROOT, 'skills', 'core', 'tbc-act-ops', 'SKILL.md');
+        const content = await file(skillPath).text();
+        const delimiterMatches = content.match(/^---$/gm);
+        expect(delimiterMatches?.length).toBe(2);
+        const firstDelimiterEnd = content.indexOf('---') + 3;
+        const secondDelimiterStart = content.indexOf('---', firstDelimiterEnd);
+        const frontmatterText = content.substring(firstDelimiterEnd, secondDelimiterStart).trim();
+        expect(frontmatterText).toContain('id: tbc-act-ops');
+        expect(frontmatterText).toContain('record_type: specification');
+        expect(frontmatterText).toContain('record_tags:');
+        expect(frontmatterText).toContain('- c/public/tbc');
+        expect(frontmatterText).toContain('specification_name: tbc-act-ops');
+        expect(frontmatterText).toContain('description:');
+        expect(frontmatterText).toContain('record_create_date:');
+        const body = content.substring(secondDelimiterStart + 3).trim();
+        expect(body.startsWith('---')).toBe(false);
     });
 
     test('running sys validate on a healthy root', () => {
