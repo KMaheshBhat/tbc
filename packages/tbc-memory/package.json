@@ -1,6 +1,6 @@
 {
   "name": "@tbc-frameworx/tbc-memory",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "TBC Memory operations library",
   "license": "MIT",
   "type": "module",
@@ -18,8 +18,8 @@
   "dependencies": {
     "pocketflow": "^1.0.4",
     "@hami-frameworx/core": "0.1.10",
-    "@tbc-frameworx/tbc-system": "^0.4.1",
-    "@tbc-frameworx/tbc-record": "^0.4.1",
-    "@tbc-frameworx/tbc-mint": "^0.4.1"
+    "@tbc-frameworx/tbc-system": "^0.4.2",
+    "@tbc-frameworx/tbc-record": "^0.4.2",
+    "@tbc-frameworx/tbc-mint": "^0.4.2"
   }
 }

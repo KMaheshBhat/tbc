@@ -1,6 +1,6 @@
 {
   "name": "@tbc-frameworx/tbc-synthesize",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "TBC Synthesize operations library",
   "license": "MIT",
   "type": "module",
@@ -18,6 +18,6 @@
   "dependencies": {
     "@hami-frameworx/core": "0.1.10",
     "pocketflow": "^1.0.4",
-    "@tbc-frameworx/tbc-record": "^0.4.1"
+    "@tbc-frameworx/tbc-record": "^0.4.2"
   }
 }
