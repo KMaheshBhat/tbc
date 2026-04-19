@@ -6,8 +6,9 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Environment Awareness (`skills/core/tbc-env-probe`)
 specification_name: tbc-env-probe
+methods_supported: Gather Context, Eject Kernel, Probe Environment
+name: tbc-env-probe
 description: Use this skill upon instantiation or "Ejection" to orient the Companion to the host system - probe environment for TBC CLI version, Git status, Node version, OS details, and system information.
-methods_supported: Gather Context, Eject Kernel
 ---
 # Environment Awareness (`tbc-env-probe`)
 

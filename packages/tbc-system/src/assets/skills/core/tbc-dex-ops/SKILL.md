@@ -4,11 +4,11 @@ record_type: specification
 record_tags:
   - c/public/tbc
 record_create_date: 2025-12-30 07:00:00 UTC
-name: tbc-dex-ops
 record_title: Index & View Maintenance (`skills/core/tbc-dex-ops`)
 specification_name: tbc-dex-ops
-description: Use this skill to rebuild and maintain index files in the dex/ directory (such as core.md, extensions.md, skills.md, goal.md, party.md, log.md and other {record_type}.md) whenever you need to query, list, or navigate records by type. Essential for record discovery, mapping, or summary views.
 methods_supported: Reflection, Internal Indexing
+name: tbc-dex-ops
+description: Use this skill to rebuild and maintain index files in the dex/ directory (such as core.md, extensions.md, skills.md, goal.md, party.md, log.md and other {record_type}.md) whenever you need to query, list, or navigate records by type. Essential for record discovery, mapping, or summary views.
 ---
 # Index & View Maintenance (`tbc-dex-ops`)
 

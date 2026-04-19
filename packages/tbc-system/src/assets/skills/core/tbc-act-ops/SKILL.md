@@ -6,9 +6,9 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: Activity Workspace Management (`skills/core/tbc-act-ops`)
 specification_name: tbc-act-ops
-description: Use this skill to manage activity lifecycle - start, pause/backlog, and close activities. Ensures no loss of cognitive state.
-name: tbc-act-ops
 methods_supported: Start Activity, Pause Activity, Close Activity
+name: tbc-act-ops
+description: Use this skill to manage activity lifecycle - start, pause/backlog, and close activities. Ensures no loss of cognitive state.
 ---
 # Activity Workspace Management (`tbc-act-ops`)
 

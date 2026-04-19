@@ -6,9 +6,9 @@ record_tags:
 record_create_date: 2025-12-30 07:00:00 UTC
 record_title: System Stewardship (`skills/core/tbc-sys-ops`)
 specification_name: tbc-sys-ops
-description: Use this skill to maintain the structural integrity of the TBC, initialize new instances with system profiles, and validate existing directories. Generally executed by Prime User.
-name: tbc-sys-ops
 methods_supported: Instantiate Companion, Upgrade Companion
+name: tbc-sys-ops
+description: Use this skill to maintain the structural integrity of the TBC, initialize new instances with system profiles, and validate existing directories. Generally executed by Prime User.
 ---
 # System Stewardship (`tbc-sys-ops`)
 
