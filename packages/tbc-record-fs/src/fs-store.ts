@@ -75,10 +75,17 @@ class FSStore implements RecordStore {
             if (!existsSync(parentDir)) mkdirSync(parentDir, { recursive: true });
 
             if (format === 'markdown') {
-                const { content, ...meta } = record;
-                meta.id = (meta.id as string).replaceAll('.md', '')
-                const frontmatter = yaml.dump(meta, { lineWidth: -1 });
-                writeFileSync(filePath, `---\n${frontmatter}---\n${content || ''}`);
+                // Check if content already has frontmatter
+                if (typeof record.content === 'string' && record.content.trim().startsWith('---')) {
+                    // Content already has frontmatter - write as-is
+                    writeFileSync(filePath, record.content);
+                } else {
+                    // No existing frontmatter - add it
+                    const { content, ...meta } = record;
+                    meta.id = (meta.id as string).replaceAll('.md', '')
+                    const frontmatter = yaml.dump(meta, { lineWidth: -1 });
+                    writeFileSync(filePath, `---\n${frontmatter}---\n${content || ''}`);
+                }
             } else if (format === 'json') {
                 writeFileSync(filePath, JSON.stringify(record, null, 2));
             } else if (format === 'yaml') {
