@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { runMonorepoCommand } from '../../../scripts/common';
-import { CLI_TARGET, SANDBOX, TBC_ROOT, UUID_SEARCH_REGEX } from './test-helper';
+import { CLI_TARGET, NON_TBC_ROOT, SANDBOX, TBC_ROOT, UUID_SEARCH_REGEX } from './test-helper';
 
 describe('🐵 0301 LETS-GO: tbc mem recall', () => {
 
@@ -117,7 +117,7 @@ describe('🐵 0301 LETS-GO: tbc mem recall', () => {
             'mem',
             'recall',
             '--root',
-            SANDBOX,
+            NON_TBC_ROOT,
         ]);
         expect(success).toBe(true);
         expect(output).toContain('error | recall-flow');

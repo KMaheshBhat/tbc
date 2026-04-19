@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Database } from 'bun:sqlite';
 
@@ -11,14 +11,17 @@ export const CLI_ENTRY = join(PROJECT_ROOT, 'apps/tbc-cli/src/index.ts');
 export const TEST_BINARY = process.env.TBC_TEST_BINARY;
 export const CLI_TARGET = TEST_BINARY ? join(PROJECT_ROOT, TEST_BINARY) : CLI_ENTRY;
 
-// Mojo Baseline (Standard FS-only 0.3/0.4 fallback)
+export const NON_TBC_ROOT = join(PROJECT_ROOT, '_test', 'non-tbc');
+!existsSync(NON_TBC_ROOT) && mkdirSync(NON_TBC_ROOT);
+
+// Mojo Baseline
 // - companion: mojo
 // - prime: jojo
 export const SANDBOX = join(PROJECT_ROOT, '_test');
 export const TBC_ROOT = join(SANDBOX, 'mojo');
 export const TBC_DB = join(TBC_ROOT, 'records.db');
 
-// Kong "Next" (Dual FS + SQLite 0.4 standard)
+// Kong "Next"
 // - companion: kong
 // - prime: zilla
 export const SANDBOX_NEXT = join(PROJECT_ROOT, '_test');

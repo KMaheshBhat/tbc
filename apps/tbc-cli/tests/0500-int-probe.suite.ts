@@ -5,6 +5,7 @@ import {
     SANDBOX,
     CLI_TARGET,
     runMonorepoCommand,
+    NON_TBC_ROOT,
 } from './test-helper';
 
 describe('🐵 0500 LETS-GO: tbc int probe', () => {
@@ -33,7 +34,7 @@ describe('🐵 0500 LETS-GO: tbc int probe', () => {
             'int',
             'probe',
             '--root',
-            SANDBOX,
+            NON_TBC_ROOT,
         ]);
         expect(success).toBe(true);
         expect(output).toContain('DEGRADED');

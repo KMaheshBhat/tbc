@@ -1,9 +1,10 @@
 import assert from 'node:assert';
 
 import { Node } from 'pocketflow';
-import { HAMIFlow, HAMINode, HAMINodeConfigValidateResult, validateAgainstSchema, ValidationSchema } from '@hami-frameworx/core';
+import { HAMIFlow, HAMINode, validateAgainstSchema } from '@hami-frameworx/core';
+import type { HAMINodeConfigValidateResult, ValidationSchema } from '@hami-frameworx/core';
 
-import { Shared } from '../types';
+import type { Shared } from '../types';
 
 interface Config {
     verbose?: boolean;
@@ -19,11 +20,11 @@ const ConfigSchema: ValidationSchema = {
 };
 
 class StartNode extends HAMINode<Shared, Config> {
-    kind(): string {
+    override kind(): string {
         return 'tbc-memory:assimilate-flow-start';
     }
 
-    async post(shared: Shared): Promise<string> {
+    override async post(shared: Shared): Promise<string> {
         shared.stage = shared.stage || {};
         shared.system = shared.system || {};
 
@@ -43,7 +44,7 @@ export class AssimilateFlow extends HAMIFlow<Shared, Config> {
         this.startNode = startNode;
     }
 
-    kind(): string {
+    override kind(): string {
         return 'tbc-memory:assimilate-flow';
     }
 
@@ -159,7 +160,12 @@ export class AssimilateFlow extends HAMIFlow<Shared, Config> {
                 protocolKey: 'mem',
             }))
 
-            // Step 4: Feedback
+            // Step 4: Invoke dex-rebuild to ensure deterministic index ordering
+            .next(n('tbc-system:dex-rebuild-flow', {
+                verbose: this.config?.verbose,
+            }))
+
+            // Step 5: Feedback
             .next(n('core:mutate', {
                 mutate: (s: Shared) => {
                     const count = s.record?.records?.length || 0;
