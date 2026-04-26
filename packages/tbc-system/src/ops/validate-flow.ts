@@ -47,7 +47,6 @@ class StartNode extends HAMINode<Shared, Config> {
     async post(shared: Shared, prepRes: unknown, execRes: unknown): Promise<string> {
         shared.stage = shared.stage || {};
         shared.stage.verbose = this.config?.verbose;
-        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
         shared.system = shared.system || {};
         shared.record = shared.record || {};
         return 'default';
@@ -126,7 +125,6 @@ export class ValidateFlow extends HAMIFlow<Record<string, any>, Config> {
     async run(shared: Record<string, any>): Promise<string | undefined> {
         shared.stage = shared.stage || {};
         shared.stage.verbose = shared.verbose || this.config?.verbose;
-        shared.stage.rootDirectory = shared.rootDirectory || this.config?.rootDirectory;
         return super.run(shared);
     }
 
