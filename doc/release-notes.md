@@ -1,5 +1,10 @@
 # Release Notes
 
+## Third Brain Companion v0.4.x
+
+### Bug Fixes
+- **Activity commands** - Fixed root directory resolution for `tbc act start`, `tbc act pause`, and `tbc act close` commands to work consistently from within TBC root directories without requiring explicit `--root` flag (#18)
+
 ## Third Brain Companion v0.4.2
 
 ### New Features
