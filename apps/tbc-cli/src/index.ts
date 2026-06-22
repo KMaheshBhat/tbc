@@ -6,12 +6,17 @@ import { version } from '@hami-frameworx/core';
 
 const program = new Command();
 
+const detailedVersion = `
+TBC CLI v${packageJson.version}
+   HAMI v${version}
+`
+
 program
     .name('tbc')
     .description('Third Brain Companion CLI')
     .option('--verbose', 'Enable verbose logging')
     .option('--root <path>', 'Specify root directory for operations (defaults to current working directory)')
-    .version(packageJson.version);
+    .version(detailedVersion);
 
 let cmdScaffold = new Command('scaffold')
     .description('Quick actions for current development - not for production use')
