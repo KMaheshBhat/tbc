@@ -58,13 +58,13 @@ describe('🐵 0100 tbc gen', () => {
     });
 
     test('04 should show error for invalid count', () => {
-        const { success, exitCode } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
-            'gen',
-            'uuid',
-            '--count',
-            'zero',
-        ]);
-        expect(success).toBe(false);
-        expect(exitCode).toBe(1);
+      const { success, exitCode } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+        'gen',
+        'uuid',
+        '--count',
+        'zero',
+      ]);
+      expect(success).toBe(false);
+      expect(exitCode).toBe(1);
     });
 });

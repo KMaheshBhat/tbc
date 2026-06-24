@@ -17,8 +17,9 @@
     "start": "bun run dist/index.js"
   },
   "dependencies": {
-    "commander": "^14.0.3",
-    "@hami-frameworx/core": "file:../../../hami/packages/core"
+    "@hami-frameworx/core": "file:../../../hami/packages/core",
+    "@tbc-frameworx/tbc-system": "^0.5.0",
+    "commander": "^14.0.3"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

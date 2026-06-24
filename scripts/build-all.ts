@@ -5,7 +5,7 @@ import { join } from "node:path";
  * The order of this array defines the build sequence.
  * Add new packages here to include them in the 'all:build' process.
  */
-const BUILD_ORDER = [["@tbc-frameworx/tbc-cli"]];
+const BUILD_ORDER = [["@tbc-frameworx/tbc-system"], ["@tbc-frameworx/tbc-cli"]];
 
 function hasTestScript(pkgName: string): boolean {
   const folderName = pkgName.split("/").pop() || "";

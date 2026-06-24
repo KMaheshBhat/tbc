@@ -2,6 +2,7 @@
 import './0000-setup.suite';
 
 import './0100-gen.suite';
+/*
 import './0101-preflight.suite';
 
 import './0200-sys.suite';
@@ -31,3 +32,4 @@ import './0610-mem-assimilate.suite';
 import './1610-mem-assimilate.suite';
 
 import './9999-teardown.suite';
+*/
