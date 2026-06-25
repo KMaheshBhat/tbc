@@ -1,4 +1,4 @@
-import { Payload } from '@hami-frameworx/core';
+import { Payload } from '@hami-frameworx/runtime';
 import { console } from './console';
 import { generate } from './generate';
 import { message } from './message';
