@@ -1,7 +1,7 @@
 import { Intent } from "@hami-frameworx/core";
 
-export const mintFlowKindBase = 'tbc:flow:mint'
-export const mintIntentKind = 'tbc:intent:mint'
+export const kindMintFlowBase = 'tbc:mint:flow'
+export const kindMintIntent = 'tbc:mint:intent'
 
 export interface MintOptions extends Record<string, unknown> {
   type: string
@@ -12,7 +12,7 @@ export interface MintOptions extends Record<string, unknown> {
 }
 
 export interface MintIntent extends Intent {
-  kind: typeof mintIntentKind
+  kind: typeof kindMintIntent
   options: MintOptions
 }
 

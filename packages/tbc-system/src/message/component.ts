@@ -1,10 +1,10 @@
 import { Intent, PayloadAccessor, PayloadFlow } from "@hami-frameworx/core";
-import { createMessageNode, isMessageIntent, messageFlowKind, MessageIntent, messageIntentKind, messageNodeKindRoot } from "./model";
+import { createMessageNode, isMessageIntent, kindMessageFlow, MessageIntent, kindMessageIntent, kindMessageNodeRoot } from "./model";
 
 export class MessageFlow implements PayloadFlow {
   public readonly id : string;
-  public readonly kind = messageFlowKind;
-  public readonly supportedIntents = [messageIntentKind]
+  public readonly kind = kindMessageFlow;
+  public readonly supportedIntents = [kindMessageIntent]
   private rootNodeId: string;
 
   constructor(options: {
@@ -55,7 +55,7 @@ export class MessageFlow implements PayloadFlow {
     if (!root) {
       accessor.addNode({
         id: rootNodeId,
-        kind: messageNodeKindRoot,
+        kind: kindMessageNodeRoot,
         data: {},
         edges: [],
         meta: {},

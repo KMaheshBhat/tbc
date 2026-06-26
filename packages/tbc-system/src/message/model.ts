@@ -1,9 +1,9 @@
 import { DataNode, Intent } from "@hami-frameworx/core";
 
-export const messageFlowKind = 'tbc:flow:message'
-export const messageIntentKind = 'tbc:intent:message:prepare';
-export const messageNodeKindRoot = 'tbc:node:message:root'
-export const messageNodeKindItem = 'tbc:node:message:item'
+export const kindMessageFlow = 'tbc:message:flow'
+export const kindMessageIntent = 'tbc:message:intent';
+export const kindMessageNodeRoot = 'tbc:message:node:root'
+export const kindMessageNodeItem = 'tbc:message:node:item'
 
 export type MessageType = 'structured' | 'raw';
 export type MessageSeverity = 'debug' | 'info' | 'warn' | 'error';
@@ -18,7 +18,7 @@ interface MessageNodeData {
 }
 
 export interface MessageNode extends DataNode {
-  kind: typeof messageNodeKindRoot | typeof messageNodeKindItem
+  kind: typeof kindMessageNodeRoot | typeof kindMessageNodeItem
   data: MessageNodeData
 }
 
@@ -35,7 +35,7 @@ export function createMessageNode(
   }
   return {
     id: `${crypto.randomUUID()}`,
-    kind: messageNodeKindItem,
+    kind: kindMessageNodeItem,
     data,
     edges: [],
     meta: {},
@@ -52,20 +52,20 @@ export interface MessageOptions extends Record<string, unknown> {
 }
 
 export interface MessageIntent extends Intent {
-  kind: typeof messageIntentKind
+  kind: typeof kindMessageIntent
   nodes: DataNode[]
   options: MessageOptions
 }
 
 
 export function isMessageIntent(intent: Intent): intent is MessageIntent {
-  return intent.kind === messageIntentKind
+  return intent.kind === kindMessageIntent
 }
 
 export function messageIntent(nodes: DataNode[], options: MessageOptions): MessageIntent {
   return {
     id: `${crypto.randomUUID()}`,
-    kind: messageIntentKind,
+    kind: kindMessageIntent,
     nodes,
     options,
   }

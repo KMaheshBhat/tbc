@@ -1,6 +1,6 @@
 import { Intent, PayloadAccessor, PayloadFlow } from "@hami-frameworx/core";
 import { MessageLevel, MessageNode } from "../message/model";
-import { consoleFlowKind, ConsoleIntent, consoleIntentKind, isConsoleIntent } from "./model";
+import { kindConsoleFlow, ConsoleIntent, kindConsoleIntent, isConsoleIntent } from "./model";
 
 const SEVERITY_ICON_MAP = {
     debug: '»',
@@ -11,8 +11,8 @@ const SEVERITY_ICON_MAP = {
 
 export class ConsoleFlow implements PayloadFlow {
   public readonly id: string;
-  public readonly kind = consoleFlowKind;
-  public readonly supportedIntents = [consoleIntentKind]
+  public readonly kind = kindConsoleFlow;
+  public readonly supportedIntents = [kindConsoleIntent]
   private messageRootNodeId: string;
 
   constructor(options: {
@@ -23,7 +23,7 @@ export class ConsoleFlow implements PayloadFlow {
     this.messageRootNodeId = options.messageRootNodeId;
     if (!this.messageRootNodeId) {
       throw new Error(
-        `${consoleFlowKind}:${this.id}: messageRootNodeId is required`
+        `${kindConsoleFlow}:${this.id}: messageRootNodeId is required`
       );
     }
   }

@@ -1,7 +1,6 @@
 import { Payload } from '@hami-frameworx/runtime';
 import { system } from '.';
 
-
 export function bootstrap(): Payload {
   const kernel = new Payload();
   const c = system.components;

@@ -1,7 +1,7 @@
 import { Intent } from "@hami-frameworx/core";
 
-export const consoleFlowKind = 'tbc:flow:console'
-export const consoleIntentKind = 'tbc:intent:console:flush';
+export const kindConsoleFlow = 'tbc:flow:console'
+export const kindConsoleIntent = 'tbc:intent:console:flush';
 
 export interface ConsoleOptions extends Record<string, unknown> {
   silent?: boolean
@@ -12,7 +12,7 @@ export interface ConsoleIntent extends Intent {
 }
 
 export function isConsoleIntent(intent: Intent): intent is ConsoleIntent {
-  return intent.kind === consoleIntentKind
+  return intent.kind === kindConsoleIntent
 }
 
 export function consoleIntent(
@@ -20,7 +20,7 @@ export function consoleIntent(
 ): ConsoleIntent {
   return {
     id: `${crypto.randomUUID()}`,
-    kind: consoleIntentKind,
+    kind: kindConsoleIntent,
     nodes: [],
     options,
   }

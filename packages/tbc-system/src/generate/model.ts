@@ -1,7 +1,7 @@
 import { Intent } from "@hami-frameworx/core";
 
-export const generateFlowKind = 'tbc:flow:generate';
-export const generateIntentKind = 'tbc:intent:generate-id';
+export const kindGenerateFlow = 'tbc:generate:flow';
+export const kindGenerateIntent = 'tbc:generate:intent';
 
 export interface GenerateOptions extends Record<string, unknown> {
   verbose?: boolean
@@ -14,13 +14,13 @@ export interface GenerateIntent extends Intent {
 }
 
 export function isGenerateIntent(intent: Intent): intent is GenerateIntent {
-  return intent.kind === generateIntentKind
+  return intent.kind === kindGenerateIntent
 }
 
 export function generateIntent(options: GenerateOptions): GenerateIntent {
   return {
-    id: `${generateIntentKind}:${Date.now()}`,
-    kind: generateIntentKind,
+    id: `${kindGenerateIntent}:${Date.now()}`,
+    kind: kindGenerateIntent,
     nodes: [],
     options,
   }
