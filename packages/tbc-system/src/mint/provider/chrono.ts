@@ -1,5 +1,5 @@
 import { uuidv7 } from 'uuidv7'
-import { MintIntent, MintProvider } from '../component'
+import { MintIntent, MintProvider } from '../model'
 
 /**
  * Chrono Minting Provider.

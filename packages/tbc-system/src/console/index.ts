@@ -1,7 +1,7 @@
-import { ConsoleFlow, consoleIntent, WithConsoleComponent } from './component';
+import { ConsoleFlow } from './component';
+import { consoleIntent } from './model';
 
 export const console = {
   flow: ConsoleFlow,
-  mixin: WithConsoleComponent,
   intent: consoleIntent,
 }
