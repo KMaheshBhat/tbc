@@ -35,6 +35,7 @@
       "version": "0.5.0",
       "dependencies": {
         "@hami-frameworx/core": "file:../../../hami/packages/core",
+        "@hami-frameworx/runtime": "file:../../../hami/packages/runtime",
         "uuidv7": "^1.2.1",
       },
       "devDependencies": {
@@ -166,5 +167,9 @@
     "@tbc-frameworx/tbc-cli/@hami-frameworx/core": ["@hami-frameworx/core@file:../hami/packages/core", {}],
 
     "@tbc-frameworx/tbc-system/@hami-frameworx/core": ["@hami-frameworx/core@file:../hami/packages/core", {}],
+
+    "@tbc-frameworx/tbc-system/@hami-frameworx/runtime": ["@hami-frameworx/runtime@file:../hami/packages/runtime", { "dependencies": { "@hami-frameworx/core": "file:../core" } }],
+
+    "@tbc-frameworx/tbc-system/@hami-frameworx/runtime/@hami-frameworx/core": ["@hami-frameworx/core@file:..\\hami\\packages\\core", {}],
   }
 }

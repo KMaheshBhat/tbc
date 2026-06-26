@@ -10,13 +10,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "bun build:src && bun build:types && bun build:assets",
+    "build": "bun build:src && bun build:types # && bun build:assets",
     "build:src": "bun build src/index.ts --outfile=dist/index.js --target=bun",
     "build:types": "bunx tsc --emitDeclarationOnly --outDir dist",
     "build:assets": "shx rm -rf dist/assets && shx cp -r src/assets dist/"
   },
   "dependencies": {
     "@hami-frameworx/core": "file:../../../hami/packages/core",
+    "@hami-frameworx/runtime": "file:../../../hami/packages/runtime",
     "uuidv7": "^1.2.1"
   },
   "devDependencies": {
