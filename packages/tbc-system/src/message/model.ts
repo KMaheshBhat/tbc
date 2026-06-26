@@ -2,8 +2,8 @@ import { DataNode, Intent } from "@hami-frameworx/core";
 
 export const messageFlowKind = 'tbc:flow:message'
 export const messageIntentKind = 'tbc:intent:message:prepare';
-export const messageNodeRootKind = 'tbc:node:message:root'
-export const messageNodeItemKind = 'tbc:node:message:item'
+export const messageNodeKindRoot = 'tbc:node:message:root'
+export const messageNodeKindItem = 'tbc:node:message:item'
 
 export type MessageType = 'structured' | 'raw';
 export type MessageSeverity = 'debug' | 'info' | 'warn' | 'error';
@@ -18,7 +18,7 @@ interface MessageNodeData {
 }
 
 export interface MessageNode extends DataNode {
-  kind: typeof messageNodeRootKind | typeof messageNodeItemKind
+  kind: typeof messageNodeKindRoot | typeof messageNodeKindItem
   data: MessageNodeData
 }
 
@@ -35,7 +35,7 @@ export function createMessageNode(
   }
   return {
     id: `${crypto.randomUUID()}`,
-    kind: messageNodeItemKind,
+    kind: messageNodeKindItem,
     data,
     edges: [],
     meta: {},

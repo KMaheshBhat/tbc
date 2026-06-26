@@ -1,7 +1,4 @@
-import { createDataNode, Intent, PayloadAccessor, PayloadFlow } from "@hami-frameworx/core";
-import { message } from "../message";
-import { console } from "../console";
-import { mint } from "../mint";
+import { Intent } from "@hami-frameworx/core";
 
 export const generateFlowKind = 'tbc:flow:generate';
 export const generateIntentKind = 'tbc:intent:generate-id';

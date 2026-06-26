@@ -1,6 +1,13 @@
 import { Intent, PayloadAccessor, PayloadFlow } from "@hami-frameworx/core";
 import { MessageLevel, MessageNode } from "../message/model";
-import { consoleFlowKind, ConsoleIntent, consoleIntentKind, isConsoleIntent, SEVERITY_ICON_MAP } from "./model";
+import { consoleFlowKind, ConsoleIntent, consoleIntentKind, isConsoleIntent } from "./model";
+
+const SEVERITY_ICON_MAP = {
+    debug: '»',
+    info: 'i',
+    warn: '!',
+    error: '✗',
+} as const;
 
 export class ConsoleFlow implements PayloadFlow {
   public readonly id: string;
