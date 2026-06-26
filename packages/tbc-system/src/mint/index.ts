@@ -1,4 +1,4 @@
-import { MintFlow, mintIntent } from './component';
+import { MintFlow, mintIntent } from './flow';
 import { kindMintFlowBase, kindMintIntent } from './model';
 
 import { ChronoMintProvider } from './provider/chrono';

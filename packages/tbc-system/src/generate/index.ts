@@ -1,4 +1,4 @@
-import { GenerateFlow } from './component';
+import { GenerateFlow } from './flow';
 import { generateIntent } from './model';
 
 export const generate = {

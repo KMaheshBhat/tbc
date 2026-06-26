@@ -1,7 +1,7 @@
 import { createDataNode, Intent, PayloadAccessor, PayloadFlow } from "@hami-frameworx/core";
 import { kindGenerateFlow, GenerateIntent, kindGenerateIntent, isGenerateIntent } from "./model";
 
-import { system } from "../";
+import { system } from "..";
 
 export class GenerateFlow implements PayloadFlow {
   public readonly id = crypto.randomUUID();
