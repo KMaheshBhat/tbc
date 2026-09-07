@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import packageJson from '../package.json' with { type: 'json' };
 import { bootstrap } from './bootstrap.js';
+import { createNgCommand } from './ng/index.js';
 
 const { registry } = await bootstrap();
 
@@ -606,6 +607,9 @@ let cmdDexRebuild = new Command('rebuild')
 cmdDex.addCommand(cmdDexRebuild);
 
 program.addCommand(cmdDex);
+
+
+program.addCommand(createNgCommand(program));
 
 
 program.parse();

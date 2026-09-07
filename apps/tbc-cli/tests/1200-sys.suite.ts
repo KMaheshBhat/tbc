@@ -8,7 +8,7 @@ import {
     expectUUID,
     expectSQLiteRecord,
     expectSQLiteData,
-    runMonorepoCommand,
+    runTbcCommand,
     querySqliteNext,
 } from './test-helper';
 
@@ -31,7 +31,7 @@ interface CountRow {
 describe('🦍 1200 tbc sys', () => {
 
     test('00 sys init --profile next should sync identity to SQLite with deep validation', async () => {
-        const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { output, success, exitCode } = runTbcCommand(TBC_ROOT_NEXT, [
             'sys',
             'init',
             '--root',
@@ -76,7 +76,7 @@ describe('🦍 1200 tbc sys', () => {
     });
 
     test('02 sys validate should confirm stability for Kong profile', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT_NEXT, [
             'sys',
             'validate',
             '--verbose',
@@ -89,7 +89,7 @@ describe('🦍 1200 tbc sys', () => {
     });
 
     test('03 sys upgrade should refresh system specs and maintain stability', async () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT_NEXT, [
             'sys',
             'upgrade',
             '--root',

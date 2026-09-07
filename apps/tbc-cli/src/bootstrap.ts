@@ -16,20 +16,21 @@ import { TBCPiPlugin } from '@tbc-frameworx/tbc-pi';
 
 export async function bootstrap(): Promise<{ registry: HAMIRegistrationManager }> {
     const registry = new HAMIRegistrationManager();
-    await registry.registerPlugin(CorePlugin);
-    await registry.registerPlugin(TBCRecordPlugin);
-    await registry.registerPlugin(TBCRecordFSPlugin);
-    await registry.registerPlugin(TBCRecordSQLitePlugin);
-    await registry.registerPlugin(TBCMintPlugin);
-    await registry.registerPlugin(TBCSynthesizePlugin);
-    await registry.registerPlugin(TBCSystemPlugin);
-    await registry.registerPlugin(TBCInterfacePlugin);
-    await registry.registerPlugin(TBCMemoryPlugin);
-    await registry.registerPlugin(TBCActivityPlugin);
-    await registry.registerPlugin(TBCKilocodePlugin);
-    await registry.registerPlugin(TBCGoosePlugin);
-    await registry.registerPlugin(TBCGeminiPlugin);
-    await registry.registerPlugin(TBCGitHubCopilotPlugin);
-    await registry.registerPlugin(TBCPiPlugin);
+    const register = registry.registerPlugin.bind(registry) as (plugin: any) => Promise<void>;
+    await register(CorePlugin);
+    await register(TBCRecordPlugin);
+    await register(TBCRecordFSPlugin);
+    await register(TBCRecordSQLitePlugin);
+    await register(TBCMintPlugin);
+    await register(TBCSynthesizePlugin);
+    await register(TBCSystemPlugin);
+    await register(TBCInterfacePlugin);
+    await register(TBCMemoryPlugin);
+    await register(TBCActivityPlugin);
+    await register(TBCKilocodePlugin);
+    await register(TBCGoosePlugin);
+    await register(TBCGeminiPlugin);
+    await register(TBCGitHubCopilotPlugin);
+    await register(TBCPiPlugin);
     return { registry };
 }

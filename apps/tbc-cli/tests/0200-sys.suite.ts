@@ -3,7 +3,8 @@ import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
 import { readdirSync } from 'node:fs';
 
-import { generateFileTree, runMonorepoCommand } from '../../../scripts/common';
+import { generateFileTree } from '../../../scripts/common';
+import { runTbcCommand } from './test-helper';
 import packageJson from '../package.json' with { type: 'json' };
 
 import { CLI_TARGET, TBC_ROOT, expectUUID, querySqlite, expectSQLiteDataMojo, expectSQLiteRecordMojo } from './test-helper';
@@ -11,7 +12,7 @@ import { CLI_TARGET, TBC_ROOT, expectUUID, querySqlite, expectSQLiteDataMojo, ex
 describe('🐵 0200 tbc sys', () => {
 
     test('00 running sys init with companion and prime flags is successful', async () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'init',
             '--root',
@@ -64,7 +65,7 @@ describe('🐵 0200 tbc sys', () => {
     });
 
     test('01 running sys init on existing TBC-Root should fail with helpful message', async () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'init',
             '--root',
@@ -81,7 +82,7 @@ describe('🐵 0200 tbc sys', () => {
     });
 
     test('02 running sys upgrade on TBC-Root is successful', async () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'upgrade',
             '--root',
@@ -113,7 +114,7 @@ describe('🐵 0200 tbc sys', () => {
     });
 
     test('03 running sys validate on a healthy root', () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'validate',
             '--root',
@@ -130,7 +131,7 @@ describe('🐵 0200 tbc sys', () => {
     });
 
     test('04 running sys validate with --verbose shows deep trace', () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'validate',
             '--root',

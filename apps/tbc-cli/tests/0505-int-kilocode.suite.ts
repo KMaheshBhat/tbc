@@ -5,13 +5,13 @@ import { join } from 'node:path';
 import {
     TBC_ROOT,
     CLI_TARGET,
-    runMonorepoCommand,
+    runTbcCommand,
 } from './test-helper';
 
 describe('🐵 0505 tbc int generate (Kilocode)', () => {
 
     test('00 should generate .kilocodemodes with correct schema and identity', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'int',
             'kilocode',
             '--root',
@@ -40,14 +40,14 @@ describe('🐵 0505 tbc int generate (Kilocode)', () => {
 
     test('01 should be idempotent (running twice changes nothing)', () => {
         const kiloPath = join(TBC_ROOT, '.kilocodemodes');
-        runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        runTbcCommand(TBC_ROOT, [
             'int',
             'kilocode',
             '--root',
             TBC_ROOT,
         ]);
         const firstRunContent = readFileSync(kiloPath, 'utf-8');
-        const { success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { success } = runTbcCommand(TBC_ROOT, [
             'int',
             'kilocode',
             '--root',

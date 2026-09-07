@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 
-import { runMonorepoCommand } from '../../../scripts/common';
+import { runTbcCommand } from './test-helper';
 
 import { CLI_TARGET, SANDBOX, TSID_SEARCH_REGEX, UUID_SEARCH_REGEX, expectTSID, expectUUID } from './test-helper';
 
 describe('🐵 0100 tbc gen', () => {
 
     test('00 should generate a single UUID v7 by default', () => {
-        const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+        const { output, success } = runTbcCommand(SANDBOX, [
             'gen',
             'uuid',
         ]);
@@ -21,7 +21,7 @@ describe('🐵 0100 tbc gen', () => {
 
     test('01 should generate multiple UUIDs using --count', () => {
         const count = 5;
-        const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+        const { output, success } = runTbcCommand(SANDBOX, [
             'gen',
             'uuid',
             '--count',
@@ -33,7 +33,7 @@ describe('🐵 0100 tbc gen', () => {
     });
 
     test('02 should generate a single TSID (timestamp ID)', () => {
-        const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+        const { output, success } = runTbcCommand(SANDBOX, [
             'gen',
             'tsid',
         ]);
@@ -46,7 +46,7 @@ describe('🐵 0100 tbc gen', () => {
 
     test('03 should generate multiple TSIDs using -c shorthand', () => {
         const count = 2;
-        const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+        const { output, success } = runTbcCommand(SANDBOX, [
             'gen',
             'tsid',
             '-c',
@@ -58,7 +58,7 @@ describe('🐵 0100 tbc gen', () => {
     });
 
     test('04 should show error for invalid count', () => {
-        const { success, exitCode } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+        const { success, exitCode } = runTbcCommand(SANDBOX, [
             'gen',
             'uuid',
             '--count',

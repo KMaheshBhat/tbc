@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 
-import { runMonorepoCommand } from '../../../scripts/common';
+import { runTbcCommand } from './test-helper';
 
 import { CLI_TARGET, SANDBOX, TBC_ROOT } from './test-helper';
 
 describe('🐵 0101', () => {
     describe('tbc ', () => {
         test('00 running with no args gives help and error exit code (still provides Usage)', () => {
-            const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, []);
+            const { output, exitCode, success } = runTbcCommand(SANDBOX, []); 
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain('Third Brain Companion CLI');
@@ -15,7 +15,7 @@ describe('🐵 0101', () => {
         });
 
         test('01 running with --help gives help and success exit code', () => {
-            const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+            const { output, exitCode, success } = runTbcCommand(SANDBOX, [
                 '--help',
             ]);
             expect(success).toBe(true);
@@ -28,7 +28,7 @@ describe('🐵 0101', () => {
     describe('tbc sys init', () => {
         test('10 running sys init with missing flags is fails with helpful message', () => {
             {
-                const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+                const { output, exitCode, success } = runTbcCommand(SANDBOX, [
                     'sys',
                     'init',
                 ]);
@@ -37,7 +37,7 @@ describe('🐵 0101', () => {
                 expect(output).toContain('Both --companion and --prime flags are required');
             }
             {
-                const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+                const { output, exitCode, success } = runTbcCommand(SANDBOX, [
                     'sys',
                     'init',
                     '--root',
@@ -48,7 +48,7 @@ describe('🐵 0101', () => {
                 expect(output).toContain('Both --companion and --prime flags are required');
             }
             {
-                const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+                const { output, exitCode, success } = runTbcCommand(SANDBOX, [
                     'sys',
                     'init',
                     '--root',
@@ -61,7 +61,7 @@ describe('🐵 0101', () => {
                 expect(output).toContain('Both --companion and --prime flags are required');
             }
             {
-                const { output, exitCode, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+                const { output, exitCode, success } = runTbcCommand(SANDBOX, [
                     'sys',
                     'init',
                     '--root',
@@ -78,7 +78,7 @@ describe('🐵 0101', () => {
 
     describe('tbc sys upgrade', () => {
         test('20 running sys upgrade on non-TBC-Root should fail with helpful message', async () => {
-            const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+            const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
                 'sys',
                 'upgrade',
                 '--root',

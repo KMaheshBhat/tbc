@@ -5,13 +5,13 @@ import { join } from 'node:path';
 import {
     TBC_ROOT_NEXT,
     CLI_TARGET,
-    runMonorepoCommand,
+    runTbcCommand,
 } from './test-helper';
 
 describe('🦍 1500 tbc int', () => {
 
     test('00 int probe should correctly identify protocol-specific paths', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT_NEXT, [
             'int',
             'probe',
             '--root',
@@ -24,7 +24,7 @@ describe('🦍 1500 tbc int', () => {
     });
 
     test('01 int generic should synthesize AGENTS.md using Kong profile data', () => {
-        const { success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { success } = runTbcCommand(TBC_ROOT_NEXT, [
             'int',
             'generic',
             '--root',
@@ -43,7 +43,7 @@ describe('🦍 1500 tbc int', () => {
     });
 
     test('02 int goose should respect protocol-aware skill locations', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT_NEXT, [
             'int',
             'goose',
             '--root',
@@ -57,7 +57,7 @@ describe('🦍 1500 tbc int', () => {
     });
 
     test('03 int github-copilot should function in a hybrid SQLite environment', () => {
-        const { success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { success } = runTbcCommand(TBC_ROOT_NEXT, [
             'int',
             'github-copilot',
             '--root',
@@ -72,7 +72,7 @@ describe('🦍 1500 tbc int', () => {
     });
 
     test('04 int pi should generate .pi/SYSTEM.md with role definition', () => {
-        const { success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { success } = runTbcCommand(TBC_ROOT_NEXT, [
             'int',
             'pi',
             '--root',
