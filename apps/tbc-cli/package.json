@@ -34,7 +34,8 @@
     "@tbc-frameworx/tbc-goose": "^0.4.2",
     "@tbc-frameworx/tbc-gemini": "^0.4.2",
     "@tbc-frameworx/tbc-github-copilot": "^0.4.2",
-    "@tbc-frameworx/tbc-pi": "^0.4.2"
+    "@tbc-frameworx/tbc-pi": "^0.4.2",
+    "uuidv7": "^0.3.0"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
@@ -43,5 +44,7 @@
   "keywords": [],
   "author": "",
   "types": "./dist/index.d.ts",
-  "files": ["dist"]
+  "files": [
+    "dist"
+  ]
 }
