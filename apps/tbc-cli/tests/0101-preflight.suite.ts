@@ -7,7 +7,7 @@ import { CLI_TARGET, SANDBOX, TBC_ROOT } from './test-helper';
 describe('🐵 0101', () => {
     describe('tbc ', () => {
         test('00 running with no args gives help and error exit code (still provides Usage)', () => {
-            const { output, exitCode, success } = runTbcCommand(SANDBOX, []); 
+            const { output, exitCode, success } = runTbcCommand(SANDBOX, []);
             expect(success).toBe(false);
             expect(exitCode).toBe(1);
             expect(output).toContain('Third Brain Companion CLI');

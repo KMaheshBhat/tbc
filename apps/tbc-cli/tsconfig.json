@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["node"],
+    "types": ["node", "bun"],
     "outDir": "./dist",
     "rootDir": "./src",
     "resolveJsonModule": true,
@@ -16,6 +16,6 @@
     "sourceMap": true,
     "composite": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/types.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
