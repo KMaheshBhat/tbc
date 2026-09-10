@@ -1,15 +1,18 @@
 import { Command } from 'commander';
 import { initSystem, upgradeSystem, validateSystem } from '../services/sys.service.js';
+import { formatMessages } from '../lib/console.js';
 
 const handleError = (message: string, error: unknown, verbose: boolean) => {
-    if (error instanceof Error) {
-        console.error(`${message}: ${error.message}`);
-        error.cause && console.error(error.cause);
-        verbose && console.error(error);
-    } else {
-        console.error(message);
-        console.error(error);
-    }
+  const messages = [
+    {
+      level: 'error' as const,
+      code: 'COMMAND-ERROR',
+      source: 'ng-sys',
+      message: error instanceof Error ? error.message : String(error),
+      suggestion: 'Check the error details above.',
+    },
+  ];
+  console.error(formatMessages(messages, verbose));
 };
 
 export function createSysCommand(rootProgram: Command) {
@@ -25,6 +28,10 @@ export function createSysCommand(rootProgram: Command) {
       .action(async (opts) => {
         const cliOpts = rootProgram.opts();
         const isVerbose = !!cliOpts.verbose;
+        if (!opts.companion || !opts.prime) {
+          handleError('Error running ng sys init', 'Both --companion and --prime flags are required', isVerbose);
+          process.exit(1);
+        }
         try {
           await initSystem({
             rootDirectory: cliOpts.root || process.cwd(),
@@ -48,7 +55,10 @@ export function createSysCommand(rootProgram: Command) {
         const cliOpts = rootProgram.opts();
         const isVerbose = !!cliOpts.verbose;
         try {
-          await upgradeSystem(cliOpts.root || process.cwd(), isVerbose);
+          await upgradeSystem({
+            rootDirectory: cliOpts.root || process.cwd(),
+            verbose: isVerbose,
+          });
         } catch (error) {
           handleError('Error running ng sys upgrade', error, isVerbose);
           process.exit(1);
@@ -60,12 +70,15 @@ export function createSysCommand(rootProgram: Command) {
   cmdSys.addCommand(
     new Command('validate')
       .description('Validate current directory to check if it is a valid Third Brain Companion directory')
-      .action(async () => {
+      .option('--verbose', 'Show detailed validation output')
+      .action(async (opts) => {
         const cliOpts = rootProgram.opts();
-        const isVerbose = !!cliOpts.verbose;
+        const isVerbose = !!cliOpts.verbose || !!opts.verbose;
         try {
-          const result = await validateSystem(cliOpts.root || process.cwd(), isVerbose);
-          console.log(JSON.stringify(result, null, 2));
+          await validateSystem({
+            rootDirectory: cliOpts.root || process.cwd(),
+            verbose: isVerbose,
+          });
         } catch (error) {
           handleError('Error running ng sys validate', error, isVerbose);
           process.exit(1);
