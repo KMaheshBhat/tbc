@@ -16,7 +16,7 @@
     },
     "apps/tbc-cli": {
       "name": "@tbc-frameworx/tbc-cli",
-      "version": "0.4.2",
+      "version": "0.6.0",
       "bin": {
         "tbc": "dist/index.js",
       },
@@ -215,7 +215,7 @@
     },
     "packages/tbc-system": {
       "name": "@tbc-frameworx/tbc-system",
-      "version": "0.4.2",
+      "version": "0.6.0",
       "dependencies": {
         "@hami-frameworx/core": "0.1.10",
         "@tbc-frameworx/tbc-mint": "^0.4.2",
