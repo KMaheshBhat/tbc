@@ -44,16 +44,19 @@ export interface SysInitConfig {
   primeName: string;
   profile: 'baseline' | 'next';
   verbose: boolean;
+  source?: string;
 }
 
 export interface SysUpgradeConfig {
   rootDirectory: string;
   verbose: boolean;
+  source?: string;
 }
 
 export interface SysValidateConfig {
   rootDirectory: string;
   verbose: boolean;
+  source?: string;
 }
 
 export interface TBCValidationResult {
@@ -104,6 +107,7 @@ export async function validateSystem(
   config: SysValidateConfig,
   options?: { sourceContext?: string; showProtocolDiscovery?: boolean; profile?: 'baseline' | 'next' }
 ): Promise<TBCValidationResult> {
+  const source = options?.sourceContext || config.source || 'sys:validate';
   const protocol = resolveProtocol(config.rootDirectory, options?.profile);
 
   // Show protocol discovery only when called directly (not from init/upgrade)
@@ -116,20 +120,20 @@ export async function validateSystem(
       actCollection: protocol.actCollection,
       hasSqlite: protocol.hasSqlite,
     };
-    const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, options?.sourceContext || 'validate-flow');
+    const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, source);
     console.log(formatMessages(protocolMessages, config.verbose));
   }
 
   // Debug messages for verbose mode (matching legacy behavior)
   if (config.verbose) {
     const debugMessages = [
-      ...formatLoadSpecsDebug(options?.sourceContext || 'validate-flow'),
-      ...formatLoadCoreMemoriesDebug(options?.sourceContext || 'validate-flow'),
+      ...formatLoadSpecsDebug(source),
+      ...formatLoadCoreMemoriesDebug(source),
     ];
     console.log(formatMessages(debugMessages, config.verbose));
   }
 
-  const validationResult = runValidationChecks(config.rootDirectory, protocol);
+  const validationResult = runValidationChecks(config.rootDirectory, protocol, source);
 
   const auditMessages: TBCMessage[] = [
     {
@@ -148,9 +152,9 @@ export async function validateSystem(
       message: ' └┼───────────────────────────────────────────────────────────',
     },
     {
-        level: 'info',
+      level: 'info',
       kind: 'raw',
-      source: options?.sourceContext || 'validate-flow',
+      source,
       code: '',
       message: validationResult.success
         ? `[✓] STABLE   | 0 error(s) detected.`
@@ -164,6 +168,8 @@ export async function validateSystem(
 }
 
 export async function initSystem(config: SysInitConfig): Promise<void> {
+  const source = config.source || 'sys:init';
+  const validateSource = `${source}:validate`;
   const protocol = resolveProtocol(config.rootDirectory, config.profile);
 
   // Protocol discovery at start (matching legacy)
@@ -175,12 +181,12 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
     actCollection: protocol.actCollection,
     hasSqlite: protocol.hasSqlite,
   };
-  const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, 'init-flow');
+  const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, source);
   console.log(formatMessages(protocolMessages, config.verbose));
 
   const preValidation = await validateSystem(
-    { rootDirectory: config.rootDirectory, verbose: config.verbose },
-    { sourceContext: 'init-flow', showProtocolDiscovery: false, profile: config.profile }
+    { rootDirectory: config.rootDirectory, verbose: config.verbose, source: validateSource },
+    { sourceContext: validateSource, showProtocolDiscovery: false, profile: config.profile }
   );
 
   if (preValidation.success) {
@@ -191,7 +197,7 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
       {
         level: 'error',
         code: 'OVERWRITE-GUARD',
-        source: 'init-flow',
+        source,
         message: `has existing companion ${companionID}`,
         suggestion: 'Use "tbc sys upgrade" instead.',
       },
@@ -211,7 +217,7 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
     },
     batch: [],
   };
-  const mintedMessages = formatMintedIds(mintedOutput, 'init-flow');
+  const mintedMessages = formatMintedIds(mintedOutput, source);
   console.log(formatMessages(mintedMessages, config.verbose));
 
   const version = packageJson.version;
@@ -368,7 +374,7 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
   const memMessages: TBCMessage[] = [
     {
       level: 'info',
-      source: 'init-flow',
+      source,
       code: 'SYNTHESIZED',
       message: 'Synthesized memory records.',
     },
@@ -379,7 +385,7 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
   const assetsMessages: TBCMessage[] = [
     {
       level: 'info',
-      source: 'init-flow',
+      source,
       code: 'ASSETS',
       message: `Loaded TBC ${version} core assets (specs and skills).`,
     },
@@ -390,7 +396,7 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
   const sysMessages: TBCMessage[] = [
     {
       level: 'info',
-      source: 'init-flow',
+      source,
       code: 'SYNTHESIZED',
       message: 'Synthesized system records.',
     },
@@ -406,14 +412,14 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
       records: recs.map(r => r.id),
     });
   }
-  const manifestMessages = formatStagedManifest(manifestEntries, 'init-flow');
+  const manifestMessages = formatStagedManifest(manifestEntries, source);
   console.log(formatMessages(manifestMessages, config.verbose));
 
   // Debug messages for verbose mode
   if (config.verbose) {
     const debugMessages = [
-      ...formatLoadSpecsDebug('init-flow'),
-      ...formatLoadCoreMemoriesDebug('init-flow'),
+      ...formatLoadSpecsDebug(source),
+      ...formatLoadCoreMemoriesDebug(source),
     ];
     console.log(formatMessages(debugMessages, config.verbose));
   }
@@ -424,7 +430,7 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
   const validatingMessages: TBCMessage[] = [
     {
       level: 'info',
-      source: 'init-flow',
+      source,
       code: 'VALIDATING',
       message: 'Validating again ...',
     },
@@ -432,8 +438,8 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
   console.log(formatMessages(validatingMessages, config.verbose));
 
   const postValidation = await validateSystem(
-    { rootDirectory: config.rootDirectory, verbose: config.verbose },
-    { sourceContext: 'init-flow', showProtocolDiscovery: false, profile: config.profile }
+    { rootDirectory: config.rootDirectory, verbose: config.verbose, source: validateSource },
+    { sourceContext: validateSource, showProtocolDiscovery: false, profile: config.profile }
   );
 
   if (!postValidation.success) {
@@ -441,7 +447,7 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
       {
         level: 'error',
         code: 'FAILED-INITIALIZE',
-        source: 'init-flow',
+        source,
         message: 'Post-init validation failed',
         suggestion: 'Check validation audit for details.',
       },
@@ -459,16 +465,18 @@ export async function initSystem(config: SysInitConfig): Promise<void> {
     memoryMapID,
     version,
     config.profile,
-    'init-flow'
+    source
   );
   console.log(formatMessages(identityMessages, config.verbose));
 
   // Next Steps
-  const nextStepsMessages = formatNextSteps('Refresh indexes (tbc dex) and prepare interface hooks (tbc int)', 'init-flow');
+  const nextStepsMessages = formatNextSteps('Refresh indexes (tbc dex) and prepare interface hooks (tbc int)', source);
   console.log(formatMessages(nextStepsMessages, config.verbose));
 }
 
 export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
+  const source = config.source || 'sys:upgrade';
+  const validateSource = `${source}:validate`;
   const protocol = resolveProtocol(config.rootDirectory);
   const version = packageJson.version;
 
@@ -481,12 +489,12 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
     actCollection: protocol.actCollection,
     hasSqlite: protocol.hasSqlite,
   };
-  const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, 'upgrade-flow');
+  const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, source);
   console.log(formatMessages(protocolMessages, config.verbose));
 
   const preValidation = await validateSystem(
-    { rootDirectory: config.rootDirectory, verbose: config.verbose },
-    { sourceContext: 'upgrade-flow', showProtocolDiscovery: false, profile: protocol.sysCollection.includes('next') ? 'next' : 'baseline' }
+    { rootDirectory: config.rootDirectory, verbose: config.verbose, source: validateSource },
+    { sourceContext: validateSource, showProtocolDiscovery: false, profile: protocol.sysCollection.includes('next') ? 'next' : 'baseline' }
   );
 
   if (!preValidation.success) {
@@ -494,7 +502,7 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
       {
         level: 'error',
         code: 'OVERWRITE-GUARD',
-        source: 'upgrade-flow',
+        source,
         message: 'has no existing companion (not a valid TBC Root)',
         suggestion: 'Use "tbc sys init" instead.',
       },
@@ -507,7 +515,7 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
   const checkingMessages: TBCMessage[] = [
     {
       level: 'info',
-      source: 'upgrade-flow',
+      source,
       code: 'CHECKING',
       message: 'Checking first ...',
     },
@@ -547,7 +555,7 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
       {
         level: 'debug',
         kind: 'structured',
-        source: 'upgrade-flow',
+        source,
         code: 'BACKUP',
         message: `Backed up ${recordCount} ${collection} record(s) into ${backupDir}/${collection}.`,
       },
@@ -562,7 +570,7 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
   const removedMessages: TBCMessage[] = [
     {
       level: 'info',
-      source: 'upgrade-flow',
+      source,
       code: 'REMOVED',
       message: 'Removed old sys and skill specifications.',
     },
@@ -615,7 +623,7 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
   const assetsMessages: TBCMessage[] = [
     {
       level: 'info',
-      source: 'upgrade-flow',
+      source,
       code: 'ASSETS',
       message: `Loaded TBC ${version} core assets (specs and skills).`,
     },
@@ -631,7 +639,7 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
       records: recs.map(r => r.id),
     });
   }
-  const manifestMessages = formatStagedManifest(manifestEntries, 'upgrade-flow');
+  const manifestMessages = formatStagedManifest(manifestEntries, source);
   console.log(formatMessages(manifestMessages, config.verbose));
 
   await writeRecordsToFsAndSqlite(config.rootDirectory, protocol, records);
@@ -640,7 +648,7 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
   const validatingMessages: TBCMessage[] = [
     {
       level: 'info',
-      source: 'upgrade-flow',
+      source,
       code: 'VALIDATING',
       message: 'Validating again ...',
     },
@@ -648,8 +656,8 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
   console.log(formatMessages(validatingMessages, config.verbose));
 
   const postValidation = await validateSystem(
-    { rootDirectory: config.rootDirectory, verbose: config.verbose },
-    { sourceContext: 'upgrade-flow', showProtocolDiscovery: false, profile: protocol.sysCollection.includes('next') ? 'next' : 'baseline' }
+    { rootDirectory: config.rootDirectory, verbose: config.verbose, source: validateSource },
+    { sourceContext: validateSource, showProtocolDiscovery: false, profile: protocol.sysCollection.includes('next') ? 'next' : 'baseline' }
   );
 
   // Fetch companion and prime records for identity summary
@@ -676,11 +684,11 @@ export async function upgradeSystem(config: SysUpgradeConfig): Promise<void> {
     primeName,
     primeID,
     memoryMapID,
-    'upgrade-flow'
+    source
   );
   console.log(formatMessages(upgradeCompleteMessages, config.verbose));
 
   // Next Steps
-  const nextStepsMessages = formatNextSteps('Refresh indexes (tbc dex)', 'upgrade-flow');
+  const nextStepsMessages = formatNextSteps('Refresh indexes (tbc dex)', source);
   console.log(formatMessages(nextStepsMessages, config.verbose));
 }

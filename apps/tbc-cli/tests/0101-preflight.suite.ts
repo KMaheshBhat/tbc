@@ -85,8 +85,8 @@ describe('🐵 0101', () => {
                 TBC_ROOT,
             ]);
             expect(exitCode).toBe(0);
-            expect(output).toContain('[✗] ┬─ error | upgrade-flow | has no existing companion (not a valid TBC Root)');
-            expect(output).toContain('    └─ Suggestion: Use "tbc sys init" instead');
+            expect(output).toMatch(/\[✗\]\s+┬─\s+error\s+\|\s+[^|]+\|\s+has no existing companion/);
+            expect(output).toMatch(/└─\s+Suggestion:\s+Use "tbc sys init" instead/);
         });
     });
 

@@ -331,32 +331,33 @@ export function formatNextSteps(suggestion: string, source = ''): TBCMessage[] {
 }
 
 export function formatLoadSpecsDebug(source = ''): TBCMessage[] {
+  const logSource = source || 'sys:validate';
   return [
     {
       level: 'debug',
       kind: 'structured',
-      source: 'load-specifications-flow',
+      source: logSource,
       code: 'DEBUG',
       message: 'Query ({"type":"list-all-ids"}) and load from sys using tbc-record-fs:query-records and tbc-record-fs:fetch-records',
     },
     {
       level: 'debug',
       kind: 'structured',
-      source: 'load-specifications-flow',
+      source: logSource,
       code: 'DEBUG',
       message: 'Query ({"type":"list-all-ids"}) and load from sys/core using tbc-record-fs:query-records and tbc-record-fs:fetch-records',
     },
     {
       level: 'debug',
       kind: 'structured',
-      source: 'load-specifications-flow',
+      source: logSource,
       code: 'DEBUG',
       message: 'Query ({"type":"list-all-ids"}) and load from sys/ext using tbc-record-fs:query-records and tbc-record-fs:fetch-records',
     },
     {
       level: 'debug',
       kind: 'structured',
-      source: 'load-specifications-flow',
+      source: logSource,
       code: 'DEBUG',
       message: 'Query ({"type":"list-all-ids","recursive":true}) and load from skills using tbc-record-fs:query-records and tbc-record-fs:fetch-records',
     },
@@ -364,25 +365,26 @@ export function formatLoadSpecsDebug(source = ''): TBCMessage[] {
 }
 
 export function formatLoadCoreMemoriesDebug(source = ''): TBCMessage[] {
+  const logSource = source || 'sys:validate';
   return [
     {
       level: 'debug',
       kind: 'structured',
-      source: 'load-core-memories',
+      source: logSource,
       code: 'DEBUG',
       message: 'Identifying companionID',
     },
     {
       level: 'debug',
       kind: 'structured',
-      source: 'load-core-memories',
+      source: logSource,
       code: 'DEBUG',
       message: 'Identifying primeID',
     },
     {
       level: 'debug',
       kind: 'structured',
-      source: 'load-core-memories',
+      source: logSource,
       code: 'DEBUG',
       message: 'Identifying memoryMapID',
     },

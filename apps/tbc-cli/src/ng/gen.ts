@@ -32,7 +32,7 @@ export function createGenCommand(rootProgram: Command) {
             count,
             rootDirectory: cliOpts.root || process.cwd(),
             verbose: isVerbose,
-            source: 'gen',
+            source: 'gen:uuid',
           };
           await generateUuids(config); // service logs formatted output internally
         } catch (error) {
@@ -58,7 +58,7 @@ export function createGenCommand(rootProgram: Command) {
             count,
             rootDirectory: cliOpts.root || process.cwd(),
             verbose: isVerbose,
-            source: 'gen',
+            source: 'gen:tsid',
           };
           await generateTsids(config); // service logs formatted output internally
         } catch (error) {
