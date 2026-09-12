@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { initSystem, upgradeSystem, validateSystem } from '../services/sys.service.js';
-import { formatMessages } from '../lib/console.js';
+import { formatMessages } from '../lib/message.js';
 
 const handleError = (message: string, error: unknown, verbose: boolean, source = 'sys') => {
   const messages = [

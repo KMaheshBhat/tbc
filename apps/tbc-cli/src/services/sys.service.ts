@@ -1,6 +1,6 @@
 import { resolveProtocol } from '../lib/protocol.js';
 import { runValidationChecks } from '../lib/validator.js';
-import { storeRecord, fetchRecord, deleteDirectory, type TBCRecord } from '../lib/fs.js';
+import { storeRecord, fetchRecord, deleteDirectory, copyDirectory, type TBCRecord } from '../lib/fs.js';
 import { upsertRecord } from '../lib/db.js';
 import { ASSETS } from '../lib/assets.js';
 import { mintUuids } from '../lib/mint.js';
@@ -18,9 +18,16 @@ import {
   type MintedOutput,
   type ProtocolDiscoveryOutput,
   type ManifestEntry,
-} from '../lib/console.js';
+} from '../lib/message.js';
+import {
+  synthesizeCompanionRecord,
+  synthesizeCoreSpecsAndSkills,
+  synthesizeMemoryMapRecord,
+  synthesizePrimeRecord,
+  synthesizeRootRecord,
+  synthesizeSystemPointers,
+} from '../lib/synthesis.js';
 import { join } from 'node:path';
-import matter from 'gray-matter';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -78,27 +85,6 @@ async function writeRecordsToFsAndSqlite(
       storeRecord(rootDirectory, collection, record);
       // Always write to SQLite (creates database if needed)
       upsertRecord(dbPath, collection, record);
-    }
-  }
-}
-
-async function copyDirectory(source: string, target: string): Promise<void> {
-  const { mkdirSync, copyFileSync, readdirSync, statSync, existsSync } = await import('node:fs');
-  const { join } = await import('node:path');
-
-  if (!existsSync(source)) return;
-
-  mkdirSync(target, { recursive: true });
-  const entries = readdirSync(source);
-
-  for (const entry of entries) {
-    const srcPath = join(source, entry);
-    const tgtPath = join(target, entry);
-    const stat = statSync(srcPath);
-    if (stat.isDirectory()) {
-      await copyDirectory(srcPath, tgtPath);
-    } else {
-      copyFileSync(srcPath, tgtPath);
     }
   }
 }
@@ -225,109 +211,27 @@ export async function initSystem(request: SysInitRequest): Promise<void> {
 
   const records = new Map<string, TBCRecord[]>();
 
-  const memCollection = protocol.memCollection;
+  records.set(protocol.memCollection, [
+    synthesizeCompanionRecord(companionID, request.companionName, now),
+    synthesizePrimeRecord(primeID, request.primeName, now),
+    synthesizeMemoryMapRecord(memoryMapID, now),
+  ]);
 
-  const companionRecord: TBCRecord = {
-    id: companionID,
-    record_type: 'party',
-    data: {
-      id: companionID,
-      record_type: 'party',
-      party_type: 'agent',
-      record_title: request.companionName,
-      record_create_date: now,
-    },
-    content: `# ${request.companionName}\n\nCompanion Agent for the Third Brain Companion system.`,
-  };
+  records.set(protocol.sysCollection, [
+    ...synthesizeSystemPointers(companionID, primeID),
+    synthesizeRootRecord(
+      protocol,
+      companionID,
+      primeID,
+      memoryMapID,
+      request.companionName,
+      request.primeName,
+      now
+    ),
+  ]);
 
-  const primeRecord: TBCRecord = {
-    id: primeID,
-    record_type: 'party',
-    data: {
-      id: primeID,
-      record_type: 'party',
-      party_type: 'person',
-      record_title: request.primeName,
-      record_create_date: now,
-    },
-    content: `# ${request.primeName}\n\nPrime User for the Third Brain Companion system.`,
-  };
-
-  const memoryMapRecord: TBCRecord = {
-    id: memoryMapID,
-    record_type: 'structure',
-    data: {
-      id: memoryMapID,
-      record_type: 'structure',
-      record_title: 'Map of Memories',
-      record_create_date: now,
-    },
-    content: `# Map of Memories\n\nRoot structure record for the memory vault.`,
-  };
-
-  records.set(memCollection, [companionRecord, primeRecord, memoryMapRecord]);
-
-  const companionIdRecord: TBCRecord = {
-    id: 'companion.id',
-    record_type: 'system',
-    data: { id: 'companion.id', record_type: 'system' },
-    content: companionID,
-  };
-
-  const primeIdRecord: TBCRecord = {
-    id: 'prime.id',
-    record_type: 'system',
-    data: { id: 'prime.id', record_type: 'system' },
-    content: primeID,
-  };
-
-  records.set(protocol.sysCollection, [companionIdRecord, primeIdRecord]);
-
-  const rootTemplate = ASSETS['templates/root.md'];
-  const rootContent = rootTemplate
-    .replace(/\{\{companionName\}\}/g, request.companionName)
-    .replace(/\{\{primeName\}\}/g, request.primeName)
-    .replace(/\{\{companionID\}\}/g, companionID)
-    .replace(/\{\{primeID\}\}/g, primeID)
-    .replace(/\{\{memoryMapID\}\}/g, memoryMapID);
-
-  const rootRecord: TBCRecord = {
-    id: 'root',
-    record_type: 'system',
-    data: {
-      id: 'root',
-      record_type: 'system',
-      companion: companionID,
-      prime: primeID,
-      system_path: protocol.sysCollection,
-      skills_path: protocol.skillsCollection,
-      memory_path: protocol.memCollection,
-      memory_map: memoryMapID,
-      view_path: protocol.dexCollection,
-      activity_path: protocol.actCollection,
-      record_create_date: now,
-    },
-    content: rootContent,
-  };
-
-  records.set(protocol.sysCollection, [...(records.get(protocol.sysCollection) || []), rootRecord]);
-
-  const sysCoreRecord: TBCRecord = {
-    id: '20251228150423',
-    record_type: 'specification',
-    data: {
-      id: '20251228150423',
-      record_type: 'specification',
-      specification_name: 'tbc-system-spec',
-      record_title: 'Third Brain Companion System Specification 0.4',
-      record_create_date: '2025-12-28 15:04:23 UTC',
-      record_tags: ['c/public/tbc'],
-    },
-    content: ASSETS['sys/core/20251228150423.md'].split('---\n').slice(2).join('---\n'),
-  };
-
-  records.set(`${protocol.sysCollection}/core`, [sysCoreRecord]);
-
+  const coreRecords = synthesizeCoreSpecsAndSkills(protocol, ASSETS);
+  records.set(`${protocol.sysCollection}/core`, coreRecords.get(`${protocol.sysCollection}/core`) ?? []);
   records.set(`${protocol.sysCollection}/ext`, [
     {
       id: '.gitkeep',
@@ -336,31 +240,7 @@ export async function initSystem(request: SysInitRequest): Promise<void> {
       content: '',
     },
   ]);
-
-  const skillRecords: TBCRecord[] = [];
-  for (const skillName of [
-    'tbc-act-ops',
-    'tbc-dex-ops',
-    'tbc-env-probe',
-    'tbc-int-ops',
-    'tbc-mem-ops',
-    'tbc-sys-ops',
-  ]) {
-    const assetKey = `skills/core/${skillName}/SKILL.md`;
-    const content = ASSETS[assetKey];
-    if (content) {
-      const parsed = matter(content);
-      skillRecords.push({
-        id: skillName,
-        record_type: 'specification',
-        data: parsed.data,
-        content: parsed.content,
-      });
-    }
-  }
-
-  records.set(`${protocol.skillsCollection}/core`, skillRecords);
-
+  records.set(`${protocol.skillsCollection}/core`, coreRecords.get(`${protocol.skillsCollection}/core`) ?? []);
   records.set(`${protocol.skillsCollection}/ext`, [
     {
       id: '.gitkeep',
@@ -577,47 +457,10 @@ export async function upgradeSystem(request: SysUpgradeRequest): Promise<void> {
   ];
   console.log(formatMessages(removedMessages, request.verbose));
 
+  const coreRecords = synthesizeCoreSpecsAndSkills(protocol, ASSETS);
   const records = new Map<string, TBCRecord[]>();
-
-  const sysCoreRecord: TBCRecord = {
-    id: '20251228150423',
-    record_type: 'specification',
-    data: {
-      id: '20251228150423',
-      record_type: 'specification',
-      specification_name: 'tbc-system-spec',
-      record_title: 'Third Brain Companion System Specification 0.4',
-      record_create_date: '2025-12-28 15:04:23 UTC',
-      record_tags: ['c/public/tbc'],
-    },
-    content: ASSETS['sys/core/20251228150423.md'].split('---\n').slice(2).join('---\n'),
-  };
-
-  records.set(`${protocol.sysCollection}/core`, [sysCoreRecord]);
-
-  const skillRecords: TBCRecord[] = [];
-  for (const skillName of [
-    'tbc-act-ops',
-    'tbc-dex-ops',
-    'tbc-env-probe',
-    'tbc-int-ops',
-    'tbc-mem-ops',
-    'tbc-sys-ops',
-  ]) {
-    const assetKey = `skills/core/${skillName}/SKILL.md`;
-    const content = ASSETS[assetKey];
-    if (content) {
-      const parsed = matter(content);
-      skillRecords.push({
-        id: skillName,
-        record_type: 'specification',
-        data: parsed.data,
-        content: parsed.content,
-      });
-    }
-  }
-
-  records.set(`${protocol.skillsCollection}/core`, skillRecords);
+  records.set(`${protocol.sysCollection}/core`, coreRecords.get(`${protocol.sysCollection}/core`) ?? []);
+  records.set(`${protocol.skillsCollection}/core`, coreRecords.get(`${protocol.skillsCollection}/core`) ?? []);
 
   // Loaded TBC core assets
   const assetsMessages: TBCMessage[] = [

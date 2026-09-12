@@ -1,5 +1,5 @@
 import { mintUuids, mintTsids } from '../lib/mint.js';
-import { formatMintedIds, formatMessages } from '../lib/console.js';
+import { formatMintedIds, formatMessages } from '../lib/message.js';
 
 export interface GenRequest {
   count: number;

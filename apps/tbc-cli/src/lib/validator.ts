@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import matter from 'gray-matter';
-import type { TBCProtocol } from './protocol.ts';
-import type { TBCMessage } from './console.ts';
+import type { TBCProtocol } from './protocol.js';
+import type { TBCMessage } from './message.js';
 
 export interface TBCValidationResult {
   success: boolean;

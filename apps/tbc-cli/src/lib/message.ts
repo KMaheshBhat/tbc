@@ -1,4 +1,3 @@
-// Minimal local copies to avoid @hami-frameworx and @tbc-frameworx/tbc-system imports
 
 export type TBCLevel = 'debug' | 'info' | 'warn' | 'error';
 

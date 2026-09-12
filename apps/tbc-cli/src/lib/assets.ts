@@ -29,11 +29,11 @@ record_type: specification
 record_tags:
   - c/public/tbc
 record_create_date: 2025-12-28 15:04:23 UTC
-record_title: Third Brain Companion System Specification 0.4
+record_title: Third Brain Companion System Specification 0.6.0
 specification_name: tbc-system-spec
 description: The Third Brain Companion (TBC) is a personal cognitive system and a methodology for human–agent collaboration. Its purpose is to provide a technology-agnostic, portable framework to conceptualize, operate, and use an Agent for a Prime User or Prime User Group.
 ---
-# Third Brain Companion System Specification 0.4
+# Third Brain Companion System Specification 0.6.0
 
 ## 1. Purpose & Scope
 
