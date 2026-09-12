@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { GenServiceConfig, generateUuids, generateTsids } from '../services/gen.service.js';
+import { GenRequest, generateUuids, generateTsids } from '../services/gen.service.js';
 
 const handleError = (message: string, error: unknown, verbose: boolean) => {
     if (error instanceof Error) {
@@ -28,13 +28,13 @@ export function createGenCommand(rootProgram: Command) {
           if (Number.isNaN(count)) {
             throw new Error(`Invalid count: "${cmd.parent.opts().count}" is not a number`);
           }
-          const config: GenServiceConfig = {
+          const request: GenRequest = {
             count,
             rootDirectory: cliOpts.root || process.cwd(),
             verbose: isVerbose,
             source: 'gen:uuid',
           };
-          await generateUuids(config); // service logs formatted output internally
+          await generateUuids(request); // service logs formatted output internally
         } catch (error) {
           handleError('Error running ng gen uuid', error, isVerbose);
           process.exit(1);
@@ -54,13 +54,13 @@ export function createGenCommand(rootProgram: Command) {
           if (Number.isNaN(count)) {
             throw new Error(`Invalid count: "${cmd.parent.opts().count}" is not a number`);
           }
-          const config: GenServiceConfig = {
+          const request: GenRequest = {
             count,
             rootDirectory: cliOpts.root || process.cwd(),
             verbose: isVerbose,
             source: 'gen:tsid',
           };
-          await generateTsids(config); // service logs formatted output internally
+          await generateTsids(request); // service logs formatted output internally
         } catch (error) {
           handleError('Error running ng gen tsid', error, isVerbose);
           process.exit(1);
