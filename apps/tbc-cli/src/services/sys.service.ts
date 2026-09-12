@@ -28,7 +28,7 @@ import {
   synthesizeSystemPointers,
 } from '../lib/synthesis.js';
 import { join } from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
@@ -167,205 +167,164 @@ export async function validateSystem(
   return validationResult;
 }
 
-export async function initSystem(request: SysInitRequest): Promise<void> {
-  const source = request.source || 'sys:init';
-  const validateSource = `${source}:validate`;
-  const protocol = resolveProtocol(request.rootDirectory, request.profile);
+interface InitIdentities {
+  companionID: string;
+  primeID: string;
+  memoryMapID: string;
+}
 
-  // Protocol discovery at start (matching legacy)
-  const protocolDiscoveryOutput: ProtocolDiscoveryOutput = {
-    sysCollection: protocol.sysCollection,
-    skillsCollection: protocol.skillsCollection,
-    memCollection: protocol.memCollection,
-    dexCollection: protocol.dexCollection,
-    actCollection: protocol.actCollection,
-    hasSqlite: protocol.hasSqlite,
-  };
-  const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, source);
-  console.log(formatMessages(protocolMessages, request.verbose));
-
-  const preValidation = await validateSystem(
+async function performPreInitValidation(
+  request: SysInitRequest,
+  validateSource: string
+): Promise<TBCValidationResult> {
+  return validateSystem(
     { rootDirectory: request.rootDirectory, verbose: request.verbose, source: validateSource },
     { sourceContext: validateSource, showProtocolDiscovery: false, profile: request.profile }
   );
+}
 
-  if (preValidation.success) {
-    const companionIdRecord = fetchRecord(request.rootDirectory, protocol.sysCollection, 'companion.id');
-    const companionID = companionIdRecord?.content?.trim() || 'unknown';
-
-    const errorMessages: TBCMessage[] = [
-      {
-        level: 'error',
-        code: 'OVERWRITE-GUARD',
-        source,
-        message: `has existing companion ${companionID}`,
-        suggestion: 'Use "tbc sys upgrade" instead.',
-      },
-    ];
-    console.log(formatMessages(errorMessages, request.verbose));
-    return;
-  }
-
-  const uuids = await mintUuids(3);
-  const [companionID, primeID, memoryMapID] = uuids;
-
+async function mintInitIdentities(source: string, verbose: boolean): Promise<InitIdentities> {
+  const [companionID, primeID, memoryMapID] = await mintUuids(3);
   const mintedOutput: MintedOutput = {
-    keys: {
-      companionID,
-      primeID,
-      memoryMapID,
-    },
+    keys: { companionID, primeID, memoryMapID },
     batch: [],
   };
-  const mintedMessages = formatMintedIds(mintedOutput, source);
-  console.log(formatMessages(mintedMessages, request.verbose));
+  console.log(formatMessages(formatMintedIds(mintedOutput, source), verbose));
+  return { companionID, primeID, memoryMapID };
+}
 
-  const version = packageJson.version;
+function synthesizeInitRecords(
+  request: SysInitRequest,
+  protocol: TBCProtocol,
+  identities: InitIdentities,
+  source: string
+): Map<string, TBCRecord[]> {
   const now = new Date().toISOString();
-
   const records = new Map<string, TBCRecord[]>();
+  const { companionID, primeID, memoryMapID } = identities;
 
   records.set(protocol.memCollection, [
     synthesizeCompanionRecord(companionID, request.companionName, now),
     synthesizePrimeRecord(primeID, request.primeName, now),
     synthesizeMemoryMapRecord(memoryMapID, now),
   ]);
-
   records.set(protocol.sysCollection, [
     ...synthesizeSystemPointers(companionID, primeID),
-    synthesizeRootRecord(
-      protocol,
-      companionID,
-      primeID,
-      memoryMapID,
-      request.companionName,
-      request.primeName,
-      now
-    ),
+    synthesizeRootRecord(protocol, companionID, primeID, memoryMapID, request.companionName, request.primeName, now),
   ]);
 
   const coreRecords = synthesizeCoreSpecsAndSkills(protocol, ASSETS);
   records.set(`${protocol.sysCollection}/core`, coreRecords.get(`${protocol.sysCollection}/core`) ?? []);
-  records.set(`${protocol.sysCollection}/ext`, [
-    {
-      id: '.gitkeep',
-      record_type: 'placeholder',
-      data: {},
-      content: '',
-    },
-  ]);
+  records.set(`${protocol.sysCollection}/ext`, [{ id: '.gitkeep', record_type: 'placeholder', data: {}, content: '' }]);
   records.set(`${protocol.skillsCollection}/core`, coreRecords.get(`${protocol.skillsCollection}/core`) ?? []);
-  records.set(`${protocol.skillsCollection}/ext`, [
-    {
-      id: '.gitkeep',
-      record_type: 'placeholder',
-      data: {},
-      content: '',
-    },
-  ]);
+  records.set(`${protocol.skillsCollection}/ext`, [{ id: '.gitkeep', record_type: 'placeholder', data: {}, content: '' }]);
 
-  // Synthesized memory records
-  const memMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      source,
-      code: 'SYNTHESIZED',
-      message: 'Synthesized memory records.',
-    },
+  const messages: TBCMessage[] = [
+    { level: 'info', source, code: 'SYNTHESIZED', message: 'Synthesized memory records.' },
+    { level: 'info', source, code: 'ASSETS', message: `Loaded TBC ${packageJson.version} core assets (specs and skills).` },
+    { level: 'info', source, code: 'SYNTHESIZED', message: 'Synthesized system records.' },
   ];
-  console.log(formatMessages(memMessages, request.verbose));
+  console.log(formatMessages(messages, request.verbose));
 
-  // Loaded TBC core assets
-  const assetsMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      source,
-      code: 'ASSETS',
-      message: `Loaded TBC ${version} core assets (specs and skills).`,
-    },
-  ];
-  console.log(formatMessages(assetsMessages, request.verbose));
+  const manifestEntries: ManifestEntry[] = [...records.entries()].map(([collection, recs]) => ({
+    collection,
+    count: recs.length,
+    records: recs.map(record => record.id),
+  }));
+  console.log(formatMessages(formatStagedManifest(manifestEntries, source), request.verbose));
 
-  // Synthesized system records
-  const sysMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      source,
-      code: 'SYNTHESIZED',
-      message: 'Synthesized system records.',
-    },
-  ];
-  console.log(formatMessages(sysMessages, request.verbose));
-
-  // Staged Records Manifest
-  const manifestEntries: ManifestEntry[] = [];
-  for (const [collection, recs] of records.entries()) {
-    manifestEntries.push({
-      collection,
-      count: recs.length,
-      records: recs.map(r => r.id),
-    });
-  }
-  const manifestMessages = formatStagedManifest(manifestEntries, source);
-  console.log(formatMessages(manifestMessages, request.verbose));
-
-  // Debug messages for verbose mode
   if (request.verbose) {
-    const debugMessages = [
+    console.log(formatMessages([
       ...formatLoadSpecsDebug(source),
       ...formatLoadCoreMemoriesDebug(source),
-    ];
-    console.log(formatMessages(debugMessages, request.verbose));
+    ], request.verbose));
   }
+  return records;
+}
 
+async function writeInitRecords(
+  request: SysInitRequest,
+  protocol: TBCProtocol,
+  records: Map<string, TBCRecord[]>
+): Promise<void> {
   await writeRecordsToFsAndSqlite(request.rootDirectory, protocol, records);
+}
 
-  // Validating again...
-  const validatingMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      source,
-      code: 'VALIDATING',
-      message: 'Validating again ...',
-    },
-  ];
-  console.log(formatMessages(validatingMessages, request.verbose));
+async function performPostInitValidation(
+  request: SysInitRequest,
+  validateSource: string
+): Promise<void> {
+  console.log(formatMessages([{
+    level: 'info',
+    source: request.source || 'sys:init',
+    code: 'VALIDATING',
+    message: 'Validating again ...',
+  }], request.verbose));
 
   const postValidation = await validateSystem(
     { rootDirectory: request.rootDirectory, verbose: request.verbose, source: validateSource },
     { sourceContext: validateSource, showProtocolDiscovery: false, profile: request.profile }
   );
+  if (postValidation.success) return;
 
-  if (!postValidation.success) {
-    const errorMessages: TBCMessage[] = [
-      {
-        level: 'error',
-        code: 'FAILED-INITIALIZE',
-        source,
-        message: 'Post-init validation failed',
-        suggestion: 'Check validation audit for details.',
-      },
-    ];
-    console.log(formatMessages(errorMessages, request.verbose));
-    throw new Error('Init failed: post-validation failed');
-  }
+  const source = request.source || 'sys:init';
+  console.log(formatMessages([{
+    level: 'error',
+    code: 'FAILED-INITIALIZE',
+    source,
+    message: 'Post-init validation failed',
+    suggestion: 'Check validation audit for details.',
+  }], request.verbose));
+  throw new Error('Init failed: post-validation failed');
+}
 
-  // Identity Summary
+function renderInitSummary(
+  request: SysInitRequest,
+  identities: InitIdentities,
+  source: string
+): void {
   const identityMessages = formatIdentitySummary(
     request.companionName,
-    companionID,
+    identities.companionID,
     request.primeName,
-    primeID,
-    memoryMapID,
-    version,
+    identities.primeID,
+    identities.memoryMapID,
+    packageJson.version,
     request.profile,
     source
   );
   console.log(formatMessages(identityMessages, request.verbose));
+  console.log(formatMessages(
+    formatNextSteps('Refresh indexes (tbc dex) and prepare interface hooks (tbc int)', source),
+    request.verbose
+  ));
+}
 
-  // Next Steps
-  const nextStepsMessages = formatNextSteps('Refresh indexes (tbc dex) and prepare interface hooks (tbc int)', source);
-  console.log(formatMessages(nextStepsMessages, request.verbose));
+export async function initSystem(request: SysInitRequest): Promise<void> {
+  const source = request.source || 'sys:init';
+  const validateSource = `${source}:validate`;
+  const protocol = resolveProtocol(request.rootDirectory, request.profile);
+
+  renderProtocolDiscovery(protocol, source, request.verbose);
+  const preValidation = await performPreInitValidation(request, validateSource);
+  if (preValidation.success) {
+    const companionIdRecord = fetchRecord(request.rootDirectory, protocol.sysCollection, 'companion.id');
+    const companionID = companionIdRecord?.content?.trim() || 'unknown';
+    console.log(formatMessages([{
+      level: 'error',
+      code: 'OVERWRITE-GUARD',
+      source,
+      message: `has existing companion ${companionID}`,
+      suggestion: 'Use "tbc sys upgrade" instead.',
+    }], request.verbose));
+    return;
+  }
+
+  const identities = await mintInitIdentities(source, request.verbose);
+  const records = synthesizeInitRecords(request, protocol, identities, source);
+  await writeInitRecords(request, protocol, records);
+  await performPostInitValidation(request, validateSource);
+  renderInitSummary(request, identities, source);
 }
 
 export async function upgradeSystem(request: SysUpgradeRequest): Promise<void> {
