@@ -1,13 +1,13 @@
 import { Command } from 'commander';
 import { initSystem, upgradeSystem, validateSystem } from '../services/sys.service.js';
-import { formatMessages } from '../lib/console.js';
+import { formatMessages } from '../lib/message.js';
 
-const handleError = (message: string, error: unknown, verbose: boolean) => {
+const handleError = (message: string, error: unknown, verbose: boolean, source = 'sys') => {
   const messages = [
     {
       level: 'error' as const,
       code: 'COMMAND-ERROR',
-      source: 'ng-sys',
+      source,
       message: error instanceof Error ? error.message : String(error),
       suggestion: 'Check the error details above.',
     },
@@ -29,7 +29,7 @@ export function createSysCommand(rootProgram: Command) {
         const cliOpts = rootProgram.opts();
         const isVerbose = !!cliOpts.verbose;
         if (!opts.companion || !opts.prime) {
-          handleError('Error running ng sys init', 'Both --companion and --prime flags are required', isVerbose);
+          handleError('Error running ng sys init', 'Both --companion and --prime flags are required', isVerbose, 'sys:init');
           process.exit(1);
         }
         try {
@@ -39,9 +39,10 @@ export function createSysCommand(rootProgram: Command) {
             primeName: opts.prime,
             profile: opts.profile as 'baseline' | 'next',
             verbose: isVerbose,
+            source: 'sys:init',
           });
         } catch (error) {
-          handleError('Error running ng sys init', error, isVerbose);
+          handleError('Error running ng sys init', error, isVerbose, 'sys:init');
           process.exit(1);
         }
         return;
@@ -58,9 +59,10 @@ export function createSysCommand(rootProgram: Command) {
           await upgradeSystem({
             rootDirectory: cliOpts.root || process.cwd(),
             verbose: isVerbose,
+            source: 'sys:upgrade',
           });
         } catch (error) {
-          handleError('Error running ng sys upgrade', error, isVerbose);
+          handleError('Error running ng sys upgrade', error, isVerbose, 'sys:upgrade');
           process.exit(1);
         }
         return;
@@ -78,9 +80,10 @@ export function createSysCommand(rootProgram: Command) {
           await validateSystem({
             rootDirectory: cliOpts.root || process.cwd(),
             verbose: isVerbose,
+            source: 'sys:validate',
           });
         } catch (error) {
-          handleError('Error running ng sys validate', error, isVerbose);
+          handleError('Error running ng sys validate', error, isVerbose, 'sys:validate');
           process.exit(1);
         }
         return;

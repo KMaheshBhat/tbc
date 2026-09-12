@@ -12,8 +12,8 @@ describe('🐵 0100 tbc gen', () => {
             'uuid',
         ]);
         expect(success).toBe(true);
-        expect(output).toContain('┌┤ Minted IDs ├');
-        expect(output).toContain('├┤ Batch ├');
+        expect(output).toMatch(/┌┤ Minted IDs ├[─]+/);
+        expect(output).toMatch(/├┤ Batch ├[─]+/);
         const matches = output.match(UUID_SEARCH_REGEX);
         expect(matches).not.toBeNull();
         if (matches) expectUUID(matches[0]);
@@ -38,7 +38,7 @@ describe('🐵 0100 tbc gen', () => {
             'tsid',
         ]);
         expect(success).toBe(true);
-        expect(output).toContain('┌┤ Minted IDs ├');
+        expect(output).toMatch(/┌┤ Minted IDs ├[─]+/);
         const matches = output.match(TSID_SEARCH_REGEX);
         expect(matches).not.toBeNull();
         if (matches) expectTSID(matches[0]);

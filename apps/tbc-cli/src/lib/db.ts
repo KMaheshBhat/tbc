@@ -1,7 +1,7 @@
 import { Database } from 'bun:sqlite';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import type { TBCRecord } from './fs.ts';
+import type { TBCRecord } from './fs.js';
 
 export interface TBCProtocol {
   rootDirectory: string;

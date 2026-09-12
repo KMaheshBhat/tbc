@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync, rmSync, copyFileSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 import matter from 'gray-matter';
 import * as yaml from 'js-yaml';
@@ -254,5 +254,23 @@ export function fetchRecord(root: string, collection: string, id: string): TBCRe
 export async function deleteDirectory(path: string): Promise<void> {
   if (existsSync(path)) {
     rmSync(path, { recursive: true, force: true });
+  }
+}
+
+export async function copyDirectory(source: string, target: string): Promise<void> {
+  if (!existsSync(source)) return;
+
+  mkdirSync(target, { recursive: true });
+  const entries = readdirSync(source);
+
+  for (const entry of entries) {
+    const srcPath = join(source, entry);
+    const tgtPath = join(target, entry);
+    const stat = statSync(srcPath);
+    if (stat.isDirectory()) {
+      await copyDirectory(srcPath, tgtPath);
+    } else {
+      copyFileSync(srcPath, tgtPath);
+    }
   }
 }

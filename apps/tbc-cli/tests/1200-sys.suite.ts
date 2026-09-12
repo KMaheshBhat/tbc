@@ -45,8 +45,8 @@ describe('🦍 1200 tbc sys', () => {
         ]);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
-        expect(output).toContain('[✓] STABLE');
-        expect(output).toContain('Companion: Kong');
+        expect(output).toMatch(/\[✓\]\s+STABLE/);
+        expect(output).toMatch(/Companion:\s+Kong/);
         const companionIdPath = join(TBC_ROOT_NEXT, 'sys_next', 'companion.id');
         const primeIdPath = join(TBC_ROOT_NEXT, 'sys_next', 'prime.id');
         const companionId = (await file(companionIdPath).text()).trim();
@@ -84,8 +84,8 @@ describe('🦍 1200 tbc sys', () => {
             TBC_ROOT_NEXT,
         ]);
         expect(success).toBe(true);
-        expect(output).toContain('Verified presence of "root.md"');
-        expect(output).toContain('[✓] STABLE');
+        expect(output).toMatch(/Verified presence of "root\.md"/);
+        expect(output).toMatch(/\[✓\]\s+STABLE/);
     });
 
     test('03 sys upgrade should refresh system specs and maintain stability', async () => {
@@ -96,9 +96,9 @@ describe('🦍 1200 tbc sys', () => {
             TBC_ROOT_NEXT,
         ]);
         expect(success).toBe(true);
-        expect(output).toContain('Resolved protocol collections from sys_next/root.md');
-        expect(output).toContain('┌┤ Validation Audit ├');
-        expect(output).toContain('[✓] STABLE');
+        expect(output).toMatch(/Resolved protocol collections from sys_next\/root\.md/);
+        expect(output).toMatch(/┌┤ Validation Audit ├[─]+/);
+        expect(output).toMatch(/\[✓\]\s+STABLE/);
     });
 
 });

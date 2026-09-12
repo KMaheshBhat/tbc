@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import matter from 'gray-matter';
-import type { TBCProtocol } from './protocol.ts';
-import type { TBCMessage } from './console.ts';
+import type { TBCProtocol } from './protocol.js';
+import type { TBCMessage } from './message.js';
 
 export interface TBCValidationResult {
   success: boolean;
@@ -10,7 +10,11 @@ export interface TBCValidationResult {
   messages: TBCMessage[];
 }
 
-export function runValidationChecks(rootDirectory: string, protocol: TBCProtocol): TBCValidationResult {
+export function runValidationChecks(
+  rootDirectory: string,
+  protocol: TBCProtocol,
+  sourceContext?: string
+): TBCValidationResult {
   const messages: TBCMessage[] = [];
   const timestamp = new Date().toISOString();
   let success = true;
@@ -32,7 +36,8 @@ export function runValidationChecks(rootDirectory: string, protocol: TBCProtocol
   scanCollection(join(rootDirectory, protocol.skillsCollection), protocol.skillsCollection);
   scanCollection(join(rootDirectory, protocol.memCollection), protocol.memCollection);
   
-  function add(level: TBCMessage['level'], code: string, source: string, message: string, suggestion?: string) {
+  function add(level: TBCMessage['level'], code: string, defaultSource: string, message: string, suggestion?: string) {
+    const source = sourceContext || defaultSource;
     messages.push({ level, code, source, message, suggestion });
     if (level === 'error') success = false;
   }

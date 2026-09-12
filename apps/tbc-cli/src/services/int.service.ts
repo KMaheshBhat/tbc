@@ -1,18 +1,18 @@
-export interface IntProbeConfig {
+export interface IntProbeRequest {
   rootDirectory: string;
   verbose: boolean;
 }
 
-export interface IntGenerateConfig {
+export interface IntGenerateRequest {
   rootDirectory: string;
   agentType: string;
   verbose: boolean;
 }
 
-export async function probeInterface(_config: IntProbeConfig): Promise<void> {
+export async function probeInterface(_request: IntProbeRequest): Promise<void> {
   throw new Error('NG stub: int service not yet migrated from HAMI');
 }
 
-export async function generateInterface(_config: IntGenerateConfig): Promise<void> {
+export async function generateInterface(_request: IntGenerateRequest): Promise<void> {
   throw new Error('NG stub: int service not yet migrated from HAMI');
 }
