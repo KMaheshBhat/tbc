@@ -72,55 +72,34 @@ export interface TBCValidationResult {
   messages: TBCMessage[];
 }
 
-async function writeRecordsToFsAndSqlite(
-  rootDirectory: string,
-  protocol: TBCProtocol,
-  records: Map<string, TBCRecord[]>
-): Promise<void> {
-  // Always use root directory for SQLite database
-  const dbPath = join(rootDirectory, 'records.db');
-
-  for (const [collection, recs] of records.entries()) {
-    for (const record of recs) {
-      storeRecord(rootDirectory, collection, record);
-      // Always write to SQLite (creates database if needed)
-      upsertRecord(dbPath, collection, record);
-    }
-  }
+function renderProtocolDiscovery(protocol: TBCProtocol, source: string, verbose: boolean): void {
+  const protocolDiscoveryOutput: ProtocolDiscoveryOutput = {
+    sysCollection: protocol.sysCollection,
+    skillsCollection: protocol.skillsCollection,
+    memCollection: protocol.memCollection,
+    dexCollection: protocol.dexCollection,
+    actCollection: protocol.actCollection,
+    hasSqlite: protocol.hasSqlite,
+  };
+  const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, source);
+  console.log(formatMessages(protocolMessages, verbose));
 }
 
-export async function validateSystem(
-  request: SysValidateRequest,
-  options?: { sourceContext?: string; showProtocolDiscovery?: boolean; profile?: 'baseline' | 'next' }
-): Promise<TBCValidationResult> {
-  const source = options?.sourceContext || request.source || 'sys:validate';
-  const protocol = resolveProtocol(request.rootDirectory, options?.profile);
+function renderVerboseTrace(source: string, verbose: boolean): void {
+  if (!verbose) return;
 
-  // Show protocol discovery only when called directly (not from init/upgrade)
-  if (options?.showProtocolDiscovery !== false) {
-    const protocolDiscoveryOutput: ProtocolDiscoveryOutput = {
-      sysCollection: protocol.sysCollection,
-      skillsCollection: protocol.skillsCollection,
-      memCollection: protocol.memCollection,
-      dexCollection: protocol.dexCollection,
-      actCollection: protocol.actCollection,
-      hasSqlite: protocol.hasSqlite,
-    };
-    const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, source);
-    console.log(formatMessages(protocolMessages, request.verbose));
-  }
+  const debugMessages = [
+    ...formatLoadSpecsDebug(source),
+    ...formatLoadCoreMemoriesDebug(source),
+  ];
+  console.log(formatMessages(debugMessages, verbose));
+}
 
-  // Debug messages for verbose mode (matching legacy behavior)
-  if (request.verbose) {
-    const debugMessages = [
-      ...formatLoadSpecsDebug(source),
-      ...formatLoadCoreMemoriesDebug(source),
-    ];
-    console.log(formatMessages(debugMessages, request.verbose));
-  }
-
-  const validationResult = runValidationChecks(request.rootDirectory, protocol, source);
-
+function renderValidationAudit(
+  validationResult: TBCValidationResult,
+  source: string,
+  verbose: boolean
+): void {
   const auditMessages: TBCMessage[] = [
     {
       level: 'info',
@@ -148,7 +127,42 @@ export async function validateSystem(
     },
   ];
 
-  console.log(formatMessages(auditMessages, request.verbose));
+  console.log(formatMessages(auditMessages, verbose));
+}
+
+async function writeRecordsToFsAndSqlite(
+  rootDirectory: string,
+  protocol: TBCProtocol,
+  records: Map<string, TBCRecord[]>
+): Promise<void> {
+  // Always use root directory for SQLite database
+  const dbPath = join(rootDirectory, 'records.db');
+
+  for (const [collection, recs] of records.entries()) {
+    for (const record of recs) {
+      storeRecord(rootDirectory, collection, record);
+      // Always write to SQLite (creates database if needed)
+      upsertRecord(dbPath, collection, record);
+    }
+  }
+}
+
+export async function validateSystem(
+  request: SysValidateRequest,
+  options?: { sourceContext?: string; showProtocolDiscovery?: boolean; profile?: 'baseline' | 'next' }
+): Promise<TBCValidationResult> {
+  const source = options?.sourceContext || request.source || 'sys:validate';
+  const protocol = resolveProtocol(request.rootDirectory, options?.profile);
+
+  // Show protocol discovery only when called directly (not from init/upgrade)
+  if (options?.showProtocolDiscovery !== false) {
+    renderProtocolDiscovery(protocol, source, request.verbose);
+  }
+
+  renderVerboseTrace(source, request.verbose);
+
+  const validationResult = runValidationChecks(request.rootDirectory, protocol, source);
+  renderValidationAudit(validationResult, source, request.verbose);
 
   return validationResult;
 }
