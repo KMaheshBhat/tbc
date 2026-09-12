@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { runMonorepoCommand } from '../../../scripts/common';
+import { runTbcCommand } from './test-helper';
 import { CLI_TARGET, NON_TBC_ROOT, SANDBOX, TBC_ROOT, UUID_SEARCH_REGEX } from './test-helper';
 
 describe('🐵 0301 tbc mem recall', () => {
 
     test('00 should recall companion identity (who am i)', () => {
-        const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success, exitCode } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             'companion',
@@ -21,7 +21,7 @@ describe('🐵 0301 tbc mem recall', () => {
     });
 
     test('02 should recall prime identity (who is my prime)', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             'prime',
@@ -36,7 +36,7 @@ describe('🐵 0301 tbc mem recall', () => {
     });
 
     test('03 should recall a list of recent memories by default', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             '--root',
@@ -53,7 +53,7 @@ describe('🐵 0301 tbc mem recall', () => {
     });
 
     test('04 should filter recall results by type (e.g., goals)', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             '--type',
@@ -69,7 +69,7 @@ describe('🐵 0301 tbc mem recall', () => {
     });
 
     test('05 should support search queries across titles', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             'bananas',
@@ -85,7 +85,7 @@ describe('🐵 0301 tbc mem recall', () => {
     });
 
     test('06 should handle queries with no matches gracefully', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             'nonexistent-memory-term',
@@ -99,7 +99,7 @@ describe('🐵 0301 tbc mem recall', () => {
     });
 
     test('07 should return zero results when type filter excludes keyword matches', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             'bananas',
@@ -113,7 +113,7 @@ describe('🐵 0301 tbc mem recall', () => {
     });
 
     test('08 should abort recall if run in a non-TBC directory', () => {
-        const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+        const { output, success } = runTbcCommand(SANDBOX, [
             'mem',
             'recall',
             '--root',
@@ -127,7 +127,7 @@ describe('🐵 0301 tbc mem recall', () => {
 
     test('09 should respect the --limit flag and return the newest records first', () => {
         const limit = 3;
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             '--limit',
@@ -146,7 +146,7 @@ describe('🐵 0301 tbc mem recall', () => {
     });
 
     test('10 should query SQLite for recall results (hybrid querier)', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             '--root',
@@ -158,7 +158,7 @@ describe('🐵 0301 tbc mem recall', () => {
     });
 
     test('11 should support rapid keyword search via SQLite', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'recall',
             'bananas',

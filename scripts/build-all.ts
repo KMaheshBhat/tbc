@@ -35,7 +35,7 @@ const BUILD_ORDER = [
   ],
 ];
 
-function hasTestScript(pkgName: string): boolean {
+function hasTestScript(pkgName: string, ng = false): boolean {
   const folderName = pkgName.split('/').pop() || '';
   const paths = [
     join('packages', folderName, 'package.json'),
@@ -46,8 +46,8 @@ function hasTestScript(pkgName: string): boolean {
       try {
         const content = readFileSync(pkgJsonPath, 'utf8');
         const pkgJson = JSON.parse(content);
-        // Explicitly check for the presence of the test script
-        return !!(pkgJson.scripts && pkgJson.scripts.test);
+        const scriptName = ng ? 'test:ng' : 'test';
+        return !!(pkgJson.scripts && pkgJson.scripts[scriptName]);
       } catch (e) {
         continue;
       }
@@ -62,6 +62,7 @@ async function runBuilds() {
   const shouldClean = args.includes('--clean');
   const shouldPackage = args.includes('--dist');
   const shouldTest = args.includes('--test');
+  const shouldTestNg = args.includes('--test-ng');
 
   if (shouldClean) {
     console.log('🧹 Flag --clean detected. Wiping dist folders...');
@@ -92,21 +93,23 @@ async function runBuilds() {
     }
 
     // 2. Conditional Test Phase
-    if (shouldTest) {
+    if (shouldTest || shouldTestNg) {
       for (const pkg of group) {
-        if (hasTestScript(pkg)) {
-          console.log(`🧪 Running tests for: ${pkg}`);
-          const testProc = Bun.spawn(['bun', 'run', '--filter', pkg, 'test'], {
+        const useNg = shouldTestNg && hasTestScript(pkg, true);
+        const script = useNg ? 'test:ng' : 'test';
+        if (hasTestScript(pkg, useNg)) {
+          console.log(`🧪 Running ${script} for: ${pkg}`);
+          const testProc = Bun.spawn(['bun', 'run', '--filter', pkg, script], {
             stdout: 'inherit',
             stderr: 'inherit',
           });
 
           if ((await testProc.exited) !== 0) {
-            console.error(`\n❌ Tests failed for ${pkg}. Aborting sequence.`);
+            console.error(`\n❌ ${script} failed for ${pkg}. Aborting sequence.`);
             process.exit(1);
           }
         } else {
-          console.log(`⏩ Skipping tests for ${pkg} (No test script found)`);
+          console.log(`⏩ Skipping ${script} for ${pkg} (No ${script} script found)`);
         }
       }
     }
