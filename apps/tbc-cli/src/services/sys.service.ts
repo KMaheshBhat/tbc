@@ -28,7 +28,7 @@ import {
   synthesizeSystemPointers,
 } from '../lib/synthesis.js';
 import { join } from 'node:path';
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
@@ -327,57 +327,39 @@ export async function initSystem(request: SysInitRequest): Promise<void> {
   renderInitSummary(request, identities, source);
 }
 
-export async function upgradeSystem(request: SysUpgradeRequest): Promise<void> {
-  const source = request.source || 'sys:upgrade';
-  const validateSource = `${source}:validate`;
-  const protocol = resolveProtocol(request.rootDirectory);
-  const version = packageJson.version;
+function upgradeProfile(protocol: TBCProtocol): 'baseline' | 'next' {
+  return protocol.sysCollection.includes('next') ? 'next' : 'baseline';
+}
 
-  // Protocol discovery at start (matching legacy)
-  const protocolDiscoveryOutput: ProtocolDiscoveryOutput = {
-    sysCollection: protocol.sysCollection,
-    skillsCollection: protocol.skillsCollection,
-    memCollection: protocol.memCollection,
-    dexCollection: protocol.dexCollection,
-    actCollection: protocol.actCollection,
-    hasSqlite: protocol.hasSqlite,
-  };
-  const protocolMessages = formatProtocolDiscovery(protocolDiscoveryOutput, source);
-  console.log(formatMessages(protocolMessages, request.verbose));
-
+async function performPreUpgradeValidation(
+  request: SysUpgradeRequest,
+  protocol: TBCProtocol,
+  validateSource: string
+): Promise<boolean> {
   const preValidation = await validateSystem(
     { rootDirectory: request.rootDirectory, verbose: request.verbose, source: validateSource },
-    { sourceContext: validateSource, showProtocolDiscovery: false, profile: protocol.sysCollection.includes('next') ? 'next' : 'baseline' }
+    { sourceContext: validateSource, showProtocolDiscovery: false, profile: upgradeProfile(protocol) }
   );
 
-  if (!preValidation.success) {
-    const errorMessages: TBCMessage[] = [
-      {
-        level: 'error',
-        code: 'OVERWRITE-GUARD',
-        source,
-        message: 'has no existing companion (not a valid TBC Root)',
-        suggestion: 'Use "tbc sys init" instead.',
-      },
-    ];
-    console.log(formatMessages(errorMessages, request.verbose));
-    return;
-  }
+  if (preValidation.success) return true;
 
-  // Checking first...
-  const checkingMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      source,
-      code: 'CHECKING',
-      message: 'Checking first ...',
-    },
-  ];
-  console.log(formatMessages(checkingMessages, request.verbose));
+  console.log(formatMessages([{
+    level: 'error',
+    code: 'OVERWRITE-GUARD',
+    source: request.source || 'sys:upgrade',
+    message: 'has no existing companion (not a valid TBC Root)',
+    suggestion: 'Use "tbc sys init" instead.',
+  }], request.verbose));
+  return false;
+}
 
+async function backupCurrentRecords(
+  request: SysUpgradeRequest,
+  protocol: TBCProtocol,
+  source: string
+): Promise<void> {
   const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0];
   const backupDir = `bak-${timestamp}`;
-
   const backupPaths = [
     protocol.sysCollection,
     `${protocol.sysCollection}/core`,
@@ -385,126 +367,116 @@ export async function upgradeSystem(request: SysUpgradeRequest): Promise<void> {
     protocol.skillsCollection,
   ];
 
-  // Detailed backup messages per collection
   for (const collection of backupPaths) {
     const sourceDir = join(request.rootDirectory, collection);
-    const targetDir = join(request.rootDirectory, backupDir, collection);
-    await copyDirectory(sourceDir, targetDir);
+    await copyDirectory(sourceDir, join(request.rootDirectory, backupDir, collection));
+    const recordCount = existsSync(sourceDir)
+      ? readdirSync(sourceDir).filter(entry => statSync(join(sourceDir, entry)).isFile()).length
+      : 0;
 
-    // Count records in the source directory
-    const { readdirSync, existsSync, statSync } = await import('node:fs');
-    let recordCount = 0;
-    if (existsSync(sourceDir)) {
-      const entries = readdirSync(sourceDir);
-      for (const entry of entries) {
-        const fullPath = join(sourceDir, entry);
-        if (statSync(fullPath).isFile()) {
-          recordCount++;
-        }
-      }
-    }
-
-    const backupMessages: TBCMessage[] = [
-      {
-        level: 'debug',
-        kind: 'structured',
-        source,
-        code: 'BACKUP',
-        message: `Backed up ${recordCount} ${collection} record(s) into ${backupDir}/${collection}.`,
-      },
-    ];
-    console.log(formatMessages(backupMessages, request.verbose));
+    console.log(formatMessages([{
+      level: 'debug',
+      kind: 'structured',
+      source,
+      code: 'BACKUP',
+      message: `Backed up ${recordCount} ${collection} record(s) into ${backupDir}/${collection}.`,
+    }], request.verbose));
   }
+}
 
+async function cleanOldCoreAssets(
+  request: SysUpgradeRequest,
+  protocol: TBCProtocol,
+  source: string
+): Promise<void> {
   await deleteDirectory(join(request.rootDirectory, `${protocol.sysCollection}/core`));
   await deleteDirectory(join(request.rootDirectory, `${protocol.skillsCollection}/core`));
 
-  // Removed old sys and skill specifications
-  const removedMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      source,
-      code: 'REMOVED',
-      message: 'Removed old sys and skill specifications.',
-    },
-  ];
-  console.log(formatMessages(removedMessages, request.verbose));
+  console.log(formatMessages([{
+    level: 'info',
+    source,
+    code: 'REMOVED',
+    message: 'Removed old sys and skill specifications.',
+  }], request.verbose));
+}
 
+async function writeUpdatedCoreAssets(
+  request: SysUpgradeRequest,
+  protocol: TBCProtocol,
+  source: string
+): Promise<void> {
   const coreRecords = synthesizeCoreSpecsAndSkills(protocol, ASSETS);
-  const records = new Map<string, TBCRecord[]>();
-  records.set(`${protocol.sysCollection}/core`, coreRecords.get(`${protocol.sysCollection}/core`) ?? []);
-  records.set(`${protocol.skillsCollection}/core`, coreRecords.get(`${protocol.skillsCollection}/core`) ?? []);
+  const records = new Map<string, TBCRecord[]>([
+    [`${protocol.sysCollection}/core`, coreRecords.get(`${protocol.sysCollection}/core`) ?? []],
+    [`${protocol.skillsCollection}/core`, coreRecords.get(`${protocol.skillsCollection}/core`) ?? []],
+  ]);
 
-  // Loaded TBC core assets
-  const assetsMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      source,
-      code: 'ASSETS',
-      message: `Loaded TBC ${version} core assets (specs and skills).`,
-    },
-  ];
-  console.log(formatMessages(assetsMessages, request.verbose));
+  console.log(formatMessages([{
+    level: 'info',
+    source,
+    code: 'ASSETS',
+    message: `Loaded TBC ${packageJson.version} core assets (specs and skills).`,
+  }], request.verbose));
 
-  // Staged Records Manifest for sys/core and skills/core
-  const manifestEntries: ManifestEntry[] = [];
-  for (const [collection, recs] of records.entries()) {
-    manifestEntries.push({
-      collection,
-      count: recs.length,
-      records: recs.map(r => r.id),
-    });
-  }
-  const manifestMessages = formatStagedManifest(manifestEntries, source);
-  console.log(formatMessages(manifestMessages, request.verbose));
-
+  const manifestEntries: ManifestEntry[] = [...records.entries()].map(([collection, recs]) => ({
+    collection,
+    count: recs.length,
+    records: recs.map(record => record.id),
+  }));
+  console.log(formatMessages(formatStagedManifest(manifestEntries, source), request.verbose));
   await writeRecordsToFsAndSqlite(request.rootDirectory, protocol, records);
+}
 
-  // Validating again...
-  const validatingMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      source,
-      code: 'VALIDATING',
-      message: 'Validating again ...',
-    },
-  ];
-  console.log(formatMessages(validatingMessages, request.verbose));
+async function performPostUpgradeValidation(
+  request: SysUpgradeRequest,
+  protocol: TBCProtocol,
+  validateSource: string,
+  source: string
+): Promise<void> {
+  console.log(formatMessages([{
+    level: 'info',
+    source,
+    code: 'VALIDATING',
+    message: 'Validating again ...',
+  }], request.verbose));
 
-  const postValidation = await validateSystem(
+  await validateSystem(
     { rootDirectory: request.rootDirectory, verbose: request.verbose, source: validateSource },
-    { sourceContext: validateSource, showProtocolDiscovery: false, profile: protocol.sysCollection.includes('next') ? 'next' : 'baseline' }
+    { sourceContext: validateSource, showProtocolDiscovery: false, profile: upgradeProfile(protocol) }
   );
+}
 
-  // Fetch companion and prime records for identity summary
-  const companionIdRecord = fetchRecord(request.rootDirectory, protocol.sysCollection, 'companion.id');
-  const companionID = companionIdRecord?.content?.trim() || 'unknown';
-  const primeIdRecord = fetchRecord(request.rootDirectory, protocol.sysCollection, 'prime.id');
-  const primeID = primeIdRecord?.content?.trim() || 'unknown';
+function renderUpgradeSummary(
+  request: SysUpgradeRequest,
+  protocol: TBCProtocol,
+  source: string
+): void {
+  const companionID = fetchRecord(request.rootDirectory, protocol.sysCollection, 'companion.id')?.content?.trim() || 'unknown';
+  const primeID = fetchRecord(request.rootDirectory, protocol.sysCollection, 'prime.id')?.content?.trim() || 'unknown';
+  const companionName = (fetchRecord(request.rootDirectory, protocol.memCollection, companionID)?.data?.record_title as string) || 'Unknown';
+  const primeName = (fetchRecord(request.rootDirectory, protocol.memCollection, primeID)?.data?.record_title as string) || 'Unknown';
+  const memoryMapID = (fetchRecord(request.rootDirectory, protocol.sysCollection, 'root')?.data?.memory_map as string) || 'unknown';
 
-  // Fetch companion and prime names from mem
-  const companionMemRecord = fetchRecord(request.rootDirectory, protocol.memCollection, companionID);
-  const companionName = (companionMemRecord?.data?.record_title as string) || 'Unknown';
-  const primeMemRecord = fetchRecord(request.rootDirectory, protocol.memCollection, primeID);
-  const primeName = (primeMemRecord?.data?.record_title as string) || 'Unknown';
+  console.log(formatMessages(formatUpgradeComplete(
+    packageJson.version, companionName, companionID, primeName, primeID, memoryMapID, source
+  ), request.verbose));
+  console.log(formatMessages(formatNextSteps('Refresh indexes (tbc dex)', source), request.verbose));
+}
 
-  // Fetch memoryMapID from root.md
-  const rootRecord = fetchRecord(request.rootDirectory, protocol.sysCollection, 'root');
-  const memoryMapID = (rootRecord?.data?.memory_map as string) || 'unknown';
+export async function upgradeSystem(request: SysUpgradeRequest): Promise<void> {
+  const source = request.source || 'sys:upgrade';
+  const validateSource = `${source}:validate`;
+  const protocol = resolveProtocol(request.rootDirectory);
 
-  // Upgrade Complete with identity summary
-  const upgradeCompleteMessages = formatUpgradeComplete(
-    version,
-    companionName,
-    companionID,
-    primeName,
-    primeID,
-    memoryMapID,
-    source
-  );
-  console.log(formatMessages(upgradeCompleteMessages, request.verbose));
+  renderProtocolDiscovery(protocol, source, request.verbose);
+  if (!await performPreUpgradeValidation(request, protocol, validateSource)) return;
 
-  // Next Steps
-  const nextStepsMessages = formatNextSteps('Refresh indexes (tbc dex)', source);
-  console.log(formatMessages(nextStepsMessages, request.verbose));
+  console.log(formatMessages([{
+    level: 'info', source, code: 'CHECKING', message: 'Checking first ...',
+  }], request.verbose));
+  await backupCurrentRecords(request, protocol, source);
+  await cleanOldCoreAssets(request, protocol, source);
+  await writeUpdatedCoreAssets(request, protocol, source);
+  await performPostUpgradeValidation(request, protocol, validateSource, source);
+  renderUpgradeSummary(request, protocol, source);
 }
