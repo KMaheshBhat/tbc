@@ -32,7 +32,10 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const packageJson = JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf-8'));
+const packageJsonPath = existsSync(join(__dirname, '../package.json'))
+  ? join(__dirname, '../package.json')
+  : join(__dirname, '../../package.json');
+const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
 interface TBCProtocol {
   rootDirectory: string;
