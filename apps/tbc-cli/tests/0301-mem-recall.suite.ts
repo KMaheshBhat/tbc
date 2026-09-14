@@ -12,6 +12,7 @@ describe('🐵 0301 tbc mem recall', () => {
             '--root',
             TBC_ROOT,
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         expect(output).toContain('Companion Identity');
@@ -28,6 +29,7 @@ describe('🐵 0301 tbc mem recall', () => {
             '--root',
             TBC_ROOT,
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('Prime Identity');
         expect(output).toContain('Jojo');
@@ -42,6 +44,7 @@ describe('🐵 0301 tbc mem recall', () => {
             '--root',
             TBC_ROOT,
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('Recalled Memories');
         expect(output).toContain('[✓]');
@@ -61,6 +64,7 @@ describe('🐵 0301 tbc mem recall', () => {
             '--root',
             TBC_ROOT,
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('goal');
         expect(output).toContain('New goal');
@@ -76,6 +80,7 @@ describe('🐵 0301 tbc mem recall', () => {
             '--root',
             TBC_ROOT,
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('Recalled Memories');
         expect(output).toContain('Buy more bananas for Mojo');
@@ -92,6 +97,7 @@ describe('🐵 0301 tbc mem recall', () => {
             '--root',
             TBC_ROOT,
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('No memory records found.');
         expect(output).toContain('Suggestion: Try a different query!');
@@ -108,6 +114,7 @@ describe('🐵 0301 tbc mem recall', () => {
             '--root',
             TBC_ROOT,
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('No memory records found.');
     });

@@ -11,6 +11,7 @@ describe('🦍 1301 tbc mem recall', () => {
             TBC_ROOT_NEXT,
             '--verbose',
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('Hybrid SQLite [storer,querier] active for mem_next');
         expect(output).toContain('Query source: tbc-record-sqlite:query-records');
@@ -26,6 +27,7 @@ describe('🦍 1301 tbc mem recall', () => {
             '--root',
             TBC_ROOT_NEXT,
         ]);
+        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('Kong likes giant bananas');
         expect(output).not.toContain('Zilla');
