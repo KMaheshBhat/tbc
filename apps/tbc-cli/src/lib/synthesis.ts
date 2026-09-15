@@ -53,6 +53,30 @@ export function synthesizeMemoryMapRecord(id: string, date: string): TBCRecord {
   };
 }
 
+/** Build a user-authored memory record without performing any I/O. */
+export function synthesizeMemoryRecord(
+  id: string,
+  type: string,
+  title: string,
+  content: string,
+  tags: string[],
+  date: string,
+): TBCRecord {
+  return {
+    id,
+    record_type: type,
+    data: {
+      id,
+      record_type: type,
+      record_title: title,
+      record_create_date: date,
+      record_tags: tags,
+      contentType: 'markdown',
+    },
+    content: `# ${title}\n\n${content}\n`,
+  };
+}
+
 export function synthesizeSystemPointers(companionId: string, primeId: string): TBCRecord[] {
   return [
     {

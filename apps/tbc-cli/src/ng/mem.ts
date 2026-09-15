@@ -34,6 +34,7 @@ export function createMemCommand(rootProgram: Command) {
             title: opts.title,
             tags: opts.tags ? opts.tags.split(',').map((t: string) => t.trim()) : [],
             verbose: isVerbose,
+            source: 'mem:remember',
           });
         } catch (error) {
           handleError('Error running ng mem remember', error, isVerbose);
@@ -59,6 +60,7 @@ export function createMemCommand(rootProgram: Command) {
             type: opts.type,
             limit: opts.limit,
             verbose: isVerbose,
+            source: 'mem:recall',
           });
         } catch (error) {
           handleError('Error running ng mem recall', error, isVerbose);
