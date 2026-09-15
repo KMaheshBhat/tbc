@@ -146,6 +146,49 @@ export function queryRecords(dbPath: string, collection: string, options?: { rec
   }
 }
 
+/** Search records whose serialized front matter contains the supplied text. */
+export function searchRecords(
+  dbPath: string,
+  collection: string,
+  query: string,
+  recordType?: string,
+): TBCRecord[] {
+  if (!existsSync(dbPath)) return [];
+
+  const db = new Database(dbPath);
+  try {
+    ensureRecordTable(db);
+    let sql = `
+      SELECT record_id, collection, record_kind, data
+      FROM record
+      WHERE collection = ? AND lower(data) LIKE lower(?)
+    `;
+    const params: (string | number | bigint | boolean | null | Uint8Array)[] = [
+      collection,
+      `%${query}%`,
+    ];
+    if (recordType) {
+      sql += ` AND record_kind = ?`;
+      params.push(recordType);
+    }
+
+    const rows = db.prepare(sql).all(...params) as Array<{
+      record_id: string;
+      record_kind: string;
+      data: string;
+    }>;
+    return rows.map((row) => ({
+      id: row.record_id,
+      record_type: row.record_kind,
+      kind: row.record_kind,
+      data: JSON.parse(row.data),
+      content: '',
+    }));
+  } finally {
+    db.close();
+  }
+}
+
 export function upsertRecordRelation(
   dbPath: string,
   sourceCollection: string,

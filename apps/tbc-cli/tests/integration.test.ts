@@ -7,10 +7,10 @@ import './0101-preflight.suite';
 import './0200-sys.suite';
 import './1200-sys.suite';
 
-// import './0300-mem-remember.suite';
-// import './1300-mem-remember.suite';
-// import './0301-mem-recall.suite';
-// import './1301-mem-recall.suite';
+import './0300-mem-remember.suite';
+import './1300-mem-remember.suite';
+import './0301-mem-recall.suite';
+import './1301-mem-recall.suite';
 
 // import './0400-act.suite';
 // import './1400-act.suite';
