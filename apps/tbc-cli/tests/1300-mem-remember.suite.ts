@@ -14,7 +14,6 @@ describe('🦍 1300 tbc mem remember', () => {
             '--root',
             TBC_ROOT_NEXT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         const matches = output.match(UUID_SEARCH_REGEX);
         const mintedId = matches![matches!.length - 1];
@@ -34,7 +33,6 @@ describe('🦍 1300 tbc mem remember', () => {
             '--root',
             TBC_ROOT_NEXT,
         ]);
-        console.log(output);
         const matches = output.match(UUID_SEARCH_REGEX);
         const mintedId = matches![matches!.length - 1];
         expectSQLiteData(mintedId, 'record_tags', (tags: string) => {

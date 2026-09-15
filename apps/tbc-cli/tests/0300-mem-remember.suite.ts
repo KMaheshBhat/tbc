@@ -17,7 +17,6 @@ describe('🐵 0300 tbc mem remember', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
         expect(output).toContain('[✓] Memory persisted');
@@ -45,7 +44,6 @@ describe('🐵 0300 tbc mem remember', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         const matches = output.match(UUID_SEARCH_REGEX);
         const mintedId = matches![matches!.length - 1];
@@ -72,7 +70,6 @@ describe('🐵 0300 tbc mem remember', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         const matches = output.match(UUID_SEARCH_REGEX);
         const mintedId = matches![matches!.length - 1];
@@ -95,7 +92,6 @@ describe('🐵 0300 tbc mem remember', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         const matches = output.match(UUID_SEARCH_REGEX);
         const mintedId = matches?.[matches.length - 1];
@@ -117,7 +113,6 @@ describe('🐵 0300 tbc mem remember', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         const matches = output.match(UUID_SEARCH_REGEX);
         const mintedId = matches?.[matches.length - 1];
         expect(mintedId).toBeDefined();
