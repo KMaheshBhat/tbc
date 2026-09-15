@@ -6,7 +6,7 @@ import path from 'node:path';
 import {
     TBC_ROOT,
     CLI_TARGET,
-    runMonorepoCommand,
+    runTbcCommand,
     querySqlite,
     expectSQLiteDataMojo,
 } from './test-helper';
@@ -16,7 +16,7 @@ describe('🐵 0400 tbc act', () => {
     let activity2ID: string = '';
 
     test('00 should start a new activity in \'current\' directory', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'act',
             'start',
             '--root',
@@ -36,7 +36,7 @@ describe('🐵 0400 tbc act', () => {
     });
 
     test('01 should start a new activity using an externally minted UUID', () => {
-        const genResult = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const genResult = runTbcCommand(TBC_ROOT, [
             'gen',
             'uuid',
             '--root',
@@ -47,7 +47,7 @@ describe('🐵 0400 tbc act', () => {
         const externalUuid = uuidMatch ? uuidMatch[0] : '';
         expect(externalUuid).not.toBe('');
         activity2ID = externalUuid;
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'act',
             'start',
             externalUuid,
@@ -65,7 +65,7 @@ describe('🐵 0400 tbc act', () => {
     });
 
     test('02 should show active activities in the \'show\' command', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'act',
             'show',
             '--root',
@@ -83,7 +83,7 @@ describe('🐵 0400 tbc act', () => {
         const activity1Dir = path.join(TBC_ROOT, 'act', 'current', activity1ID);
         fs.writeFileSync(path.join(activity1Dir, 'research-notes.md'), '# Research\nSome notes.');
         fs.writeFileSync(path.join(activity1Dir, 'data-dump.json'), '{"key": "value"}');
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'act',
             'show',
             '--root',
@@ -97,7 +97,7 @@ describe('🐵 0400 tbc act', () => {
     });
 
     test('04 should pause an activity (move from current to backlog)', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'act',
             'pause',
             activity1ID,
@@ -113,7 +113,7 @@ describe('🐵 0400 tbc act', () => {
 
     test('05 should report error when trying to pause a non-existent activity', () => {
         const fakeUUID = '019c3b94-fake-uuid-not-real-4f9c9c52f482';
-        const { output } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output } = runTbcCommand(TBC_ROOT, [
             'act',
             'pause',
             fakeUUID,
@@ -126,7 +126,7 @@ describe('🐵 0400 tbc act', () => {
     });
 
     test('06 should resume an activity (move from backlog to current)', () => {
-        const { success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { success } = runTbcCommand(TBC_ROOT, [
             'act',
             'start',
             activity1ID,
@@ -140,7 +140,7 @@ describe('🐵 0400 tbc act', () => {
 
     test('07 should report error when trying to close a non-existent activity', () => {
         const ghostUUID = '019c3baf-dead-beef-8f39-c4d0e390c158';
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'act',
             'close',
             ghostUUID,
@@ -155,7 +155,7 @@ describe('🐵 0400 tbc act', () => {
     });
 
     test('08 should close and assimilate activity (move to archive and promote to mem/)', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'act',
             'close',
             activity1ID,
@@ -184,7 +184,7 @@ describe('🐵 0400 tbc act', () => {
     });
 
     test('09 should close and promote activity to SQLite (dual-write assimilation)', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'act',
             'start',
             '--root',
@@ -194,7 +194,7 @@ describe('🐵 0400 tbc act', () => {
         const successLine = lines.find(l => l.includes('Activity started'));
         const activityId = successLine?.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0];
         expect(activityId).toBeDefined();
-        const closeResult = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const closeResult = runTbcCommand(TBC_ROOT, [
             'act',
             'close',
             activityId!,

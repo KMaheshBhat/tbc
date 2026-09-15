@@ -5,13 +5,13 @@ import { join } from 'node:path';
 import {
     TBC_ROOT,
     CLI_TARGET,
-    runMonorepoCommand,
+    runTbcCommand,
 } from './test-helper';
 
 describe('🐵 0501 tbc int generate (Generic)', () => {
 
     test('00 should generate AGENTS.md with correct role definition', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'int',
             'generic',
             '--root',
@@ -31,12 +31,12 @@ describe('🐵 0501 tbc int generate (Generic)', () => {
     });
 
     test('01 should be idempotent (running twice changes nothing)', () => {
-        runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        runTbcCommand(TBC_ROOT, [
             'int',
             'generic',
         ]);
         const firstRun = readFileSync(join(TBC_ROOT, 'AGENTS.md'), 'utf-8');
-        runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        runTbcCommand(TBC_ROOT, [
             'int',
             'generic',
         ]);

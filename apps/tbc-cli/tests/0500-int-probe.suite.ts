@@ -4,14 +4,14 @@ import {
     TBC_ROOT,
     SANDBOX,
     CLI_TARGET,
-    runMonorepoCommand,
+    runTbcCommand,
     NON_TBC_ROOT,
 } from './test-helper';
 
 describe('🐵 0500 tbc int probe', () => {
 
     test('00 should probe successfully when provided a valid TBC_ROOT', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'int',
             'probe',
             '--root',
@@ -30,7 +30,7 @@ describe('🐵 0500 tbc int probe', () => {
     });
 
     test('01 should probe sanely when run in a non-TBC directory (SANDBOX)', () => {
-        const { output, success } = runMonorepoCommand(SANDBOX, CLI_TARGET, [
+        const { output, success } = runTbcCommand(SANDBOX, [
             'int',
             'probe',
             '--root',
