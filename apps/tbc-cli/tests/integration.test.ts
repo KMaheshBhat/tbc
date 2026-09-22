@@ -12,8 +12,8 @@ import './1300-mem-remember.suite';
 import './0301-mem-recall.suite';
 import './1301-mem-recall.suite';
 
-// import './0400-act.suite';
-// import './1400-act.suite';
+import './0400-act.suite';
+import './1400-act.suite';
 
 // import './0500-int-probe.suite';
 // import './0501-int-generate.suite';
