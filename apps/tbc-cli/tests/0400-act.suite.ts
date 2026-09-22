@@ -126,7 +126,7 @@ describe('🐵 0400 tbc act', () => {
     });
 
     test('06 should resume an activity (move from backlog to current)', () => {
-        const { success } = runTbcCommand(TBC_ROOT, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'act',
             'start',
             activity1ID,

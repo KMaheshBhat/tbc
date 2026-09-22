@@ -28,6 +28,7 @@ export function createActCommand(rootProgram: Command) {
             rootDirectory: cliOpts.root || process.cwd(),
             activityId: uuid,
             verbose: isVerbose,
+            source: 'act:start',
           });
         } catch (error) {
           handleError('Error running ng act start', error, isVerbose);
@@ -47,6 +48,7 @@ export function createActCommand(rootProgram: Command) {
           await showActivity({
             rootDirectory: cliOpts.root || process.cwd(),
             verbose: isVerbose,
+            source: 'act:show',
           });
         } catch (error) {
           handleError('Error running ng act show', error, isVerbose);
@@ -68,6 +70,7 @@ export function createActCommand(rootProgram: Command) {
             rootDirectory: cliOpts.root || process.cwd(),
             activityId: uuid,
             verbose: isVerbose,
+            source: 'act:pause',
           });
         } catch (error) {
           handleError('Error running ng act pause', error, isVerbose);
@@ -89,6 +92,7 @@ export function createActCommand(rootProgram: Command) {
             rootDirectory: cliOpts.root || process.cwd(),
             activityId: uuid,
             verbose: isVerbose,
+            source: 'act:close',
           });
         } catch (error) {
           handleError('Error running ng act close', error, isVerbose);
