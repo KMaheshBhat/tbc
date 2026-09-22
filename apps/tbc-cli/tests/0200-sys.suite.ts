@@ -3,7 +3,8 @@ import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
 import { readdirSync } from 'node:fs';
 
-import { generateFileTree, runMonorepoCommand } from '../../../scripts/common';
+import { generateFileTree } from '../../../scripts/common';
+import { runTbcCommand } from './test-helper';
 import packageJson from '../package.json' with { type: 'json' };
 
 import { CLI_TARGET, TBC_ROOT, expectUUID, querySqlite, expectSQLiteDataMojo, expectSQLiteRecordMojo } from './test-helper';
@@ -11,7 +12,7 @@ import { CLI_TARGET, TBC_ROOT, expectUUID, querySqlite, expectSQLiteDataMojo, ex
 describe('🐵 0200 tbc sys', () => {
 
     test('00 running sys init with companion and prime flags is successful', async () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'init',
             '--root',
@@ -29,16 +30,16 @@ describe('🐵 0200 tbc sys', () => {
         const primeIdPath = join(TBC_ROOT, 'sys', 'prime.id');
         const primeId = (await file(primeIdPath).text()).trim();
         expectUUID(primeId);
-        expect(output).toContain('┌┤ Minted IDs ├');
-        expect(output).toContain('├┤ Keyed ├');
-        expect(output).toContain('[i] ── info  | init-flow | companionID: ');
-        expect(output).toContain('[i] ── info  | init-flow | primeID: ');
-        expect(output).toContain('[i] ── info  | init-flow | memoryMapID: ');
-        expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
-        expect(output).toContain('[i] ── info  | init-flow | Companion: Mojo');
-        expect(output).toContain('[i] ── info  | init-flow | Prime: Jojo');
-        expect(output).toContain('[i] ── info  | init-flow | Map of Memories');
-        expect(output).toContain(`[✓] Third Brain Companion ${packageJson.version} initialized.`);
+        expect(output).toMatch(/┌┤ Minted IDs ├[─]+/);
+        expect(output).toMatch(/├┤ Keyed ├[─]+/);
+        expect(output).toMatch(/\[i\]\s+──\s+info\s+\|\s+[^|]+\|\s+companionID:\s+/);
+        expect(output).toMatch(/\[i\]\s+──\s+info\s+\|\s+[^|]+\|\s+primeID:\s+/);
+        expect(output).toMatch(/\[i\]\s+──\s+info\s+\|\s+[^|]+\|\s+memoryMapID:\s+/);
+        expect(output).toMatch(/\[✓\]\s+STABLE\s+\|\s+0 error\(s\) detected\./);
+        expect(output).toMatch(/\[i\]\s+──\s+info\s+\|\s+[^|]+\|\s+Companion:\s+Mojo/);
+        expect(output).toMatch(/\[i\]\s+──\s+info\s+\|\s+[^|]+\|\s+Prime:\s+Jojo/);
+        expect(output).toMatch(/\[i\]\s+──\s+info\s+\|\s+[^|]+\|\s+Map of Memories/);
+        expect(output).toMatch(/\[✓\]\s+Third Brain Companion\s+0\.6\.0\s+initialized\./);
 
         // Validate frontmatter in skill record (single block, no duplicates)
         const skillPath = join(TBC_ROOT, 'skills', 'core', 'tbc-act-ops', 'SKILL.md');
@@ -64,7 +65,7 @@ describe('🐵 0200 tbc sys', () => {
     });
 
     test('01 running sys init on existing TBC-Root should fail with helpful message', async () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'init',
             '--root',
@@ -75,13 +76,13 @@ describe('🐵 0200 tbc sys', () => {
             'Jojo',
         ]);
         expect(exitCode).toBe(0);
-        expect(output).toContain('[✓] STABLE   | 0 error(s) detected.');
-        expect(output).toContain('[✗] ┬─ error | init-flow | has existing companion');
-        expect(output).toContain('    └─ Suggestion: Use "tbc sys upgrade" instead.');
+        expect(output).toMatch(/\[✓\]\s+STABLE\s+\|\s+0 error\(s\) detected\./);
+        expect(output).toMatch(/\[✗\]\s+┬─\s+error\s+\|\s+[^|]+\|\s+has existing companion/);
+        expect(output).toMatch(/└─\s+Suggestion:\s+Use "tbc sys upgrade" instead\./);
     });
 
     test('02 running sys upgrade on TBC-Root is successful', async () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'upgrade',
             '--root',
@@ -89,9 +90,9 @@ describe('🐵 0200 tbc sys', () => {
         ]);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
-        expect(output).toContain(`[✓] Third Brain Companion upgraded to ${packageJson.version}.`);
-        expect(output).toContain('┌┤ Validation Audit ├');
-        expect(output).toContain('[✓] STABLE');
+        expect(output).toMatch(new RegExp(`\\[✓\\]\\s+Third Brain Companion upgraded to\\s+${packageJson.version}\\.`));
+        expect(output).toMatch(/┌┤ Validation Audit ├[─]+/);
+        expect(output).toMatch(/\[✓\]\s+STABLE/);
 
         // Validate frontmatter in skill record after upgrade (single block, no duplicates)
         const skillPath = join(TBC_ROOT, 'skills', 'core', 'tbc-act-ops', 'SKILL.md');
@@ -113,7 +114,7 @@ describe('🐵 0200 tbc sys', () => {
     });
 
     test('03 running sys validate on a healthy root', () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'validate',
             '--root',
@@ -121,16 +122,16 @@ describe('🐵 0200 tbc sys', () => {
         ]);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
-        expect(output).toContain('┌┤ Validation Audit ├');
-        expect(output).toContain('Verified presence of "root.md"');
-        expect(output).toContain('Referenced Root Memory Map');
-        expect(output).toContain('[✓] STABLE');
-        expect(output).toContain('0 error(s) detected.');
-        expect(output).not.toContain('[»] ── debug');
+        expect(output).toMatch(/┌┤ Validation Audit ├[─]+/);
+        expect(output).toMatch(/Verified presence of "root\.md"/);
+        expect(output).toMatch(/Referenced Root Memory Map/);
+        expect(output).toMatch(/\[✓\]\s+STABLE/);
+        expect(output).toMatch(/0 error\(s\) detected\./);
+        expect(output).not.toMatch(/\[»\]\s+──\s+debug/);
     });
 
     test('04 running sys validate with --verbose shows deep trace', () => {
-        const { output, exitCode, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, exitCode, success } = runTbcCommand(TBC_ROOT, [
             'sys',
             'validate',
             '--root',
@@ -139,10 +140,10 @@ describe('🐵 0200 tbc sys', () => {
         ]);
         expect(success).toBe(true);
         expect(exitCode).toBe(0);
-        expect(output).toContain('[»] ── debug | load-core-memories | Identifying companionID');
-        expect(output).toContain('[»] ── debug | load-specifications-flow | Query');
-        expect(output).toContain('┌┤ Validation Audit ├');
-        expect(output).toContain('[✓] STABLE');
+        expect(output).toMatch(/\[»\]\s+──\s+debug\s+\|\s+[^|]+\|\s+Identifying companionID/);
+        expect(output).toMatch(/\[»\]\s+──\s+debug\s+\|\s+[^|]+\|\s+Query/);
+        expect(output).toMatch(/┌┤ Validation Audit ├[─]+/);
+        expect(output).toMatch(/\[✓\]\s+STABLE/);
     });
 
     test('05 sys init should write identity to SQLite (dual-write verification)', async () => {

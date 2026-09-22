@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { runMonorepoCommand } from '../../../scripts/common';
+import { runTbcCommand } from './test-helper';
 
 import { CLI_TARGET, TBC_ROOT, UUID_SEARCH_REGEX, expectSQLiteDataMojo, expectSQLiteRecordMojo } from './test-helper';
 
@@ -10,7 +10,7 @@ describe('🐵 0300 tbc mem remember', () => {
 
     test('00 should remember a simple note with a generated UUID', async () => {
         const thought = 'Buy more bananas for Mojo';
-        const { output, success, exitCode } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success, exitCode } = runTbcCommand(TBC_ROOT, [
             'mem',
             'remember',
             thought,
@@ -36,7 +36,7 @@ describe('🐵 0300 tbc mem remember', () => {
     });
 
     test('01 should create a stub for a specific record type', async () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'remember',
             '--type',
@@ -57,7 +57,7 @@ describe('🐵 0300 tbc mem remember', () => {
 
     test('02 should accept tags and title via flags', async () => {
         const detail = 'Detail about the plan';
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'remember',
             detail,
@@ -85,7 +85,7 @@ describe('🐵 0300 tbc mem remember', () => {
 
     test('03 should persist memory to both FS and SQLite (hybrid dual-write)', async () => {
         const thought = 'Test SQLite dual-write';
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'remember',
             thought,
@@ -104,7 +104,7 @@ describe('🐵 0300 tbc mem remember', () => {
     });
 
     test('04 should index tags into the SQLite relation table', async () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'remember',
             'Scaling the empire',
