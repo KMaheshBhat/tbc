@@ -22,7 +22,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('Activity started');
         const lines = output.split('\n');
@@ -55,7 +54,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('Activity started');
         expect(output).toContain(externalUuid);
@@ -73,7 +71,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain('Active [current]');
         expect(output).toContain(activity1ID);
@@ -92,7 +89,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         const activity1Matches = (output.match(new RegExp(activity1ID, 'g')) || []).length;
         expect(activity1Matches).toBe(2);
@@ -108,7 +104,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         expect(existsSync(path.join(TBC_ROOT, 'act', 'current', activity1ID))).toBe(false);
         expect(existsSync(path.join(TBC_ROOT, 'act', 'backlog', activity1ID))).toBe(true);
@@ -125,7 +120,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(output).toContain(`Activity ${fakeUUID} not found in current workspace.`);
         expect(output).toContain('Check "tbc act show"');
         expect(existsSync(path.join(TBC_ROOT, 'act', 'backlog', fakeUUID))).toBe(false);
@@ -139,7 +133,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         expect(existsSync(path.join(TBC_ROOT, 'act', 'current', activity1ID))).toBe(true);
         expect(existsSync(path.join(TBC_ROOT, 'act', 'backlog', activity1ID))).toBe(false);
@@ -154,7 +147,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         expect(output).toContain(`Activity ${ghostUUID} not found in current workspace.`);
         expect(output).toContain('Verify the ID with "tbc act show"');
@@ -170,7 +162,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         const currentPath = path.join(TBC_ROOT, 'act', 'current', activity1ID);
         const archivePath = path.join(TBC_ROOT, 'act', 'archive', activity1ID);
@@ -199,7 +190,6 @@ describe('🐵 0400 tbc act', () => {
             '--root',
             TBC_ROOT,
         ]);
-        console.log(output);
         const lines = output.split('\n');
         const successLine = lines.find(l => l.includes('Activity started'));
         const activityId = successLine?.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0];

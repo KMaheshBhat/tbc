@@ -20,7 +20,6 @@ describe('🦍 1400 tbc act', () => {
             '--root',
             TBC_ROOT_NEXT,
         ]);
-        console.log(start.output);
         const lines = start.output.split('\n');
         const successLine = lines.find(l => l.includes('Activity started'));
         activityID = successLine?.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0] || '';
@@ -55,7 +54,6 @@ describe('🦍 1400 tbc act', () => {
             '--root',
             TBC_ROOT_NEXT,
         ]);
-        console.log(output);
         expect(success).toBe(true);
         const memPath = path.join(TBC_ROOT_NEXT, 'mem_next', `${activityID}.md`);
         expect(existsSync(memPath)).toBe(true);
