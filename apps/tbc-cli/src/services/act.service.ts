@@ -4,7 +4,7 @@ import { isAbsolute, join, relative } from 'node:path';
 import { fetchRecord as fetchFsRecord, queryCollection, storeRecord, type TBCRecord } from '../lib/fs.js';
 import { upsertRecord } from '../lib/db.js';
 import { mintUuids } from '../lib/mint.js';
-import { formatMessages, formatProtocolDiscovery, type TBCMessage } from '../lib/message.js';
+import { formatMessages, formatMintedIds, formatProtocolDiscovery, type TBCMessage } from '../lib/message.js';
 import { resolveProtocol, type TBCProtocol } from '../lib/protocol.js';
 import { runValidationChecks } from '../lib/validator.js';
 import { synthesizeMemoryRecord } from '../lib/synthesis.js';
@@ -24,18 +24,33 @@ function validateActivityId(activityId: string | undefined): asserts activityId 
 }
 
 function renderProtocol(protocol: TBCProtocol, source: string, verbose: boolean): void {
-  if (verbose) console.log(formatMessages(formatProtocolDiscovery(protocol, source), verbose));
+  console.log(formatMessages(formatProtocolDiscovery(protocol, source), verbose));
 }
 
 function validateRoot(rootDirectory: string, protocol: TBCProtocol, source: string, verbose: boolean): boolean {
   const result = runValidationChecks(rootDirectory, protocol, source);
+  const auditMessages: TBCMessage[] = [
+    { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┤ Validation Audit ├────────────────────────────────────────' },
+    ...result.messages,
+    { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
+    {
+      level: 'info', kind: 'raw', source, code: '',
+      message: result.success
+        ? '[✓] STABLE   | 0 error(s) detected.'
+        : `[✗] DEGRADED   | ${result.messages.filter((message) => message.level === 'error').length} error(s) detected.`,
+    },
+  ];
+  console.log(formatMessages(auditMessages, verbose));
   if (result.success) return true;
-  const messages: TBCMessage[] = [...result.messages.filter((message) => message.level === 'error'), {
+  console.log(formatMessages([{
     level: 'error', source: source.replace(/^act:/, 'act-') + '-flow', code: 'OVERWRITE-GUARD',
     message: 'has no existing companion (not a valid TBC Root)', suggestion: 'Use "tbc sys init" instead.',
-  }];
-  console.log(formatMessages(messages, verbose));
+  }], verbose));
   return false;
+}
+
+function renderFlowMessage(source: string, message: string, verbose: boolean): void {
+  console.log(formatMessages([{ level: 'info', source, code: 'FLOW', message }], verbose));
 }
 
 function activityRoot(protocol: TBCProtocol, rootDirectory: string): string { return join(rootDirectory, protocol.actCollection); }
@@ -54,10 +69,19 @@ export async function startActivity(request: ActStartRequest): Promise<void> {
   if (request.activityId !== undefined) validateActivityId(request.activityId);
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
+  renderFlowMessage(source, 'Checking first ...', request.verbose);
   if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
+  renderFlowMessage(source, 'existing valid TBC root found, proceeding ...', request.verbose);
 
-  const [mintedId] = request.activityId ? [request.activityId] : await mintUuids(1);
-  const id = mintedId;
+  let id: string;
+  if (request.activityId) {
+    id = request.activityId;
+  } else {
+    renderFlowMessage(source, 'No activityID provided ...', request.verbose);
+    [id] = await mintUuids(1);
+    console.log(formatMessages(formatMintedIds({ keys: {}, batch: [id] }, 'generate-uuids-flow'), request.verbose));
+  }
+  renderFlowMessage(source, 'actual workspace preparation', request.verbose);
   const current = activityPath(protocol, request.rootDirectory, 'current', id);
   const backlog = activityPath(protocol, request.rootDirectory, 'backlog', id);
   let status: 'active' | 'resumed' | 'created';
@@ -70,12 +94,13 @@ export async function startActivity(request: ActStartRequest): Promise<void> {
   const workspaceMessages: Record<typeof status, string> = {
     active: `Activity ${id} is already active.`, resumed: `Resumed activity from backlog: ${id}`, created: `Created new workspace for activity: ${id}`,
   };
-  console.log(formatMessages([{ level: 'info', source: 'prepare-workspace', code: 'WORKSPACE-PREPARED', message: workspaceMessages[status] }], request.verbose));
+  console.log(formatMessages([{ level: 'info', source: 'tbc-activity:prepare-workspace', code: 'WORKSPACE-PREPARED', message: workspaceMessages[status] }], request.verbose));
 
   if (!existsSync(join(current, `${id}.md`))) {
     const pointer = fetchFsRecord(request.rootDirectory, protocol.sysCollection, 'companion.id');
     const companionId = pointer?.content.trim();
     const companion = companionId ? fetchFsRecord(request.rootDirectory, protocol.memCollection, companionId) : null;
+    renderFlowMessage(source, `Synthesizing activity log ${id} with companion ${String(companion?.data.record_title || 'companion')}`, request.verbose);
     const timestamp = new Date().toISOString();
     const record = synthesizeMemoryRecord(id, 'log', `Activity Log ${timestamp}`,
       `Activity session initialized with companion ${String(companion?.data.record_title || 'companion')}. Replace this with actual activity details and logs as you work.`, [], timestamp);
@@ -123,6 +148,7 @@ export async function pauseActivity(request: ActPauseRequest): Promise<void> {
   validateActivityId(request.activityId);
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
+  renderFlowMessage(source, 'Checking first ...', request.verbose);
   if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
   const current = activityPath(protocol, request.rootDirectory, 'current', request.activityId);
   if (!existsSync(current)) {
@@ -143,6 +169,7 @@ export async function closeActivity(request: ActCloseRequest): Promise<void> {
   validateActivityId(request.activityId);
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
+  renderFlowMessage(source, 'Checking first ...', request.verbose);
   if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
   const current = activityPath(protocol, request.rootDirectory, 'current', request.activityId);
   if (!existsSync(current)) {
