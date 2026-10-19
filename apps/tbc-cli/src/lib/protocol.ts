@@ -114,7 +114,12 @@ export function resolveProtocol(rootDirectory: string, profile?: 'baseline' | 'n
     const content = readFileSync(rootMdPath, 'utf-8');
     const parsed = matter(content);
 
-    const protocol: TBCProtocol = {
+    // The root record may address the collections by path (`/sys/core/`,
+    // `/mem/`, ...) or by name (`sys`, `mem`, ...), depending on which
+    // implementation created the vault. Both are reduced to the collection
+    // directory, exactly as the legacy protocol resolver does, so that a
+    // legacy vault is addressed identically by both implementations.
+    const protocol: TBCProtocol = normalizeProtocolCollections({
       rootDirectory,
       sysCollection: parsed.data.system_path || 'sys',
       skillsCollection: parsed.data.skills_path || 'skills',
@@ -123,7 +128,7 @@ export function resolveProtocol(rootDirectory: string, profile?: 'baseline' | 'n
       actCollection: parsed.data.activity_path || 'act',
       hasSqlite: false,
       sqlitePath: '',
-    };
+    });
 
     const sqliteInfo = sniffSqlite(rootDirectory, protocol);
     protocol.hasSqlite = sqliteInfo.hasSqlite;

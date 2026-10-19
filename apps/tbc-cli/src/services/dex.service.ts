@@ -5,7 +5,7 @@ import packageJson from '../../package.json' with { type: 'json' };
 import { buildCollectionShards, buildSkillsIndex, buildSysDigest } from '../lib/dex.js';
 import { storeRawFile } from '../lib/fs.js';
 import { formatMessages, formatProtocolDiscovery } from '../lib/message.js';
-import { resolveProtocol, normalizeProtocolCollections, type TBCProtocol } from '../lib/protocol.js';
+import { resolveProtocol, type TBCProtocol } from '../lib/protocol.js';
 import { runValidationChecks, type TBCValidationResult } from '../lib/validator.js';
 
 export interface DexRebuildRequest {
@@ -61,10 +61,11 @@ function removeStaleShards(dexDirectory: string, collection: string): void {
  */
 export async function rebuildDex(request: DexRebuildRequest): Promise<void> {
   const source = request.source || 'dex:rebuild';
-  // The root record may address the collections by path (`/mem/`) or by name
-  // (`mem`); both are reduced to the collection directory name so that a root
-  // created by either implementation is rebuilt identically.
-  const protocol = normalizeProtocolCollections(resolveProtocol(request.rootDirectory));
+  // `resolveProtocol` reduces the collection references of the root record to
+  // the collection directory, so a vault created by the legacy `tbc sys init`
+  // (which addresses the collections by path) is rebuilt identically to a
+  // vault created by the NG `tbc sys init`.
+  const protocol = resolveProtocol(request.rootDirectory);
 
   // Stage 2 - protocol discovery
   renderProtocol(protocol, source, request.verbose);
