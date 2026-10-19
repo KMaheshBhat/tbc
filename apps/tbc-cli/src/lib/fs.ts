@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync, rmSync, copyFileSync } from 'node:fs';
-import { join, relative, extname } from 'node:path';
+import { dirname, join, relative, extname } from 'node:path';
 import matter from 'gray-matter';
 import * as yaml from 'js-yaml';
 
@@ -108,11 +108,12 @@ export function storeRecord(root: string, collection: string, record: TBCRecord)
   const format = determineFormat(record, record.id);
 
   // For markdown files (not for .id files or SKILL.md which has path in id), add .md extension
-  if (format === 'markdown' && !record.id.includes('/') && !record.id.endsWith('.id')) {
+  if (format === 'markdown' && !record.id.includes('/') && !record.id.endsWith('.id') && !record.id.endsWith('.md')) {
     fileName = `${record.id}.md`;
   }
 
   const filePath = join(collectionDir, fileName);
+  mkdirSync(dirname(filePath), { recursive: true });
 
   // Special handling for .id files - write raw content without frontmatter
   if (record.id.endsWith('.id')) {
