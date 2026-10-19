@@ -121,6 +121,14 @@ export function storeRecord(root: string, collection: string, record: TBCRecord)
     return;
   }
 
+  // Honour the 'raw' format computed above: write the content verbatim.
+  // The 'raw' branch is only reached for ids without a .md/.json/.yaml
+  // extension whose content carries no front-matter and whose data is empty.
+  if (format === 'raw') {
+    writeFileSync(filePath, record.content, 'utf-8');
+    return;
+  }
+
   let content = record.content;
   let frontmatter: Record<string, unknown> = { ...record.data };
 
@@ -157,6 +165,27 @@ export function storeRecord(root: string, collection: string, record: TBCRecord)
   }
 
   writeFileSync(filePath, finalContent, 'utf-8');
+}
+
+/**
+ * Write a file verbatim (no front-matter) into a collection directory.
+ *
+ * Used for artifacts that must be byte-exact, such as the inDEX rebuild
+ * outputs (`sys.digest.txt`, `*.jsonl`). `storeRecord` always injects a YAML
+ * front-matter block, so it cannot be used for these.
+ */
+export function storeRawFile(root: string, collection: string, fileName: string, content: string): void {
+  validateRecordId(fileName);
+
+  const collectionDir = join(root, collection);
+  if (!existsSync(collectionDir)) {
+    mkdirSync(collectionDir, { recursive: true });
+  }
+
+  const filePath = join(collectionDir, fileName);
+  mkdirSync(dirname(filePath), { recursive: true });
+
+  writeFileSync(filePath, content, 'utf-8');
 }
 
 export function queryCollection(

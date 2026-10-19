@@ -14,8 +14,7 @@ const handleError = (message: string, error: unknown, verbose: boolean) => {
 
 export function createDexCommand(rootProgram: Command) {
   const cmdDex = new Command('dex')
-    .description('Manage inDEXes')
-    .option('--root <path>', 'Root directory');
+    .description('Manage inDEXes');
 
   cmdDex.addCommand(
     new Command('rebuild')

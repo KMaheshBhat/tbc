@@ -58,8 +58,21 @@ class SQLiteStore implements RecordStore {
             `);
 
             this.db.run('CREATE INDEX IF NOT EXISTS idx_record_lookup ON record(collection, record_kind)');
-            this.db.run('CREATE INDEX IF NOT EXISTS idx_relation_out ON record_relation(collection, from_record_id, relation_kind)');
-            this.db.run('CREATE INDEX IF NOT EXISTS idx_relation_in ON record_relation(collection, to_record_id, relation_kind)');
+
+            // The relation indexes reference the legacy relation columns. A
+            // database created by another schema shape (e.g. the standalone NG
+            // layer before the schema convergence) must not make this
+            // initialization fail with `no such column: collection`.
+            const relationColumns = new Set(
+                (this.db.query('PRAGMA table_info(record_relation)').all() as { name: string }[]).map((column) => column.name)
+            );
+            const relationSchemaMatches = ['collection', 'from_record_id', 'to_record_id', 'relation_kind']
+                .every((column) => relationColumns.has(column));
+
+            if (relationSchemaMatches) {
+                this.db.run('CREATE INDEX IF NOT EXISTS idx_relation_out ON record_relation(collection, from_record_id, relation_kind)');
+                this.db.run('CREATE INDEX IF NOT EXISTS idx_relation_in ON record_relation(collection, to_record_id, relation_kind)');
+            }
         }
 
         return ['store', 'query', 'fetch', 'graph'];

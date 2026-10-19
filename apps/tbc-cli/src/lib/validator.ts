@@ -10,6 +10,22 @@ export interface TBCValidationResult {
   messages: TBCMessage[];
 }
 
+/**
+ * Reduce a root-record reference to a bare record id.
+ *
+ * The root record references the memory records either by id (`01a15...`) or
+ * by path (`/mem/01a15....md`); the legacy validator strips the collection
+ * path and the `.md` extension before the cross-reference check.
+ */
+function normalizeRecordReference(reference: unknown): string {
+  if (typeof reference !== 'string') return 'undefined';
+  const trimmed = reference.trim();
+  if (!trimmed) return 'undefined';
+  const segments = trimmed.split('/').filter(Boolean);
+  const base = segments.length > 0 ? segments[segments.length - 1] : trimmed;
+  return base.replace(/\.md$/, '');
+}
+
 export function runValidationChecks(
   rootDirectory: string,
   protocol: TBCProtocol,
@@ -80,9 +96,9 @@ export function runValidationChecks(
     try {
       const content = readFileSync(rootMdPath, 'utf-8');
       const parsed = matter(content);
-      companionID = parsed.data.companion || 'undefined';
-      primeID = parsed.data.prime || 'undefined';
-      memoryMapID = parsed.data.memory_map || 'undefined';
+      companionID = normalizeRecordReference(parsed.data.companion);
+      primeID = normalizeRecordReference(parsed.data.prime);
+      memoryMapID = normalizeRecordReference(parsed.data.memory_map);
     } catch (e) {}
   }
 
