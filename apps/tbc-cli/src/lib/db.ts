@@ -120,6 +120,34 @@ export function ensureRecordRelationTable(db: Database): void {
   }
 }
 
+/**
+ * The payload persisted in the `data` column of the `record` table.
+ *
+ * The filesystem is the durable store; SQLite is a derived index that makes
+ * the queries fast. The payload therefore mirrors the whole record (front
+ * matter + body), exactly like the legacy store, so that a keyword search
+ * over the SQLite index also matches the body text. Storing the record twice
+ * is cheap at the volumes a personal companion deals with and it keeps the
+ * two implementations interchangeable.
+ */
+function recordPayload(record: TBCRecord): Record<string, unknown> {
+  return {
+    ...record.data,
+    content: record.content,
+    id: record.id,
+  };
+}
+
+/** Parse a stored payload back into a record payload. */
+function parsePayload(data: string): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(data);
+    return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : {};
+  } catch {
+    return {};
+  }
+}
+
 export function upsertRecord(dbPath: string, collection: string, record: TBCRecord): void {
   const db = new Database(dbPath);
   try {
@@ -127,7 +155,7 @@ export function upsertRecord(dbPath: string, collection: string, record: TBCReco
     ensureRecordRelationTable(db);
 
     const recordKind = record.record_type || record.kind || 'unknown';
-    const dataJson = JSON.stringify(record.data);
+    const dataJson = JSON.stringify(recordPayload(record));
 
     const stmt = db.prepare(`
       INSERT INTO record (record_id, collection, record_kind, data, updated_at)
@@ -167,13 +195,13 @@ export function fetchRecord(dbPath: string, collection: string, id: string): TBC
       return null;
     }
 
-    const data = JSON.parse(row.data);
+    const data = parsePayload(row.data);
     return {
       id: row.record_id,
       record_type: row.record_kind,
       kind: row.record_kind,
       data,
-      content: '',
+      content: typeof data.content === 'string' ? data.content : '',
     };
   } finally {
     db.close();
@@ -211,19 +239,22 @@ export function queryRecords(dbPath: string, collection: string, options?: { rec
       updated_at: string;
     }>;
 
-    return rows.map((row) => ({
-      id: row.record_id,
-      record_type: row.record_kind,
-      kind: row.record_kind,
-      data: JSON.parse(row.data),
-      content: '',
-    }));
+    return rows.map((row) => {
+      const data = parsePayload(row.data);
+      return {
+        id: row.record_id,
+        record_type: row.record_kind,
+        kind: row.record_kind,
+        data,
+        content: typeof data.content === 'string' ? data.content : '',
+      };
+    });
   } finally {
     db.close();
   }
 }
 
-/** Search records whose serialized front matter contains the supplied text. */
+/** Search records whose serialized payload contains the supplied text. */
 export function searchRecords(
   dbPath: string,
   collection: string,
@@ -254,13 +285,16 @@ export function searchRecords(
       record_kind: string;
       data: string;
     }>;
-    return rows.map((row) => ({
-      id: row.record_id,
-      record_type: row.record_kind,
-      kind: row.record_kind,
-      data: JSON.parse(row.data),
-      content: '',
-    }));
+    return rows.map((row) => {
+      const data = parsePayload(row.data);
+      return {
+        id: row.record_id,
+        record_type: row.record_kind,
+        kind: row.record_kind,
+        data,
+        content: typeof data.content === 'string' ? data.content : '',
+      };
+    });
   } finally {
     db.close();
   }
