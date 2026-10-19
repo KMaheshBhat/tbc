@@ -169,4 +169,33 @@ describe('🐵 0301 tbc mem recall', () => {
         expect(output).toContain('Buy more bananas for Mojo');
     });
 
+    test('12 should find a record by a body-only keyword (the SQLite index carries the body)', () => {
+        // The filesystem is the durable store, SQLite is the index that makes
+        // the search fast. Both stores must therefore carry the record body,
+        // otherwise a body-only keyword is not searchable through the index.
+        const bodyPhrase = 'zzqx-body-only-marker';
+        const remembered = runTbcCommand(TBC_ROOT, [
+            'mem',
+            'remember',
+            `A thought whose body carries ${bodyPhrase} and nothing else`,
+            '--type',
+            'note',
+            '--title',
+            'Body Index Probe',
+            '--root',
+            TBC_ROOT,
+        ]);
+        expect(remembered.success).toBe(true);
+
+        const { output, success } = runTbcCommand(TBC_ROOT, [
+            'mem',
+            'recall',
+            bodyPhrase,
+            '--root',
+            TBC_ROOT,
+        ]);
+        expect(success).toBe(true);
+        expect(output).toContain('Body Index Probe');
+    });
+
 });

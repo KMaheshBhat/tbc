@@ -42,6 +42,36 @@ const PROTOCOLS: Record<'baseline' | 'next', TBCProtocol> = {
   next: NEXT_PROTOCOL,
 };
 
+/**
+ * Reduce a protocol collection reference to its collection directory name.
+ *
+ * The root record stores collection *paths* in some profiles
+ * (`system_path: /sys/core/`, `memory_path: /mem/`, ...) and plain collection
+ * *names* in others (`system_path: sys`, `memory_path: mem`). The legacy
+ * protocol resolver reduces both to the top-level collection directory
+ * (`sys`, `mem`, ...); the NG layer must do the same so that a root created
+ * by either implementation is addressed identically.
+ */
+export function collectionName(collection: string): string {
+  const parts = collection.split('/').filter(Boolean);
+  return parts.length > 0 ? parts[0] : collection;
+}
+
+/**
+ * Return a copy of the protocol with every collection reduced to its
+ * collection directory name.
+ */
+export function normalizeProtocolCollections(protocol: TBCProtocol): TBCProtocol {
+  return {
+    ...protocol,
+    sysCollection: collectionName(protocol.sysCollection),
+    skillsCollection: collectionName(protocol.skillsCollection),
+    memCollection: collectionName(protocol.memCollection),
+    dexCollection: collectionName(protocol.dexCollection),
+    actCollection: collectionName(protocol.actCollection),
+  };
+}
+
 function findRootMd(rootDir: string): string | null {
   function scan(dir: string): string | null {
     const entries = readdirSync(dir);
@@ -84,7 +114,12 @@ export function resolveProtocol(rootDirectory: string, profile?: 'baseline' | 'n
     const content = readFileSync(rootMdPath, 'utf-8');
     const parsed = matter(content);
 
-    const protocol: TBCProtocol = {
+    // The root record may address the collections by path (`/sys/core/`,
+    // `/mem/`, ...) or by name (`sys`, `mem`, ...), depending on which
+    // implementation created the vault. Both are reduced to the collection
+    // directory, exactly as the legacy protocol resolver does, so that a
+    // legacy vault is addressed identically by both implementations.
+    const protocol: TBCProtocol = normalizeProtocolCollections({
       rootDirectory,
       sysCollection: parsed.data.system_path || 'sys',
       skillsCollection: parsed.data.skills_path || 'skills',
@@ -93,7 +128,7 @@ export function resolveProtocol(rootDirectory: string, profile?: 'baseline' | 'n
       actCollection: parsed.data.activity_path || 'act',
       hasSqlite: false,
       sqlitePath: '',
-    };
+    });
 
     const sqliteInfo = sniffSqlite(rootDirectory, protocol);
     protocol.hasSqlite = sqliteInfo.hasSqlite;

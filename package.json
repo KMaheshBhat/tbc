@@ -28,6 +28,7 @@
     "cli:test": "bun run --filter='@tbc-frameworx/tbc-cli' --concurrency=1 test",
     "cli:build": "bun run --filter='@tbc-frameworx/tbc-cli' build",
     "cli:install": "bun run cli:build && cd apps/tbc-cli && bun link",
+    "sqlite:rebuild": "bun run scripts/rebuild-sqlite.ts",
     "all:build": "bun run scripts/build-all.ts --test",
     "all:build-fresh": "bun run scripts/build-all.ts --clean --test",
     "all:build-dist": "bun run scripts/build-all.ts --clean --dist --test",
