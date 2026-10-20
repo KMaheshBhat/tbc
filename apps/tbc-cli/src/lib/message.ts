@@ -1,3 +1,6 @@
+import type { DexArtifact } from './dex.js';
+import type { TBCProtocol } from './protocol.js';
+import type { TBCValidationResult } from './validator.js';
 
 export type TBCLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -327,6 +330,66 @@ export function formatNextSteps(suggestion: string, source = ''): TBCMessage[] {
       suggestion: suggestion,
     },
   ];
+}
+
+/**
+ * Render the validation audit of a root validation.
+ *
+ * The block is shared by the dex and the mem services so that the two
+ * commands report a root validation identically (D9).
+ */
+export function formatValidationAudit(
+  result: TBCValidationResult,
+  source: string,
+): TBCMessage[] {
+  return [
+    { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┤ Validation Audit ├────────────────────────────────────────' },
+    ...result.messages,
+    { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
+    { level: 'info', kind: 'raw', source, code: '', message: result.success
+      ? '[✓] STABLE   | 0 error(s) detected.'
+      : `[✗] DEGRADED   | ${result.messages.filter((message) => message.level === 'error').length} error(s) detected.` },
+  ];
+}
+
+/**
+ * Render the report of an inDEX rebuild.
+ *
+ * The block is shared by the dex and the mem services so that the assimilate
+ * flow can report the rebuild in its own voice without duplicating it (D15).
+ */
+export function formatDexRebuildReport(
+  artifacts: DexArtifact[],
+  protocol: TBCProtocol,
+  source: string,
+  version: string,
+): TBCMessage[] {
+  const messages: TBCMessage[] = [
+    { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┼───────────────────────────────────────────────────────────' },
+    { level: 'info', kind: 'raw', source: '', code: '', message: `[✓] System Index (Dex) Rebuilt: ${version}` },
+    { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
+    { level: 'info', source, code: 'DEX-REBUILT',
+      message: `Digest: ${protocol.dexCollection}/sys.digest.txt`,
+      suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.' },
+    { level: 'info', source, code: 'DEX-REBUILT',
+      message: `Digest: ${protocol.dexCollection}/skills.jsonl`,
+      suggestion: 'This file is index of all skill you can use for your goals.' },
+    { level: 'info', source, code: 'DEX-REBUILT',
+      message: `Digest: ${protocol.dexCollection}/${protocol.memCollection}.*.jsonl`,
+      suggestion: 'These files is index of all your memory records partitioined by record_type.' },
+  ];
+
+  for (const artifact of artifacts) {
+    if (artifact.fileName === 'sys.digest.txt' || artifact.fileName === 'skills.jsonl') continue;
+    messages.push({
+      level: 'debug',
+      source,
+      code: 'DEX-ARTIFACT',
+      message: `Artifact: ${protocol.dexCollection}/${artifact.fileName}`,
+    });
+  }
+
+  return messages;
 }
 
 export function formatLoadSpecsDebug(source = ''): TBCMessage[] {

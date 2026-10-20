@@ -72,14 +72,19 @@ export function createMemCommand(rootProgram: Command) {
 
   cmdMem.addCommand(
     new Command('assimilate')
-      .description('Replicate memory records across all RecordStore providers')
-      .action(async () => {
+      .description('Mine the memory records and bake them into every configured store')
+      .option('--dry-run', 'Report what would be written without writing anything')
+      .option('--backup', 'Write a timestamped copy of the SQLite database before writing')
+      .action(async (opts) => {
         const cliOpts = rootProgram.opts();
         const isVerbose = !!cliOpts.verbose;
         try {
           await assimilateMemory({
             rootDirectory: cliOpts.root || process.cwd(),
             verbose: isVerbose,
+            dryRun: !!opts.dryRun,
+            backup: !!opts.backup,
+            source: 'mem:assimilate',
           });
         } catch (error) {
           handleError('Error running ng mem assimilate', error, isVerbose);

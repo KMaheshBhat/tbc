@@ -1,12 +1,9 @@
-import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
 import packageJson from '../../package.json' with { type: 'json' };
 
-import { buildCollectionShards, buildSkillsIndex, buildSysDigest } from '../lib/dex.js';
-import { storeRawFile } from '../lib/fs.js';
-import { formatMessages, formatProtocolDiscovery } from '../lib/message.js';
+import { writeDexArtifacts } from '../lib/dex.js';
+import { formatDexRebuildReport, formatMessages, formatProtocolDiscovery, formatValidationAudit } from '../lib/message.js';
 import { resolveProtocol, type TBCProtocol } from '../lib/protocol.js';
-import { runValidationChecks, type TBCValidationResult } from '../lib/validator.js';
+import { runValidationChecks } from '../lib/validator.js';
 
 export interface DexRebuildRequest {
   rootDirectory: string;
@@ -20,32 +17,6 @@ function renderProtocol(protocol: TBCProtocol, source: string, verbose: boolean)
 
 function renderFlowMessage(source: string, message: string, verbose: boolean): void {
   console.log(formatMessages([{ level: 'info', source, code: 'FLOW', message }], verbose));
-}
-
-function renderValidationAudit(result: TBCValidationResult, source: string, verbose: boolean): void {
-  console.log(formatMessages([
-    { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┤ Validation Audit ├────────────────────────────────────────' },
-    ...result.messages,
-    { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
-    { level: 'info', kind: 'raw', source, code: '', message: result.success
-      ? '[✓] STABLE   | 0 error(s) detected.'
-      : `[✗] DEGRADED   | ${result.messages.filter((message) => message.level === 'error').length} error(s) detected.` },
-  ], verbose));
-}
-
-/**
- * Remove the stale memory shards of a collection.
- *
- * A record whose `record_type` changed would otherwise leave an orphan shard
- * behind (legacy `FSStore.index` parity).
- */
-function removeStaleShards(dexDirectory: string, collection: string): void {
-  if (!existsSync(dexDirectory)) return;
-  for (const entry of readdirSync(dexDirectory)) {
-    if (entry.startsWith(`${collection}.`) && entry.endsWith('.jsonl')) {
-      rmSync(join(dexDirectory, entry), { force: true });
-    }
-  }
 }
 
 /**
@@ -73,7 +44,7 @@ export async function rebuildDex(request: DexRebuildRequest): Promise<void> {
 
   // Stage 3 - root validation (abort without rebuilding on failure)
   const validation = runValidationChecks(request.rootDirectory, protocol, source);
-  renderValidationAudit(validation, source, request.verbose);
+  console.log(formatMessages(formatValidationAudit(validation, source), request.verbose));
   if (!validation.success) {
     console.log(formatMessages([{
       level: 'error',
@@ -89,46 +60,11 @@ export async function rebuildDex(request: DexRebuildRequest): Promise<void> {
   renderFlowMessage(source, 'Rebuilding DEX...', request.verbose);
 
   // Stage 4 - rebuild execution (fixed order: sys digest -> skills index -> mem shards)
-  const dexDirectory = join(request.rootDirectory, protocol.dexCollection);
-  if (!existsSync(dexDirectory)) {
-    mkdirSync(dexDirectory, { recursive: true });
-  }
-
-  // 4a - system digest
-  storeRawFile(
-    request.rootDirectory,
-    protocol.dexCollection,
-    'sys.digest.txt',
-    buildSysDigest(request.rootDirectory, protocol),
-  );
-
-  // 4b - skills index
-  storeRawFile(
-    request.rootDirectory,
-    protocol.dexCollection,
-    'skills.jsonl',
-    buildSkillsIndex(request.rootDirectory, protocol),
-  );
-
-  // 4c - memory shards (stale shards are removed first - legacy parity)
-  removeStaleShards(dexDirectory, protocol.memCollection);
-  for (const shard of buildCollectionShards(request.rootDirectory, protocol.memCollection)) {
-    storeRawFile(request.rootDirectory, protocol.dexCollection, shard.fileName, shard.content);
-  }
+  const artifacts = writeDexArtifacts(request.rootDirectory, protocol);
 
   // Stage 5 - output
-  console.log(formatMessages([
-    { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┼───────────────────────────────────────────────────────────' },
-    { level: 'info', kind: 'raw', source: '', code: '', message: `[✓] System Index (Dex) Rebuilt: ${packageJson.version}` },
-    { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
-    { level: 'info', source, code: 'DEX-REBUILT',
-      message: `Digest: ${protocol.dexCollection}/sys.digest.txt`,
-      suggestion: 'This file now contains the full context of your [sys], [sys/core], and [sys/ext] specifications.' },
-    { level: 'info', source, code: 'DEX-REBUILT',
-      message: `Digest: ${protocol.dexCollection}/skills.jsonl`,
-      suggestion: 'This file is index of all skill you can use for your goals.' },
-    { level: 'info', source, code: 'DEX-REBUILT',
-      message: `Digest: ${protocol.dexCollection}/${protocol.memCollection}.*.jsonl`,
-      suggestion: 'These files is index of all your memory records partitioined by record_type.' },
-  ], request.verbose));
+  console.log(formatMessages(
+    formatDexRebuildReport(artifacts, protocol, source, packageJson.version),
+    request.verbose,
+  ));
 }

@@ -1,7 +1,8 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { basename, extname, join, relative } from 'node:path';
 import matter from 'gray-matter';
 
+import { storeRawFile } from './fs.js';
 import type { TBCProtocol } from './protocol.js';
 
 /** A file discovered inside a TBC collection. */
@@ -229,4 +230,66 @@ export function buildCollectionShards(root: string, collection: string): DexShar
 
   shards.sort((a, b) => (a.fileName < b.fileName ? -1 : a.fileName > b.fileName ? 1 : 0));
   return shards;
+}
+
+/** A written inDEX artifact. */
+export interface DexArtifact {
+  /** The artifact's file name (e.g. 'mem.note.jsonl'). */
+  fileName: string;
+  /** The artifact's content. */
+  content: string;
+}
+
+/**
+ * Remove the stale memory shards of a collection.
+ *
+ * A record whose `record_type` changed would otherwise leave an orphan shard
+ * behind (legacy `FSStore.index` parity).
+ */
+function removeStaleShards(dexDirectory: string, collection: string): void {
+  if (!existsSync(dexDirectory)) return;
+  for (const entry of readdirSync(dexDirectory)) {
+    if (entry.startsWith(`${collection}.`) && entry.endsWith('.jsonl')) {
+      rmSync(join(dexDirectory, entry), { force: true });
+    }
+  }
+}
+
+/**
+ * Build and write the inDEX artifacts of a TBC root.
+ *
+ * The rebuild targets are fixed (legacy `on.rebuild` parity):
+ *   1. `<dex>/sys.digest.txt`  - the collated system specifications
+ *   2. `<dex>/skills.jsonl`    - the skills metadata index
+ *   3. `<dex>/<mem>.*.jsonl`   - the memory shards, partitioned by record_type
+ *
+ * The artifacts are written to the filesystem only; they are never dual-written
+ * to SQLite (legacy `dex` collection protocol parity).
+ *
+ * @returns the artifacts that were written.
+ */
+export function writeDexArtifacts(root: string, protocol: TBCProtocol): DexArtifact[] {
+  const dexDirectory = join(root, protocol.dexCollection);
+  if (!existsSync(dexDirectory)) {
+    mkdirSync(dexDirectory, { recursive: true });
+  }
+
+  // The stale shards are removed first (legacy parity) so that a record whose
+  // `record_type` changed does not leave an orphan shard behind.
+  removeStaleShards(dexDirectory, protocol.memCollection);
+
+  const artifacts: DexArtifact[] = [
+    { fileName: 'sys.digest.txt', content: buildSysDigest(root, protocol) },
+    { fileName: 'skills.jsonl', content: buildSkillsIndex(root, protocol) },
+  ];
+
+  for (const shard of buildCollectionShards(root, protocol.memCollection)) {
+    artifacts.push({ fileName: shard.fileName, content: shard.content });
+  }
+
+  for (const artifact of artifacts) {
+    storeRawFile(root, protocol.dexCollection, artifact.fileName, artifact.content);
+  }
+
+  return artifacts;
 }
