@@ -120,7 +120,9 @@ describe('🐵 0301 tbc mem recall', () => {
             NON_TBC_ROOT,
         ]);
         expect(success).toBe(true);
-        expect(output).toContain('error | recall-flow');
+        // The label is a DX artefact; the behaviour is the OX/AX surface. Assert
+        // the guard's behaviour, not its label (D16, §5.2.1).
+        expect(output).toMatch(/error\s+\|\s+[^|]+\|\s+has no existing companion/);
         expect(output).toContain('has no existing companion (not a valid TBC Root)');
         expect(output).toContain('Suggestion: Use "tbc sys init" instead.');
     });

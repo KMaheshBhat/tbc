@@ -356,7 +356,7 @@ export function formatValidationAudit(
  * Render the report of an inDEX rebuild.
  *
  * The block is shared by the dex and the mem services so that the assimilate
- * flow can report the rebuild in its own voice without duplicating it (D15).
+ * service can report the rebuild in its own voice without duplicating it (D15).
  */
 export function formatDexRebuildReport(
   artifacts: DexArtifact[],

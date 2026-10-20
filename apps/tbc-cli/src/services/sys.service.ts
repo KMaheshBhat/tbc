@@ -1,5 +1,5 @@
 import { resolveProtocol } from '../lib/protocol.js';
-import { runValidationChecks } from '../lib/validator.js';
+import { runValidationChecks, type TBCValidationResult } from '../lib/validator.js';
 import { storeRecord, fetchRecord, deleteDirectory, copyDirectory, type TBCRecord } from '../lib/fs.js';
 import { upsertRecord } from '../lib/db.js';
 import { ASSETS } from '../lib/assets.js';
@@ -14,6 +14,7 @@ import {
   formatNextSteps,
   formatLoadSpecsDebug,
   formatLoadCoreMemoriesDebug,
+  formatValidationAudit,
   type TBCMessage,
   type MintedOutput,
   type ProtocolDiscoveryOutput,
@@ -27,15 +28,35 @@ import {
   synthesizeRootRecord,
   synthesizeSystemPointers,
 } from '../lib/synthesis.js';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const packageJsonPath = existsSync(join(__dirname, '../package.json'))
-  ? join(__dirname, '../package.json')
-  : join(__dirname, '../../package.json');
-const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+
+/**
+ * Locate the CLI's own `package.json`.
+ *
+ * The version is read from the package manifest, which sits one or two levels
+ * above the module — depending on whether the CLI runs from source, from the
+ * bundled build, or from the compiled binary. In the compiled binary
+ * `import.meta.url` is the virtual `/$bunfs/root/…`, so the executable's own
+ * directory is the anchor that still points at the real tree.
+ */
+function resolvePackageJsonPath(): string {
+  const candidates = [
+    join(__dirname, '../package.json'),
+    join(__dirname, '../../package.json'),
+    join(dirname(process.execPath), '../package.json'),
+    join(dirname(process.execPath), '../../package.json'),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  throw new Error(`Unable to locate the tbc-cli package.json (looked in: ${candidates.join(', ')}).`);
+}
+
+const packageJson = JSON.parse(readFileSync(resolvePackageJsonPath(), 'utf-8'));
 
 interface TBCProtocol {
   rootDirectory: string;
@@ -69,12 +90,6 @@ export interface SysValidateRequest {
   source?: string;
 }
 
-export interface TBCValidationResult {
-  success: boolean;
-  timestamp: string;
-  messages: TBCMessage[];
-}
-
 function renderProtocolDiscovery(protocol: TBCProtocol, source: string, verbose: boolean): void {
   const protocolDiscoveryOutput: ProtocolDiscoveryOutput = {
     sysCollection: protocol.sysCollection,
@@ -103,34 +118,7 @@ function renderValidationAudit(
   source: string,
   verbose: boolean
 ): void {
-  const auditMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      kind: 'raw',
-      source: '',
-      code: '',
-      message: ' ┌┤ Validation Audit ├────────────────────────────────────────',
-    },
-    ...validationResult.messages,
-    {
-      level: 'info',
-      kind: 'raw',
-      source: '',
-      code: '',
-      message: ' └┼───────────────────────────────────────────────────────────',
-    },
-    {
-      level: 'info',
-      kind: 'raw',
-      source,
-      code: '',
-      message: validationResult.success
-        ? `[✓] STABLE   | 0 error(s) detected.`
-        : `[✗] DEGRADED   | ${validationResult.messages.filter(m => m.level === 'error').length} error(s) detected.`,
-    },
-  ];
-
-  console.log(formatMessages(auditMessages, verbose));
+  console.log(formatMessages(formatValidationAudit(validationResult, source), verbose));
 }
 
 async function writeRecordsToFsAndSqlite(

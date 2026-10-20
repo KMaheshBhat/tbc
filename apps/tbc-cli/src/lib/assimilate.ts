@@ -63,7 +63,7 @@ export interface MinedRecord {
 /**
  * Derive a title from the first five words of the content.
  *
- * Shared with `mem remember` so that both flows mint the same title shape.
+ * Shared with `mem remember` so that both commands mint the same title shape.
  */
 export function deriveTitle(content?: string): string {
     const words = (content || '').trim().split(/\s+/).filter(Boolean);

@@ -4,38 +4,18 @@ import { join } from 'node:path';
 /**
  * The order of this array defines the build sequence.
  * Add new packages here to include them in the 'all:build' process.
+ *
+ * The shape is an array of *groups*: each group is built with one `--filter`
+ * per package. A future entry point (e.g. a `tbc-core` package) is a new
+ * group, or a new member of the last group — a re-point, not a re-write.
  */
 const BUILD_ORDER = [
-  [
-    '@tbc-frameworx/tbc-mint',
-    '@tbc-frameworx/tbc-synthesize',
-    '@tbc-frameworx/tbc-record',
-  ],
-  [
-    '@tbc-frameworx/tbc-record-fs',
-    '@tbc-frameworx/tbc-record-sqlite',
-  ],
-  [
-    '@tbc-frameworx/tbc-system',
-  ],
-  [
-    '@tbc-frameworx/tbc-memory',
-    '@tbc-frameworx/tbc-activity',
-    '@tbc-frameworx/tbc-interface',
-  ],
-  [
-    '@tbc-frameworx/tbc-gemini',
-    '@tbc-frameworx/tbc-kilocode',
-    '@tbc-frameworx/tbc-goose',
-    '@tbc-frameworx/tbc-github-copilot',
-    '@tbc-frameworx/tbc-pi',
-  ],
   [
     '@tbc-frameworx/tbc-cli',
   ],
 ];
 
-function hasTestScript(pkgName: string, ng = false): boolean {
+function hasTestScript(pkgName: string): boolean {
   const folderName = pkgName.split('/').pop() || '';
   const paths = [
     join('packages', folderName, 'package.json'),
@@ -46,8 +26,7 @@ function hasTestScript(pkgName: string, ng = false): boolean {
       try {
         const content = readFileSync(pkgJsonPath, 'utf8');
         const pkgJson = JSON.parse(content);
-        const scriptName = ng ? 'test:ng' : 'test';
-        return !!(pkgJson.scripts && pkgJson.scripts[scriptName]);
+        return !!(pkgJson.scripts && pkgJson.scripts['test']);
       } catch (e) {
         continue;
       }
@@ -62,7 +41,6 @@ async function runBuilds() {
   const shouldClean = args.includes('--clean');
   const shouldPackage = args.includes('--dist');
   const shouldTest = args.includes('--test');
-  const shouldTestNg = args.includes('--test-ng');
 
   if (shouldClean) {
     console.log('🧹 Flag --clean detected. Wiping dist folders...');
@@ -93,11 +71,10 @@ async function runBuilds() {
     }
 
     // 2. Conditional Test Phase
-    if (shouldTest || shouldTestNg) {
+    if (shouldTest) {
       for (const pkg of group) {
-        const useNg = shouldTestNg && hasTestScript(pkg, true);
-        const script = useNg ? 'test:ng' : 'test';
-        if (hasTestScript(pkg, useNg)) {
+        const script = 'test';
+        if (hasTestScript(pkg)) {
           console.log(`🧪 Running ${script} for: ${pkg}`);
           const testProc = Bun.spawn(['bun', 'run', '--filter', pkg, script], {
             stdout: 'inherit',
