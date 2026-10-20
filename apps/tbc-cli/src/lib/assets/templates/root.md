@@ -19,5 +19,5 @@
 
 ## Memories
 
-- see /dex/mem.{record_type}.jsonl for indexes of various memory records
+- see `/dex/mem.{record_type}.jsonl` for indexes of various memory records
 - [root Map of Memories](/mem/{{memoryMapID}}.md)
