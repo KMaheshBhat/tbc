@@ -39,8 +39,8 @@ function validateRoot(rootDirectory: string, protocol: TBCProtocol, source: stri
   return false;
 }
 
-function renderFlowMessage(source: string, message: string, verbose: boolean): void {
-  console.log(formatMessages([{ level: 'info', source, code: 'FLOW', message }], verbose));
+function renderServiceMessage(source: string, message: string, verbose: boolean): void {
+  console.log(formatMessages([{ level: 'info', source, code: 'SERVICE', message }], verbose));
 }
 
 function activityRoot(protocol: TBCProtocol, rootDirectory: string): string { return join(rootDirectory, protocol.actCollection); }
@@ -59,19 +59,19 @@ export async function startActivity(request: ActStartRequest): Promise<void> {
   if (request.activityId !== undefined) validateActivityId(request.activityId);
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
-  renderFlowMessage(source, 'Checking first ...', request.verbose);
+  renderServiceMessage(source, 'Checking first ...', request.verbose);
   if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
-  renderFlowMessage(source, 'existing valid TBC root found, proceeding ...', request.verbose);
+  renderServiceMessage(source, 'existing valid TBC root found, proceeding ...', request.verbose);
 
   let id: string;
   if (request.activityId) {
     id = request.activityId;
   } else {
-    renderFlowMessage(source, 'No activityID provided ...', request.verbose);
+    renderServiceMessage(source, 'No activityID provided ...', request.verbose);
     [id] = await mintUuids(1);
-    console.log(formatMessages(formatMintedIds({ keys: {}, batch: [id] }, 'generate-uuids-flow'), request.verbose));
+    console.log(formatMessages(formatMintedIds({ keys: {}, batch: [id] }, 'act:start'), request.verbose));
   }
-  renderFlowMessage(source, 'actual workspace preparation', request.verbose);
+  renderServiceMessage(source, 'actual workspace preparation', request.verbose);
   const current = activityPath(protocol, request.rootDirectory, 'current', id);
   const backlog = activityPath(protocol, request.rootDirectory, 'backlog', id);
   let status: 'active' | 'resumed' | 'created';
@@ -90,7 +90,7 @@ export async function startActivity(request: ActStartRequest): Promise<void> {
     const pointer = fetchFsRecord(request.rootDirectory, protocol.sysCollection, 'companion.id');
     const companionId = pointer?.content.trim();
     const companion = companionId ? fetchFsRecord(request.rootDirectory, protocol.memCollection, companionId) : null;
-    renderFlowMessage(source, `Synthesizing activity log ${id} with companion ${String(companion?.data.record_title || 'companion')}`, request.verbose);
+    renderServiceMessage(source, `Synthesizing activity log ${id} with companion ${String(companion?.data.record_title || 'companion')}`, request.verbose);
     const timestamp = new Date().toISOString();
     const record = synthesizeMemoryRecord(id, 'log', `Activity Log ${timestamp}`,
       `Activity session initialized with companion ${String(companion?.data.record_title || 'companion')}. Replace this with actual activity details and logs as you work.`, [], timestamp);
@@ -102,7 +102,7 @@ export async function startActivity(request: ActStartRequest): Promise<void> {
     { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┼───────────────────────────────────────────────────────────' },
     { level: 'info', kind: 'raw', source: '', code: '', message: `[✓] Activity started: ${id}` },
     { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
-    { level: 'info', source: 'act-start-flow', code: 'ACTIVITY-STARTED', message: `Log: ${protocol.actCollection}/current/${id}/${id}.md`, suggestion: 'This is your active workspace. Updates will be tracked here until the activity is closed.' },
+    { level: 'info', source: 'act:start', code: 'ACTIVITY-STARTED', message: `Log: ${protocol.actCollection}/current/${id}/${id}.md`, suggestion: 'This is your active workspace. Updates will be tracked here until the activity is closed.' },
   ], request.verbose));
 }
 
@@ -138,11 +138,11 @@ export async function pauseActivity(request: ActPauseRequest): Promise<void> {
   validateActivityId(request.activityId);
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
-  renderFlowMessage(source, 'Checking first ...', request.verbose);
+  renderServiceMessage(source, 'Checking first ...', request.verbose);
   if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
   const current = activityPath(protocol, request.rootDirectory, 'current', request.activityId);
   if (!existsSync(current)) {
-    renderMissingActivity(request.activityId, 'act-pause-flow', 'Check "tbc act show" to verify the activity status or "tbc act start" to start a new activity.', request.verbose); return;
+    renderMissingActivity(request.activityId, 'act:pause', 'Check "tbc act show" to verify the activity status or "tbc act start" to start a new activity.', request.verbose); return;
   }
   const backlogRoot = join(activityRoot(protocol, request.rootDirectory), 'backlog');
   mkdirSync(backlogRoot, { recursive: true }); renameSync(current, join(backlogRoot, request.activityId));
@@ -150,7 +150,7 @@ export async function pauseActivity(request: ActPauseRequest): Promise<void> {
     { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┼───────────────────────────────────────────────────────────' },
     { level: 'info', kind: 'raw', source: '', code: '', message: `[✓] Activity paused: ${request.activityId}` },
     { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
-    { level: 'info', source: 'act-pause-flow', code: 'ACTIVITY-PAUSED', message: `Paused activity: ${request.activityId}`, suggestion: `Use "tbc act start ${request.activityId}" to resume the activity.` },
+    { level: 'info', source: 'act:pause', code: 'ACTIVITY-PAUSED', message: `Paused activity: ${request.activityId}`, suggestion: `Use "tbc act start ${request.activityId}" to resume the activity.` },
   ], request.verbose));
 }
 
@@ -159,15 +159,15 @@ export async function closeActivity(request: ActCloseRequest): Promise<void> {
   validateActivityId(request.activityId);
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
-  renderFlowMessage(source, 'Checking first ...', request.verbose);
+  renderServiceMessage(source, 'Checking first ...', request.verbose);
   if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
   const current = activityPath(protocol, request.rootDirectory, 'current', request.activityId);
   if (!existsSync(current)) {
-    renderMissingActivity(request.activityId, 'act-close-flow', 'Verify the ID with "tbc act show" or check if it is already in the backlog/archive.', request.verbose); return;
+    renderMissingActivity(request.activityId, 'act:close', 'Verify the ID with "tbc act show" or check if it is already in the backlog/archive.', request.verbose); return;
   }
   const record = activityLogRecord(request.rootDirectory, protocol, 'current', request.activityId);
   if (!record) {
-    console.log(formatMessages([{ level: 'error', source: 'act-close-flow', code: 'PRIMARY-LOG-MISSING', message: `Primary activity log ${request.activityId}.md is missing; activity was left untouched.` }], request.verbose)); return;
+    console.log(formatMessages([{ level: 'error', source: 'act:close', code: 'PRIMARY-LOG-MISSING', message: `Primary activity log ${request.activityId}.md is missing; activity was left untouched.` }], request.verbose)); return;
   }
   if (record.record_type !== 'log' || record.data.record_type !== 'log') throw new Error(`Activity ${request.activityId} primary record is not a log.`);
   const archive = activityPath(protocol, request.rootDirectory, 'archive', request.activityId);
@@ -179,6 +179,6 @@ export async function closeActivity(request: ActCloseRequest): Promise<void> {
     { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┼───────────────────────────────────────────────────────────' },
     { level: 'info', kind: 'raw', source: '', code: '', message: `[✓] Activity closed: ${request.activityId}` },
     { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
-    { level: 'info', source: 'act-close-flow', code: 'ACTIVITY-CLOSED', message: `Activity archived: ${protocol.actCollection}/archive/${request.activityId}` },
+    { level: 'info', source: 'act:close', code: 'ACTIVITY-CLOSED', message: `Activity archived: ${protocol.actCollection}/archive/${request.activityId}` },
   ], request.verbose));
 }

@@ -6,7 +6,7 @@ import { ASSETS } from './assets.js';
 /**
  * Pure data builders for TBC record synthesis.
  * These functions take inputs and return TBCRecord objects with zero knowledge
- * of console logging, CLI options, or execution flow.
+ * of console logging, CLI options, or execution order.
  */
 
 export function synthesizeCompanionRecord(id: string, name: string, date: string): TBCRecord {

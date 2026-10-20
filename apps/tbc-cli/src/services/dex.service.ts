@@ -15,8 +15,8 @@ function renderProtocol(protocol: TBCProtocol, source: string, verbose: boolean)
   console.log(formatMessages(formatProtocolDiscovery(protocol, source), verbose));
 }
 
-function renderFlowMessage(source: string, message: string, verbose: boolean): void {
-  console.log(formatMessages([{ level: 'info', source, code: 'FLOW', message }], verbose));
+function renderServiceMessage(source: string, message: string, verbose: boolean): void {
+  console.log(formatMessages([{ level: 'info', source, code: 'SERVICE', message }], verbose));
 }
 
 /**
@@ -40,7 +40,7 @@ export async function rebuildDex(request: DexRebuildRequest): Promise<void> {
 
   // Stage 2 - protocol discovery
   renderProtocol(protocol, source, request.verbose);
-  renderFlowMessage(source, 'Checking first ...', request.verbose);
+  renderServiceMessage(source, 'Checking first ...', request.verbose);
 
   // Stage 3 - root validation (abort without rebuilding on failure)
   const validation = runValidationChecks(request.rootDirectory, protocol, source);
@@ -48,7 +48,7 @@ export async function rebuildDex(request: DexRebuildRequest): Promise<void> {
   if (!validation.success) {
     console.log(formatMessages([{
       level: 'error',
-      source: 'dex-rebuild-flow',
+      source: 'dex:rebuild',
       code: 'OVERWRITE-GUARD',
       message: 'has no existing companion (not a valid TBC Root)',
       suggestion: 'Can only be run on a valid TBC Root. (Use "tbc sys init" for new Companion).',
@@ -56,8 +56,8 @@ export async function rebuildDex(request: DexRebuildRequest): Promise<void> {
     return;
   }
 
-  renderFlowMessage(source, 'existing valid TBC root found, proceeding ...', request.verbose);
-  renderFlowMessage(source, 'Rebuilding DEX...', request.verbose);
+  renderServiceMessage(source, 'existing valid TBC root found, proceeding ...', request.verbose);
+  renderServiceMessage(source, 'Rebuilding DEX...', request.verbose);
 
   // Stage 4 - rebuild execution (fixed order: sys digest -> skills index -> mem shards)
   const artifacts = writeDexArtifacts(request.rootDirectory, protocol);

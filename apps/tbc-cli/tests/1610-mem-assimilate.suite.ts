@@ -37,10 +37,10 @@ This was added manually to test mem assimilate on Kong.`;
         expect(output).toContain('Broadcast');
         expect(existsSync(manualMemPath)).toBe(true);
         // The store key differs between the two implementations:
-        //  - the legacy flow wrote the file name with the '.md' suffix;
-        //  - the NG flow writes the bare record id — the same key `tbc mem remember`
-        //    and `act close` use (see the `tbc ng mem assimilate` design plan, §6.1
-        //    — the legacy created a second row for every record).
+        //  - the legacy implementation wrote the file name with the '.md' suffix;
+        //  - the current implementation writes the bare record id — the same key
+        //    `tbc mem remember` and `act close` use (see the `tbc ng mem assimilate`
+        //    design plan, §6.1 — the legacy created a second row for every record).
         const results = querySqliteNext(
             'SELECT record_id FROM record WHERE record_id IN (?, ?)',
             [manualMemId, `${manualMemId}.md`],

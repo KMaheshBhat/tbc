@@ -58,27 +58,22 @@ export interface MemAssimilateResult {
   dexRebuilt: boolean;
 }
 
-/**
- * The flow that owns a message source.
- *
- * The `OVERWRITE-GUARD` error is attributed to the *flow* that raised it
- * (`remember-flow`, `recall-flow`, `assimilate-flow`), while the progress
- * lines of a flow carry the request source itself (`mem:remember`,
- * `mem:recall`, `mem:assimilate`) — the convention the dex and act services
- * already follow. An explicit three-way mapping so that no flow can be
- * mislabelled (D8).
- */
-function flowSource(source: string): string {
-  if (source === 'mem:recall') return 'recall-flow';
-  if (source === 'mem:assimilate') return 'assimilate-flow';
-  return 'remember-flow';
-}
-
 function renderProtocol(protocol: TBCProtocol, source: string, verbose: boolean): void {
   if (!verbose) return;
   console.log(formatMessages(formatProtocolDiscovery(protocol, source), verbose));
 }
 
+/**
+ * Validate the root, and report the `OVERWRITE-GUARD` error.
+ *
+ * A message's `source` identifies the **service context** that produced it.
+ * A command's own lines carry the **request source** (`mem:remember`,
+ * `mem:recall`, `mem:assimilate`) — and the `OVERWRITE-GUARD` error carries
+ * the **same** label, because it is raised inside that very context. A label
+ * stacks only where a service actually composes a peer service; the `mem`
+ * service reaches the root validation through `lib/validator.ts`, a library
+ * call, so its label stays flat (D16, L1–L5).
+ */
 function validate(rootDirectory: string, protocol: TBCProtocol, source: string, verbose: boolean): boolean {
   const result = runValidationChecks(rootDirectory, protocol, source);
   if (result.success) return true;
@@ -86,7 +81,7 @@ function validate(rootDirectory: string, protocol: TBCProtocol, source: string, 
     ...result.messages.filter((message) => message.level === 'error'),
     {
       level: 'error',
-      source: flowSource(source),
+      source,
       code: 'OVERWRITE-GUARD',
       message: 'has no existing companion (not a valid TBC Root)',
       suggestion: 'Use "tbc sys init" instead.',
@@ -149,7 +144,7 @@ function renderMemories(records: TBCRecord[], source: string, verbose: boolean):
 
 function sortRecent(records: TBCRecord[], limit: number): TBCRecord[] {
   return records
-    // The legacy view flow requests sortBy=id, sortOrder=desc. UUIDv7 IDs
+    // The legacy view requests sortBy=id, sortOrder=desc. UUIDv7 IDs
     // preserve the intended recency ordering and remain stable when tests or
     // callers create records concurrently.
     .sort((a, b) => b.id.localeCompare(a.id))
@@ -193,27 +188,27 @@ export async function recallMemory(request: MemRecallRequest): Promise<void> {
   const normalizedQuery = request.query?.trim().toLowerCase();
   if (normalizedQuery === 'companion' || normalizedQuery === 'who am i') {
     const record = companionIdentity(request.rootDirectory, protocol);
-    if (record) renderIdentity('Companion Identity', record, 'recall-flow');
+    if (record) renderIdentity('Companion Identity', record, 'mem:recall');
     return;
   }
   if (normalizedQuery === 'prime' || normalizedQuery === 'who is my prime') {
     const record = primeIdentity(request.rootDirectory, protocol);
-    if (record) renderIdentity('Prime Identity', record, 'recall-flow');
+    if (record) renderIdentity('Prime Identity', record, 'mem:recall');
     return;
   }
 
   let records: TBCRecord[];
   if (request.query && protocol.hasSqlite) {
-    if (request.verbose) console.log(`[»] ── debug | recall-flow | Query source: tbc-record-sqlite:query-records`);
+    if (request.verbose) console.log(`[»] ── debug | mem:recall | Query source: tbc-record-sqlite:query-records`);
     records = searchRecords(protocol.sqlitePath, protocol.memCollection, request.query, request.type);
   } else if (request.query) {
-    if (request.verbose) console.log(`[»] ── debug | recall-flow | Query source: tbc-record-fs:query-records`);
+    if (request.verbose) console.log(`[»] ── debug | mem:recall | Query source: tbc-record-fs:query-records`);
     records = queryCollection(request.rootDirectory, protocol.memCollection, { recordType: request.type })
       .map((id) => fetchFsRecord(request.rootDirectory, protocol.memCollection, id))
       .filter((record): record is TBCRecord => !!record)
       .filter((record) => JSON.stringify(record.data).toLowerCase().includes(request.query!.toLowerCase()) || record.content.toLowerCase().includes(request.query!.toLowerCase()));
   } else if (protocol.hasSqlite) {
-    if (request.verbose) console.log(`[»] ── debug | recall-flow | Query source: tbc-record-sqlite:query-records`);
+    if (request.verbose) console.log(`[»] ── debug | mem:recall | Query source: tbc-record-sqlite:query-records`);
     records = queryRecords(protocol.sqlitePath, protocol.memCollection, { recordType: request.type });
   } else {
     records = queryCollection(request.rootDirectory, protocol.memCollection, { recordType: request.type })
@@ -271,7 +266,6 @@ function indexPayload(record: MinedRecord): Record<string, unknown> {
  */
 export async function assimilateMemory(request: MemAssimilateRequest): Promise<MemAssimilateResult> {
   const source = request.source || 'mem:assimilate';
-  const flow = flowSource(source);
   const dryRun = request.dryRun === true;
 
   // Stage 1 - protocol resolution
@@ -279,7 +273,7 @@ export async function assimilateMemory(request: MemAssimilateRequest): Promise<M
 
   // Stage 2 - protocol discovery / rendering
   renderProtocol(protocol, source, request.verbose);
-  console.log(formatMessages([{ level: 'info', source, code: 'FLOW', message: 'Checking existing TBC root ...' }], request.verbose));
+  console.log(formatMessages([{ level: 'info', source, code: 'SERVICE', message: 'Checking existing TBC root ...' }], request.verbose));
 
   // Stage 3 - root validation (abort before any write on failure)
   const validation = runValidationChecks(request.rootDirectory, protocol, source);
@@ -287,7 +281,7 @@ export async function assimilateMemory(request: MemAssimilateRequest): Promise<M
   if (!validation.success) {
     console.log(formatMessages([{
       level: 'error',
-      source: flow,
+      source,
       code: 'OVERWRITE-GUARD',
       message: 'has no existing companion (not a valid TBC Root)',
       suggestion: 'Use "tbc sys init" instead.',
@@ -307,7 +301,7 @@ export async function assimilateMemory(request: MemAssimilateRequest): Promise<M
     };
   }
 
-  console.log(formatMessages([{ level: 'info', source, code: 'FLOW', message: 'Starting assimilation ...' }], request.verbose));
+  console.log(formatMessages([{ level: 'info', source, code: 'SERVICE', message: 'Starting assimilation ...' }], request.verbose));
 
   // Stage 5 - source enumeration (the filesystem is the authority)
   const warnings: string[] = [];
@@ -325,7 +319,7 @@ export async function assimilateMemory(request: MemAssimilateRequest): Promise<M
   console.log(formatMessages([{
     level: 'info',
     source,
-    code: 'FLOW',
+    code: 'SERVICE',
     message: `Found ${records.length} record(s) to assimilate.`,
   }], request.verbose));
 
@@ -395,7 +389,7 @@ export async function assimilateMemory(request: MemAssimilateRequest): Promise<M
   console.log(formatMessages([{
     level: 'info',
     source,
-    code: 'FLOW',
+    code: 'SERVICE',
     message: `Mined ${mined.length} record(s): ${titlesDerived} title(s) derived, ${tagsNormalized} tag(s) normalized, ${relationsWritten} relation(s) written, ${rowsWritten} row(s) written, ${rowsRemoved} stale row(s) removed, ${relationsRemoved} stale relation(s) removed, ${filesRewritten} file(s) rewritten.`,
   }], request.verbose));
 
@@ -411,7 +405,7 @@ export async function assimilateMemory(request: MemAssimilateRequest): Promise<M
   console.log(formatMessages([{
     level: 'info',
     source,
-    code: 'FLOW',
+    code: 'SERVICE',
     message: `Broadcast ${mined.length} record(s) to ${stores.join(', ')}.`,
   }], request.verbose));
 

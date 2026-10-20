@@ -33,8 +33,8 @@ function renderProtocol(protocol: TBCProtocol, source: string, verbose: boolean)
   console.log(formatMessages(formatProtocolDiscovery(protocol, source), verbose));
 }
 
-function renderFlowMessage(source: string, message: string, verbose: boolean): void {
-  console.log(formatMessages([{ level: 'info', source, code: 'FLOW', message }], verbose));
+function renderServiceMessage(source: string, message: string, verbose: boolean): void {
+  console.log(formatMessages([{ level: 'info', source, code: 'SERVICE', message }], verbose));
 }
 
 function validateRoot(rootDirectory: string, protocol: TBCProtocol, source: string, verbose: boolean): boolean {
@@ -47,7 +47,7 @@ export async function probeInterface(request: IntProbeRequest): Promise<void> {
   const source = 'int:probe';
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
-  renderFlowMessage(source, 'Checking first ...', request.verbose);
+  renderServiceMessage(source, 'Checking first ...', request.verbose);
   const validation = runValidationChecks(request.rootDirectory, protocol, source);
   if (!existsSync(join(request.rootDirectory, protocol.sysCollection, 'root.md')) &&
       !validation.messages.some((message) => message.message.includes('Essential record "root.md" is missing'))) {
@@ -139,7 +139,7 @@ export async function generateInterface(request: IntGenerateRequest): Promise<vo
   const source = `int:${request.agentType}`;
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
-  renderFlowMessage(source, 'Checking first ...', request.verbose);
+  renderServiceMessage(source, 'Checking first ...', request.verbose);
   if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) {
     console.log(formatMessages([{ level: 'error', source, code: 'OVERWRITE-GUARD', message: 'has no existing companion (not a valid TBC Root)', suggestion: 'Use "tbc sys init" instead.' }], request.verbose));
     return;
