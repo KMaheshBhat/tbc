@@ -28,7 +28,6 @@ This guide exists to **prevent self‑corruption** of the repository while still
 The repo contains:
 
 - `apps/`
-- `packages/`
 - `doc/`
 
 It is **not** intended to be mutated by the CLI.
@@ -54,7 +53,6 @@ Never rely on implicit current working directory.
 ```
 repo-root/
 ├── apps/
-├── packages/
 ├── doc/
 ├── _test/
 │   ├── fresh-init/

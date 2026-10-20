@@ -32,7 +32,7 @@ TBC addresses these problems by treating:
 
 - Records as memory
 - Specifications as law
-- Flows as behavior
+- Services as behavior
 - Git as truth
 
 The result is an AI companion whose cognition can be audited, evolved, reverted, and safely operated over long periods of time.
@@ -46,7 +46,7 @@ If you understand the following concepts, you understand TBC:
 - **Root Record**: The constitution of a companion
 - **Specs**: Canonical system definitions (provided by this project)
 - **Skills**: Instructional guides for operations (provided by this project)
-- **Flows**: Deterministic operations over records
+- **Services**: Deterministic operations over records
 - **CLI**: An orchestrator, not magic
 
 All meaningful cognitive state lives in the **instance repository**, not here.
@@ -57,9 +57,12 @@ All meaningful cognitive state lives in the **instance repository**, not here.
 .
 ├── apps/
 │   └── tbc-cli/          # CLI application
-├── packages/             # Core framework packages
-│   └── tbc-system/
-│       └── assets/       # System specs and skills
+│       ├── src/
+│       │   ├── commands/ # the command layer (pure adapters)
+│       │   ├── services/ # the service layer (orchestration)
+│       │   └── lib/      # the library layer (infrastructure + assets)
+│       └── tests/        # the integration suite
+├── scripts/              # the multi-package build/test harness
 ├── doc/                  # Documentation
 │   ├── user-guide.md
 │   ├── developer-guide.md
@@ -104,7 +107,7 @@ If you want to extend or modify TBC itself, read:
 
 - [Developer Guide](/doc/developer-guide.md)
 
-This guide covers architecture, flows, plugins, and extension patterns.
+This guide covers architecture, services, and extension patterns.
 
 ## Safety Notice
 
@@ -137,8 +140,8 @@ TBC treats cognition as something that should be owned, reviewed, and reversible
 
 ## Status
 
-- Core CLI and flows are stable
-- Plugin system is extensible
+- Core CLI and services are stable
+- The command / service / library layering is the extension point
 - Filesystem storage is the current backend
 - Agent-driven operation continues to evolve
 
