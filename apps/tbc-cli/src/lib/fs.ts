@@ -17,13 +17,35 @@ export interface StoreRecordOptions {
   record: TBCRecord;
 }
 
+/** The write options of {@link storeRecord}. */
+export interface StoreRecordWriteOptions {
+  /**
+   * Skip the write when the rendered content is identical to the file's
+   * current content. This is what makes a repeated write a no-op — the
+   * file's mtime is left untouched.
+   */
+  onlyIfChanged?: boolean;
+  /**
+   * Compute the rendered content and report whether it *would* change the
+   * file, but write nothing. Used by the `--dry-run` mode.
+   */
+  dryRun?: boolean;
+}
+
 function validateRecordId(id: string): void {
   if (id.includes('..') || id.includes('\\')) {
     throw new Error(`Invalid record ID: directory traversal detected`);
   }
 }
 
-function deriveTitleFromContent(content: string): string | null {
+/**
+ * Derive a record title from the body's first H1.
+ *
+ * Shared with the mining layer (`lib/assimilate.ts`) so that a record
+ * written by `mem remember` and a record baked by `mem assimilate` carry
+ * the same derived title.
+ */
+export function deriveTitleFromContent(content: string): string | null {
   const h1Match = content.match(/^#\s+(.+)$/m);
   if (h1Match) {
     return h1Match[1].trim();
@@ -47,7 +69,23 @@ function serializeFrontmatter(meta: Record<string, unknown>): string {
   return yaml.dump(meta, { lineWidth: -1, sortKeys: true });
 }
 
-export function storeRecord(root: string, collection: string, record: TBCRecord): void {
+/**
+ * Write a record into a collection directory.
+ *
+ * The front-matter of an existing file is **merged** with the record's own
+ * front-matter (`{ ...existing, ...incoming }`), so no user key is lost, and
+ * the body is re-emitted from the file — the authoritative body is never
+ * modified.
+ *
+ * @returns `true` when the file was written, `false` when the write was
+ *          skipped (the content was unchanged) or suppressed (`dryRun`).
+ */
+export function storeRecord(
+  root: string,
+  collection: string,
+  record: TBCRecord,
+  options?: StoreRecordWriteOptions,
+): boolean {
   validateRecordId(record.id);
 
   const collectionDir = join(root, collection);
@@ -99,8 +137,16 @@ export function storeRecord(root: string, collection: string, record: TBCRecord)
       finalContent = `---\n${fmString}---\n${content}`;
     }
 
+    if (options?.dryRun) {
+      return finalContent !== existingContent;
+    }
+
+    if (options?.onlyIfChanged && existingContent === finalContent) {
+      return false;
+    }
+
     writeFileSync(filePath, finalContent, 'utf-8');
-    return;
+    return true;
   }
 
   // Determine file extension based on record type and id
@@ -117,16 +163,30 @@ export function storeRecord(root: string, collection: string, record: TBCRecord)
 
   // Special handling for .id files - write raw content without frontmatter
   if (record.id.endsWith('.id')) {
+    const existing = existsSync(filePath) ? readFileSync(filePath, 'utf-8') : '';
+    if (options?.dryRun) {
+      return existing !== record.content;
+    }
+    if (options?.onlyIfChanged && existing === record.content) {
+      return false;
+    }
     writeFileSync(filePath, record.content, 'utf-8');
-    return;
+    return true;
   }
 
   // Honour the 'raw' format computed above: write the content verbatim.
   // The 'raw' branch is only reached for ids without a .md/.json/.yaml
   // extension whose content carries no front-matter and whose data is empty.
   if (format === 'raw') {
+    const existing = existsSync(filePath) ? readFileSync(filePath, 'utf-8') : '';
+    if (options?.dryRun) {
+      return existing !== record.content;
+    }
+    if (options?.onlyIfChanged && existing === record.content) {
+      return false;
+    }
     writeFileSync(filePath, record.content, 'utf-8');
-    return;
+    return true;
   }
 
   let content = record.content;
@@ -164,7 +224,16 @@ export function storeRecord(root: string, collection: string, record: TBCRecord)
     finalContent = `---\n${fmString}---\n${content}`;
   }
 
+  if (options?.dryRun) {
+    return finalContent !== existingContent;
+  }
+
+  if (options?.onlyIfChanged && existingContent === finalContent) {
+    return false;
+  }
+
   writeFileSync(filePath, finalContent, 'utf-8');
+  return true;
 }
 
 /**

@@ -27,7 +27,7 @@ import './1500-int.suite';
 import './0600-dex-rebuild.suite';
 import './1600-dex-rebuild.suite';
 
-// import './0610-mem-assimilate.suite';
-// import './1610-mem-assimilate.suite';
+import './0610-mem-assimilate.suite';
+import './1610-mem-assimilate.suite';
 
 import './9999-teardown.suite';
