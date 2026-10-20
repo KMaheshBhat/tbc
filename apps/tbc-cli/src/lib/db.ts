@@ -300,6 +300,13 @@ export function rebuildCollectionIndex(
         db.transaction(() => {
             for (const record of records) {
                 const previous = existingById.get(record.id);
+                // A row whose kind and payload are unchanged is not rewritten at
+                // all — so its `updated_at` is not bumped (GS-3). The `unchanged`
+                // counter above uses the very same comparison.
+                if (previous && previous.record_kind === record.recordType &&
+                    previous.data === canonicalJson(record.payload)) {
+                    continue;
+                }
                 upsert.run(
                     record.id,
                     collection,
@@ -338,6 +345,7 @@ export function upsertRecord(dbPath: string, collection: string, record: TBCReco
         record_kind = excluded.record_kind,
         data = excluded.data,
         updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+      WHERE record.data IS NOT excluded.data
     `);
 
     stmt.run(record.id, collection, recordKind, dataJson);

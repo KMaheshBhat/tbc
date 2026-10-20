@@ -1,5 +1,5 @@
 import { resolveProtocol } from '../lib/protocol.js';
-import { runValidationChecks } from '../lib/validator.js';
+import { runValidationChecks, type TBCValidationResult } from '../lib/validator.js';
 import { storeRecord, fetchRecord, deleteDirectory, copyDirectory, type TBCRecord } from '../lib/fs.js';
 import { upsertRecord } from '../lib/db.js';
 import { ASSETS } from '../lib/assets.js';
@@ -14,6 +14,7 @@ import {
   formatNextSteps,
   formatLoadSpecsDebug,
   formatLoadCoreMemoriesDebug,
+  formatValidationAudit,
   type TBCMessage,
   type MintedOutput,
   type ProtocolDiscoveryOutput,
@@ -69,12 +70,6 @@ export interface SysValidateRequest {
   source?: string;
 }
 
-export interface TBCValidationResult {
-  success: boolean;
-  timestamp: string;
-  messages: TBCMessage[];
-}
-
 function renderProtocolDiscovery(protocol: TBCProtocol, source: string, verbose: boolean): void {
   const protocolDiscoveryOutput: ProtocolDiscoveryOutput = {
     sysCollection: protocol.sysCollection,
@@ -103,34 +98,7 @@ function renderValidationAudit(
   source: string,
   verbose: boolean
 ): void {
-  const auditMessages: TBCMessage[] = [
-    {
-      level: 'info',
-      kind: 'raw',
-      source: '',
-      code: '',
-      message: ' ┌┤ Validation Audit ├────────────────────────────────────────',
-    },
-    ...validationResult.messages,
-    {
-      level: 'info',
-      kind: 'raw',
-      source: '',
-      code: '',
-      message: ' └┼───────────────────────────────────────────────────────────',
-    },
-    {
-      level: 'info',
-      kind: 'raw',
-      source,
-      code: '',
-      message: validationResult.success
-        ? `[✓] STABLE   | 0 error(s) detected.`
-        : `[✗] DEGRADED   | ${validationResult.messages.filter(m => m.level === 'error').length} error(s) detected.`,
-    },
-  ];
-
-  console.log(formatMessages(auditMessages, verbose));
+  console.log(formatMessages(formatValidationAudit(validationResult, source), verbose));
 }
 
 async function writeRecordsToFsAndSqlite(

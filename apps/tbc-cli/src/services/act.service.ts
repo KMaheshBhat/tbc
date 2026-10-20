@@ -4,7 +4,7 @@ import { isAbsolute, join, relative } from 'node:path';
 import { fetchRecord as fetchFsRecord, queryCollection, storeRecord, type TBCRecord } from '../lib/fs.js';
 import { upsertRecord } from '../lib/db.js';
 import { mintUuids } from '../lib/mint.js';
-import { formatMessages, formatMintedIds, formatProtocolDiscovery, type TBCMessage } from '../lib/message.js';
+import { formatMessages, formatMintedIds, formatProtocolDiscovery, formatValidationAudit, type TBCMessage } from '../lib/message.js';
 import { resolveProtocol, type TBCProtocol } from '../lib/protocol.js';
 import { runValidationChecks } from '../lib/validator.js';
 import { synthesizeMemoryRecord } from '../lib/synthesis.js';
@@ -29,22 +29,12 @@ function renderProtocol(protocol: TBCProtocol, source: string, verbose: boolean)
 
 function validateRoot(rootDirectory: string, protocol: TBCProtocol, source: string, verbose: boolean): boolean {
   const result = runValidationChecks(rootDirectory, protocol, source);
-  const auditMessages: TBCMessage[] = [
-    { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┤ Validation Audit ├────────────────────────────────────────' },
-    ...result.messages,
-    { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
-    {
-      level: 'info', kind: 'raw', source, code: '',
-      message: result.success
-        ? '[✓] STABLE   | 0 error(s) detected.'
-        : `[✗] DEGRADED   | ${result.messages.filter((message) => message.level === 'error').length} error(s) detected.`,
-    },
-  ];
-  console.log(formatMessages(auditMessages, verbose));
+  console.log(formatMessages(formatValidationAudit(result, source), verbose));
   if (result.success) return true;
   console.log(formatMessages([{
-    level: 'error', source: source.replace(/^act:/, 'act-') + '-flow', code: 'OVERWRITE-GUARD',
-    message: 'has no existing companion (not a valid TBC Root)', suggestion: 'Use "tbc sys init" instead.',
+    level: 'error', source, code: 'OVERWRITE-GUARD',
+    message: 'has no existing companion (not a valid TBC Root)',
+    suggestion: 'Use "tbc sys init" instead.',
   }], verbose));
   return false;
 }

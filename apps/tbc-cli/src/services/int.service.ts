@@ -8,9 +8,9 @@ import matter from 'gray-matter';
 import { ASSETS } from '../lib/assets.js';
 import { fetchRecord as fetchFsRecord, storeRecord, type TBCRecord } from '../lib/fs.js';
 import { upsertRecord } from '../lib/db.js';
-import { formatMessages, formatProtocolDiscovery, type TBCMessage } from '../lib/message.js';
+import { formatMessages, formatProtocolDiscovery, formatValidationAudit, type TBCMessage } from '../lib/message.js';
 import { resolveProtocol, type TBCProtocol } from '../lib/protocol.js';
-import { runValidationChecks, type TBCValidationResult } from '../lib/validator.js';
+import { runValidationChecks } from '../lib/validator.js';
 
 export interface IntProbeRequest {
   rootDirectory: string;
@@ -37,20 +37,9 @@ function renderFlowMessage(source: string, message: string, verbose: boolean): v
   console.log(formatMessages([{ level: 'info', source, code: 'FLOW', message }], verbose));
 }
 
-function renderValidationAudit(result: TBCValidationResult, source: string, verbose: boolean): void {
-  console.log(formatMessages([
-    { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┤ Validation Audit ├────────────────────────────────────────' },
-    ...result.messages,
-    { level: 'info', kind: 'raw', source: '', code: '', message: ' └┼───────────────────────────────────────────────────────────' },
-    { level: 'info', kind: 'raw', source, code: '', message: result.success
-      ? '[✓] STABLE   | 0 error(s) detected.'
-      : `[✗] DEGRADED   | ${result.messages.filter((message) => message.level === 'error').length} error(s) detected.` },
-  ], verbose));
-}
-
 function validateRoot(rootDirectory: string, protocol: TBCProtocol, source: string, verbose: boolean): boolean {
   const result = runValidationChecks(rootDirectory, protocol, source);
-  renderValidationAudit(result, source, verbose);
+  console.log(formatMessages(formatValidationAudit(result, source), verbose));
   return result.success;
 }
 
@@ -70,7 +59,7 @@ export async function probeInterface(request: IntProbeRequest): Promise<void> {
       suggestion: 'ACTION: Run \'tbc sys init\'. REASON: System root is uninitialized.',
     });
   }
-  renderValidationAudit(validation, source, request.verbose);
+  console.log(formatMessages(formatValidationAudit(validation, source), request.verbose));
 
   const messages: TBCMessage[] = [
     { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┤ Application Info ├────────────────────────────────────────' },
