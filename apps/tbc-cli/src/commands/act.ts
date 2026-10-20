@@ -31,7 +31,7 @@ export function createActCommand(rootProgram: Command) {
             source: 'act:start',
           });
         } catch (error) {
-          handleError('Error running ng act start', error, isVerbose);
+          handleError('Error running act start', error, isVerbose);
           process.exit(1);
         }
         return;
@@ -51,7 +51,7 @@ export function createActCommand(rootProgram: Command) {
             source: 'act:show',
           });
         } catch (error) {
-          handleError('Error running ng act show', error, isVerbose);
+          handleError('Error running act show', error, isVerbose);
           process.exit(1);
         }
         return;
@@ -73,7 +73,7 @@ export function createActCommand(rootProgram: Command) {
             source: 'act:pause',
           });
         } catch (error) {
-          handleError('Error running ng act pause', error, isVerbose);
+          handleError('Error running act pause', error, isVerbose);
           process.exit(1);
         }
         return;
@@ -95,7 +95,7 @@ export function createActCommand(rootProgram: Command) {
             source: 'act:close',
           });
         } catch (error) {
-          handleError('Error running ng act close', error, isVerbose);
+          handleError('Error running act close', error, isVerbose);
           process.exit(1);
         }
         return;

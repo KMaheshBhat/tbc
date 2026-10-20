@@ -37,7 +37,7 @@ export function createMemCommand(rootProgram: Command) {
             source: 'mem:remember',
           });
         } catch (error) {
-          handleError('Error running ng mem remember', error, isVerbose);
+          handleError('Error running mem remember', error, isVerbose);
           process.exit(1);
         }
         return;
@@ -63,7 +63,7 @@ export function createMemCommand(rootProgram: Command) {
             source: 'mem:recall',
           });
         } catch (error) {
-          handleError('Error running ng mem recall', error, isVerbose);
+          handleError('Error running mem recall', error, isVerbose);
           process.exit(1);
         }
         return;
@@ -87,7 +87,7 @@ export function createMemCommand(rootProgram: Command) {
             source: 'mem:assimilate',
           });
         } catch (error) {
-          handleError('Error running ng mem assimilate', error, isVerbose);
+          handleError('Error running mem assimilate', error, isVerbose);
           process.exit(1);
         }
         return;

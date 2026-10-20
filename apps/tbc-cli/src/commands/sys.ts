@@ -29,7 +29,7 @@ export function createSysCommand(rootProgram: Command) {
         const cliOpts = rootProgram.opts();
         const isVerbose = !!cliOpts.verbose;
         if (!opts.companion || !opts.prime) {
-          handleError('Error running ng sys init', 'Both --companion and --prime flags are required', isVerbose, 'sys:init');
+          handleError('Error running sys init', 'Both --companion and --prime flags are required', isVerbose, 'sys:init');
           process.exit(1);
         }
         try {
@@ -42,7 +42,7 @@ export function createSysCommand(rootProgram: Command) {
             source: 'sys:init',
           });
         } catch (error) {
-          handleError('Error running ng sys init', error, isVerbose, 'sys:init');
+          handleError('Error running sys init', error, isVerbose, 'sys:init');
           process.exit(1);
         }
         return;
@@ -62,7 +62,7 @@ export function createSysCommand(rootProgram: Command) {
             source: 'sys:upgrade',
           });
         } catch (error) {
-          handleError('Error running ng sys upgrade', error, isVerbose, 'sys:upgrade');
+          handleError('Error running sys upgrade', error, isVerbose, 'sys:upgrade');
           process.exit(1);
         }
         return;
@@ -83,7 +83,7 @@ export function createSysCommand(rootProgram: Command) {
             source: 'sys:validate',
           });
         } catch (error) {
-          handleError('Error running ng sys validate', error, isVerbose, 'sys:validate');
+          handleError('Error running sys validate', error, isVerbose, 'sys:validate');
           process.exit(1);
         }
         return;

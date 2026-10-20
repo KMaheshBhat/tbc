@@ -28,7 +28,7 @@ export function createDexCommand(rootProgram: Command) {
             verbose: isVerbose,
           });
         } catch (error) {
-          handleError('Error running ng dex rebuild', error, isVerbose);
+          handleError('Error running dex rebuild', error, isVerbose);
           process.exit(1);
         }
         return;

@@ -28,7 +28,7 @@ export function createIntCommand(rootProgram: Command) {
             verbose: isVerbose,
           });
         } catch (error) {
-          handleError('Error running ng int probe', error, isVerbose);
+          handleError('Error running int probe', error, isVerbose);
           process.exit(1);
         }
         return;
@@ -50,7 +50,7 @@ export function createIntCommand(rootProgram: Command) {
               verbose: isVerbose,
             });
           } catch (error) {
-            handleError(`Error running ng int ${agentType}`, error, isVerbose);
+            handleError(`Error running int ${agentType}`, error, isVerbose);
             process.exit(1);
           }
           return;

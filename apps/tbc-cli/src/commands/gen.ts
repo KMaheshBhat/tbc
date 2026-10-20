@@ -36,7 +36,7 @@ export function createGenCommand(rootProgram: Command) {
           };
           await generateUuids(request); // service logs formatted output internally
         } catch (error) {
-          handleError('Error running ng gen uuid', error, isVerbose);
+          handleError('Error running gen uuid', error, isVerbose);
           process.exit(1);
         }
         return;
@@ -62,7 +62,7 @@ export function createGenCommand(rootProgram: Command) {
           };
           await generateTsids(request); // service logs formatted output internally
         } catch (error) {
-          handleError('Error running ng gen tsid', error, isVerbose);
+          handleError('Error running gen tsid', error, isVerbose);
           process.exit(1);
         }
         return;
