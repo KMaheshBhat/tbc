@@ -4,32 +4,12 @@ import { join } from 'node:path';
 /**
  * The order of this array defines the build sequence.
  * Add new packages here to include them in the 'all:build' process.
+ *
+ * The shape is an array of *groups*: each group is built with one `--filter`
+ * per package. A future entry point (e.g. a `tbc-core` package) is a new
+ * group, or a new member of the last group — a re-point, not a re-write.
  */
 const BUILD_ORDER = [
-  [
-    '@tbc-frameworx/tbc-mint',
-    '@tbc-frameworx/tbc-synthesize',
-    '@tbc-frameworx/tbc-record',
-  ],
-  [
-    '@tbc-frameworx/tbc-record-fs',
-    '@tbc-frameworx/tbc-record-sqlite',
-  ],
-  [
-    '@tbc-frameworx/tbc-system',
-  ],
-  [
-    '@tbc-frameworx/tbc-memory',
-    '@tbc-frameworx/tbc-activity',
-    '@tbc-frameworx/tbc-interface',
-  ],
-  [
-    '@tbc-frameworx/tbc-gemini',
-    '@tbc-frameworx/tbc-kilocode',
-    '@tbc-frameworx/tbc-goose',
-    '@tbc-frameworx/tbc-github-copilot',
-    '@tbc-frameworx/tbc-pi',
-  ],
   [
     '@tbc-frameworx/tbc-cli',
   ],
@@ -46,8 +26,7 @@ function hasTestScript(pkgName: string): boolean {
       try {
         const content = readFileSync(pkgJsonPath, 'utf8');
         const pkgJson = JSON.parse(content);
-        // Explicitly check for the presence of the test script
-        return !!(pkgJson.scripts && pkgJson.scripts.test);
+        return !!(pkgJson.scripts && pkgJson.scripts['test']);
       } catch (e) {
         continue;
       }
@@ -94,19 +73,20 @@ async function runBuilds() {
     // 2. Conditional Test Phase
     if (shouldTest) {
       for (const pkg of group) {
+        const script = 'test';
         if (hasTestScript(pkg)) {
-          console.log(`🧪 Running tests for: ${pkg}`);
-          const testProc = Bun.spawn(['bun', 'run', '--filter', pkg, 'test'], {
+          console.log(`🧪 Running ${script} for: ${pkg}`);
+          const testProc = Bun.spawn(['bun', 'run', '--filter', pkg, script], {
             stdout: 'inherit',
             stderr: 'inherit',
           });
 
           if ((await testProc.exited) !== 0) {
-            console.error(`\n❌ Tests failed for ${pkg}. Aborting sequence.`);
+            console.error(`\n❌ ${script} failed for ${pkg}. Aborting sequence.`);
             process.exit(1);
           }
         } else {
-          console.log(`⏩ Skipping tests for ${pkg} (No test script found)`);
+          console.log(`⏩ Skipping ${script} for ${pkg} (No ${script} script found)`);
         }
       }
     }
