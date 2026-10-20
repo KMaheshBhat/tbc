@@ -9,7 +9,6 @@ import { CLI_TARGET, TBC_ROOT_NEXT, querySqliteNext } from './test-helper';
 describe('🦍 1610 tbc mem assimilate', () => {
     const manualMemId = '019d6261-c37d-77e5-8460-c6c5a896bc67';
     const manualMemPath = join(TBC_ROOT_NEXT, 'mem_next', `${manualMemId}.md`);
-    const isNg = process.env.TBC_USE_NG === 'true';
 
     beforeAll(() => {
         const content = `---
@@ -49,13 +48,13 @@ This was added manually to test mem assimilate on Kong.`;
         expect(results.length).toBeGreaterThan(0);
     });
 
-    test.skipIf(!isNg)('01 should store the bare record id with the mined record_type (NG only)', () => {
+    test('01 should store the bare record id with the mined record_type', () => {
         const results = querySqliteNext('SELECT record_id, record_kind FROM record WHERE record_id = ?', [manualMemId]);
         expect(results.length).toBe(1);
         expect((results[0] as any).record_kind).toBe('note');
     });
 
-    test.skipIf(!isNg)('02 should mine the relationships and bake the front matter (NG only)', () => {
+    test('02 should mine the relationships and bake the front matter', () => {
         const relations = querySqliteNext(
             'SELECT relation_kind, from_record_id, to_record_id FROM record_relation WHERE from_record_id = ?',
             [manualMemId],
@@ -71,7 +70,7 @@ This was added manually to test mem assimilate on Kong.`;
         expect(content).toContain('- c/agent/kong');
     });
 
-    test.skipIf(!isNg)('03 should be idempotent — a second assimilate must change nothing (NG only)', () => {
+    test('03 should be idempotent — a second assimilate must change nothing', () => {
         const rowsBefore = querySqliteNext('SELECT record_id FROM record WHERE collection = ?', ['mem_next']).length;
         const relationsBefore = querySqliteNext('SELECT relation_id FROM record_relation WHERE collection = ?', ['mem_next']).length;
         const before = readFileSync(manualMemPath, 'utf-8');

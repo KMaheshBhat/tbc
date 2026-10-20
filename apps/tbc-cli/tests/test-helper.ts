@@ -193,7 +193,5 @@ export function getRecordFromDisk(absolutePath: string) {
 import { generateFileTree, runMonorepoCommand } from '../../../scripts/common';
 
 export function runTbcCommand(cwd: string, args: string[]) {
-  const useNg = process.env.TBC_USE_NG === 'true';
-  const finalArgs = useNg ? ['ng', ...args] : args;
-   return runMonorepoCommand(cwd, CLI_TARGET, finalArgs);
+  return runMonorepoCommand(cwd, CLI_TARGET, args);
 }
