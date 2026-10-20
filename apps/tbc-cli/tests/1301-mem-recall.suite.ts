@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { runMonorepoCommand, TBC_ROOT_NEXT, CLI_TARGET } from './test-helper';
+import { runTbcCommand, TBC_ROOT_NEXT, CLI_TARGET } from './test-helper';
 
 describe('🦍 1301 tbc mem recall', () => {
 
     test('00 should recall using the Hybrid SQLite storer', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT_NEXT, [
             'mem',
             'recall',
             '--root',
@@ -19,7 +19,7 @@ describe('🦍 1301 tbc mem recall', () => {
     });
 
     test('01 should support rapid keyword search via SQLite', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT_NEXT, [
             'mem',
             'recall',
             'giant',

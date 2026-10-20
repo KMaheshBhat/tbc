@@ -1,1 +1,0 @@
-export { TBCPiPlugin } from './plugin.js';

@@ -5,13 +5,13 @@ import { join } from 'node:path';
 import {
     TBC_ROOT,
     CLI_TARGET,
-    runMonorepoCommand,
+    runTbcCommand,
 } from './test-helper';
 
 describe('🐵 0506 tbc int generate (Pi)', () => {
 
     test('00 should generate Pi specific configuration (.pi/SYSTEM.md)', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'int',
             'pi',
             '--root',
@@ -42,14 +42,14 @@ describe('🐵 0506 tbc int generate (Pi)', () => {
 
     test('01 should be idempotent (running twice changes nothing)', () => {
         const systemPath = join(TBC_ROOT, '.pi', 'SYSTEM.md');
-        runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        runTbcCommand(TBC_ROOT, [
             'int',
             'pi',
             '--root',
             TBC_ROOT,
         ]);
         const firstRunContent = readFileSync(systemPath, 'utf-8');
-        const { success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { success } = runTbcCommand(TBC_ROOT, [
             'int',
             'pi',
             '--root',

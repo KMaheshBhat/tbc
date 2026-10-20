@@ -2,7 +2,7 @@ import { describe, expect, test, beforeAll } from 'bun:test';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { runMonorepoCommand } from '../../../scripts/common';
+import { runTbcCommand } from './test-helper';
 
 import { CLI_TARGET, TBC_ROOT } from './test-helper';
 
@@ -24,7 +24,7 @@ This was added manually to test mem assimilate.`;
     });
 
     test('00 should assimilate memory from FS to all providers', async () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'mem',
             'assimilate',
             '--root',

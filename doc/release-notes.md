@@ -1,5 +1,14 @@
 # Release Notes
 
+## Third Brain Companion v0.6.0
+
+### Framework Updates
+
+- **Decouple HAMI** - TBC now uses native TypeScript/Bun instead of HAMI Framework for orchestration. (The branch `dev-0.5.0` has been abandoned). (#20)
+
+### Bug Fixes
+- **Activity commands** - Fixed root directory resolution for `tbc act start`, `tbc act pause`, and `tbc act close` commands to work consistently from within TBC root directories without requiring explicit `--root` flag (#18)
+
 ## Third Brain Companion v0.4.2
 
 ### New Features

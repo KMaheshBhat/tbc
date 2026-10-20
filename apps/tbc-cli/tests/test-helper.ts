@@ -12,7 +12,7 @@ export const TEST_BINARY = process.env.TBC_TEST_BINARY;
 export const CLI_TARGET = TEST_BINARY ? join(PROJECT_ROOT, TEST_BINARY) : CLI_ENTRY;
 
 export const NON_TBC_ROOT = join(PROJECT_ROOT, '_test', 'non-tbc');
-!existsSync(NON_TBC_ROOT) && mkdirSync(NON_TBC_ROOT);
+!existsSync(NON_TBC_ROOT) && mkdirSync(NON_TBC_ROOT, { recursive: true });
 
 // Mojo Baseline
 // - companion: mojo
@@ -190,4 +190,8 @@ export function getRecordFromDisk(absolutePath: string) {
     };
 }
 
-export { generateFileTree, runMonorepoCommand } from '../../../scripts/common';
+import { generateFileTree, runMonorepoCommand } from '../../../scripts/common';
+
+export function runTbcCommand(cwd: string, args: string[]) {
+  return runMonorepoCommand(cwd, CLI_TARGET, args);
+}

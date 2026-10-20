@@ -5,13 +5,13 @@ import { join } from 'node:path';
 import {
     TBC_ROOT,
     CLI_TARGET,
-    runMonorepoCommand,
+    runTbcCommand,
 } from './test-helper';
 
 describe('🐵 0504 tbc int generate (GitHub Copilot)', () => {
 
     test('00 should generate Copilot specific configuration in nested directory with slugified name', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'int',
             'github-copilot',
             '--root',
@@ -40,14 +40,14 @@ describe('🐵 0504 tbc int generate (GitHub Copilot)', () => {
 
     test('01 should be idempotent (running twice changes nothing)', () => {
         const copilotPath = join(TBC_ROOT, '.github', 'agents', 'mojo.agent.md');
-        runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        runTbcCommand(TBC_ROOT, [
             'int',
             'github-copilot',
             '--root',
             TBC_ROOT,
         ]);
         const firstRunContent = readFileSync(copilotPath, 'utf-8');
-        const { success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { success } = runTbcCommand(TBC_ROOT, [
             'int',
             'github-copilot',
             '--root',

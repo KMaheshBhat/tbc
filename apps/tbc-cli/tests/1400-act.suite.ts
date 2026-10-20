@@ -5,7 +5,7 @@ import path from 'node:path';
 import {
     TBC_ROOT_NEXT,
     CLI_TARGET,
-    runMonorepoCommand,
+    runTbcCommand,
     querySqliteNext,
     expectSQLiteData
 } from './test-helper';
@@ -14,7 +14,7 @@ describe('🦍 1400 tbc act', () => {
     let activityID: string = '';
 
     test('00 should manage activity lifecycle on FS (Mojo-parity)', () => {
-        const start = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const start = runTbcCommand(TBC_ROOT_NEXT, [
             'act',
             'start',
             '--root',
@@ -26,7 +26,7 @@ describe('🦍 1400 tbc act', () => {
         expect(activityID).not.toBe('');
         const currentPath = path.join(TBC_ROOT_NEXT, 'act_next', 'current', activityID);
         expect(existsSync(currentPath)).toBe(true);
-        runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        runTbcCommand(TBC_ROOT_NEXT, [
             'act',
             'pause',
             activityID,
@@ -40,14 +40,14 @@ describe('🦍 1400 tbc act', () => {
     });
 
     test('01 should promote to SQLite only upon close (Assimilation)', () => {
-        runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        runTbcCommand(TBC_ROOT_NEXT, [
             'act',
             'start',
             activityID,
             '--root',
             TBC_ROOT_NEXT,
         ]);
-        const { success, output } = runMonorepoCommand(TBC_ROOT_NEXT, CLI_TARGET, [
+        const { success, output } = runTbcCommand(TBC_ROOT_NEXT, [
             'act',
             'close',
             activityID,

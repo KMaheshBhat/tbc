@@ -5,13 +5,13 @@ import { join } from 'node:path';
 import {
     TBC_ROOT,
     CLI_TARGET,
-    runMonorepoCommand,
+    runTbcCommand,
 } from './test-helper';
 
 describe('🐵 0503 tbc int generate (Goose)', () => {
 
     test('00 should generate .goosehints with correct role definition', () => {
-        const { output, success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { output, success } = runTbcCommand(TBC_ROOT, [
             'int',
             'goose',
             '--root',
@@ -34,14 +34,14 @@ describe('🐵 0503 tbc int generate (Goose)', () => {
 
     test('01 should be idempotent (running twice changes nothing)', () => {
         const goosePath = join(TBC_ROOT, '.goosehints');
-        runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        runTbcCommand(TBC_ROOT, [
             'int',
             'goose',
             '--root',
             TBC_ROOT,
         ]);
         const firstRunContent = readFileSync(goosePath, 'utf-8');
-        const { success } = runMonorepoCommand(TBC_ROOT, CLI_TARGET, [
+        const { success } = runTbcCommand(TBC_ROOT, [
             'int',
             'goose',
             '--root',
