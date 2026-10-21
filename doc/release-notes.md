@@ -1,9 +1,15 @@
 # Release Notes
 
-## Third Brain Companion v0.6.0
+## Third Brain Companion v0.6.1
 
 ### Framework Updates
 
+### Bug Fixes
+- to be added
+
+## Third Brain Companion v0.6.0
+
+### Framework Updates
 - **Decouple HAMI** - TBC now uses native TypeScript/Bun instead of HAMI Framework for orchestration. (The branch `dev-0.5.0` has been abandoned). (#20)
 
 ### Bug Fixes
