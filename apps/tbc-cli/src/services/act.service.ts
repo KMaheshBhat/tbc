@@ -4,9 +4,9 @@ import { isAbsolute, join, relative } from 'node:path';
 import { fetchRecord as fetchFsRecord, queryCollection, storeRecord, type TBCRecord } from '../lib/fs.js';
 import { upsertRecord } from '../lib/db.js';
 import { mintUuids } from '../lib/mint.js';
-import { formatMessages, formatMintedIds, formatProtocolDiscovery, formatValidationAudit, type TBCMessage } from '../lib/message.js';
+import { formatMessages, formatMintedIds, formatProtocolDiscovery, type TBCMessage } from '../lib/message.js';
 import { resolveProtocol, type TBCProtocol } from '../lib/protocol.js';
-import { runValidationChecks } from '../lib/validator.js';
+import { validateRoot } from './validate.service.js';
 import { synthesizeMemoryRecord } from '../lib/synthesis.js';
 
 export interface ActStartRequest { rootDirectory: string; activityId?: string; verbose: boolean; source?: string; }
@@ -25,18 +25,6 @@ function validateActivityId(activityId: string | undefined): asserts activityId 
 
 function renderProtocol(protocol: TBCProtocol, source: string, verbose: boolean): void {
   console.log(formatMessages(formatProtocolDiscovery(protocol, source), verbose));
-}
-
-function validateRoot(rootDirectory: string, protocol: TBCProtocol, source: string, verbose: boolean): boolean {
-  const result = runValidationChecks(rootDirectory, protocol, source);
-  console.log(formatMessages(formatValidationAudit(result, source), verbose));
-  if (result.success) return true;
-  console.log(formatMessages([{
-    level: 'error', source, code: 'OVERWRITE-GUARD',
-    message: 'has no existing companion (not a valid TBC Root)',
-    suggestion: 'Use "tbc sys init" instead.',
-  }], verbose));
-  return false;
 }
 
 function renderServiceMessage(source: string, message: string, verbose: boolean): void {
@@ -60,7 +48,7 @@ export async function startActivity(request: ActStartRequest): Promise<void> {
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
   renderServiceMessage(source, 'Checking first ...', request.verbose);
-  if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
+  if (!(await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: true })).success) return;
   renderServiceMessage(source, 'existing valid TBC root found, proceeding ...', request.verbose);
 
   let id: string;
@@ -118,7 +106,7 @@ export async function showActivity(request: ActShowRequest): Promise<void> {
   const source = sourceFor(request, 'act:show');
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
-  if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
+  if (!(await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: true })).success) return;
   for (const group of [
     { state: 'current' as const, label: 'Active [current]', empty: 'No active activities found.' },
     { state: 'backlog' as const, label: 'Paused [backlog]', empty: 'No paused activities found.' },
@@ -143,7 +131,7 @@ export async function pauseActivity(request: ActPauseRequest): Promise<void> {
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
   renderServiceMessage(source, 'Checking first ...', request.verbose);
-  if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
+  if (!(await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: true })).success) return;
   const current = activityPath(protocol, request.rootDirectory, 'current', request.activityId);
   if (!existsSync(current)) {
     renderMissingActivity(request.activityId, 'act:pause', 'Check "tbc act show" to verify the activity status or "tbc act start" to start a new activity.', request.verbose); return;
@@ -164,7 +152,7 @@ export async function closeActivity(request: ActCloseRequest): Promise<void> {
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
   renderServiceMessage(source, 'Checking first ...', request.verbose);
-  if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) return;
+  if (!(await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: true })).success) return;
   const current = activityPath(protocol, request.rootDirectory, 'current', request.activityId);
   if (!existsSync(current)) {
     renderMissingActivity(request.activityId, 'act:close', 'Verify the ID with "tbc act show" or check if it is already in the backlog/archive.', request.verbose); return;

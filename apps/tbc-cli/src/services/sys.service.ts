@@ -1,5 +1,7 @@
 import { resolveProtocol } from '../lib/protocol.js';
-import { runValidationChecks, type TBCValidationResult } from '../lib/validator.js';
+import type { TBCValidationResult } from '../lib/validator.js';
+import { validateRoot, validateSystem } from './validate.service.js';
+export { validateSystem } from './validate.service.js';
 import { storeRecord, fetchRecord, deleteDirectory, copyDirectory, type TBCRecord } from '../lib/fs.js';
 import { upsertRecord } from '../lib/db.js';
 import { ASSETS } from '../lib/assets.js';
@@ -14,7 +16,6 @@ import {
   formatNextSteps,
   formatLoadSpecsDebug,
   formatLoadCoreMemoriesDebug,
-  formatValidationAudit,
   type TBCMessage,
   type MintedOutput,
   type ProtocolDiscoveryOutput,
@@ -103,24 +104,6 @@ function renderProtocolDiscovery(protocol: TBCProtocol, source: string, verbose:
   console.log(formatMessages(protocolMessages, verbose));
 }
 
-function renderVerboseTrace(source: string, verbose: boolean): void {
-  if (!verbose) return;
-
-  const debugMessages = [
-    ...formatLoadSpecsDebug(source),
-    ...formatLoadCoreMemoriesDebug(source),
-  ];
-  console.log(formatMessages(debugMessages, verbose));
-}
-
-function renderValidationAudit(
-  validationResult: TBCValidationResult,
-  source: string,
-  verbose: boolean
-): void {
-  console.log(formatMessages(formatValidationAudit(validationResult, source), verbose));
-}
-
 async function writeRecordsToFsAndSqlite(
   rootDirectory: string,
   protocol: TBCProtocol,
@@ -138,25 +121,6 @@ async function writeRecordsToFsAndSqlite(
   }
 }
 
-export async function validateSystem(
-  request: SysValidateRequest,
-  options?: { sourceContext?: string; showProtocolDiscovery?: boolean; profile?: 'baseline' | 'next' }
-): Promise<TBCValidationResult> {
-  const source = options?.sourceContext || request.source || 'sys:validate';
-  const protocol = resolveProtocol(request.rootDirectory, options?.profile);
-
-  // Show protocol discovery only when called directly (not from init/upgrade)
-  if (options?.showProtocolDiscovery !== false) {
-    renderProtocolDiscovery(protocol, source, request.verbose);
-  }
-
-  renderVerboseTrace(source, request.verbose);
-
-  const validationResult = runValidationChecks(request.rootDirectory, protocol, source);
-  renderValidationAudit(validationResult, source, request.verbose);
-
-  return validationResult;
-}
 
 interface InitIdentities {
   companionID: string;
@@ -327,21 +291,12 @@ async function performPreUpgradeValidation(
   protocol: TBCProtocol,
   validateSource: string
 ): Promise<boolean> {
-  const preValidation = await validateSystem(
-    { rootDirectory: request.rootDirectory, verbose: request.verbose, source: validateSource },
-    { sourceContext: validateSource, showProtocolDiscovery: false, profile: upgradeProfile(protocol) }
-  );
-
-  if (preValidation.success) return true;
-
-  console.log(formatMessages([{
-    level: 'error',
-    code: 'OVERWRITE-GUARD',
-    source: request.source || 'sys:upgrade',
-    message: 'has no existing companion (not a valid TBC Root)',
-    suggestion: 'Use "tbc sys init" instead.',
-  }], request.verbose));
-  return false;
+  const preValidation = await validateRoot({
+    rootDirectory: request.rootDirectory, protocol, verbose: request.verbose,
+    label: validateSource, audit: 'full', trace: true,
+    guard: { suggestion: 'Use "tbc sys init" instead.' },
+  });
+  return preValidation.success;
 }
 
 async function backupCurrentRecords(

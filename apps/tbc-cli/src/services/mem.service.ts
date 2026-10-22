@@ -6,8 +6,8 @@ import { queryRecords, rebuildCollectionIndex, rebuildCollectionRelations, searc
 import { deriveTitle, mineMemoryRecord, normalizeTags, readMemoryRecords, type MinedRecord } from '../lib/assimilate.js';
 import { writeDexArtifacts } from '../lib/dex.js';
 import { resolveProtocol, type TBCProtocol } from '../lib/protocol.js';
-import { runValidationChecks } from '../lib/validator.js';
-import { formatDexRebuildReport, formatMessages, formatProtocolDiscovery, formatValidationAudit, type TBCMessage } from '../lib/message.js';
+import { validateRoot } from './validate.service.js';
+import { formatDexRebuildReport, formatMessages, formatProtocolDiscovery, type TBCMessage } from '../lib/message.js';
 import { mintUuids } from '../lib/mint.js';
 import { synthesizeMemoryRecord } from '../lib/synthesis.js';
 
@@ -61,34 +61,6 @@ export interface MemAssimilateResult {
 function renderProtocol(protocol: TBCProtocol, source: string, verbose: boolean): void {
   if (!verbose) return;
   console.log(formatMessages(formatProtocolDiscovery(protocol, source), verbose));
-}
-
-/**
- * Validate the root, and report the `OVERWRITE-GUARD` error.
- *
- * A message's `source` identifies the **service context** that produced it.
- * A command's own lines carry the **request source** (`mem:remember`,
- * `mem:recall`, `mem:assimilate`) — and the `OVERWRITE-GUARD` error carries
- * the **same** label, because it is raised inside that very context. A label
- * stacks only where a service actually composes a peer service; the `mem`
- * service reaches the root validation through `lib/validator.ts`, a library
- * call, so its label stays flat (D16, L1–L5).
- */
-function validate(rootDirectory: string, protocol: TBCProtocol, source: string, verbose: boolean): boolean {
-  const result = runValidationChecks(rootDirectory, protocol, source);
-  if (result.success) return true;
-  const messages: TBCMessage[] = [
-    ...result.messages.filter((message) => message.level === 'error'),
-    {
-      level: 'error',
-      source,
-      code: 'OVERWRITE-GUARD',
-      message: 'has no existing companion (not a valid TBC Root)',
-      suggestion: 'Use "tbc sys init" instead.',
-    },
-  ];
-  console.log(formatMessages(messages, verbose));
-  return false;
 }
 
 function companionIdentity(rootDirectory: string, protocol: TBCProtocol): TBCRecord | null {
@@ -155,7 +127,7 @@ export async function rememberMemory(request: MemRememberRequest): Promise<void>
   const source = request.source || 'mem:remember';
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
-  if (!validate(request.rootDirectory, protocol, source, request.verbose)) return;
+  if (!(await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: true })).success) return;
 
   const [id] = await mintUuids(1);
   const companion = companionIdentity(request.rootDirectory, protocol);
@@ -183,7 +155,7 @@ export async function recallMemory(request: MemRecallRequest): Promise<void> {
   const source = request.source || 'mem:recall';
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
-  if (!validate(request.rootDirectory, protocol, source, request.verbose)) return;
+  if (!(await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: true })).success) return;
 
   const normalizedQuery = request.query?.trim().toLowerCase();
   if (normalizedQuery === 'companion' || normalizedQuery === 'who am i') {
@@ -276,29 +248,9 @@ export async function assimilateMemory(request: MemAssimilateRequest): Promise<M
   console.log(formatMessages([{ level: 'info', source, code: 'SERVICE', message: 'Checking existing TBC root ...' }], request.verbose));
 
   // Stage 3 - root validation (abort before any write on failure)
-  const validation = runValidationChecks(request.rootDirectory, protocol, source);
-  console.log(formatMessages(formatValidationAudit(validation, source), request.verbose));
+  const validation = await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: true });
   if (!validation.success) {
-    console.log(formatMessages([{
-      level: 'error',
-      source,
-      code: 'OVERWRITE-GUARD',
-      message: 'has no existing companion (not a valid TBC Root)',
-      suggestion: 'Use "tbc sys init" instead.',
-    }], request.verbose));
-    return {
-      success: false,
-      count: 0,
-      titlesDerived: 0,
-      tagsNormalized: 0,
-      relationsWritten: 0,
-      rowsWritten: 0,
-      rowsRemoved: 0,
-      relationsRemoved: 0,
-      filesRewritten: 0,
-      stores: [],
-      dexRebuilt: false,
-    };
+    return { success: false, count: 0, titlesDerived: 0, tagsNormalized: 0, relationsWritten: 0, rowsWritten: 0, rowsRemoved: 0, relationsRemoved: 0, filesRewritten: 0, stores: [], dexRebuilt: false };
   }
 
   console.log(formatMessages([{ level: 'info', source, code: 'SERVICE', message: 'Starting assimilation ...' }], request.verbose));

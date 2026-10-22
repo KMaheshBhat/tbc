@@ -19,7 +19,7 @@ describe('🐵 0506 tbc int generate (Pi)', () => {
         ]);
         expect(success).toBe(true);
         expect(output).toContain('Agent Type: pi');
-        expect(output).toContain('STABLE');
+        expect(output).not.toContain('Validation Audit');
         const piDir = join(TBC_ROOT, '.pi');
         expect(existsSync(piDir)).toBe(true);
         expect(lstatSync(piDir).isDirectory()).toBe(true);
