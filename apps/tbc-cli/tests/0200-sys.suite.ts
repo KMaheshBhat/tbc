@@ -39,7 +39,7 @@ describe('🐵 0200 tbc sys', () => {
         expect(output).toMatch(/\[i\]\s+──\s+info\s+\|\s+[^|]+\|\s+Companion:\s+Mojo/);
         expect(output).toMatch(/\[i\]\s+──\s+info\s+\|\s+[^|]+\|\s+Prime:\s+Jojo/);
         expect(output).toMatch(/\[i\]\s+──\s+info\s+\|\s+[^|]+\|\s+Map of Memories/);
-        expect(output).toMatch(/\[✓\]\s+Third Brain Companion\s+0\.6\.0\s+initialized\./);
+        expect(output).toMatch(/\[✓\]\s+Third Brain Companion\s+0\.6\.1\s+initialized\./);
 
         // Validate frontmatter in skill record (single block, no duplicates)
         const skillPath = join(TBC_ROOT, 'skills', 'core', 'tbc-act-ops', 'SKILL.md');

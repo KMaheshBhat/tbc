@@ -1,6 +1,6 @@
 {
   "name": "tbc-frameworx-monorepo",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Monorepo for TBC FRAMEWORX",
   "license": "MIT",
   "private": true,

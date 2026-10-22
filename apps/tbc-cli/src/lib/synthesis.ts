@@ -144,7 +144,7 @@ export function synthesizeCoreSpecsAndSkills(
       id: '20251228150423',
       record_type: 'specification',
       specification_name: 'tbc-system-spec',
-      record_title: 'Third Brain Companion System Specification 0.6.0',
+      record_title: 'Third Brain Companion System Specification 0.6.1',
       record_create_date: '2025-12-28 15:04:23 UTC',
       record_tags: ['c/public/tbc'],
     },
