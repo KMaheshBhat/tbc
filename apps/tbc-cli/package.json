@@ -1,6 +1,6 @@
 {
   "name": "@tbc-frameworx/tbc-cli",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "TBC CLI application",
   "license": "MIT",
   "type": "module",
