@@ -3,6 +3,7 @@
 ## Third Brain Companion v0.6.1
 
 ### Framework Updates
+- **Validation service orchestration** - Command services now compose root validation through a shared service. (#26)
 - **Portable identities** - Added a single path normaliser (`lib/paths.ts`) that every producer of a vault identity runs through. A record id, a generated skill id and a digest marker are now *portable* relative paths, so a vault carries the same identities on every host. (#22)
 
 ### Bug Fixes

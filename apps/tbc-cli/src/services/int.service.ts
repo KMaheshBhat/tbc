@@ -8,9 +8,9 @@ import matter from 'gray-matter';
 import { ASSETS } from '../lib/assets.js';
 import { fetchRecord as fetchFsRecord, storeRecord, type TBCRecord } from '../lib/fs.js';
 import { upsertRecord } from '../lib/db.js';
-import { formatMessages, formatProtocolDiscovery, formatValidationAudit, type TBCMessage } from '../lib/message.js';
+import { formatMessages, formatProtocolDiscovery, type TBCMessage } from '../lib/message.js';
 import { resolveProtocol, type TBCProtocol } from '../lib/protocol.js';
-import { runValidationChecks } from '../lib/validator.js';
+import { validateRoot } from './validate.service.js';
 
 export interface IntProbeRequest {
   rootDirectory: string;
@@ -37,29 +37,12 @@ function renderServiceMessage(source: string, message: string, verbose: boolean)
   console.log(formatMessages([{ level: 'info', source, code: 'SERVICE', message }], verbose));
 }
 
-function validateRoot(rootDirectory: string, protocol: TBCProtocol, source: string, verbose: boolean): boolean {
-  const result = runValidationChecks(rootDirectory, protocol, source);
-  console.log(formatMessages(formatValidationAudit(result, source), verbose));
-  return result.success;
-}
-
 export async function probeInterface(request: IntProbeRequest): Promise<void> {
   const source = 'int:probe';
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
   renderServiceMessage(source, 'Checking first ...', request.verbose);
-  const validation = runValidationChecks(request.rootDirectory, protocol, source);
-  if (!existsSync(join(request.rootDirectory, protocol.sysCollection, 'root.md')) &&
-      !validation.messages.some((message) => message.message.includes('Essential record "root.md" is missing'))) {
-    validation.messages.push({
-      level: 'error',
-      source,
-      code: 'RECORD_MISSING',
-      message: `Essential record "root.md" is missing from [${protocol.sysCollection}].`,
-      suggestion: 'ACTION: Run \'tbc sys init\'. REASON: System root is uninitialized.',
-    });
-  }
-  console.log(formatMessages(formatValidationAudit(validation, source), request.verbose));
+  const validation = await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: 'int:probe:validate' });
 
   const messages: TBCMessage[] = [
     { level: 'info', kind: 'raw', source: '', code: '', message: ' ┌┤ Application Info ├────────────────────────────────────────' },
@@ -140,8 +123,8 @@ export async function generateInterface(request: IntGenerateRequest): Promise<vo
   const protocol = resolveProtocol(request.rootDirectory);
   renderProtocol(protocol, source, request.verbose);
   renderServiceMessage(source, 'Checking first ...', request.verbose);
-  if (!validateRoot(request.rootDirectory, protocol, source, request.verbose)) {
-    console.log(formatMessages([{ level: 'error', source, code: 'OVERWRITE-GUARD', message: 'has no existing companion (not a valid TBC Root)', suggestion: 'Use "tbc sys init" instead.' }], request.verbose));
+  const validation = await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: { suggestion: 'Use "tbc sys init" instead.' } });
+  if (!validation.success) {
     return;
   }
 

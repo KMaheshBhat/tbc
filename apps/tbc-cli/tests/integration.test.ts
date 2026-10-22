@@ -31,5 +31,6 @@ import './0610-mem-assimilate.suite';
 import './1610-mem-assimilate.suite';
 
 import './0650-portability.suite';
+import './0655-validate-service.suite';
 
 import './9999-teardown.suite';

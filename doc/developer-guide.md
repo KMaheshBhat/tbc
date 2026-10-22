@@ -86,7 +86,8 @@ The three layers have a **strict** contract. Violating it is the fastest way to 
 
 | Service | Responsibility | Key entry points |
 |---------|---------------|------------------|
-| **sys** | System lifecycle, validation, initialization, upgrade | `initSystem`, `upgradeSystem`, `validateSystem` |
+| **sys** | System lifecycle, initialization, upgrade | `initSystem`, `upgradeSystem`, `validateSystem` |
+| **validate** | Compose root validation, its audit and optional guard | `validateRoot`, `validateSystem` |
 | **mem** | Memory operations — remember, recall, and assimilate (mine the FS records and bake them into every store) | `rememberMemory`, `recallMemory`, `assimilateMemory` |
 | **act** | Activity lifecycle — start, show, pause, close | `startActivity`, `showActivity`, `pauseActivity`, `closeActivity` |
 | **int** | Interface generation for AI tools — probe the environment, emit the agent configuration | `probeInterface`, `generateInterface` |
@@ -112,14 +113,20 @@ A message's `source` identifies the **service context** that produced it. The ru
    `mem:assimilate`, `act:start`, `act:show`, `act:pause`, `act:close`,
    `dex:rebuild`, `sys:init`, `sys:upgrade`, `sys:validate`, `int:probe`,
    `int:<agent>`, `gen:uuid`, `gen:tsid`.
-2. A label **stacks only where a service actually composes a peer service**. The `sys`
-   service calls the validate *service*, so `sys:upgrade` -> `sys:upgrade:validate`.
-   The other services reach the same capability through `lib/validator.ts` — a
-   **library** call inside their own context — so their labels stay **flat**.
+2. Every command service composes the validate *service*, so validation labels stack, for
+   example `dex:rebuild:validate` and `mem:remember:validate`. The guard keeps the parent
+   request label.
 3. The `OVERWRITE-GUARD` error carries the **parent** label (the request source).
    It is distinguished by its level and its code, not by its label.
 
 The word "flow" is retired: a **service** is the unit of orchestration.
+
+### Validation Service
+
+`validateRoot` is the shared service entry point. It resolves or accepts a protocol, runs the
+validation library, applies the audit policy (always for `sys`; on failure or `--verbose` for
+other services), and can render the caller-specific overwrite guard. `lib/validator.ts` remains
+the check engine.
 
 ## 3. Repository Structure
 

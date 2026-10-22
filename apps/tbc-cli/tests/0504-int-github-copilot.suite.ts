@@ -19,7 +19,7 @@ describe('🐵 0504 tbc int generate (GitHub Copilot)', () => {
         ]);
         expect(success).toBe(true);
         expect(output).toContain('Agent Type: github-copilot');
-        expect(output).toContain('STABLE');
+        expect(output).not.toContain('Validation Audit');
         const agentsDir = join(TBC_ROOT, '.github', 'agents');
         expect(existsSync(agentsDir)).toBe(true);
         expect(lstatSync(agentsDir).isDirectory()).toBe(true);

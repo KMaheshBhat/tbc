@@ -4,3 +4,4 @@ export * from './mem.service.js';
 export * from './act.service.js';
 export * from './int.service.js';
 export * from './dex.service.js';
+export * from './validate.service.js';
