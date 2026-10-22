@@ -3,6 +3,8 @@ import { dirname, join, relative, extname } from 'node:path';
 import matter from 'gray-matter';
 import * as yaml from 'js-yaml';
 
+import { toPosixPath } from './paths.js';
+
 export interface TBCRecord {
   id: string;
   record_type?: string;
@@ -32,6 +34,18 @@ export interface StoreRecordWriteOptions {
   dryRun?: boolean;
 }
 
+/**
+ * The record-id convention of the filesystem store.
+ *
+ * A record id is a **POSIX-separated relative path** inside its collection:
+ * `note`, `core/20251228150423`, `tbc-act-ops/SKILL.md`. The separator is
+ * always `/`, never the OS-native one, so a vault written on Windows and a
+ * vault written on POSIX are the same vault.
+ *
+ * `validateRecordId` enforces the convention by rejecting `\` (a Windows
+ * separator is never a valid id) and `..` (a traversal is never a valid id).
+ * The nested-skill checks in this module test for `/` for the same reason.
+ */
 function validateRecordId(id: string): void {
   if (id.includes('..') || id.includes('\\')) {
     throw new Error(`Invalid record ID: directory traversal detected`);
@@ -281,7 +295,9 @@ export function queryCollection(
           scan(fullPath, baseDir);
         }
       } else if (stat.isFile()) {
-        const relPath = relative(baseDir, fullPath);
+        // The id is a POSIX-separated relative path (see `validateRecordId`),
+        // so a vault queried on Windows yields the same ids as on POSIX.
+        const relPath = toPosixPath(relative(baseDir, fullPath));
         const id = relPath.replace(/\.md$/, '');
         if (recordType) {
           try {

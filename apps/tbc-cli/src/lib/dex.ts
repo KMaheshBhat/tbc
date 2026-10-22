@@ -3,6 +3,7 @@ import { basename, extname, join, relative } from 'node:path';
 import matter from 'gray-matter';
 
 import { storeRawFile } from './fs.js';
+import { toPosixPath } from './paths.js';
 import type { TBCProtocol } from './protocol.js';
 
 /** A file discovered inside a TBC collection. */
@@ -72,7 +73,11 @@ export function listCollectionFiles(
       if (!stat.isFile()) {
         continue;
       }
-      const relativePath = relative(collectionDir, fullPath);
+      // The relative path is an *identity* (it becomes the skill id in
+      // `dex/skills.jsonl` and the `SOURCE` marker in `dex/sys.digest.txt`),
+      // so it is normalised to the POSIX separator: the same vault must index
+      // identically whether it was built on Windows or on POSIX.
+      const relativePath = toPosixPath(relative(collectionDir, fullPath));
       const extension = extname(relativePath);
       files.push({
         relativePath,

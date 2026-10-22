@@ -46,7 +46,12 @@ async function runBuilds() {
     console.log('🧹 Flag --clean detected. Wiping dist folders...');
     const glob = new Bun.Glob('**/{dist,tsconfig.tsbuildinfo}');
     for (const file of glob.scanSync({ cwd: '.', absolute: true, onlyFiles: false })) {
-      if (file.includes('/apps/') || file.includes('/packages/')) {
+      // The glob yields OS-native absolute paths, so the `/apps/` and
+      // `/packages/` probes are run against a POSIX-normalised copy. On
+      // Windows the native path carries `\`, the probe missed, and `--clean`
+      // silently removed nothing.
+      const normalized = file.replace(/\\/g, '/');
+      if (normalized.includes('/apps/') || normalized.includes('/packages/')) {
         rmSync(file, { recursive: true, force: true });
       }
     }
@@ -96,7 +101,10 @@ async function runBuilds() {
   // 3. Binary Compilation
   if (shouldPackage) {
     console.log('🚀 All packages built. Starting binary compilation...');
-    const exePath = 'apps/tbc-cli/dist/tbc';
+    // `bun build --compile` writes `tbc.exe` on Windows and `tbc` elsewhere.
+    // The hardcoded POSIX name pointed `TBC_TEST_BINARY` at a file that does
+    // not exist, and the binary run collapsed to 2 pass / 74 fail.
+    const exePath = process.platform === 'win32' ? 'apps/tbc-cli/dist/tbc.exe' : 'apps/tbc-cli/dist/tbc';
     const compileProc = Bun.spawn(['bun', 'build', 'apps/tbc-cli/src/index.ts', '--compile', '--outfile', exePath], {
       stdout: 'inherit', 
       stderr: 'inherit' 
