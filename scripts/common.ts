@@ -7,18 +7,25 @@ import { spawnSync } from 'bun';
  * Handles the logic of switching between Bun-runtime and Compiled Binary.
  */
 export function runMonorepoCommand(cwd: string, target: string, args: string[]) {
-  const isBinary = target.endsWith('tbc') || !target.endsWith('.ts');
+  const isBinary = target.endsWith('.exe') || target.endsWith('tbc') || !target.endsWith('.ts');
   const command = isBinary ? [target, ...args] : [process.execPath, target, ...args];
 
   const result = spawnSync(command, {
     cwd,
     stdout: 'pipe',
-    stderr: 1, // Merge stderr into stdout for easier testing
+    // `stderr: 1` does **not** merge stderr into stdout in Bun: it hands the
+    // child the parent's file descriptor 1, so the child's diagnostics escape
+    // to the terminal and are lost from `result.stdout`. Both streams are
+    // piped and concatenated here, so the diagnostics survive.
+    stderr: 'pipe',
     env: { ...process.env, NO_COLOR: '1' },
   });
 
+  const stdout = result.stdout ? result.stdout.toString() : '';
+  const stderr = result.stderr ? result.stderr.toString() : '';
+
   return {
-    output: result.stdout.toString(),
+    output: stdout + stderr,
     exitCode: result.exitCode,
     success: result.success,
   };

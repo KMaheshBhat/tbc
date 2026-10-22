@@ -2,6 +2,8 @@ import { Glob } from 'bun';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+import { toPosixPath } from './paths.js';
+
 /**
  * Resolve the directory that holds the bundled assets.
  *
@@ -27,7 +29,14 @@ export async function generateAssetsManifest(): Promise<Record<string, string>> 
   const manifest: Record<string, string> = {};
 
   for await (const file of glob.scan({ cwd: assetsDir, dot: true })) {
-    manifest[file] = await Bun.file(join(assetsDir, file)).text();
+    // The manifest is keyed by the *portable* (POSIX) relative path. The
+    // lookups in `synthesis.ts` and `int.service.ts` use POSIX keys
+    // (`templates/root.md`), so the manifest must be keyed the same way on
+    // every host. On Windows the glob yields `templates\root.md`, and every
+    // lookup used to miss — `tbc sys init` died with
+    // `undefined is not an object (evaluating 'ASSETS["templates/root.md"]...')`.
+    const key = toPosixPath(file);
+    manifest[key] = await Bun.file(join(assetsDir, file)).text();
   }
 
   return manifest;

@@ -124,10 +124,14 @@ export async function showActivity(request: ActShowRequest): Promise<void> {
     { state: 'backlog' as const, label: 'Paused [backlog]', empty: 'No paused activities found.' },
   ]) {
     const collection = join(protocol.actCollection, group.state);
+    // The *displayed* path is always POSIX-separated: a vault address is a
+    // portable artefact, and `act\current\{uuid}` is not an address that
+    // resolves on the other host.
+    const displayCollection = `${protocol.actCollection}/${group.state}`;
     const entries = primaryActivityRecords(request.rootDirectory, collection).sort((a, b) => b.folderId.localeCompare(a.folderId));
     const messages: TBCMessage[] = [{ level: 'info', kind: 'raw', source: '', code: '', message: ` ┌┤ ${group.label} ├────────────────────────────────────────` }];
     if (!entries.length) messages.push({ level: 'info', source, code: 'NO-ACTIVITIES', message: `(${group.empty})` });
-    else for (const entry of entries) messages.push({ level: 'info', source, code: 'ACTIVITY', message: String(entry.record.data.record_title || 'Untitled Activity'), suggestion: `Found at ${collection}:${entry.folderId}/${entry.fileName}.md` });
+    else for (const entry of entries) messages.push({ level: 'info', source, code: 'ACTIVITY', message: String(entry.record.data.record_title || 'Untitled Activity'), suggestion: `Found at ${displayCollection}:${entry.folderId}/${entry.fileName}.md` });
     messages.push({ level: 'info', kind: 'raw', source: '', code: '', message: ' └────────────────────────────────────────────────────────────' });
     console.log(formatMessages(messages, request.verbose));
   }
