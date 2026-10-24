@@ -19,7 +19,7 @@ describe('🐵 0503 tbc int generate (Goose)', () => {
         ]);
         expect(success).toBe(true);
         expect(output).toContain('Agent Type: goose');
-        expect(output).toContain('STABLE');
+        expect(output).not.toContain('Validation Audit');
         const goosePath = join(TBC_ROOT, '.goosehints');
         expect(existsSync(goosePath)).toBe(true);
         const content = readFileSync(goosePath, 'utf-8');

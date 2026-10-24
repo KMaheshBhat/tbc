@@ -63,6 +63,9 @@ export function runValidationChecks(
   const sysPurpose = ' (Context: The core anchor records for a Third Brain Companion System)';
   if (!sys) {
     add('error', 'COLLECTION_MISSING', protocol.sysCollection, `Mandatory collection [${protocol.sysCollection}] is missing.${sysPurpose}`, "ACTION: Run 'tbc sys init'. REASON: System root is uninitialized.");
+    add('error', 'RECORD_MISSING', protocol.sysCollection,
+      `Essential record "root.md" is missing from [${protocol.sysCollection}].`,
+      "ACTION: Run 'tbc sys init'. REASON: System root is uninitialized.");
   } else {
     ['root.md', 'companion.id', 'prime.id'].forEach(file => {
       if (!sys.includes(file)) {

@@ -20,7 +20,7 @@ describe('🦍 1500 tbc int', () => {
         expect(success).toBe(true);
         expect(output).toContain('sys_next');
         expect(output).toMatch(/TBC Root:.*\(valid\)/);
-        expect(output).toContain('STABLE');
+        expect(output).not.toContain('Validation Audit');
     });
 
     test('01 int generic should synthesize AGENTS.md using Kong profile data', () => {

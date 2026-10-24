@@ -1,9 +1,9 @@
 import packageJson from '../../package.json' with { type: 'json' };
 
 import { writeDexArtifacts } from '../lib/dex.js';
-import { formatDexRebuildReport, formatMessages, formatProtocolDiscovery, formatValidationAudit } from '../lib/message.js';
+import { formatDexRebuildReport, formatMessages, formatProtocolDiscovery } from '../lib/message.js';
 import { resolveProtocol, type TBCProtocol } from '../lib/protocol.js';
-import { runValidationChecks } from '../lib/validator.js';
+import { validateRoot } from './validate.service.js';
 
 export interface DexRebuildRequest {
   rootDirectory: string;
@@ -43,18 +43,8 @@ export async function rebuildDex(request: DexRebuildRequest): Promise<void> {
   renderServiceMessage(source, 'Checking first ...', request.verbose);
 
   // Stage 3 - root validation (abort without rebuilding on failure)
-  const validation = runValidationChecks(request.rootDirectory, protocol, source);
-  console.log(formatMessages(formatValidationAudit(validation, source), request.verbose));
-  if (!validation.success) {
-    console.log(formatMessages([{
-      level: 'error',
-      source: 'dex:rebuild',
-      code: 'OVERWRITE-GUARD',
-      message: 'has no existing companion (not a valid TBC Root)',
-      suggestion: 'Can only be run on a valid TBC Root. (Use "tbc sys init" for new Companion).',
-    }], request.verbose));
-    return;
-  }
+  const validation = await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: { suggestion: 'Can only be run on a valid TBC Root. (Use "tbc sys init" for new Companion).' } });
+  if (!validation.success) return;
 
   renderServiceMessage(source, 'existing valid TBC root found, proceeding ...', request.verbose);
   renderServiceMessage(source, 'Rebuilding DEX...', request.verbose);
