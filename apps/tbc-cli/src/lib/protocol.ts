@@ -54,7 +54,7 @@ const PROTOCOLS: Record<'baseline' | 'next', TBCProtocol> = {
  */
 export function collectionName(collection: string): string {
   const parts = collection.split('/').filter(Boolean);
-  return parts.length > 0 ? parts[0] : collection;
+  return parts[0] ?? collection;
 }
 
 /**

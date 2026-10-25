@@ -22,7 +22,7 @@ function normalizeRecordReference(reference: unknown): string {
   const trimmed = reference.trim();
   if (!trimmed) return 'undefined';
   const segments = trimmed.split('/').filter(Boolean);
-  const base = segments.length > 0 ? segments[segments.length - 1] : trimmed;
+  const base = segments.at(-1) ?? trimmed;
   return base.replace(/\.md$/, '');
 }
 

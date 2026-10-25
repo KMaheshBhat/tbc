@@ -39,7 +39,7 @@ This was added manually to test mem assimilate on Kong.`;
         // The store key differs between the two implementations:
         //  - the legacy implementation wrote the file name with the '.md' suffix;
         //  - the current implementation writes the bare record id — the same key
-        //    `tbc mem remember` and `act close` use (see the `tbc ng mem assimilate`
+        //    `tbc mem remember` and `act close` use (see the `tbc mem assimilate`
         //    design plan, §6.1 — the legacy created a second row for every record).
         const results = querySqliteNext(
             'SELECT record_id FROM record WHERE record_id IN (?, ?)',
@@ -73,10 +73,10 @@ This was added manually to test mem assimilate on Kong.`;
     test('03 should be idempotent — a second assimilate must change nothing', () => {
         const rowsBefore = querySqliteNext('SELECT record_id FROM record WHERE collection = ?', ['mem_next']).length;
         const relationsBefore = querySqliteNext('SELECT relation_id FROM record_relation WHERE collection = ?', ['mem_next']).length;
-        const updatedBefore = querySqliteNext(
+        const updatedBefore = (querySqliteNext(
             'SELECT record_id, updated_at FROM record WHERE record_id = ?',
             [manualMemId],
-        )[0]?.updated_at;
+        ) as Array<{ record_id: string; updated_at: string }>)[0]?.updated_at;
         const before = readFileSync(manualMemPath, 'utf-8');
         const { success } = runTbcCommand(TBC_ROOT_NEXT, ['mem', 'assimilate', '--root', TBC_ROOT_NEXT, '--verbose']);
         expect(success).toBe(true);
@@ -86,10 +86,10 @@ This was added manually to test mem assimilate on Kong.`;
         // The index row of an already-indexed record must not be rewritten when
         // its payload is unchanged — a second assimilate must leave `updated_at`
         // exactly where the first one left it (D12).
-        const updatedAfter = querySqliteNext(
+        const updatedAfter = (querySqliteNext(
             'SELECT record_id, updated_at FROM record WHERE record_id = ?',
             [manualMemId],
-        )[0]?.updated_at;
+        ) as Array<{ record_id: string; updated_at: string }>)[0]?.updated_at;
         expect(updatedAfter).toBe(updatedBefore);
     });
 });

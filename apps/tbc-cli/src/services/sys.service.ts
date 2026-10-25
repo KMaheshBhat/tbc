@@ -139,7 +139,7 @@ async function performPreInitValidation(
 }
 
 async function mintInitIdentities(source: string, verbose: boolean): Promise<InitIdentities> {
-  const [companionID, primeID, memoryMapID] = await mintUuids(3);
+  const [companionID, primeID, memoryMapID] = (await mintUuids(3)) as [string, string, string];
   const mintedOutput: MintedOutput = {
     keys: { companionID, primeID, memoryMapID },
     batch: [],

@@ -104,6 +104,9 @@ export function synthesizeRootRecord(
   date: string,
 ): TBCRecord {
   const rootTemplate = ASSETS['templates/root.md'];
+  if (!rootTemplate) {
+    throw new Error('Missing asset: templates/root.md');
+  }
   const rootContent = rootTemplate
     .replace(/\{\{companionName\}\}/g, name)
     .replace(/\{\{primeName\}\}/g, primeName)
@@ -137,6 +140,11 @@ export function synthesizeCoreSpecsAndSkills(
 ): Map<string, TBCRecord[]> {
   const records = new Map<string, TBCRecord[]>();
 
+  const specContent = assets['sys/core/20251228150423.md'];
+  if (!specContent) {
+    throw new Error('Missing asset: sys/core/20251228150423.md');
+  }
+
   const sysCoreRecord: TBCRecord = {
     id: '20251228150423',
     record_type: 'specification',
@@ -148,7 +156,7 @@ export function synthesizeCoreSpecsAndSkills(
       record_create_date: '2025-12-28 15:04:23 UTC',
       record_tags: ['c/public/tbc'],
     },
-    content: assets['sys/core/20251228150423.md'].split('---\n').slice(2).join('---\n'),
+    content: specContent.split('---\n').slice(2).join('---\n'),
   };
 
   records.set(`${protocol.sysCollection}/core`, [sysCoreRecord]);

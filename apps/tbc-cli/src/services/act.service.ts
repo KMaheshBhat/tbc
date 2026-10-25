@@ -56,7 +56,7 @@ export async function startActivity(request: ActStartRequest): Promise<void> {
     id = request.activityId;
   } else {
     renderServiceMessage(source, 'No activityID provided ...', request.verbose);
-    [id] = await mintUuids(1);
+    [id] = (await mintUuids(1)) as [string];
     console.log(formatMessages(formatMintedIds({ keys: {}, batch: [id] }, 'act:start'), request.verbose));
   }
   renderServiceMessage(source, 'actual workspace preparation', request.verbose);
