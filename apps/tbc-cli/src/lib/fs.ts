@@ -13,12 +13,6 @@ export interface TBCRecord {
   content: string;
 }
 
-export interface StoreRecordOptions {
-  root: string;
-  collection: string;
-  record: TBCRecord;
-}
-
 /** The write options of {@link storeRecord}. */
 export interface StoreRecordWriteOptions {
   /**
@@ -47,9 +41,28 @@ export interface StoreRecordWriteOptions {
  * The nested-skill checks in this module test for `/` for the same reason.
  */
 function validateRecordId(id: string): void {
-  if (id.includes('..') || id.includes('\\')) {
+  if (id.includes('..')) {
     throw new Error(`Invalid record ID: directory traversal detected`);
   }
+  if (id.includes('\\')) {
+    throw new Error(`Invalid record ID: backslash is not a valid separator (use '/')`);
+  }
+}
+
+/**
+ * Whether `collection` is (or is a sub-path of) a skills collection.
+ *
+ * The known skills collection roots are `skills` (baseline profile) and
+ * `skills_next` (next profile).  Collections like `skills/core` and
+ * `skills_next/ext` must match; other collections that happen to contain
+ * the substring `skills` (e.g. a hypothetical `meta-skills`) must not.
+ *
+ * The test is a **segment boundary** test: the first `/`-separated segment
+ * must equal one of the two known roots.
+ */
+function isSkillsCollection(collection: string): boolean {
+  const seg = collection.split('/')[0];
+  return seg === 'skills' || seg === 'skills_next';
 }
 
 /**
@@ -61,7 +74,7 @@ function validateRecordId(id: string): void {
  */
 export function deriveTitleFromContent(content: string): string | null {
   const h1Match = content.match(/^#\s+(.+)$/m);
-  if (h1Match) {
+  if (h1Match && h1Match[1]) {
     return h1Match[1].trim();
   }
   return null;
@@ -108,7 +121,7 @@ export function storeRecord(
   }
 
   // For skills, the id is the skill name and we need to create a subdirectory with SKILL.md
-  if (collection.includes('skills') && record.id && !record.id.includes('/') && record.id !== '.gitkeep') {
+  if (isSkillsCollection(collection) && record.id && !record.id.includes('/') && record.id !== '.gitkeep') {
     // Create skill directory and write SKILL.md inside
     const skillDir = join(collectionDir, record.id);
     if (!existsSync(skillDir)) {
@@ -326,7 +339,7 @@ export function fetchRecord(root: string, collection: string, id: string): TBCRe
   const collectionDir = join(root, collection);
   
   // For skills, check skill subdirectory
-  if (collection.includes('skills') && !id.includes('/') && id !== '.gitkeep') {
+  if (isSkillsCollection(collection) && !id.includes('/') && id !== '.gitkeep') {
     const skillFilePath = join(collectionDir, id, 'SKILL.md');
     if (existsSync(skillFilePath)) {
       const fileContent = readFileSync(skillFilePath, 'utf-8');

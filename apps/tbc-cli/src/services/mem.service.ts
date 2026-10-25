@@ -129,7 +129,7 @@ export async function rememberMemory(request: MemRememberRequest): Promise<void>
   renderProtocol(protocol, source, request.verbose);
   if (!(await validateRoot({ rootDirectory: request.rootDirectory, protocol, verbose: request.verbose, label: `${source}:validate`, guard: true })).success) return;
 
-  const [id] = await mintUuids(1);
+  const [id] = (await mintUuids(1)) as [string];
   const companion = companionIdentity(request.rootDirectory, protocol);
   const companionName = String(companion?.data.record_title || '').trim();
   const tags = normalizeTags(request.tags, companionName ? `c/agent/${companionName.toLowerCase()}` : '');

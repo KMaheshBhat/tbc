@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { GenRequest, generateUuids, generateTsids } from '../services/gen.service.js';
+import { type GenRequest, generateUuids, generateTsids } from '../services/gen.service.js';
 
 const handleError = (message: string, error: unknown, verbose: boolean) => {
     if (error instanceof Error) {
